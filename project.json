@@ -1,0 +1,18 @@
+{
+  "name": "emma",
+  "version": "1.0.0",
+  "description": "AI Orchestrator for Real Estate",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "OpenAI": "^4.0.0",
+    "Azure.Core": "^1.34.0",
+    "Microsoft.Azure.Cosmos": "^3.40.0",
+    "FollowUpBoss": "^1.0.0"
+  },
+  "scripts": {
+    "build": "dotnet build",
+    "test": "dotnet test",
+    "start": "dotnet run"
+  }
+}

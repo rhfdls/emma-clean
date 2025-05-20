@@ -1,0 +1,21 @@
+  -d '{
+    "organizationId": "YOUR_ORG_GUID",
+    "agentId": "YOUR_AGENT_GUID",
+    "clientFirstName": "Jane",
+    "clientLastName": "Doe",
+    "content": "Hi, I’m interested in seeing the property at 123 Main St.",
+    "messageType": "Text",
+    "occurredAt": null,
+    "newConversation": true
+  }'  -d '{
+    "organizationId": "YOUR_ORG_GUID",
+    "agentId": "YOUR_AGENT_GUID",
+    "clientFirstName": "Jane",
+    "clientLastName": "Doe",
+    "content": "Hi, I’m interested in seeing the property at 123 Main St.",
+    "messageType": "Text",
+    "occurredAt": null,
+    "newConversation": true
+  }'
+  
+  curl -X POST http://localhost:5000/api/dataentry/add-message  -H "Content-Type: application/json"   -d '{    "organizationId": "YOUR_ORG_GUID",    "agentId": "YOUR_AGENT_GUID",    "clientFirstName": "Jane",    "clientLastName": "Doe",    "content": "Hi, I’m interested in seeing the property at 123 Main St.",    "messageType": "Text",    "occurredAt": null,    "newConversation": true}'

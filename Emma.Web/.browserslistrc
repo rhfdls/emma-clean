@@ -1,0 +1,4 @@
+# This file tells React (and other tools) what browsers to target for transpilation.
+> 0.2%
+not dead
+not op_mini all

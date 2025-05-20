@@ -1,0 +1,6 @@
+@Emma.Api_HostAddress = http://localhost:5262
+
+GET {{Emma.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

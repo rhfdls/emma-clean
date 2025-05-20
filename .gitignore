@@ -1,0 +1,71 @@
+# .NET Core
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Visual Studio
+.vs/
+*.ntvs*
+*.njsproj
+*.sln.docstates
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Environment files
+.env
+*.env.*
+
+# Logs
+logs/
+*.log
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Build output
+dist/
+build/
+
+# NuGet Packages
+*.nupkg
+# NuGet Symbol Packages
+*.snupkg
+# The packages folder can be ignored because of Package Restore
+**/[Pp]ackages/*
+# except build/, which is used as an MSBuild target.
+!**/[Pp]ackages/build/
+
+# NuGet v3's project.json files produces more ignorable files
+*.nupkg
+*.nuget.props
+*.nuget.targets
+
+# Visual Studio cache/options directory
+.vs/
+
+# Visual Studio Code workspace settings
+.vscode/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msixbundle
+*.mspkg
+*.appx
+*.appxbundle
+*.appxupload
+
+# Windows shortcuts
+*.lnk

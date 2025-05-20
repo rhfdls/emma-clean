@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: emma_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=emma
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: emma_azurite
+    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10010"
+    ports:
+      - "10010:10010"
+    volumes:
+      - azurite_data:/data
+  emmaapi:
+    build:
+      context: .
+      dockerfile: ./Emma.Api/Dockerfile
+    container_name: emma_api
+    env_file:
+      - env.docker
+    ports:
+      - "5262:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgreSql=Host=postgres;Port=5432;Database=emma;Username=postgres;Password=postgres
+
+  emmaweb:
+    build:
+      context: ./emma.web
+      dockerfile: Dockerfile
+    container_name: emma_web
+    ports:
+      - "3000:80"
+    depends_on:
+      - emmaapi
+    environment:
+      - REACT_APP_API_URL=http://emmaapi:80
+
+volumes:
+  pgdata:
+  azurite_data:
