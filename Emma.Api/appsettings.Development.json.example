@@ -1,0 +1,20 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "Storage": {
+    "ConnectionString": "YOUR_STORAGE_CONNECTION_STRING"
+  },
+  "ConnectionStrings": {
+    "PostgreSql": "YOUR_POSTGRESQL_CONNECTION_STRING"
+  },
+  "AzureOpenAI": {
+    "ApiKey": "YOUR_AZURE_OPENAI_API_KEY",
+    "Endpoint": "YOUR_AZURE_OPENAI_ENDPOINT",
+    "DeploymentName": "YOUR_DEPLOYMENT_NAME",
+    "ApiVersion": "2023-05-15"
+  }
+}

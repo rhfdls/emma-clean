@@ -1,25 +1,62 @@
-using Emma.Data;
+using System;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
+using Azure.AI.OpenAI;
+using Emma.Core.Config;
+using Emma.Core.Interfaces;  // For IEmmaAgentService
+using Emma.Api.Services;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Emma.Data;
+using Emma.Api.Middleware;
+using Emma.Api.Config;  // For AzureOpenAIServiceExtensions
+using Npgsql;
 
 // Load environment variables from .env
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register EmmaAgentService and agent stubs
+// Add HTTP context accessor
+builder.Services.AddHttpContextAccessor();
+
+// Add HTTP client factory
 builder.Services.AddHttpClient();
-builder.Services.AddSingleton<Emma.Api.Services.IEmailAgent, Emma.Api.Services.EmailAgentStub>();
-builder.Services.AddSingleton<Emma.Api.Services.ISchedulerAgent, Emma.Api.Services.SchedulerAgentStub>();
-builder.Services.AddSingleton<Emma.Api.Services.IEmmaAgentService>(sp =>
+
+// Register agent services with proper scoping
+builder.Services.AddScoped<IEmailAgent, EmailAgentStub>();
+builder.Services.AddScoped<ISchedulerAgent, SchedulerAgentStub>();
+
+// Configure Azure OpenAI with validation
+builder.Services.AddAzureOpenAI(builder.Configuration);
+
+// Register EmmaAgentService with the correct interface and dependencies
+builder.Services.AddScoped<IEmmaAgentService>(provider =>
 {
-    var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
-    var emailAgent = sp.GetRequiredService<Emma.Api.Services.IEmailAgent>();
-    var schedulerAgent = sp.GetRequiredService<Emma.Api.Services.ISchedulerAgent>();
-    var logger = sp.GetRequiredService<ILogger<Emma.Api.Services.EmmaAgentService>>();
-    var openAiApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "YOUR_OPENAI_API_KEY";
-    return new Emma.Api.Services.EmmaAgentService(httpClient, emailAgent, schedulerAgent, logger, openAiApiKey);
+    var logger = provider.GetRequiredService<ILogger<EmmaAgentService>>();
+    var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
+    var openAIClient = provider.GetRequiredService<OpenAIClient>();
+    var config = provider.GetRequiredService<IOptions<AzureOpenAIConfig>>();
+    
+    return new EmmaAgentService(
+        logger, 
+        httpContextAccessor, 
+        openAIClient,
+        config);
 });
+
+// Add logging
+builder.Services.AddLogging(configure => configure.AddConsole().AddDebug());
+
+// Configure JSON serialization for controllers
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

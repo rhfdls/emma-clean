@@ -12,14 +12,19 @@ namespace Emma.Api.Controllers
     [Route("[controller]")]
     public class StorageController : ControllerBase
     {
-        private readonly string connectionString;
+        private readonly string? _connectionString;
+        private readonly ILogger<StorageController> _logger;
 
         public StorageController(ILogger<StorageController> logger, IConfiguration configuration)
         {
             _logger = logger;
-            connectionString = configuration.GetSection("Storage:ConnectionString").Value;
+            _connectionString = configuration.GetSection("Storage:ConnectionString").Value;
+            
+            if (string.IsNullOrEmpty(_connectionString))
+            {
+                _logger.LogWarning("Azure Storage connection string is not configured");
+            }
         }
-        private readonly ILogger<StorageController> _logger;
 
 
 
@@ -30,8 +35,19 @@ namespace Emma.Api.Controllers
             {
                 _logger.LogInformation("Starting Azure Storage test connection");
                 
+                // Validate connection string
+                if (string.IsNullOrEmpty(_connectionString))
+                {
+                    _logger.LogError("Azure Storage connection string is not configured");
+                    return StatusCode(500, new
+                    {
+                        status = "error",
+                        message = "Storage service is not properly configured"
+                    });
+                }
+
                 // Create a blob service client
-                var blobServiceClient = new BlobServiceClient(connectionString);
+                var blobServiceClient = new BlobServiceClient(_connectionString);
                 _logger.LogInformation("Created blob service client");
 
                 // Create a unique name for the container

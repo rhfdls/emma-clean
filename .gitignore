@@ -16,9 +16,11 @@ obj/
 .vscode/
 *.code-workspace
 
-# Environment files
+# Environment and configuration files
 .env
 *.env.*
+appsettings.Development.json
+!appsettings.Development.json.example
 
 # Logs
 logs/
@@ -33,6 +35,12 @@ logs/
 dist/
 build/
 
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
 # NuGet Packages
 *.nupkg
 # NuGet Symbol Packages
@@ -46,6 +54,14 @@ build/
 *.nupkg
 *.nuget.props
 *.nuget.targets
+
+# Local development
+local.env
+*.local.*
+
+# IDE specific files
+.DS_Store
+Thumbs.db
 
 # Visual Studio cache/options directory
 .vs/
@@ -69,3 +85,50 @@ ehthumbs.db
 
 # Windows shortcuts
 *.lnk
+# Database Migrations
+
+## Local Development
+
+### Prerequisites
+- Docker Desktop
+- .NET SDK 7.0 or later
+
+### First-time Setup
+1. Run the setup script:
+   `powershell
+   .\setup.ps1
+# Apply pending migrations
+dotnet ef database update --project "Emma.Data" --startup-project "Emma.Api"
+
+# Create a new migration
+dotnet ef migrations add YourMigrationName --project "Emma.Data" --startup-project "Emma.Api"
+Common Issues
+Database Connection Issues
+Ensure PostgreSQL is running: docker-compose ps
+Check logs: docker-compose logs postgres
+Migration Issues
+If migrations fail, try:
+
+dotnet ef migrations remove --project "Emma.Data" --startup-project "Emma.Api"
+dotnet ef migrations add FixMigration --project "Emma.Data" --startup-project "Emma.Api"
+dotnet ef database update --project "Emma.Data" --startup-project "Emma.Api"
+
+Production
+Ensure ASPNETCORE_ENVIRONMENT is set to Production
+Verify connection strings in environment variables
+Run migrations as part of your CI/CD pipeline "@ | Out-File -FilePath "MIGRATION-README.md" -Encoding UTF8 -Force
+
+
+7. Let's update the .gitignore to include our local files:
+
+`powershell
+@"
+
+# Local development files
+appsettings.Development.json
+.env
+docker-compose.override.yml
+
+# Build outputs
+bin/
+obj/

@@ -8,6 +8,7 @@ public class Message
     public Guid AgentId { get; set; }
     public Agent Agent { get; set; }
     public required string Payload { get; init; }
+    public string? AiResponse { get; set; }
     public required string BlobStorageUrl { get; init; }
     public required MessageType Type { get; init; }
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;

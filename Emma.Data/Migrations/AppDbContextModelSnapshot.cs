@@ -308,6 +308,9 @@ namespace Emma.Data.Migrations
                     b.Property<Guid>("AgentId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AiResponse")
+                        .HasColumnType("text");
+
                     b.Property<string>("BlobStorageUrl")
                         .IsRequired()
                         .HasColumnType("text");

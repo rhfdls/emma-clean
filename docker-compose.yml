@@ -1,5 +1,11 @@
+networks:
+  emma-network:
+    driver: bridge
+
 services:
   postgres:
+    networks:
+      - emma-network
     image: postgres:16-alpine
     container_name: emma_postgres
     restart: always
@@ -28,30 +34,39 @@ services:
   emmaapi:
     build:
       context: .
-      dockerfile: ./Emma.Api/Dockerfile
+      dockerfile: Emma.Api/Dockerfile
     container_name: emma_api
     env_file:
       - env.docker
     ports:
-      - "5262:8080"
+      - "5262:80"
+    networks:
+      - emma-network
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__PostgreSql=Host=postgres;Port=5432;Database=emma;Username=postgres;Password=postgres
+      - ASPNETCORE_URLS=http://+:80
+      - AzureOpenAI__ApiKey=CwyApoXh8uPhXeyY6Bx8SbNh69hAY1xXr05zWnXBxHdhxNyi99pzJQQJ99BEACfhMk5XJ3w3AAABACOGK8Ux
+      - AzureOpenAI__Endpoint=https://emma-ai-rg.openai.azure.com/
+      - AzureOpenAI__DeploymentName=gpt-4.1
+      - AzureOpenAI__ApiVersion=2023-05-15
 
   emmaweb:
     build:
-      context: ./emma.web
+      context: ./Emma.Web
       dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=http://emmaapi:80
     container_name: emma_web
     ports:
       - "3000:80"
+    networks:
+      - emma-network
     depends_on:
       - emmaapi
-    environment:
-      - REACT_APP_API_URL=http://emmaapi:80
 
 volumes:
   pgdata:

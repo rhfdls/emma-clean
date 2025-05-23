@@ -1,9 +1,13 @@
-using Emma.Data;
-using Emma.Data.Models;
+using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Emma.Api.Services;
+using Emma.Core.Dtos;
+using Emma.Core.Interfaces;
+using Emma.Data;
 using Emma.Data.Enums;
+using Emma.Data.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Emma.Api.Controllers;
 
@@ -12,11 +16,17 @@ namespace Emma.Api.Controllers;
 public class DataEntryController : ControllerBase
 {
     private readonly AppDbContext _db;
-    private readonly Emma.Api.Services.IEmmaAgentService _emmaAgentService;
-    public DataEntryController(AppDbContext db, Emma.Api.Services.IEmmaAgentService emmaAgentService)
+    private readonly IEmmaAgentService _emmaAgentService;
+    private readonly ILogger<DataEntryController> _logger;
+    
+    public DataEntryController(
+        AppDbContext db, 
+        IEmmaAgentService emmaAgentService,
+        ILogger<DataEntryController> logger)
     {
-        _db = db;
-        _emmaAgentService = emmaAgentService;
+        _db = db ?? throw new ArgumentNullException(nameof(db));
+        _emmaAgentService = emmaAgentService ?? throw new ArgumentNullException(nameof(emmaAgentService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     [HttpGet("organizations")]
@@ -35,26 +45,95 @@ public class DataEntryController : ControllerBase
         return Ok(agents);
     }
 
+    public class DemoMessageDto
+    {
+        public string Content { get; set; } = string.Empty;
+    }
+
     public class MessageEntryDto
     {
         public Guid OrganizationId { get; set; }
         public Guid AgentId { get; set; }
-        public string ClientFirstName { get; set; }
-        public string ClientLastName { get; set; }
-        public string Content { get; set; }
-        public string MessageType { get; set; } // Text, Email, Note, Call
+        public string ClientFirstName { get; set; } = string.Empty;
+        public string ClientLastName { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public string MessageType { get; set; } = "Text"; // Text, Email, Note, Call
         public DateTime? OccurredAt { get; set; }
         public bool NewConversation { get; set; } = false;
         public Guid? ConversationId { get; set; }
     }
 
-    [HttpPost("add-message")] // Handles new conversation or add to existing
+    /// <summary>
+    /// Adds a new message to a conversation and processes it with EMMA
+    /// </summary>
+    /// <summary>
+    /// Simplified endpoint for demo purposes that processes a message with EMMA
+    /// </summary>
+    [HttpPost("process-demo")]
+    [ProducesResponseType(typeof(EmmaResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ProcessDemo([FromBody] DemoMessageDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Content))
+        {
+            return BadRequest("Message content cannot be empty");
+        }
+
+        try
+        {
+            // Process the message with EMMA
+            var emmaResponse = await _emmaAgentService.ProcessMessageAsync(dto.Content);
+            return Ok(emmaResponse);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing demo message");
+            return StatusCode(500, new { error = "An error occurred while processing the message" });
+        }
+    }
+
+    [HttpPost("add-message")]
+    [ProducesResponseType(typeof(EmmaResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddMessage([FromBody] MessageEntryDto dto)
     {
-        Conversation conversation;
+        if (string.IsNullOrWhiteSpace(dto.Content))
+        {
+            return BadRequest("Message content cannot be empty");
+        }
+
+        try
+        {
+            // Process the message with EMMA
+            var emmaResponse = await _emmaAgentService.ProcessMessageAsync(dto.Content);
+
+            // Save the conversation and message to the database
+            var conversation = await GetOrCreateConversationAsync(dto);
+            var message = await SaveMessageAsync(dto, conversation.Id, emmaResponse.RawModelOutput);
+
+            // Handle call transcriptions if needed
+            await HandleCallTranscriptionAsync(dto, message);
+
+            // Save all changes to the database
+            await _db.SaveChangesAsync();
+
+            // Return the EMMA response
+            return Ok(emmaResponse);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing message");
+            return StatusCode(500, new { error = "An error occurred while processing the message" });
+        }
+    }
+
+    private async Task<Conversation> GetOrCreateConversationAsync(MessageEntryDto dto)
+    {
         if (dto.NewConversation || dto.ConversationId == null)
         {
-            conversation = new Conversation
+            var conversation = new Conversation
             {
                 Id = Guid.NewGuid(),
                 AgentId = dto.AgentId,
@@ -63,57 +142,52 @@ public class DataEntryController : ControllerBase
                 ClientLastName = dto.ClientLastName,
                 CreatedAt = DateTime.UtcNow
             };
-            _db.Conversations.Add(conversation);
+            await _db.Conversations.AddAsync(conversation);
+            return conversation;
         }
         else
         {
             var existing = await _db.Conversations.FindAsync(dto.ConversationId);
-            if (existing == null) return NotFound("Conversation not found");
-            conversation = existing;
+            if (existing == null)
+            {
+                throw new InvalidOperationException("Conversation not found");
+            }
+            return existing;
         }
+    }
 
+    private async Task<Message> SaveMessageAsync(MessageEntryDto dto, Guid conversationId, string? aiResponse = null)
+    {
         var message = new Message
         {
             Id = Guid.NewGuid(),
-            ConversationId = conversation.Id,
+            ConversationId = conversationId,
             Payload = dto.Content,
-            Type = Enum.TryParse<Emma.Data.Enums.MessageType>(dto.MessageType, true, out var mt) ? mt : Emma.Data.Enums.MessageType.Text,
+            Type = Enum.TryParse<MessageType>(dto.MessageType, true, out var mt) ? mt : MessageType.Text,
             OccurredAt = dto.OccurredAt ?? DateTime.UtcNow,
             CreatedAt = DateTime.UtcNow,
-            BlobStorageUrl = "" // not used for manual entry
+            BlobStorageUrl = string.Empty, // not used for manual entry
+            AiResponse = aiResponse
         };
-        _db.Messages.Add(message);
+        await _db.Messages.AddAsync(message);
+        return message;
+    }
 
-        // If type is Call, also add a basic Transcription
-        if (message.Type == Emma.Data.Enums.MessageType.Call)
+    private async Task HandleCallTranscriptionAsync(MessageEntryDto dto, Message message)
+    {
+        if (Enum.TryParse<MessageType>(dto.MessageType, true, out var messageType) && 
+            messageType == MessageType.Call)
         {
             var transcription = new Transcription
             {
                 Id = Guid.NewGuid(),
                 MessageId = message.Id,
-                BlobStorageUrl = string.Empty, // No blob for manual entry
-                Type = Emma.Data.Enums.TranscriptionType.Full, // Or Partial if more appropriate
+                BlobStorageUrl = string.Empty,
+                Type = TranscriptionType.Full,
                 CreatedAt = DateTime.UtcNow
             };
-            _db.Transcriptions.Add(transcription);
+            await _db.Transcriptions.AddAsync(transcription);
         }
-
-        await _db.SaveChangesAsync();
-
-        // Gather conversation context (simple version: last 5 messages)
-        var contextMessages = await _db.Messages
-            .Where(m => m.ConversationId == conversation.Id)
-            .OrderByDescending(m => m.OccurredAt)
-            .Take(5)
-            .OrderBy(m => m.OccurredAt)
-            .Select(m => $"{m.Type}: {m.Payload}")
-            .ToListAsync();
-        var conversationContext = string.Join("\n", contextMessages);
-
-        // Call EmmaAgentService orchestrator
-        var agentResult = await _emmaAgentService.HandleNewMessageAsync(dto.Content, conversationContext);
-
-        return Ok(new { ConversationId = conversation.Id, MessageId = message.Id, AgentResult = agentResult });
     }
 
     [HttpGet("all-agents")]
