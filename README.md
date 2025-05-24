@@ -158,7 +158,6 @@ The service logs:
 
 - OpenAI API
 - Azure Functions
-- Cosmos DB
 - FollowUpBoss API
 - Microsoft.AspNetCore.RateLimiting (for rate limiting)
 - Microsoft.Extensions.Http (for HTTP client factory)
