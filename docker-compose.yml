@@ -53,6 +53,11 @@ services:
       - AzureOpenAI__Endpoint=https://emma-ai-rg.openai.azure.com/
       - AzureOpenAI__DeploymentName=gpt-4.1
       - AzureOpenAI__ApiVersion=2023-05-15
+      - AzureAIFoundry__Endpoint=https://emma-ai-rg.openai.azure.com/
+      - AzureAIFoundry__ApiKey=CwyApoXh8uPhXeyY6Bx8SbNh69hAY1xXr05zWnXBxHdhxNyi99pzJQQJ99BEACfhMk5XJ3w3AAABACOGK8Ux
+      - AzureAIFoundry__DeploymentName=gpt-4.1-2
+      - AzureAIFoundry__MaxTokens=1000
+      - AzureAIFoundry__Temperature=0.7
 
   emmaweb:
     build:

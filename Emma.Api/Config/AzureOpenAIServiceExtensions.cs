@@ -100,7 +100,24 @@ public static class AzureOpenAIServiceExtensions
             client.DefaultRequestHeaders.Add("api-key", config.ApiKey);
             client.DefaultRequestHeaders.Add("User-Agent", "Emma.API");
         })
-        .AddPolicyHandler(GetRetryPolicy())
+        .AddPolicyHandler((provider, _) => 
+            Policy<HttpResponseMessage>
+                .Handle<HttpRequestException>()
+                .OrResult(x => (int)x.StatusCode >= 500 || x.StatusCode == System.Net.HttpStatusCode.RequestTimeout)
+                .WaitAndRetryAsync(
+                    retryCount: 3,
+                    sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    onRetry: (outcome, delay, retryAttempt, context) =>
+                    {
+                        var logger = provider.GetRequiredService<ILogger<AzureOpenAIService>>();
+                        var requestUri = outcome.Result?.RequestMessage?.RequestUri?.ToString() ?? "unknown";
+                        logger.LogWarning(
+                            "Delaying for {delay}ms, then making retry {retryAttempt} of {retryCount} for {requestUri}",
+                            delay.TotalMilliseconds,
+                            retryAttempt,
+                            3,
+                            requestUri);
+                    }))
         .AddPolicyHandler(GetCircuitBreakerPolicy());
 
         // Add health check for Azure OpenAI
@@ -108,38 +125,6 @@ public static class AzureOpenAIServiceExtensions
             .AddCheck<AzureOpenAIHealthCheck>("azure-openai");
 
         return services;
-    }
-
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
-    {
-        return HttpPolicyExtensions
-            .HandleTransientHttpError()
-            .OrResult(msg => (int)msg.StatusCode == 429) // Too Many Requests
-            .WaitAndRetryAsync(
-                retryCount: 3,
-                sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                onRetry: (outcome, delay, retryAttempt, context) =>
-                {
-                    try
-                    {
-                        var logger = context?.GetLogger();
-                        if (logger != null)
-                        {
-                            var requestUri = outcome.Result?.RequestMessage?.RequestUri?.ToString() ?? "unknown";
-                            logger.LogWarning(
-                                "Delaying for {delay}ms, then making retry {retryAttempt} of {retryCount} for {requestUri}",
-                                delay.TotalMilliseconds,
-                                retryAttempt,
-                                3,
-                                requestUri);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log the error but don't let it affect the retry logic
-                        System.Diagnostics.Debug.WriteLine($"Error in retry policy: {ex.Message}");
-                    }
-                });
     }
 
     private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()

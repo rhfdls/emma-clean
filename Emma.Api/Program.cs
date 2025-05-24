@@ -50,6 +50,23 @@ builder.Services.AddScoped<IEmmaAgentService>(provider =>
 // Add logging
 builder.Services.AddLogging(configure => configure.AddConsole().AddDebug());
 
+// Register Azure AI Foundry configuration
+builder.Services.Configure<AzureAIFoundryConfig>(
+    builder.Configuration.GetSection("AzureAIFoundry"));
+
+// Register AI Foundry Service
+builder.Services.AddScoped<IAIFoundryService, AIFoundryService>();
+
+// Add controllers
+builder.Services.AddControllers();
+
+// Add Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "Emma API", Version = "v1" });
+});
+
 // Configure JSON serialization for controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -133,6 +150,16 @@ app.UseRouting();
 app.UseCors(); // Enable CORS for frontend
 app.UseAuthorization();
 app.MapControllers();
+
+// Configure Swagger
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c => 
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Emma API V1");
+    });
+}
 
 var summaries = new[]
 {
