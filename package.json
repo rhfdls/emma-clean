@@ -1,0 +1,20 @@
+{
+  "name": "emma",
+  "version": "1.0.0",
+  "description": "EMMA (Enhanced Multi-Modal AI) is an AI orchestrator designed to analyze call transcripts and provide strategic workflows for real estate professionals.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/identity": "^4.10.0",
+    "@azure/storage-blob": "^12.27.0"
+  }
+}

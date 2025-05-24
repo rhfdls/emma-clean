@@ -101,7 +101,8 @@ try {
     # Check Node.js
     if (Test-CommandExists "node") {
         $nodeVersion = (node --version).TrimStart('v')
-        if ($nodeVersion.StartsWith($NODE_LTS_VERSION)) {
+        $nodeMajorVersion = $nodeVersion.Split('.')[0]
+        if ($nodeMajorVersion -eq $NODE_LTS_VERSION.Split('.')[0]) {
             Write-Host "Node.js LTS ($NODE_LTS_VERSION) is installed (Version: $nodeVersion)" -ForegroundColor Green
         } else {
             Write-Warning "Different Node.js version detected. Expected $NODE_LTS_VERSION.x but found $nodeVersion"

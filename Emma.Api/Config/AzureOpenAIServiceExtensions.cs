@@ -14,6 +14,8 @@ using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Retry;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 
 namespace Emma.Api.Config;
 
@@ -118,13 +120,25 @@ public static class AzureOpenAIServiceExtensions
                 sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                 onRetry: (outcome, delay, retryAttempt, context) =>
                 {
-                    var logger = context.GetLogger();
-                    logger?.LogWarning(
-                        "Delaying for {delay}ms, then making retry {retryAttempt} of {retryCount} for {requestUri}",
-                        delay.TotalMilliseconds,
-                        retryAttempt,
-                        3,
-                        outcome.Result?.RequestMessage?.RequestUri);
+                    try
+                    {
+                        var logger = context?.GetLogger();
+                        if (logger != null)
+                        {
+                            var requestUri = outcome.Result?.RequestMessage?.RequestUri?.ToString() ?? "unknown";
+                            logger.LogWarning(
+                                "Delaying for {delay}ms, then making retry {retryAttempt} of {retryCount} for {requestUri}",
+                                delay.TotalMilliseconds,
+                                retryAttempt,
+                                3,
+                                requestUri);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log the error but don't let it affect the retry logic
+                        System.Diagnostics.Debug.WriteLine($"Error in retry policy: {ex.Message}");
+                    }
                 });
     }
 

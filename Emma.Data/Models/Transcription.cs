@@ -9,5 +9,5 @@ public class Transcription
     public TranscriptionType Type { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Guid MessageId { get; set; }
-    public Message Message { get; set; }
+    public Message? Message { get; set; }
 }

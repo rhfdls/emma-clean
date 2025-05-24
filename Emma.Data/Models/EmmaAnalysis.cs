@@ -7,7 +7,7 @@ public class EmmaAnalysis
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid MessageId { get; set; }
-    public Message Message { get; set; }
+    public Message? Message { get; set; }
     [JsonPropertyName("lead_status")]
     public string LeadStatus { get; set; } = string.Empty;
     [JsonPropertyName("recommended_strategy")]

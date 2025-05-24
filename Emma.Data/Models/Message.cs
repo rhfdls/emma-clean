@@ -6,7 +6,7 @@ public class Message
 {
     public Guid Id { get; init; } = Guid.NewGuid();
     public Guid AgentId { get; set; }
-    public Agent Agent { get; set; }
+    public Agent? Agent { get; set; }
     public required string Payload { get; init; }
     public string? AiResponse { get; set; }
     public required string BlobStorageUrl { get; init; }
@@ -14,8 +14,8 @@ public class Message
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     public required DateTime OccurredAt { get; init; }
     public required Guid ConversationId { get; init; }
-    public Conversation Conversation { get; init; }
-    public Transcription Transcription { get; init; }
+    public Conversation? Conversation { get; init; }
+    public Transcription? Transcription { get; init; }
     public CallMetadata? CallMetadata { get; init; }
     public List<EmmaAnalysis> EmmaAnalyses { get; init; } = new();
 }

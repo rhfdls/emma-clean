@@ -201,7 +201,10 @@ public class DataEntryController : ControllerBase
     public async Task<IActionResult> GetMessages([FromQuery] Guid organizationId, [FromQuery] Guid agentId, [FromQuery] int count = 10)
     {
         var messages = await _db.Messages
-            .Where(m => m.Conversation.OrganizationId == organizationId && m.Conversation.AgentId == agentId)
+            .Include(m => m.Conversation)
+            .Where(m => m.Conversation != null && 
+                      m.Conversation.OrganizationId == organizationId && 
+                      m.Conversation.AgentId == agentId)
             .OrderByDescending(m => m.OccurredAt)
             .Take(count)
             .Select(m => new {
@@ -210,9 +213,9 @@ public class DataEntryController : ControllerBase
                 TypeValue = m.Type,
                 OccurredAtValue = m.OccurredAt,
                 CreatedAtValue = m.CreatedAt,
-                ConversationIdValue = m.Conversation.Id,
-                ClientFirstNameValue = m.Conversation.ClientFirstName,
-                ClientLastNameValue = m.Conversation.ClientLastName
+                ConversationIdValue = m.Conversation != null ? m.Conversation.Id : Guid.Empty,
+                ClientFirstNameValue = m.Conversation != null ? m.Conversation.ClientFirstName : null,
+                ClientLastNameValue = m.Conversation != null ? m.Conversation.ClientLastName : null
             })
             .ToListAsync();
         return Ok(messages);

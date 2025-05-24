@@ -139,8 +139,9 @@ namespace Emma.Api.Services
         /// Processes an incoming message and returns a response.
         /// </summary>
         /// <param name="message">The message to process</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the response.</returns>
-        public async Task<EmmaResponseDto> ProcessMessageAsync(string message)
+        public async Task<EmmaResponseDto> ProcessMessageAsync(string message, CancellationToken cancellationToken = default)
         {
             var correlationId = GetCorrelationId();
             _logger.LogInformation("Processing message. Correlation ID: {CorrelationId}", correlationId);
@@ -150,7 +151,7 @@ namespace Emma.Api.Services
                 if (string.IsNullOrWhiteSpace(message))
                 {
                     _logger.LogWarning("Empty message received");
-                    return EmmaResponseDto.ErrorResponse("Message cannot be empty", correlationId);
+                    return EmmaResponseDto.ErrorResponse("Message cannot be empty", correlationId, null);
                 }
 
                 // Log request details for debugging
@@ -182,47 +183,60 @@ namespace Emma.Api.Services
 
                 try
                 {
-                    var response = await _retryPolicy.ExecuteAsync(
-                        action: async (ctx, ct) =>
-                        {
-                            _logger.LogDebug("Sending request to Azure OpenAI deployment: {Deployment}", Config.DeploymentName);
-                            return await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions, ct);
-                        },
-                        context: context,
-                        cancellationToken: cancellationToken);
+                    try
+                    {
+                        var response = await _retryPolicy.ExecuteAsync(
+                            action: async (ctx, ct) =>
+                            {
+                                _logger.LogDebug("Sending request to Azure OpenAI deployment: {Deployment}", Config.DeploymentName);
+                                var result = await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions, ct);
+                                if (result == null)
+                                {
+                                    throw new InvalidOperationException("Received null response from Azure OpenAI");
+                                }
+                                return result;
+                            },
+                            context: context,
+                            continueOnCapturedContext: false,
+                            cancellationToken: cancellationToken);
 
-                    // Process successful response
-                    return await ProcessSuccessfulResponse(response, correlationId);
+                        return await ProcessSuccessfulResponse(response, correlationId);
+                    }
+                    catch (Exception ex) when (ex is not RequestFailedException)
+                    {
+                        _logger.LogError(ex, "Error processing message. Correlation ID: {CorrelationId}", correlationId);
+                        return EmmaResponseDto.ErrorResponse("An error occurred while processing your request", correlationId, null);
+                    }
                 }
                 catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.Unauthorized)
                 {
                     _logger.LogError(ex, "Authentication failed for Azure OpenAI. Check your API key and endpoint");
-                    return EmmaResponseDto.ErrorResponse("Authentication failed for AI service", correlationId);
+                    return EmmaResponseDto.ErrorResponse("Authentication failed for AI service", correlationId, null);
                 }
                 catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
                 {
                     _logger.LogError(ex, "Azure OpenAI deployment not found: {Deployment}", Config.DeploymentName);
-                    return EmmaResponseDto.ErrorResponse($"AI model deployment '{Config.DeploymentName}' not found", correlationId);
+                    return EmmaResponseDto.ErrorResponse($"AI model deployment '{Config.DeploymentName}' not found", correlationId, null);
                 }
                 catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.TooManyRequests)
                 {
                     _logger.LogError(ex, "Rate limit exceeded for Azure OpenAI");
-                    return EmmaResponseDto.ErrorResponse("AI service is currently overloaded. Please try again later.", correlationId);
+                    return EmmaResponseDto.ErrorResponse("AI service is currently overloaded. Please try again later.", correlationId, null);
                 }
                 catch (RequestFailedException ex)
                 {
                     _logger.LogError(ex, "Azure OpenAI request failed. Status: {Status}, Error: {Error}", ex.Status, ex.Message);
-                    return EmmaResponseDto.ErrorResponse($"AI service error: {ex.Message}", correlationId);
+                    return EmmaResponseDto.ErrorResponse($"AI service error: {ex.Message}", correlationId, null);
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     _logger.LogWarning("Request was cancelled by the client. Correlation ID: {CorrelationId}", correlationId);
-                    return EmmaResponseDto.ErrorResponse("Request was cancelled", correlationId);
+                    return EmmaResponseDto.ErrorResponse("Request was cancelled", correlationId, null);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Unexpected error processing message. Correlation ID: {CorrelationId}", correlationId);
-                    return EmmaResponseDto.ErrorResponse("An unexpected error occurred while processing your request", correlationId);
+                    return EmmaResponseDto.ErrorResponse("An unexpected error occurred while processing your request", correlationId, null);
                 }
             }
             catch (Exception ex)
@@ -239,34 +253,46 @@ namespace Emma.Api.Services
         /// <param name="correlationId">The correlation ID for the request.</param>
         /// <returns>An <see cref="EmmaResponseDto"/> containing the processed response.</returns>
         private async Task<EmmaResponseDto> ProcessSuccessfulResponse(
-            Response<ChatCompletions> response, 
+            Azure.Response<Azure.AI.OpenAI.ChatCompletions> response, 
             string correlationId)
         {
             try
             {
+                if (response == null)
+                {
+                    _logger.LogError("Null response received from Azure OpenAI");
+                    return EmmaResponseDto.ErrorResponse("No response received from AI service", correlationId, null);
+                }
+                
+                if (response.Value == null)
+                {
+                    _logger.LogError("Null value in response from Azure OpenAI");
+                    return EmmaResponseDto.ErrorResponse("Invalid response from AI service", correlationId, null);
+                }
+
                 _logger.LogInformation(
                     "Received response from Azure OpenAI. Status: {Status}, Request ID: {RequestId}", 
                     response.GetRawResponse().Status,
                     response.GetRawResponse().ClientRequestId);
                 
-                if (response?.Value?.Choices == null || response.Value.Choices.Count == 0)
+                if (response.Value?.Choices == null || response.Value.Choices.Count == 0)
                 {
                     _logger.LogError("No response choices returned from Azure OpenAI");
-                    return EmmaResponseDto.ErrorResponse("No response from AI service", correlationId);
+                    return EmmaResponseDto.ErrorResponse("No response from AI service", correlationId, null);
                 }
                 
                 var choice = response.Value.Choices[0];
                 if (choice?.Message?.Content == null)
                 {
                     _logger.LogError("Invalid response format from Azure OpenAI");
-                    return EmmaResponseDto.ErrorResponse("Invalid response format from AI service", correlationId);
+                    return EmmaResponseDto.ErrorResponse("Invalid response format from AI service", correlationId, null);
                 }
                 
                 var responseContent = choice.Message.Content;
                 if (string.IsNullOrWhiteSpace(responseContent))
                 {
                     _logger.LogError("Empty response content received from Azure OpenAI");
-                    return EmmaResponseDto.ErrorResponse("Empty response from AI service", correlationId);
+                    return EmmaResponseDto.ErrorResponse("Empty response from AI service", correlationId, null);
                 }
                 
                 _logger.LogDebug("Received response from Azure OpenAI: {Response}", responseContent);
@@ -276,7 +302,7 @@ namespace Emma.Api.Services
                 if (emmaAction == null)
                 {
                     _logger.LogError("Failed to parse AI response into EmmaAction. Output: {Output}", responseContent);
-                    return EmmaResponseDto.ErrorResponse("Invalid response format from AI service", correlationId);
+                    return EmmaResponseDto.ErrorResponse("Invalid response format from AI service", correlationId, responseContent);
                 }
                 
                 _logger.LogInformation("Successfully processed message. Action: {Action}", emmaAction.Action);
@@ -285,12 +311,12 @@ namespace Emma.Api.Services
             catch (JsonException jsonEx)
             {
                 _logger.LogError(jsonEx, "Failed to deserialize AI response. Correlation ID: {CorrelationId}", correlationId);
-                return EmmaResponseDto.ErrorResponse("Failed to process AI response", correlationId);
+                return EmmaResponseDto.ErrorResponse("Failed to process AI response", correlationId, null);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error processing AI response. Correlation ID: {CorrelationId}", correlationId);
-                return EmmaResponseDto.ErrorResponse("An error occurred while processing the AI response", correlationId);
+                return EmmaResponseDto.ErrorResponse("An error occurred while processing the AI response", correlationId, null);
             }
         }
     }
