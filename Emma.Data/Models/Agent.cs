@@ -16,4 +16,5 @@ public class Agent
     public List<Message> Messages { get; set; } = new();
     public Subscription? Subscription { get; set; }
     public AgentPhoneNumber? PhoneNumber { get; init; }
+    public List<AgentSubscriptionAssignment> SubscriptionAssignments { get; set; } = new();
 }

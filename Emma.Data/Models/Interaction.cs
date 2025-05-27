@@ -1,9 +1,14 @@
 namespace Emma.Data.Models;
 
-public class Conversation
+public class Interaction
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public Guid ContactId { get; set; } // Link to Contact
+    public Guid ContactId { get; set; } // Link to Contact (legacy)
+    public Guid ClientId { get => ContactId; set => ContactId = value; } // Alias for backward compatibility
+    public Guid OrganizationId { get; set; }
+    public string ClientFirstName { get; set; } = string.Empty;
+    public string ClientLastName { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Dictionary<string, string>? ExternalIds { get; set; } // e.g., FUB, HubSpot, Salesforce
     public string Type { get; set; } = string.Empty; // call|email|sms|meeting|note|task|other
     public string Direction { get; set; } = string.Empty; // inbound|outbound|system
@@ -17,6 +22,5 @@ public class Conversation
     public Dictionary<string, string>? CustomFields { get; set; }
     public List<Message> Messages { get; set; } = new();
 }
-
 
 

@@ -54,7 +54,7 @@ namespace Emma.Api.Services
         public async Task<string> ProcessMessageAsync(string message, string? conversationId = null)
         {
             var requestId = Guid.NewGuid();
-            _logger.LogDebug("[{RequestId}] Processing message. Conversation ID: {ConversationId}", 
+            _logger.LogDebug("[{RequestId}] Processing message. Interaction ID: {InteractionId}", 
                 requestId, conversationId ?? "(new)");
             
             if (string.IsNullOrWhiteSpace(message))
@@ -140,7 +140,7 @@ namespace Emma.Api.Services
         public async Task<string> ProcessMessageWithContextAsync(string message, string context, string? conversationId = null)
         {
             var requestId = Guid.NewGuid();
-            _logger.LogDebug("[{RequestId}] Processing message with context. Conversation ID: {ConversationId}", 
+            _logger.LogDebug("[{RequestId}] Processing message with context. Interaction ID: {InteractionId}", 
                 requestId, conversationId ?? "(new)");
                 
             if (string.IsNullOrWhiteSpace(message))
@@ -243,7 +243,7 @@ namespace Emma.Api.Services
             }
         }
 
-        public Task<string> StartNewConversationAsync()
+        public Task<string> StartNewInteractionAsync()
         {
             return Task.FromResult(Guid.NewGuid().ToString());
         }

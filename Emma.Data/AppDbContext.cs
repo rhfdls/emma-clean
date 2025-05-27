@@ -10,7 +10,7 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<Conversation> Conversations { get; set; }
+    public DbSet<Interaction> Interactions { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<Transcription> Transcriptions { get; set; }
     public DbSet<Organization> Organizations { get; set; }
@@ -26,6 +26,38 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Composite primary key for SubscriptionPlanFeature
+        modelBuilder.Entity<SubscriptionPlanFeature>()
+            .HasKey(spf => new { spf.SubscriptionPlanId, spf.FeatureId });
+
+        // Subscription-Agent (one-to-one)
+        modelBuilder.Entity<Subscription>()
+            .HasOne(s => s.Agent)
+            .WithOne(a => a.Subscription)
+            .HasForeignKey<Subscription>(s => s.AgentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Subscription-Plan (many-to-one)
+        modelBuilder.Entity<Subscription>()
+            .HasOne(s => s.Plan)
+            .WithMany()
+            .HasForeignKey(s => s.PlanId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Explicit Agent <-> Organization relationship
+        modelBuilder.Entity<Agent>()
+            .HasOne(a => a.Organization)
+            .WithMany(o => o.Agents)
+            .HasForeignKey(a => a.OrganizationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Explicit Organization <-> OwnerAgent relationship
+        modelBuilder.Entity<Organization>()
+            .HasOne(o => o.OwnerAgent)
+            .WithMany()
+            .HasForeignKey(o => o.OwnerAgentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // AgentAssignment is a true entity with a foreign key to EmmaAnalysis
         modelBuilder.Entity<AgentAssignment>()
             .HasKey(a => a.Id);
@@ -34,9 +66,9 @@ public class AppDbContext : DbContext
             .WithMany(e => e.AgentAssignments)
             .HasForeignKey(a => a.EmmaAnalysisId)
             .IsRequired();
-        modelBuilder.Entity<Conversation>().HasKey(c => c.Id);
-        modelBuilder.Entity<Conversation>().HasIndex(c => c.ClientId).IsUnique();
-        modelBuilder.Entity<Conversation>().HasIndex(c => c.AgentId);
+        modelBuilder.Entity<Interaction>().HasKey(c => c.Id);
+        modelBuilder.Entity<Interaction>().HasIndex(c => c.ClientId).IsUnique();
+        modelBuilder.Entity<Interaction>().HasIndex(c => c.AgentId);
         modelBuilder.Entity<Message>().HasKey(m => m.Id);
         // Unique index for Message on OccurredAt and Type
         modelBuilder.Entity<Message>()

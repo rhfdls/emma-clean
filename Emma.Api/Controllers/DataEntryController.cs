@@ -59,8 +59,8 @@ public class DataEntryController : ControllerBase
         public string Content { get; set; } = string.Empty;
         public string MessageType { get; set; } = "Text"; // Text, Email, Note, Call
         public DateTime? OccurredAt { get; set; }
-        public bool NewConversation { get; set; } = false;
-        public Guid? ConversationId { get; set; }
+        public bool NewInteraction { get; set; } = false;
+        public Guid? InteractionId { get; set; }
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ public class DataEntryController : ControllerBase
             var emmaResponse = await _emmaAgentService.ProcessMessageAsync(dto.Content);
 
             // Save the conversation and message to the database
-            var conversation = await GetOrCreateConversationAsync(dto);
+            var conversation = await GetOrCreateInteractionAsync(dto);
             var message = await SaveMessageAsync(dto, conversation.Id, emmaResponse.RawModelOutput);
 
             // Handle call transcriptions if needed
@@ -129,11 +129,11 @@ public class DataEntryController : ControllerBase
         }
     }
 
-    private async Task<Conversation> GetOrCreateConversationAsync(MessageEntryDto dto)
+    private async Task<Interaction> GetOrCreateInteractionAsync(MessageEntryDto dto)
     {
-        if (dto.NewConversation || dto.ConversationId == null)
+        if (dto.NewInteraction || dto.InteractionId == null)
         {
-            var conversation = new Conversation
+            var conversation = new Interaction
             {
                 Id = Guid.NewGuid(),
                 AgentId = dto.AgentId,
@@ -142,15 +142,15 @@ public class DataEntryController : ControllerBase
                 ClientLastName = dto.ClientLastName,
                 CreatedAt = DateTime.UtcNow
             };
-            await _db.Conversations.AddAsync(conversation);
+            await _db.Interactions.AddAsync(conversation);
             return conversation;
         }
         else
         {
-            var existing = await _db.Conversations.FindAsync(dto.ConversationId);
+            var existing = await _db.Interactions.FindAsync(dto.InteractionId);
             if (existing == null)
             {
-                throw new InvalidOperationException("Conversation not found");
+                throw new InvalidOperationException("Interaction not found");
             }
             return existing;
         }
@@ -161,7 +161,7 @@ public class DataEntryController : ControllerBase
         var message = new Message
         {
             Id = Guid.NewGuid(),
-            ConversationId = conversationId,
+            InteractionId = conversationId,
             Payload = dto.Content,
             Type = Enum.TryParse<MessageType>(dto.MessageType, true, out var mt) ? mt : MessageType.Text,
             OccurredAt = dto.OccurredAt ?? DateTime.UtcNow,
@@ -201,10 +201,10 @@ public class DataEntryController : ControllerBase
     public async Task<IActionResult> GetMessages([FromQuery] Guid organizationId, [FromQuery] Guid agentId, [FromQuery] int count = 10)
     {
         var messages = await _db.Messages
-            .Include(m => m.Conversation)
-            .Where(m => m.Conversation != null && 
-                      m.Conversation.OrganizationId == organizationId && 
-                      m.Conversation.AgentId == agentId)
+            .Include(m => m.Interaction)
+            .Where(m => m.Interaction != null && 
+                      m.Interaction.OrganizationId == organizationId && 
+                      m.Interaction.AgentId == agentId)
             .OrderByDescending(m => m.OccurredAt)
             .Take(count)
             .Select(m => new {
@@ -213,9 +213,9 @@ public class DataEntryController : ControllerBase
                 TypeValue = m.Type,
                 OccurredAtValue = m.OccurredAt,
                 CreatedAtValue = m.CreatedAt,
-                ConversationIdValue = m.Conversation != null ? m.Conversation.Id : Guid.Empty,
-                ClientFirstNameValue = m.Conversation != null ? m.Conversation.ClientFirstName : null,
-                ClientLastNameValue = m.Conversation != null ? m.Conversation.ClientLastName : null
+                InteractionIdValue = m.Interaction != null ? m.Interaction.Id : Guid.Empty,
+                ClientFirstNameValue = m.Interaction != null ? m.Interaction.ClientFirstName : null,
+                ClientLastNameValue = m.Interaction != null ? m.Interaction.ClientLastName : null
             })
             .ToListAsync();
         return Ok(messages);

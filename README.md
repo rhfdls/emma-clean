@@ -136,7 +136,7 @@ The AI should return JSON in this format:
 
 ### EmmaAgentService
 The `EmmaAgentService` handles:
-1. Receiving messages and conversation context
+1. Receiving messages and interaction context
 2. Sending them to Azure OpenAI
 3. Parsing the response into an `EmmaAction`
 4. Executing the appropriate action

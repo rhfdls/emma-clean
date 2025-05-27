@@ -16,7 +16,7 @@ namespace Emma.Api.Controllers
     {
         [Required]
         public string Message { get; set; } = "Hello, how are you?";
-        public string? ConversationId { get; set; }
+        public string? InteractionId { get; set; }
     }
 
     /// <summary>
@@ -58,10 +58,10 @@ namespace Emma.Api.Controllers
         public async Task<IActionResult> TestMessage([FromBody] TestMessageRequest request)
         {
             var requestId = Guid.NewGuid();
-            _logger.LogInformation("[{RequestId}] Received request. Message length: {MessageLength}, ConversationId: {ConversationId}",
+            _logger.LogInformation("[{RequestId}] Received request. Message length: {MessageLength}, InteractionId: {InteractionId}",
                 requestId,
                 request.Message?.Length ?? 0,
-                request.ConversationId ?? "(none)");
+                request.InteractionId ?? "(none)");
                 
             try
             {
@@ -76,7 +76,7 @@ namespace Emma.Api.Controllers
 
                 var response = await _aiFoundryService.ProcessMessageAsync(
                     request.Message, 
-                    request.ConversationId);
+                    request.InteractionId);
                 stopwatch.Stop();
                 
                 _logger.LogInformation("[{RequestId}] Successfully received response in {ElapsedMs}ms. Response length: {ResponseLength}", 

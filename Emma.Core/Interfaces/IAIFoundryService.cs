@@ -28,6 +28,6 @@ namespace Emma.Core.Interfaces
         /// Starts a new conversation
         /// </summary>
         /// <returns>A new conversation ID</returns>
-        Task<string> StartNewConversationAsync();
+        Task<string> StartNewInteractionAsync();
     }
 }

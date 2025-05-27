@@ -36,8 +36,6 @@ services:
       context: .
       dockerfile: Emma.Api/Dockerfile
     container_name: emma_api
-    env_file:
-      - env.docker
     ports:
       - "5262:80"
     networks:
@@ -48,6 +46,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__PostgreSql=Host=postgres;Port=5432;Database=emma;Username=postgres;Password=postgres
+      - COSMOSDB__ACCOUNTENDPOINT=http://dummy
+      - COSMOSDB__ACCOUNTKEY=dummy
+      - COSMOSDB__DATABASENAME=dummy
+      - COSMOSDB__CONTAINERNAME=dummy
       - ASPNETCORE_URLS=http://+:80
       - AzureOpenAI__ApiKey=CwyApoXh8uPhXeyY6Bx8SbNh69hAY1xXr05zWnXBxHdhxNyi99pzJQQJ99BEACfhMk5XJ3w3AAABACOGK8Ux
       - AzureOpenAI__Endpoint=https://emma-ai-rg.openai.azure.com/
@@ -58,6 +60,51 @@ services:
       - AzureAIFoundry__DeploymentName=gpt-4.1-2
       - AzureAIFoundry__MaxTokens=1000
       - AzureAIFoundry__Temperature=0.7
+      - Swagger__BaseUrl=http://localhost:80
+      - Swagger__ExternalUrl=https://api.yourdomain.com
+      - AzureStorage__AccountName=emmaaistorage35482
+      - AzureStorage__AccountKey=qG5V9w9kCQK+Uhplsrx3SQwnJRABluRACzdF+qe6wH0/Saogsv9uOHWwQn0hD91WJ0fIsuI0aGRR+ASttOPuFGw==
+      - AzureSearch__ServiceName=emma-search
+      - AzureSearch__ApiKey=Jt1kVdlqIEr7hFeXtTO44IQv4aukdWGIDDIqR6UjTzAzSeC7ZP2m
+      - AzureSearch__Endpoint=https://emma-search.search.windows.net
+      - KeyVault__Name=emma-keyvault
+
+  emmamigration:
+    build:
+      context: .
+      dockerfile: Emma.Api/Dockerfile
+      target: migration
+    volumes:
+      - .:/src
+    networks:
+      - emma-network
+    depends_on:
+      - postgres
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgreSql=Host=postgres;Port=5432;Database=emma;Username=postgres;Password=postgres
+      - COSMOSDB__ACCOUNTENDPOINT=http://dummy
+      - COSMOSDB__ACCOUNTKEY=dummy
+      - COSMOSDB__DATABASENAME=dummy
+      - COSMOSDB__CONTAINERNAME=dummy
+      - ASPNETCORE_URLS=http://+:80
+      - AzureOpenAI__ApiKey=CwyApoXh8uPhXeyY6Bx8SbNh69hAY1xXr05zWnXBxHdhxNyi99pzJQQJ99BEACfhMk5XJ3w3AAABACOGK8Ux
+      - AzureOpenAI__Endpoint=https://emma-ai-rg.openai.azure.com/
+      - AzureOpenAI__DeploymentName=gpt-4.1
+      - AzureOpenAI__ApiVersion=2023-05-15
+      - AzureAIFoundry__Endpoint=https://emma-ai-rg.openai.azure.com/
+      - AzureAIFoundry__ApiKey=CwyApoXh8uPhXeyY6Bx8SbNh69hAY1xXr05zWnXBxHdhxNyi99pzJQQJ99BEACfhMk5XJ3w3AAABACOGK8Ux
+      - AzureAIFoundry__DeploymentName=gpt-4.1-2
+      - AzureAIFoundry__MaxTokens=1000
+      - AzureAIFoundry__Temperature=0.7
+      - Swagger__BaseUrl=http://localhost:80
+      - Swagger__ExternalUrl=https://api.yourdomain.com
+      - AzureStorage__AccountName=emmaaistorage35482
+      - AzureStorage__AccountKey=qG5V9w9kCQK+Uhplsrx3SQwnJRABluRACzdF+qe6wH0/Saogsv9uOHWwQn0hD91WJ0fIsuI0aGRR+ASttOPuFGw==
+      - AzureSearch__ServiceName=emma-search
+      - AzureSearch__ApiKey=Jt1kVdlqIEr7hFeXtTO44IQv4aukdWGIDDIqR6UjTzAzSeC7ZP2m
+      - AzureSearch__Endpoint=https://emma-search.search.windows.net
+      - KeyVault__Name=emma-keyvault
 
   emmaweb:
     build:

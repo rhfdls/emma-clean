@@ -16,3 +16,9 @@ AzureOpenAI__ApiKey=CwyApoXh8uPhXeyY6Bx8SbNh69hAY1xXr05zWnXBxHdhxNyi99pzJQQJ99BE
 AzureOpenAI__Endpoint=https://emma-ai-rg.openai.azure.com/
 AzureOpenAI__DeploymentName=gpt-4.1
 AzureOpenAI__ApiVersion=2023-05-15
+
+# Cosmos DB Configuration
+COSMOSDB__ACCOUNTENDPOINT=https://emma-cosmos.documents.azure.com:443/
+COSMOSDB__ACCOUNTKEY=LgUJy8nQWgJ1Cl3SQB0CNLPhNcpS70tAMRsdeIXpZBlncpveoLaZX9RRtjpJl6ETXsRZrHFmftggAO5PCNrmV6cACDbcZRtXA==
+COSMOSDB__DATABASENAME=emma-agent
+COSMOSDB__CONTAINERNAME=messages

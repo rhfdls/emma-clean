@@ -52,7 +52,7 @@ const EmmaDemo = () => {
           clientFirstName: 'Demo',
           clientLastName: 'User',
           messageType: 'Text',
-          newConversation: true
+          newInteraction: true
         }),
       });
 
@@ -84,7 +84,7 @@ const EmmaDemo = () => {
       
       <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Enter a conversation or message to analyze:
+          Enter a interaction or message to analyze:
         </Typography>
         
         <Box component="form" onSubmit={handleSubmit}>
@@ -93,7 +93,7 @@ const EmmaDemo = () => {
             multiline
             rows={8}
             variant="outlined"
-            placeholder="Paste a conversation, email, or notes here..."
+            placeholder="Paste a interaction, email, or notes here..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             disabled={isLoading}

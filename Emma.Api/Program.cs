@@ -5,6 +5,7 @@ using Azure.AI.OpenAI;
 using Emma.Core.Config;
 using Emma.Core.Interfaces;  // For IEmmaAgentService
 using Emma.Api.Services;
+using Emma.Api;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +17,29 @@ using Npgsql;
 
 // Load environment variables from .env
 Env.Load();
+
+// DEBUG: Print all environment variables at startup
+foreach (System.Collections.DictionaryEntry de in Environment.GetEnvironmentVariables())
+{
+    Console.WriteLine($"[ENV] {de.Key}={de.Value}");
+}
+
+// Fail-fast check for required Cosmos DB environment variables
+void ValidateCosmosDbEnvVars()
+{
+    var required = new[] {
+        "COSMOSDB__ACCOUNTENDPOINT",
+        "COSMOSDB__ACCOUNTKEY",
+        "COSMOSDB__DATABASENAME",
+        "COSMOSDB__CONTAINERNAME"
+    };
+    foreach (var key in required)
+    {
+        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(key)))
+            throw new Exception($"Missing required Cosmos DB environment variable: {key}. Please check your .env or deployment secrets.");
+    }
+}
+ValidateCosmosDbEnvVars();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,13 +63,15 @@ builder.Services.AddScoped<IEmmaAgentService>(provider =>
     var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
     var openAIClient = provider.GetRequiredService<OpenAIClient>();
     var config = provider.GetRequiredService<IOptions<AzureOpenAIConfig>>();
-    
     return new EmmaAgentService(
         logger, 
         httpContextAccessor, 
         openAIClient,
         config);
 });
+
+// Register Cosmos DB integration
+builder.Services.AddCosmosDb(builder.Configuration);
 
 // Add logging
 builder.Services.AddLogging(configure => configure.AddConsole().AddDebug());
@@ -84,7 +110,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.WriteIndented = true;
     });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
 builder.Services.AddAuthorization();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSql")));
@@ -112,7 +138,7 @@ builder.Services.AddCors(options =>
 
 // Enable Swagger for API documentation
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
@@ -122,14 +148,14 @@ using (var scope = app.Services.CreateScope())
     try 
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        Console.WriteLine("Applying database migrations...");
-        db.Database.Migrate();
-        Console.WriteLine("Database migrations applied successfully.");
+        // Console.WriteLine("Applying database migrations...");
+        // db.Database.Migrate();
+        // Console.WriteLine("Database migrations applied successfully.");
         
-        // Seed data
-        Console.WriteLine("Seeding data...");
-        SeedData.EnsureSeeded(db);
-        Console.WriteLine("Data seeding completed.");
+        // // Seed data
+        // Console.WriteLine("Seeding data...");
+        // SeedData.EnsureSeeded(db);
+        // Console.WriteLine("Data seeding completed.");
     }
     catch (Exception ex)
     {
