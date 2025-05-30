@@ -4,26 +4,61 @@ This document defines the data contract for the `Interaction` entity as implemen
 
 ---
 
-## Field Table
+## Entity Relationship Overview
 
-| Field            | Type           | PostgreSQL | CosmosDB | Description / Notes                  |
-|------------------|----------------|:----------:|:--------:|--------------------------------------|
-| id               | string / uuid  |     ✔      |    ✔     | Unique interaction/document ID       |
-| agentId          | string / uuid  |     ✔      |    ✔     | Agent GUID                          |
-| contactId        | string / uuid  |     ✔      |    ✔     | Contact GUID                        |
-| organizationId   | string / uuid  |     ✔      |    ✔     | Organization GUID (nullable)        |
-| type             | string         |     ✔      |    ✔     | Interaction type (call, email, etc.)|
-| content          | string         |     ✔      |    ✔     | Full text content                   |
-| timestamp        | datetime       |     ✔      |    ✔     | UTC timestamp                       |
-| metadata         | json/dict      |     ✔      |    ✔     | Flexible metadata                   |
-| embedding        | float[]        |            |    ✔     | AI-generated embedding vector        |
-| embeddingModel   | string         |            |    ✔     | Embedding model name                |
-| embeddingDate    | datetime       |            |    ✔     | When the embedding was generated     |
-| tags             | string[]       |            |    ✔     | Tags for AI/RAG/lead classification |
+- **Interaction**: Central entity representing communication or activity in the Emma platform.
+- **Links**:
+  - `agentId` links to a User/Agent.
+  - `contactId` links to a Contact.
+  - `organizationId` (optional) links to an Organization.
 
+```
+User/Agent (agentId) →
+                     \
+                      → Interaction ← (contactId) Contact
+                      → (organizationId) Organization (optional)
+```
+
+---
+
+## Field Table (with Required/Optional and Examples)
+
+| Field            | Type           | Required | PostgreSQL | CosmosDB | Description / Notes                  | Example |
+|------------------|----------------|:--------:|:----------:|:--------:|--------------------------------------|---------|
+| id               | string / uuid  |   Yes    |     ✔      |    ✔     | Unique interaction/document ID       | "int001" |
+| agentId          | string / uuid  |   Yes    |     ✔      |    ✔     | Agent GUID                          | "agent123" |
+| contactId        | string / uuid  |   Yes    |     ✔      |    ✔     | Contact GUID                        | "contact456" |
+| organizationId   | string / uuid  |   No     |     ✔      |    ✔     | Organization GUID (nullable)        | "org789" |
+| type             | string         |   Yes    |     ✔      |    ✔     | Interaction type (call, email, etc.)| "call" |
+| content          | string         |   Yes    |     ✔      |    ✔     | Full text content                   | "Left voicemail" |
+| timestamp        | datetime       |   Yes    |     ✔      |    ✔     | UTC timestamp                       | "2024-05-28T10:20:30Z" |
+| metadata         | json/dict      |   No     |     ✔      |    ✔     | Flexible metadata                   | {"source":"AI"} |
+| embedding        | float[]        |   No     |            |    ✔     | AI-generated embedding vector        | [0.123, 0.456] |
+| embeddingModel   | string         |   No     |            |    ✔     | Embedding model name                | "openai-ada-002" |
+| embeddingDate    | datetime       |   No     |            |    ✔     | When the embedding was generated     | "2024-05-28T10:20:30Z" |
+| tags             | string[]       |   No     |            |    ✔     | Tags for AI/RAG/lead classification | ["AI","RAG"] |
+
+- **Required**: Must be present in every valid interaction object.
 - ✔ = Field exists in that DB
 - CosmosDB may have additional fields for AI/agent workflows not present in PostgreSQL.
 - PostgreSQL may have additional fields for reporting/constraints not present in CosmosDB.
+
+---
+
+## Field Descriptions
+
+- **id**: Unique identifier for the interaction (string/uuid). Required.
+- **agentId**: Unique identifier of the agent/user responsible for the interaction. Required.
+- **contactId**: Unique identifier of the contact involved in the interaction. Required.
+- **organizationId**: Organization GUID (nullable). Optional.
+- **type**: Type of interaction (e.g., call, email, sms, note, etc.). Required.
+- **content**: Full text content of the interaction. Required.
+- **timestamp**: UTC timestamp (ISO8601 string). Required.
+- **metadata**: Flexible metadata as a JSON/dict. Optional.
+- **embedding**: AI-generated vector representation of content (float array). CosmosDB only. Optional.
+- **embeddingModel**: Name of the model used to generate embedding. CosmosDB only. Optional.
+- **embeddingDate**: When the embedding was generated (datetime/ISO8601). CosmosDB only. Optional.
+- **tags**: Tags for AI/RAG/lead classification (array of strings). CosmosDB only. Optional.
 
 ---
 
