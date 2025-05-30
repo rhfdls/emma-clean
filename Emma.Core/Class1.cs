@@ -1,4 +1,4 @@
-﻿namespace Emma.Core;
+namespace Emma.Core;
 
 public class Class1
 {

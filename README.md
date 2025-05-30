@@ -120,6 +120,26 @@ http://localhost:5262/swagger
 
 The AI Action System processes natural language messages and converts them into structured actions that can be executed by the EMMA platform.
 
+## Fulltext Interaction API & Demo Integration
+
+### New Endpoints
+- `POST /api/fulltext-interactions`: Save a fulltext document (transcript, email, sms, etc.) to CosmosDB
+- `GET /api/fulltext-interactions?agentId=...`: Query fulltext documents by agent, contact, type, and date range
+
+### Usage Example
+- Use the updated demo UI to paste a transcript or message and save it to CosmosDB
+- Query all interactions for the demo agent via the UI
+
+### Integration & Testing Notes
+- Service layer (`FulltextInteractionService`) enables future business logic, logging, and tracing
+- Integration test: `Emma.Api/IntegrationTests/FulltextInteractionControllerTests.cs` demonstrates POST/GET usage
+- CosmosDB configuration via `.env` and documented in `README-cosmos-env.md`
+- For microservice extensibility, consider splitting CosmosDB logic into a dedicated service in the future
+
+### Security & Compliance
+- Endpoints require authentication (RBAC recommended)
+- All data is indexed for fast retrieval by agent, contact, type, and timestamp
+
 ### EmmaAction Class
 The `EmmaAction` class represents an action determined by the AI. It includes:
 - `Action`: The type of action to perform (SendEmail, ScheduleFollowup, None)

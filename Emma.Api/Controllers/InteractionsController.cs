@@ -1,6 +1,8 @@
 using Emma.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using Emma.Api.Models;
+using Emma.Api.Services;
 using System.Collections.Generic;
 
 namespace Emma.Api.Controllers
@@ -41,6 +43,26 @@ namespace Emma.Api.Controllers
             // TODO: Replace with real creation logic
             interaction.Id = Guid.NewGuid();
             return CreatedAtAction(nameof(GetById), new { id = interaction.Id }, interaction);
+        }
+
+        /// <summary>
+        /// [AI Agent] Retrieve agent interactions in CosmosDB using typed parameters.
+        /// </summary>
+        /// <param name="query">Query DTO with optional LeadId, AgentId, Start, End.</param>
+        /// <remarks>
+        /// Sample payload:
+        /// {
+        ///   "leadId": "00000000-0000-0000-0000-000000000000",
+        ///   "agentId": "00000000-0000-0000-0000-000000000000",
+        ///   "start": "2024-05-01T00:00:00Z",
+        ///   "end": "2024-05-28T23:59:59Z"
+        /// }
+        /// </remarks>
+        [HttpPost("search-by-query")]
+        public async Task<ActionResult<IEnumerable<FulltextInteractionDocument>>> SearchByQuery([FromBody] Models.InteractionQueryDto query, [FromServices] AIFoundryService aiFoundryService)
+        {
+            var results = await aiFoundryService.RetrieveAgentInteractionsAsync(query);
+            return Ok(results);
         }
     }
 }

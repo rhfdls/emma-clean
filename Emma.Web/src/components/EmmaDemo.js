@@ -25,6 +25,64 @@ const EmmaDemo = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [response, setResponse] = useState(null);
+  const [savedDoc, setSavedDoc] = useState(null);
+  const [interactions, setInteractions] = useState([]);
+
+  const AGENT_ID = '00000000-0000-0000-0000-000000000001'; // Demo agent
+  const CONTACT_ID = '00000000-0000-0000-0000-000000000002'; // Demo contact
+
+  const handleSaveToCosmos = async () => {
+    if (!message.trim()) {
+      setError('Please enter content to save');
+      return;
+    }
+    setIsLoading(true);
+    setError('');
+    setSavedDoc(null);
+    try {
+      const res = await fetch('/api/fulltext-interactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentId: AGENT_ID,
+          contactId: CONTACT_ID,
+          type: 'transcript',
+          content: message,
+          timestamp: new Date().toISOString(),
+          metadata: { source: 'demo-ui' }
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setSavedDoc(data);
+    } catch (err) {
+      setError(err.message || 'Failed to save to CosmosDB.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleQueryInteractions = async () => {
+    setIsLoading(true);
+    setError('');
+    setInteractions([]);
+    try {
+      const res = await fetch(`/api/fulltext-interactions?agentId=${AGENT_ID}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setInteractions(data);
+    } catch (err) {
+      setError(err.message || 'Failed to query interactions.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,7 +142,7 @@ const EmmaDemo = () => {
       
       <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Enter a interaction or message to analyze:
+          Enter a interaction or message to analyze or save:
         </Typography>
         
         <Box component="form" onSubmit={handleSubmit}>
@@ -99,7 +157,6 @@ const EmmaDemo = () => {
             disabled={isLoading}
             sx={{ mb: 2 }}
           />
-          
           <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
             <Button
               type="submit"
@@ -110,7 +167,6 @@ const EmmaDemo = () => {
             >
               {isLoading ? 'Analyzing...' : 'Analyze with EMMA'}
             </Button>
-            
             <Button
               variant="outlined"
               onClick={handleUseSample}
@@ -118,10 +174,43 @@ const EmmaDemo = () => {
             >
               Try Sample Transcript
             </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleSaveToCosmos}
+              disabled={isLoading || !message.trim()}
+            >
+              Save to CosmosDB
+            </Button>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={handleQueryInteractions}
+              disabled={isLoading}
+            >
+              Query Agent's Interactions
+            </Button>
           </Box>
-          
           {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
         </Box>
+        {savedDoc && (
+          <Paper sx={{ p: 2, mt: 2, backgroundColor: '#e3f2fd' }}>
+            <Typography variant="subtitle1">Saved to CosmosDB:</Typography>
+            <pre style={{ fontSize: 12 }}>{JSON.stringify(savedDoc, null, 2)}</pre>
+          </Paper>
+        )}
+        {interactions.length > 0 && (
+          <Paper sx={{ p: 2, mt: 2, backgroundColor: '#f9fbe7' }}>
+            <Typography variant="subtitle1">All Fulltext Interactions for Agent:</Typography>
+            <ul style={{ maxHeight: 200, overflow: 'auto' }}>
+              {interactions.map((doc, idx) => (
+                <li key={doc.id || idx}>
+                  <strong>{doc.type}</strong> @ {doc.timestamp}: <span style={{ fontFamily: 'monospace' }}>{doc.content.slice(0, 80)}{doc.content.length > 80 ? '...' : ''}</span>
+                </li>
+              ))}
+            </ul>
+          </Paper>
+        )}
       </Paper>
       
       {response && (

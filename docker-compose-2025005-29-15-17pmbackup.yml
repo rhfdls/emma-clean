@@ -1,0 +1,146 @@
+networks:
+  emma-network:
+    driver: bridge
+
+services:
+  postgres:
+    networks:
+      - emma-network
+    image: postgres:16-alpine
+    container_name: emma_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=emma
+    env_file:
+      - .env
+      - .env.local
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: emma_azurite
+    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10010"
+    ports:
+      - "10010:10010"
+    volumes:
+      - azurite_data:/data
+  emmaapi:
+    build:
+      context: .
+      dockerfile: Emma.Api/Dockerfile
+    container_name: emma_api
+    ports:
+      - "5262:80"
+    networks:
+      - emma-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+      - .env.local
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgreSql=Host=postgres;Port=5432;Database=emma;Username=postgres;Password=postgres
+      - COSMOSDB__ACCOUNTENDPOINT=https://emma-cosmos.documents.azure.com:443/
+      - COSMOSDB__ACCOUNTKEY=LgUJy8nQWgJ1Cl3SQB0CNLPhNcpS70tAMRsdeIXpZBlncpveoLaZX9RRtjpJl6ETXsRZrHFQ2J5kACDbrjmIoA==
+      - COSMOSDB__DATABASENAME=emma-agent
+      - COSMOSDB__CONTAINERNAME=messages
+      - ASPNETCORE_URLS=http://+:80
+      - AzureOpenAI__ApiKey=CwyApoXh8uPhXeyY6Bx8SbNh69hAY1xXr05zWnXBxHdhxNyi99pzJQQJ99BEACfhMk5XJ3w3AAABACOGK8Ux
+      - AzureOpenAI__Endpoint=https://emma-ai-rg.openai.azure.com/
+      - AzureOpenAI__DeploymentName=gpt-4.1
+      - AzureOpenAI__ApiVersion=2023-05-15
+      - AzureAIFoundry__Endpoint=https://emma-ai-rg.openai.azure.com/
+      - AzureAIFoundry__ApiKey=CwyApoXh8uPhXeyY6Bx8SbNh69hAY1xXr05zWnXBxHdhxNyi99pzJQQJ99BEACfhMk5XJ3w3AAABACOGK8Ux
+      - AzureAIFoundry__DeploymentName=gpt-4.1-2
+      - AzureAIFoundry__MaxTokens=1000
+      - AzureAIFoundry__Temperature=0.7
+      - Swagger__BaseUrl=http://localhost:80
+      - Swagger__ExternalUrl=https://api.yourdomain.com
+      - AzureStorage__AccountName=emmaaistorage35482
+      - AzureStorage__AccountKey=qG5V9w9kCQK+Uhplsrx3SQwnJRABluRACzdF+qe6wH0/Saogsv9uOHWwQn0hD91WJ0fIsuI0aGRR+ASttOPuFGw==
+      - AzureSearch__ServiceName=emma-search
+      - AzureSearch__ApiKey=Jt1kVdlqIEr7hFeXtTO44IQv4aukdWGIDDIqR6UjTzAzSeC7ZP2m
+      - AzureSearch__Endpoint=https://emma-search.search.windows.net
+      - KeyVault__Name=emma-keyvault
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+      - FUB_API_KEY=${FUB_API_KEY}
+      - FUB_API_BASE_URL=${FUB_API_BASE_URL}
+
+
+  emmamigration:
+    build:
+      context: .
+      dockerfile: Emma.Api/Dockerfile
+      target: migration
+    volumes:
+      - .:/src
+    networks:
+      - emma-network
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+      - .env.local
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgreSql=Host=postgres;Port=5432;Database=emma;Username=postgres;Password=postgres
+      - COSMOSDB__ACCOUNTENDPOINT=https://emma-cosmos.documents.azure.com:443/
+      - COSMOSDB__ACCOUNTKEY=LgUJy8nQWgJ1Cl3SQB0CNLPhNcpS70tAMRsdeIXpZBlncpveoLaZX9RRtjpJl6ETXsRZrHFQ2J5kACDbrjmIoA==
+      - COSMOSDB__DATABASENAME=emma-agent
+      - COSMOSDB__CONTAINERNAME=messages
+      - ASPNETCORE_URLS=http://+:80
+      - AzureOpenAI__ApiKey=CwyApoXh8uPhXeyY6Bx8SbNh69hAY1xXr05zWnXBxHdhxNyi99pzJQQJ99BEACfhMk5XJ3w3AAABACOGK8Ux
+      - AzureOpenAI__Endpoint=https://emma-ai-rg.openai.azure.com/
+      - AzureOpenAI__DeploymentName=gpt-4.1
+      - AzureOpenAI__ApiVersion=2023-05-15
+      - AzureAIFoundry__Endpoint=https://emma-ai-rg.openai.azure.com/
+      - AzureAIFoundry__ApiKey=CwyApoXh8uPhXeyY6Bx8SbNh69hAY1xXr05zWnXBxHdhxNyi99pzJQQJ99BEACfhMk5XJ3w3AAABACOGK8Ux
+      - AzureAIFoundry__DeploymentName=gpt-4.1-2
+      - AzureAIFoundry__MaxTokens=1000
+      - AzureAIFoundry__Temperature=0.7
+      - Swagger__BaseUrl=http://localhost:80
+      - Swagger__ExternalUrl=https://api.yourdomain.com
+      - AzureStorage__AccountName=emmaaistorage35482
+      - AzureStorage__AccountKey=qG5V9w9kCQK+Uhplsrx3SQwnJRABluRACzdF+qe6wH0/Saogsv9uOHWwQn0hD91WJ0fIsuI0aGRR+ASttOPuFGw==
+      - AzureSearch__ServiceName=emma-search
+      - AzureSearch__ApiKey=Jt1kVdlqIEr7hFeXtTO44IQv4aukdWGIDDIqR6UjTzAzSeC7ZP2m
+      - AzureSearch__Endpoint=https://emma-search.search.windows.net
+      - KeyVault__Name=emma-keyvault
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+      - FUB_API_KEY=${FUB_API_KEY}
+      - FUB_API_BASE_URL=${FUB_API_BASE_URL}
+
+
+  emmaweb:
+    build:
+      context: ./Emma.Web
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=http://emmaapi:80
+    container_name: emma_web
+    ports:
+      - "3000:80"
+    networks:
+      - emma-network
+    depends_on:
+      - emmaapi
+    env_file:
+      - .env
+      - .env.local
+    # Frontend typically needs fewer environment variables than API
+
+volumes:
+  pgdata:
+  azurite_data:

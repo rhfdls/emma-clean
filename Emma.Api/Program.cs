@@ -15,8 +15,14 @@ using Emma.Api.Middleware;
 using Emma.Api.Config;  // For AzureOpenAIServiceExtensions
 using Npgsql;
 
+using System.Net;
+
 // Load environment variables from .env
 Env.Load();
+// Debug: Check Cosmos DB env vars after Env.Load()
+Console.WriteLine("[DEBUG] After Env.Load():");
+Console.WriteLine($"[DEBUG] COSMOSDB__ACCOUNTENDPOINT: {Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTENDPOINT")}");
+Console.WriteLine($"[DEBUG] COSMOSDB__ACCOUNTKEY: {Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTKEY")}");
 
 // DEBUG: Print all environment variables at startup
 foreach (System.Collections.DictionaryEntry de in Environment.GetEnvironmentVariables())
@@ -42,6 +48,11 @@ void ValidateCosmosDbEnvVars()
 ValidateCosmosDbEnvVars();
 
 var builder = WebApplication.CreateBuilder(args);
+// Debug: Check Cosmos DB config after CreateBuilder
+Console.WriteLine("[DEBUG] After CreateBuilder:");
+Console.WriteLine($"[DEBUG] From builder.Configuration: Endpoint={builder.Configuration["COSMOSDB__ACCOUNTENDPOINT"]}, Key={builder.Configuration["COSMOSDB__ACCOUNTKEY"]}");
+Console.WriteLine($"[DEBUG] config[\"CosmosDb:AccountEndpoint\"]: {builder.Configuration["CosmosDb:AccountEndpoint"]}");
+Console.WriteLine($"[DEBUG] config[\"CosmosDb:AccountKey\"]: {builder.Configuration["CosmosDb:AccountKey"]}");
 
 // Add HTTP context accessor
 builder.Services.AddHttpContextAccessor();
@@ -55,6 +66,17 @@ builder.Services.AddScoped<ISchedulerAgent, SchedulerAgentStub>();
 
 // Configure Azure OpenAI with validation
 builder.Services.AddAzureOpenAI(builder.Configuration);
+
+// === ENV CASE VALIDATOR: Diagnosing environment variable case issues ===
+try
+{
+    Emma.EnvCaseValidator.EnvCaseValidator.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"[EnvCaseValidator] Error: {ex.Message}");
+}
+// === END ENV CASE VALIDATOR ===
 
 // Register EmmaAgentService with the correct interface and dependencies
 builder.Services.AddScoped<IEmmaAgentService>(provider =>
@@ -70,11 +92,39 @@ builder.Services.AddScoped<IEmmaAgentService>(provider =>
         config);
 });
 
-// Register Cosmos DB integration
-builder.Services.AddCosmosDb(builder.Configuration);
+// Register CosmosClient for CosmosDB
+builder.Services.AddSingleton(s =>
+{
+    var config = s.GetRequiredService<IConfiguration>();
+    var cosmosDbConfig = config.GetSection("CosmosDb").Get<CosmosDbConfig>();
+    var endpoint = cosmosDbConfig.AccountEndpoint;
+    var key = cosmosDbConfig.AccountKey;
+    Console.WriteLine($"[DEBUG] Cosmos Endpoint: {endpoint}, Key: {(string.IsNullOrEmpty(key) ? "EMPTY" : "SET")}");
+    return new Microsoft.Azure.Cosmos.CosmosClient(endpoint, key);
+});
 
-// Add logging
-builder.Services.AddLogging(configure => configure.AddConsole().AddDebug());
+// Register CosmosAgentRepository for agent and controller use
+builder.Services.AddScoped<CosmosAgentRepository>(s =>
+{
+    var config = s.GetRequiredService<IConfiguration>();
+    var db = config["CosmosDb:DatabaseName"];
+    var container = config["CosmosDb:ContainerName"];
+    var client = s.GetRequiredService<Microsoft.Azure.Cosmos.CosmosClient>();
+    var logger = s.GetRequiredService<ILogger<CosmosAgentRepository>>();
+    return new CosmosAgentRepository(client, db, container, logger);
+});
+
+
+// Register FulltextInteractionService
+builder.Services.AddScoped<FulltextInteractionService>();
+
+// Add logging (minimum viable observability)
+// Configure console logger to use JSON output for structured logs
+builder.Services.AddLogging(configure =>
+{
+    configure.AddJsonConsole(); // Requires Microsoft.Extensions.Logging.Json
+    configure.AddDebug();
+});
 
 // Register Azure AI Foundry configuration
 builder.Services.Configure<AzureAIFoundryConfig>(
@@ -140,7 +190,47 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 
 
+// Register the environment validator service
+builder.Services.AddSingleton<EnvironmentValidator>();
+
+// MVP/DEV-ONLY: AllowAll authentication for local development. DO NOT USE IN PRODUCTION!
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddAuthentication("AllowAll")
+        .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, AllowAllAuthenticationHandler>("AllowAll", null);
+    builder.Services.AddAuthorization(options =>
+    {
+        options.FallbackPolicy = options.DefaultPolicy;
+    });
+}
+else
+{
+    // TODO: Replace with real authentication for production (e.g. JWT Bearer)
+    // builder.Services.AddAuthentication(...).AddJwtBearer(...);
+}
+
 var app = builder.Build();
+
+// Run environment validation, but use a hybrid approach during transition period
+// This logs warnings but doesn't stop startup if variables are missing
+try
+{
+    var validator = app.Services.GetRequiredService<EnvironmentValidator>();
+    validator.ValidateRequiredVariables(); // Modified to log warnings instead of throwing exceptions
+    validator.ValidateOptionalVariables();
+    validator.CheckForConflicts();
+    
+    // Log a transition message explaining the hybrid approach
+    app.Logger.LogInformation("TRANSITION NOTICE: The Emma AI Platform is using a hybrid configuration approach.");
+    app.Logger.LogInformation("Values can come from both docker-compose.yml and .env/.env.local files.");
+    app.Logger.LogInformation("For improved security, migrate all secrets to .env.local (not in version control).");
+}
+catch (Exception ex)
+{
+    // This should only happen for unexpected errors, not missing variables
+    Console.Error.WriteLine($"WARNING: Environment validation error: {ex.Message}");
+    app.Logger.LogWarning(ex, "Environment validation encountered an error, but startup will continue");
+}
 
 // Apply database migrations and seed data
 using (var scope = app.Services.CreateScope())
@@ -174,6 +264,7 @@ if (app.Environment.IsDevelopment())
 // Use HTTP instead of HTTPS
 app.UseRouting();
 app.UseCors(); // Enable CORS for frontend
+app.UseAuthentication(); // MVP/DEV-ONLY: AllowAll authentication for local/dev
 app.UseAuthorization();
 app.MapControllers();
 
@@ -216,3 +307,6 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+
+// For integration testing with WebApplicationFactory<Program>
+public partial class Program { }

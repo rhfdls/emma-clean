@@ -1,4 +1,4 @@
-﻿namespace Emma.Data;
+namespace Emma.Data;
 
 public class Class1
 {

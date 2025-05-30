@@ -1,4 +1,5 @@
 using System;
+using Emma.Api.Models;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
@@ -25,13 +26,19 @@ namespace Emma.Api.Services
         private readonly IAsyncPolicy _retryPolicy;
         private readonly OpenAIClient _openAIClient;
         private readonly AzureAIFoundryConfig _config;
+        private readonly CosmosAgentRepository _cosmosRepo;
 
+        /// <summary>
+        /// Inject CosmosAgentRepository for agent data access
+        /// </summary>
         public AIFoundryService(
             IOptions<AzureAIFoundryConfig> config,
-            ILogger<AIFoundryService> logger)
+            ILogger<AIFoundryService> logger,
+            CosmosAgentRepository cosmosRepo)
         {
             _config = config?.Value ?? throw new ArgumentNullException(nameof(config));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _cosmosRepo = cosmosRepo ?? throw new ArgumentNullException(nameof(cosmosRepo));
             
             if (string.IsNullOrWhiteSpace(_config.Endpoint))
                 throw new ArgumentException("Azure AI Foundry endpoint is not configured", nameof(_config.Endpoint));
@@ -246,6 +253,27 @@ namespace Emma.Api.Services
         public Task<string> StartNewInteractionAsync()
         {
             return Task.FromResult(Guid.NewGuid().ToString());
+        }
+
+        /// <summary>
+        /// CosmosDB-backed skill/tool: Retrieve agent interactions using typed parameters.
+        /// </summary>
+        /// <param name="query">Query DTO with optional leadId, agentId, start, end.</param>
+        /// <returns>Enumerable of FulltextInteractionDocument matching the query.</returns>
+        public async Task<IEnumerable<FulltextInteractionDocument>> RetrieveAgentInteractionsAsync(Models.InteractionQueryDto query)
+        {
+            // Build CosmosDB SQL query from parameters
+            var sql = "SELECT * FROM c WHERE 1=1";
+            if (query.LeadId.HasValue)
+                sql += $" AND c.contactId = '{query.LeadId.Value}'";
+            if (query.AgentId.HasValue)
+                sql += $" AND c.agentId = '{query.AgentId.Value}'";
+            if (query.Start.HasValue)
+                sql += $" AND c.timestamp >= '{query.Start.Value:O}'";
+            if (query.End.HasValue)
+                sql += $" AND c.timestamp <= '{query.End.Value:O}'";
+
+            return await _cosmosRepo.QueryItemsAsync<FulltextInteractionDocument>(sql);
         }
     }
 }
