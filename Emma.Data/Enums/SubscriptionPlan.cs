@@ -1,8 +1,8 @@
-namespace Emma.Data.Enums;
+namespace Emma.Data.Models;
 
-public enum SubscriptionPlan
+public class SubscriptionPlan
 {
-    Basic,
-    Pro,
-    Enterprise
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Name { get; set; } = string.Empty;
+    public List<SubscriptionPlanFeature> SubscriptionPlanFeatures { get; set; } = new();
 }

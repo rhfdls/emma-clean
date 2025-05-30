@@ -45,11 +45,11 @@ namespace Emma.Data
                 context.Agents.Add(agent);
                 context.SaveChanges();
             }
-            // Seed Conversation for the Agent and Organization
-            var conversation = context.Conversations.FirstOrDefault(c => c.AgentId == agent.Id && c.OrganizationId == org.Id);
+            // Seed Interaction for the Agent and Organization
+            var conversation = context.Interactions.FirstOrDefault(c => c.AgentId == agent.Id && c.OrganizationId == org.Id);
             if (conversation == null)
             {
-                conversation = new Conversation
+                conversation = new Interaction
                 {
                     Id = Guid.NewGuid(),
                     AgentId = agent.Id,
@@ -58,7 +58,7 @@ namespace Emma.Data
                     ClientLastName = "Example",
                     CreatedAt = DateTime.UtcNow
                 };
-                context.Conversations.Add(conversation);
+                context.Interactions.Add(conversation);
                 context.SaveChanges();
             }
             // Seed Message for the Agent
@@ -76,7 +76,7 @@ namespace Emma.Data
                     CreatedAt = DateTime.UtcNow,
                     OccurredAt = messageOccurredAt,
                     AgentId = agent.Id,
-                    ConversationId = conversation.Id,
+                    InteractionId = conversation.Id,
                 };
                 context.Messages.Add(message);
                 context.SaveChanges();

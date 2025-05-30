@@ -25,7 +25,7 @@ namespace Emma.Api.Services
     {
         private const string SystemPrompt = """
         You are EMMA (Estate Management & Marketing Assistant), an AI assistant for real estate professionals.
-        Your role is to analyze real estate-related conversations and determine the appropriate actions to take.
+        Your role is to analyze real estate-related interactions and determine the appropriate actions to take.
 
         Available Actions:
         - sendemail: Send an email to the client
@@ -252,7 +252,7 @@ namespace Emma.Api.Services
         /// <param name="response">The response from Azure OpenAI.</param>
         /// <param name="correlationId">The correlation ID for the request.</param>
         /// <returns>An <see cref="EmmaResponseDto"/> containing the processed response.</returns>
-        private async Task<EmmaResponseDto> ProcessSuccessfulResponse(
+        private Task<EmmaResponseDto> ProcessSuccessfulResponse(
             Azure.Response<Azure.AI.OpenAI.ChatCompletions> response, 
             string correlationId)
         {
@@ -261,13 +261,13 @@ namespace Emma.Api.Services
                 if (response == null)
                 {
                     _logger.LogError("Null response received from Azure OpenAI");
-                    return EmmaResponseDto.ErrorResponse("No response received from AI service", correlationId, null);
+                    return Task.FromResult(EmmaResponseDto.ErrorResponse("No response received from AI service", correlationId, null));
                 }
                 
                 if (response.Value == null)
                 {
                     _logger.LogError("Null value in response from Azure OpenAI");
-                    return EmmaResponseDto.ErrorResponse("Invalid response from AI service", correlationId, null);
+                    return Task.FromResult(EmmaResponseDto.ErrorResponse("Invalid response from AI service", correlationId, null));
                 }
 
                 _logger.LogInformation(
@@ -278,21 +278,21 @@ namespace Emma.Api.Services
                 if (response.Value?.Choices == null || response.Value.Choices.Count == 0)
                 {
                     _logger.LogError("No response choices returned from Azure OpenAI");
-                    return EmmaResponseDto.ErrorResponse("No response from AI service", correlationId, null);
+                    return Task.FromResult(EmmaResponseDto.ErrorResponse("No response from AI service", correlationId, null));
                 }
                 
                 var choice = response.Value.Choices[0];
                 if (choice?.Message?.Content == null)
                 {
                     _logger.LogError("Invalid response format from Azure OpenAI");
-                    return EmmaResponseDto.ErrorResponse("Invalid response format from AI service", correlationId, null);
+                    return Task.FromResult(EmmaResponseDto.ErrorResponse("Invalid response format from AI service", correlationId, null));
                 }
                 
                 var responseContent = choice.Message.Content;
                 if (string.IsNullOrWhiteSpace(responseContent))
                 {
                     _logger.LogError("Empty response content received from Azure OpenAI");
-                    return EmmaResponseDto.ErrorResponse("Empty response from AI service", correlationId, null);
+                    return Task.FromResult(EmmaResponseDto.ErrorResponse("Empty response from AI service", correlationId, null));
                 }
                 
                 _logger.LogDebug("Received response from Azure OpenAI: {Response}", responseContent);
@@ -302,21 +302,21 @@ namespace Emma.Api.Services
                 if (emmaAction == null)
                 {
                     _logger.LogError("Failed to parse AI response into EmmaAction. Output: {Output}", responseContent);
-                    return EmmaResponseDto.ErrorResponse("Invalid response format from AI service", correlationId, responseContent);
+                    return Task.FromResult(EmmaResponseDto.ErrorResponse("Failed to parse AI response", correlationId, null));
                 }
                 
                 _logger.LogInformation("Successfully processed message. Action: {Action}", emmaAction.Action);
-                return EmmaResponseDto.SuccessResponse(emmaAction, responseContent, correlationId);
+                return Task.FromResult(EmmaResponseDto.SuccessResponse(emmaAction, responseContent, correlationId));
             }
             catch (JsonException jsonEx)
             {
                 _logger.LogError(jsonEx, "Failed to deserialize AI response. Correlation ID: {CorrelationId}", correlationId);
-                return EmmaResponseDto.ErrorResponse("Failed to process AI response", correlationId, null);
+                return Task.FromResult(EmmaResponseDto.ErrorResponse("Failed to process AI response", correlationId, null));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error processing AI response. Correlation ID: {CorrelationId}", correlationId);
-                return EmmaResponseDto.ErrorResponse("An error occurred while processing the AI response", correlationId, null);
+                return Task.FromResult(EmmaResponseDto.ErrorResponse("An error occurred while processing the AI response", correlationId, null));
             }
         }
     }

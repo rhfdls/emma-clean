@@ -20,7 +20,7 @@ namespace Emma.Api.IntegrationTests.Services
             _output = output;
             
             var services = new ServiceCollection()
-                .AddLogging(builder => builder.AddXUnit(output).SetMinimumLevel(LogLevel.Debug));
+                .AddLogging(builder => builder.AddConsole()); // Removed AddXUnit(output) and debug level for compatibility
             
             var serviceProvider = services.BuildServiceProvider();
             var logger = serviceProvider.GetRequiredService<ILogger<EmmaAgentService>>();
@@ -52,10 +52,10 @@ namespace Emma.Api.IntegrationTests.Services
             
             _output.WriteLine($"Action: {result.Action.Action}");
             _output.WriteLine($"Payload: {result.Action.Payload}");
-            _output.WriteLine($"Raw Response: {result.RawResponse}");
+            // _output.WriteLine($"Raw Response: {result.RawResponse}"); // RawResponse property does not exist
             
             // Verify the response is a valid action
-            Assert.Contains(result.Action.Action, new[] { "sendemail", "schedulefollowup", "none" });
+            Assert.Contains(result.Action.Action, new[] { EmmaActionType.SendEmail, EmmaActionType.ScheduleFollowup, EmmaActionType.None });
         }
     }
     
