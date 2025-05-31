@@ -12,19 +12,18 @@ docker pull postgres:15
 
 # Run PostgreSQL container with vector extension
 Write-Host "Starting PostgreSQL container with vector extension..."
-docker run --name emma-postgres -e POSTGRES_PASSWORD=EmmaPostgres2025! -p 5432:5432 -d postgres:15
+docker run --name emma-postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:15
 
 # Wait for PostgreSQL to start
 Start-Sleep -Seconds 10
 
 # Create database and install vector extension
 Write-Host "Setting up database and vector extension..."
-docker exec -it emma-postgres psql -U postgres -c "CREATE DATABASE emma_db;"
-docker exec -it emma-postgres psql -U postgres -d emma_db -c "CREATE EXTENSION vector;"
+docker exec -it emma-postgres psql -U postgres -c "CREATE DATABASE emma;"
 
 Write-Host "PostgreSQL setup complete!"
-Write-Host "Database: emma_db"
+Write-Host "Database: emma"
 Write-Host "Username: postgres"
-Write-Host "Password: EmmaPostgres2025!"
+Write-Host "Password: postgres"
 Write-Host "Port: 5432"
 Write-Host "Vector extension installed successfully"

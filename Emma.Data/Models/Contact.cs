@@ -8,13 +8,18 @@ public class Contact
     public List<EmailAddress> Emails { get; set; } = new();
     public List<PhoneNumber> Phones { get; set; } = new();
     public Address? Address { get; set; }
-    public List<string> Tags { get; set; } = new(); // Segmentation only (VIP, Buyer, Region, etc.)
+    /// <summary>
+    /// Segmentation tags only (e.g., VIP, Buyer, Region). DO NOT use for privacy/business logic (CRM, PERSONAL, PRIVATE, etc.).
+    /// All privacy/business logic must be enforced via Interaction.Tags.
+    /// </summary>
+    [Emma.Data.Validation.NoPrivacyBusinessTags]
+    public List<string> Tags { get; set; } = new();
     public string? LeadSource { get; set; }
     public Guid? OwnerId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public Dictionary<string, string>? CustomFields { get; set; }
-    public string? PrivacyLevel { get; set; } // public|private|restricted (deprecated, use Interaction tags)
+    // NOTE: PrivacyLevel property has been removed. Run EF Core migration to drop the PrivacyLevel column from the database.
 }
 
 public class EmailAddress

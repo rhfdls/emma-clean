@@ -51,14 +51,21 @@ User/Agent (owns) → Contact (referenced by) ← Interaction
   "phones": [{"number": "555-1234", "type": "mobile", "verified": true}],
   "address": {"street": "1 Main", "city": "NYC", "state": "NY", "postalCode": "10001", "country": "USA"},
   "tags": ["VIP"],
+  // Segmentation tags only. DO NOT use for privacy/business logic (CRM, PERSONAL, PRIVATE, etc.).
   "leadSource": "Website",
   "ownerId": "agent123",
   "createdAt": "2024-01-01T12:00:00Z",
   "updatedAt": "2024-01-02T12:00:00Z",
   "customFields": {"custom1": "val"},
-  "privacyLevel": "public"
+  "privacyLevel": "public" // DEPRECATED. Use Interaction.Tags for all privacy/business logic.
 }
 ```
+
+> **Note:**
+> - Contact.Tags is for segmentation only (VIP, Buyer, Region, etc.).
+> - All privacy/business logic (CRM, PERSONAL, PRIVATE, etc.) must be enforced via Interaction.Tags.
+> - Contact.PrivacyLevel is deprecated and should not be used. Use Interaction.Tags for privacy/business logic.
+> - Migration note: Legacy Contact.PrivacyLevel and any privacy/business logic in Contact.Tags are not used; use Interaction.Tags instead.
 
 ### Original Schema
 ```json

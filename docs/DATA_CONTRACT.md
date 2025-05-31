@@ -70,6 +70,11 @@ User/Agent (agentId) →
 
 ---
 
+## Contact Entity Notes
+- `tags` is for segmentation only (VIP, Buyer, Region, etc.). DO NOT use for privacy/business logic (CRM, PERSONAL, PRIVATE, etc.).
+- `privacyLevel` is DEPRECATED. All privacy/business logic must be enforced via Interaction.Tags.
+- Migration note: Legacy Contact.PrivacyLevel and any privacy/business logic in Contact.Tags are not used; use Interaction.Tags instead.
+
 ## Example CosmosDB Interaction Document
 
 ```json
