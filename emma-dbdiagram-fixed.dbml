@@ -1,0 +1,175 @@
+// Emma AI Platform Database Schema
+// Note: Using .dbml extension and dbdiagram.io specific syntax
+
+// Enum definitions
+enum contact_type {
+  INDIVIDUAL
+  ORGANIZATION
+  LEAD
+}
+
+enum interaction_type {
+  EMAIL
+  CALL
+  MEETING
+  MESSAGE
+  NOTE
+  DOCUMENT
+}
+
+enum privacy_tag {
+  CRM
+  PERSONAL
+  PRIVATE
+  BUSINESS
+  PUBLIC
+}
+
+// Tables
+Table contacts {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  display_name varchar(100) [not null, note: 'Full name of the contact or organization']
+  organization_name varchar(100) [note: 'Organization name if applicable']
+  contact_type contact_type [not null, note: 'Type of contact: INDIVIDUAL, ORGANIZATION, or LEAD']
+  email varchar(255) [note: 'Primary email address']
+  phone varchar(50) [note: 'Primary phone number']
+  address text [note: 'Physical address']
+  website varchar(255) [note: 'Website URL']
+  linkedin_url varchar(255) [note: 'LinkedIn profile URL']
+  twitter_handle varchar(50) [note: 'Twitter handle']
+  notes text [note: 'General notes about the contact']
+  legacy_privacy_tags "privacy_tag[]" [note: 'Legacy field for privacy tags, being migrated to interaction level']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation timestamp']
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record last update timestamp']
+  deleted_at timestamp [note: 'Soft delete timestamp, NULL if active']
+
+  Note: 'Central entity that stores all contacts in the Emma AI Platform'
+  
+  Indexes {
+    email [name: 'idx_contacts_email']
+  }
+}
+
+Table interactions {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  contact_id uuid [ref: > contacts.id, note: 'Foreign key to the associated contact']
+  interaction_type interaction_type [not null, note: 'Type of interaction: EMAIL, CALL, MEETING, MESSAGE, NOTE, or DOCUMENT']
+  title varchar(255) [not null, note: 'Short title or subject of the interaction']
+  content text [note: 'Main content or body of the interaction']
+  summary text [note: 'Brief summary of the interaction, often AI-generated']
+  occurred_at timestamp [not null, note: 'When the interaction occurred']
+  privacy_tags "privacy_tag[]" [not null, default: '{}', note: 'Array of privacy tags for business logic and access control']
+  sentiment_score decimal(3,2) [note: 'AI-generated sentiment score from -1.0 to 1.0']
+  is_favorited boolean [default: false, note: 'Whether the user has marked this as a favorite']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation timestamp']
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record last update timestamp']
+  deleted_at timestamp [note: 'Soft delete timestamp, NULL if active']
+
+  Note: 'Core table for all communication and interactions'
+  
+  Indexes {
+    contact_id [name: 'idx_interactions_contact_id']
+    occurred_at [name: 'idx_interactions_occurred_at']
+  }
+}
+
+Table email_details {
+  interaction_id uuid [pk, ref: - interactions.id, note: 'Foreign key to the associated interaction']
+  subject varchar(255) [not null, note: 'Email subject line']
+  sender varchar(255) [not null, note: 'Email sender address']
+  recipients "text[]" [not null, note: 'Array of primary recipient addresses']
+  cc_recipients "text[]" [note: 'Array of CC recipient addresses']
+  bcc_recipients "text[]" [note: 'Array of BCC recipient addresses']
+  thread_id varchar(255) [note: 'Email thread identifier']
+  in_reply_to varchar(255) [note: 'Reference to the email this is replying to']
+  has_attachments boolean [default: false, note: 'Whether the email has attachments']
+  importance varchar(20) [note: 'Email importance flag (HIGH, NORMAL, LOW)']
+
+  Note: 'Contains email-specific metadata linked to the main interactions table'
+}
+
+Table call_details {
+  interaction_id uuid [pk, ref: - interactions.id, note: 'Foreign key to the associated interaction']
+  duration_seconds integer [note: 'Call duration in seconds']
+  direction varchar(10) [note: 'Whether the call was incoming or outgoing (INBOUND, OUTBOUND)']
+  call_status varchar(20) [note: 'Status of the call (COMPLETED, MISSED, VOICEMAIL, SCHEDULED)']
+  phone_number varchar(50) [note: 'Phone number of the other party']
+  recording_url varchar(255) [note: 'URL to call recording if available']
+
+  Note: 'Contains call-specific metadata linked to the main interactions table'
+}
+
+Table meeting_details {
+  interaction_id uuid [pk, ref: - interactions.id, note: 'Foreign key to the associated interaction']
+  location varchar(255) [note: 'Physical or virtual meeting location']
+  start_time timestamp [not null, note: 'Meeting start time']
+  end_time timestamp [not null, note: 'Meeting end time']
+  attendees "text[]" [note: 'Array of attendee email addresses']
+  meeting_url varchar(255) [note: 'URL for virtual meetings']
+  is_recurring boolean [default: false, note: 'Whether this is a recurring meeting']
+  recurrence_pattern varchar(100) [note: 'Description of recurrence pattern if applicable']
+
+  Note: 'Contains meeting-specific metadata linked to the main interactions table'
+}
+
+Table document_details {
+  interaction_id uuid [pk, ref: - interactions.id, note: 'Foreign key to the associated interaction']
+  document_type varchar(50) [not null, note: 'Type of document (contract, listing, etc.)']
+  filename varchar(255) [not null, note: 'Original filename']
+  file_size_bytes bigint [note: 'Size of the file in bytes']
+  mime_type varchar(100) [note: 'MIME type of the document']
+  storage_url varchar(255) [note: 'URL where the document is stored']
+  document_date timestamp [note: 'Date associated with the document content']
+
+  Note: 'Contains document-specific metadata linked to the main interactions table'
+}
+
+Table tags {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  name varchar(50) [not null, unique, note: 'Tag name']
+  color varchar(7) [note: 'Hexadecimal color code for UI display']
+  description varchar(255) [note: 'Description of the tag\'s purpose']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation timestamp']
+
+  Note: 'Reusable tags for categorizing interactions'
+}
+
+Table interaction_tags {
+  interaction_id uuid [ref: > interactions.id, note: 'Foreign key to the interaction']
+  tag_id uuid [ref: > tags.id, note: 'Foreign key to the tag']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation timestamp']
+
+  indexes {
+    (interaction_id, tag_id) [pk]
+  }
+
+  Note: 'Junction table implementing many-to-many relationship between interactions and tags'
+}
+
+Table ai_analysis {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  interaction_id uuid [ref: > interactions.id, note: 'Foreign key to the analyzed interaction']
+  analysis_type varchar(50) [not null, note: 'Type of AI analysis performed']
+  result jsonb [not null, note: 'JSON result of the analysis']
+  confidence_score decimal(5,4) [note: 'Confidence level of the analysis']
+  model_version varchar(50) [note: 'Version of the AI model used']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation timestamp']
+
+  Note: 'Stores results from various AI analyses performed on interaction content'
+}
+
+Table users {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  username varchar(50) [not null, unique, note: 'Username for login']
+  email varchar(255) [not null, unique, note: 'Email address for the user']
+  password_hash varchar(255) [not null, note: 'Hashed password']
+  first_name varchar(50) [note: 'User\'s first name']
+  last_name varchar(50) [note: 'User\'s last name']
+  role varchar(20) [not null, note: 'User role for access control']
+  is_active boolean [default: true, note: 'Whether the user account is active']
+  last_login_at timestamp [note: 'Timestamp of last successful login']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation timestamp']
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record last update timestamp']
+
+  Note: 'Stores user accounts for the Emma AI Platform'
+}

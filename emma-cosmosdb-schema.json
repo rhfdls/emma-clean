@@ -1,0 +1,211 @@
+{
+  "documentExamples": [
+    {
+      "id": "interaction_12345",
+      "type": "interaction_content",
+      "interactionId": 12345,
+      "interactionType": "EMAIL",
+      "content": {
+        "fullText": "This is the complete email content that might be very long and contain formatting, etc.",
+        "mimeType": "text/html",
+        "processedText": "This is the processed plain text version for AI processing",
+        "language": "en-US",
+        "size": 24560
+      },
+      "metadata": {
+        "importSource": "outlook",
+        "importedAt": "2025-06-02T15:33:23-04:00",
+        "originalId": "AAMkAGQ1MjQxNTkxLTZiNGItNDIzYy1hYzIzLTE2MDEyZTcyNmRiYgBGAAAAAAC1iKJ6nOZYT5NX0QI1gMJtBwBsAY8WtgHPQrUGbwCZXYfQAAAASxfaAABfOCZnwNVdTIAKYj2FX_RVAAA0TK3pAAA="
+      },
+      "privacy": {
+        "tags": ["CRM", "BUSINESS"],
+        "accessRestrictions": []
+      },
+      "aiProcessing": {
+        "status": "COMPLETED",
+        "processedAt": "2025-06-02T15:35:12-04:00",
+        "summary": "Email discussing property listing details for 123 Main St with price updates",
+        "entityExtractions": [
+          {"type": "PROPERTY", "value": "123 Main St", "confidence": 0.92},
+          {"type": "PRICE", "value": "$450,000", "confidence": 0.95}
+        ],
+        "sentimentScore": 0.75,
+        "vectorEmbedding": null,
+        "topicClassification": ["LISTING", "PRICING"]
+      },
+      "attachments": [
+        {
+          "id": "att_78901",
+          "fileName": "property-details.pdf",
+          "mimeType": "application/pdf",
+          "size": 2456012,
+          "storageUri": "https://emmaaistorage35482.blob.core.windows.net/attachments/property-details-12345.pdf",
+          "thumbnailUri": "https://emmaaistorage35482.blob.core.windows.net/thumbnails/property-details-12345.png"
+        }
+      ],
+      "created": "2025-06-02T15:30:45-04:00",
+      "lastModified": "2025-06-02T15:35:45-04:00"
+    },
+    {
+      "id": "interaction_12346",
+      "type": "interaction_content",
+      "interactionId": 12346,
+      "interactionType": "DOCUMENT",
+      "content": {
+        "fullText": "PURCHASE AGREEMENT\n\nThis Real Estate Purchase Agreement (\"Agreement\") is made between...",
+        "mimeType": "application/pdf",
+        "processedText": "PURCHASE AGREEMENT This Real Estate Purchase Agreement is made between...",
+        "language": "en-US",
+        "size": 1245982
+      },
+      "metadata": {
+        "importSource": "upload",
+        "importedAt": "2025-06-01T10:15:32-04:00",
+        "originalId": "user_upload_doc_5678"
+      },
+      "privacy": {
+        "tags": ["PRIVATE", "BUSINESS"],
+        "accessRestrictions": ["LEGAL_TEAM_ONLY"]
+      },
+      "aiProcessing": {
+        "status": "COMPLETED",
+        "processedAt": "2025-06-01T10:18:47-04:00",
+        "summary": "Purchase agreement for 456 Oak Ave property with closing date of July 15, 2025",
+        "entityExtractions": [
+          {"type": "PROPERTY", "value": "456 Oak Ave", "confidence": 0.89},
+          {"type": "DATE", "value": "2025-07-15", "confidence": 0.96},
+          {"type": "PRICE", "value": "$525,000", "confidence": 0.94}
+        ],
+        "sentimentScore": null,
+        "vectorEmbedding": null,
+        "topicClassification": ["AGREEMENT", "PURCHASE"]
+      },
+      "attachments": [],
+      "created": "2025-06-01T10:15:32-04:00",
+      "lastModified": "2025-06-01T10:18:47-04:00"
+    },
+    {
+      "id": "interaction_12347",
+      "type": "interaction_content",
+      "interactionId": 12347,
+      "interactionType": "MEETING",
+      "content": {
+        "fullText": "Meeting Notes: Property Development Discussion\n\nAttendees: John Smith, Sarah Johnson, Mark Davis\n\nTopics Discussed:\n1. Zoning requirements for 789 Pine Blvd\n2. Budget constraints and financing options\n3. Timeline for development phases",
+        "mimeType": "text/plain",
+        "processedText": "Meeting Notes: Property Development Discussion Attendees: John Smith, Sarah Johnson, Mark Davis Topics Discussed: 1. Zoning requirements for 789 Pine Blvd 2. Budget constraints and financing options 3. Timeline for development phases",
+        "language": "en-US",
+        "size": 4580
+      },
+      "metadata": {
+        "importSource": "teams",
+        "importedAt": "2025-05-28T14:30:12-04:00",
+        "originalId": "teams_meeting_22445566",
+        "duration": 3600,
+        "participants": ["john.smith@example.com", "sarah.johnson@example.com", "mark.davis@example.com"]
+      },
+      "privacy": {
+        "tags": ["BUSINESS"],
+        "accessRestrictions": []
+      },
+      "aiProcessing": {
+        "status": "COMPLETED",
+        "processedAt": "2025-05-28T14:35:22-04:00",
+        "summary": "Discussion about development plans for 789 Pine Blvd, focusing on zoning requirements, budget constraints, and project timeline",
+        "entityExtractions": [
+          {"type": "PROPERTY", "value": "789 Pine Blvd", "confidence": 0.91},
+          {"type": "PERSON", "value": "John Smith", "confidence": 0.98},
+          {"type": "PERSON", "value": "Sarah Johnson", "confidence": 0.98},
+          {"type": "PERSON", "value": "Mark Davis", "confidence": 0.97}
+        ],
+        "sentimentScore": 0.62,
+        "vectorEmbedding": null,
+        "topicClassification": ["DEVELOPMENT", "PLANNING", "ZONING"]
+      },
+      "attachments": [
+        {
+          "id": "att_78902",
+          "fileName": "zoning-map.png",
+          "mimeType": "image/png",
+          "size": 1245670,
+          "storageUri": "https://emmaaistorage35482.blob.core.windows.net/attachments/zoning-map-12347.png",
+          "thumbnailUri": "https://emmaaistorage35482.blob.core.windows.net/thumbnails/zoning-map-12347.png"
+        }
+      ],
+      "created": "2025-05-28T14:30:12-04:00",
+      "lastModified": "2025-05-28T14:35:22-04:00"
+    }
+  ],
+  "schemaDescription": {
+    "id": "Unique identifier in Cosmos DB, using pattern 'interaction_{interactionId}' to make lookups intuitive",
+    "type": "Document type identifier for polymorphic collections",
+    "interactionId": "Foreign key reference to PostgreSQL interactions table id field",
+    "interactionType": "Matches the interaction_type enum in PostgreSQL (EMAIL, CALL, MEETING, MESSAGE, NOTE, DOCUMENT)",
+    "content": {
+      "fullText": "Complete raw content of the interaction - can be very large",
+      "mimeType": "Content format identifier (text/plain, text/html, application/pdf, etc.)",
+      "processedText": "Plain text extracted from original content for AI processing",
+      "language": "Content language code",
+      "size": "Content size in bytes"
+    },
+    "metadata": {
+      "importSource": "Source system of the content (outlook, gmail, upload, teams, etc.)",
+      "importedAt": "Timestamp when content was imported",
+      "originalId": "Original ID from source system",
+      "duration": "Optional: Duration in seconds for meetings, calls",
+      "participants": "Optional: Array of participant emails for meetings"
+    },
+    "privacy": {
+      "tags": "Array of privacy_tag enum values, must match the PostgreSQL privacy_tags array",
+      "accessRestrictions": "Optional: Additional access controls beyond basic privacy tags"
+    },
+    "aiProcessing": {
+      "status": "Processing status (PENDING, IN_PROGRESS, COMPLETED, FAILED)",
+      "processedAt": "Timestamp of last AI processing",
+      "summary": "AI-generated summary of content",
+      "entityExtractions": "Entities extracted by AI (properties, people, dates, prices, etc.)",
+      "sentimentScore": "Numeric sentiment score (-1.0 to 1.0)",
+      "vectorEmbedding": "Optional: Vector embedding for semantic search (stored separately for large embeddings)",
+      "topicClassification": "Array of topics identified"
+    },
+    "attachments": [
+      {
+        "id": "Unique attachment identifier",
+        "fileName": "Original file name",
+        "mimeType": "Attachment MIME type",
+        "size": "File size in bytes",
+        "storageUri": "Azure Blob Storage URI for the attachment",
+        "thumbnailUri": "Optional: URI to thumbnail image"
+      }
+    ],
+    "created": "Document creation timestamp",
+    "lastModified": "Document last modification timestamp"
+  },
+  "indexingPolicy": {
+    "indexingMode": "consistent",
+    "includedPaths": [
+      {"path": "/*"},
+      {"path": "/interactionId/?"},
+      {"path": "/interactionType/?"}
+    ],
+    "excludedPaths": [
+      {"path": "/content/fullText/?"},
+      {"path": "/aiProcessing/vectorEmbedding/?"}
+    ],
+    "compositeIndexes": [
+      [
+        {"path": "/interactionId", "order": "ascending"},
+        {"path": "/created", "order": "descending"}
+      ]
+    ],
+    "spatialIndexes": []
+  },
+  "partitioningStrategy": {
+    "partitionKey": "/interactionId",
+    "rationale": "Using interactionId as the partition key enables efficient lookups by interaction and ensures related content is co-located"
+  },
+  "ttlSettings": {
+    "enabled": true,
+    "defaultTtl": -1,
+    "notes": "Default TTL set to -1 (no expiration), but can be overridden at document level for specific retention policies"
+  }
+}

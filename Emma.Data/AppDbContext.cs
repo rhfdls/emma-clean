@@ -23,6 +23,18 @@ public class AppDbContext : DbContext
     public DbSet<AgentPhoneNumber> AgentPhoneNumbers { get; set; }
     public DbSet<DeviceToken> DeviceTokens { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
+    public DbSet<TestEntity> TestEntities { get; set; }
+    
+    // Resource Assignment System
+    public DbSet<ResourceCategory> ResourceCategories { get; set; }
+    public DbSet<Resource> Resources { get; set; }
+    public DbSet<ResourceAssignment> ResourceAssignments { get; set; }
+    public DbSet<ResourceRecommendation> ResourceRecommendations { get; set; }
+
+    // NBA Context Management System
+    public DbSet<ClientSummary> ClientSummaries { get; set; }
+    public DbSet<ClientState> ClientStates { get; set; }
+    public DbSet<InteractionEmbedding> InteractionEmbeddings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -97,5 +109,222 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AgentPhoneNumber>().HasIndex(p => p.Number).IsUnique();
         modelBuilder.Entity<DeviceToken>().HasKey(d => new { d.AgentId, d.DeviceId });
         modelBuilder.Entity<CallMetadata>().HasKey(m => m.MessageId);
+        
+        // Resource Assignment System Configurations
+        
+        // ResourceCategory
+        modelBuilder.Entity<ResourceCategory>().HasKey(rc => rc.Id);
+        modelBuilder.Entity<ResourceCategory>().HasIndex(rc => rc.Name).IsUnique();
+        modelBuilder.Entity<ResourceCategory>().HasIndex(rc => rc.SortOrder);
+        
+        // Resource
+        modelBuilder.Entity<Resource>().HasKey(r => r.Id);
+        modelBuilder.Entity<Resource>().HasIndex(r => new { r.OrganizationId, r.Name, r.CategoryId });
+        modelBuilder.Entity<Resource>().HasIndex(r => new { r.CategoryId, r.IsPreferred, r.Rating });
+        
+        // Resource -> ResourceCategory
+        modelBuilder.Entity<Resource>()
+            .HasOne(r => r.Category)
+            .WithMany()
+            .HasForeignKey(r => r.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // Resource -> Organization
+        modelBuilder.Entity<Resource>()
+            .HasOne(r => r.Organization)
+            .WithMany()
+            .HasForeignKey(r => r.OrganizationId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // Resource -> Agent (CreatedBy)
+        modelBuilder.Entity<Resource>()
+            .HasOne(r => r.CreatedByAgent)
+            .WithMany()
+            .HasForeignKey(r => r.CreatedByAgentId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // Resource -> Agent (for collaborator resources)
+        modelBuilder.Entity<Resource>()
+            .HasOne(r => r.Agent)
+            .WithMany()
+            .HasForeignKey(r => r.AgentId)
+            .OnDelete(DeleteBehavior.SetNull);
+        
+        // ResourceAssignment
+        modelBuilder.Entity<ResourceAssignment>().HasKey(ra => ra.Id);
+        modelBuilder.Entity<ResourceAssignment>().HasIndex(ra => new { ra.ContactId, ra.Status });
+        modelBuilder.Entity<ResourceAssignment>().HasIndex(ra => new { ra.OrganizationId, ra.AssignedAt });
+        modelBuilder.Entity<ResourceAssignment>().HasIndex(ra => new { ra.ResourceId, ra.Status });
+        
+        // ResourceAssignment -> Contact
+        modelBuilder.Entity<ResourceAssignment>()
+            .HasOne(ra => ra.Contact)
+            .WithMany()
+            .HasForeignKey(ra => ra.ContactId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // ResourceAssignment -> Resource
+        modelBuilder.Entity<ResourceAssignment>()
+            .HasOne(ra => ra.Resource)
+            .WithMany()
+            .HasForeignKey(ra => ra.ResourceId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // ResourceAssignment -> Agent (AssignedBy)
+        modelBuilder.Entity<ResourceAssignment>()
+            .HasOne(ra => ra.AssignedByAgent)
+            .WithMany()
+            .HasForeignKey(ra => ra.AssignedByAgentId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // ResourceAssignment -> Organization
+        modelBuilder.Entity<ResourceAssignment>()
+            .HasOne(ra => ra.Organization)
+            .WithMany()
+            .HasForeignKey(ra => ra.OrganizationId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // ResourceAssignment -> Interaction
+        modelBuilder.Entity<ResourceAssignment>()
+            .HasOne(ra => ra.Interaction)
+            .WithMany()
+            .HasForeignKey(ra => ra.InteractionId)
+            .OnDelete(DeleteBehavior.SetNull);
+        
+        // ResourceRecommendation
+        modelBuilder.Entity<ResourceRecommendation>().HasKey(rr => rr.Id);
+        modelBuilder.Entity<ResourceRecommendation>().HasIndex(rr => new { rr.ContactId, rr.RecommendedAt });
+        modelBuilder.Entity<ResourceRecommendation>().HasIndex(rr => new { rr.ResourceId, rr.WasSelected });
+        modelBuilder.Entity<ResourceRecommendation>().HasIndex(rr => new { rr.OrganizationId, rr.RecommendedAt });
+        
+        // ResourceRecommendation -> Contact
+        modelBuilder.Entity<ResourceRecommendation>()
+            .HasOne(rr => rr.Contact)
+            .WithMany()
+            .HasForeignKey(rr => rr.ContactId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // ResourceRecommendation -> Resource
+        modelBuilder.Entity<ResourceRecommendation>()
+            .HasOne(rr => rr.Resource)
+            .WithMany()
+            .HasForeignKey(rr => rr.ResourceId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // ResourceRecommendation -> Agent (RecommendedBy)
+        modelBuilder.Entity<ResourceRecommendation>()
+            .HasOne(rr => rr.RecommendedByAgent)
+            .WithMany()
+            .HasForeignKey(rr => rr.RecommendedByAgentId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // ResourceRecommendation -> Organization
+        modelBuilder.Entity<ResourceRecommendation>()
+            .HasOne(rr => rr.Organization)
+            .WithMany()
+            .HasForeignKey(rr => rr.OrganizationId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // ResourceRecommendation -> Interaction
+        modelBuilder.Entity<ResourceRecommendation>()
+            .HasOne(rr => rr.Interaction)
+            .WithMany()
+            .HasForeignKey(rr => rr.InteractionId)
+            .OnDelete(DeleteBehavior.SetNull);
+            
+        // Configure Dictionary properties to use JSON instead of hstore for Azure PostgreSQL compatibility
+        
+        // Contact
+        modelBuilder.Entity<Contact>()
+            .Property(c => c.CustomFields)
+            .HasColumnType("jsonb");
+            
+        // Conversation
+        modelBuilder.Entity<Conversation>()
+            .Property(c => c.ExternalIds)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<Conversation>()
+            .Property(c => c.CustomFields)
+            .HasColumnType("jsonb");
+            
+        // Interaction
+        modelBuilder.Entity<Interaction>()
+            .Property(i => i.ExternalIds)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<Interaction>()
+            .Property(i => i.CustomFields)
+            .HasColumnType("jsonb");
+            
+        // Resource
+        modelBuilder.Entity<Resource>()
+            .Property(r => r.CustomFields)
+            .HasColumnType("jsonb");
+            
+        // ResourceAssignment
+        modelBuilder.Entity<ResourceAssignment>()
+            .Property(ra => ra.CustomFields)
+            .HasColumnType("jsonb");
+            
+        // ResourceRecommendation
+        modelBuilder.Entity<ResourceRecommendation>()
+            .Property(rr => rr.CustomFields)
+            .HasColumnType("jsonb");
+            
+        // NBA Context Management Models
+        
+        // ClientSummary
+        modelBuilder.Entity<ClientSummary>()
+            .Property(cs => cs.KeyMilestones)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<ClientSummary>()
+            .Property(cs => cs.ImportantPreferences)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<ClientSummary>()
+            .Property(cs => cs.CustomFields)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<ClientSummary>()
+            .HasIndex(cs => new { cs.ContactId, cs.OrganizationId, cs.SummaryType });
+            
+        // ClientState
+        modelBuilder.Entity<ClientState>()
+            .Property(cs => cs.PendingTasks)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<ClientState>()
+            .Property(cs => cs.OpenObjections)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<ClientState>()
+            .Property(cs => cs.ImportantDates)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<ClientState>()
+            .Property(cs => cs.PropertyInfo)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<ClientState>()
+            .Property(cs => cs.FinancialInfo)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<ClientState>()
+            .Property(cs => cs.CustomFields)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<ClientState>()
+            .HasIndex(cs => new { cs.ContactId, cs.OrganizationId })
+            .IsUnique();
+            
+        // InteractionEmbedding
+        modelBuilder.Entity<InteractionEmbedding>()
+            .Property(ie => ie.PrivacyTags)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<InteractionEmbedding>()
+            .Property(ie => ie.ExtractedEntities)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<InteractionEmbedding>()
+            .Property(ie => ie.Topics)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<InteractionEmbedding>()
+            .Property(ie => ie.CustomFields)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<InteractionEmbedding>()
+            .HasIndex(ie => new { ie.ContactId, ie.OrganizationId, ie.Timestamp });
+        modelBuilder.Entity<InteractionEmbedding>()
+            .HasIndex(ie => ie.InteractionId)
+            .IsUnique();
     }
 }

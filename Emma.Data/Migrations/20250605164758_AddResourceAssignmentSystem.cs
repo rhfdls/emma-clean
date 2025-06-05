@@ -1,13 +1,14 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace Emma.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class SyncModelChanges : Migration
+    public partial class AddResourceAssignmentSystem : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -76,9 +77,6 @@ namespace Emma.Data.Migrations
                 table: "Conversation",
                 newName: "IX_Conversation_OrganizationId");
 
-            migrationBuilder.AlterDatabase()
-                .Annotation("Npgsql:PostgresExtension:hstore", ",,");
-
             migrationBuilder.AddColumn<Guid>(
                 name: "PlanId",
                 table: "Subscriptions",
@@ -145,7 +143,7 @@ namespace Emma.Data.Migrations
             migrationBuilder.AddColumn<Dictionary<string, string>>(
                 name: "CustomFields",
                 table: "Conversation",
-                type: "hstore",
+                type: "jsonb",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
@@ -158,7 +156,7 @@ namespace Emma.Data.Migrations
             migrationBuilder.AddColumn<Dictionary<string, string>>(
                 name: "ExternalIds",
                 table: "Conversation",
-                type: "hstore",
+                type: "jsonb",
                 nullable: true);
 
             migrationBuilder.AddColumn<List<string>>(
@@ -171,6 +169,22 @@ namespace Emma.Data.Migrations
                 name: "PK_Conversation",
                 table: "Conversation",
                 column: "Id");
+
+            migrationBuilder.CreateTable(
+                name: "Address",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Street = table.Column<string>(type: "text", nullable: false),
+                    City = table.Column<string>(type: "text", nullable: false),
+                    State = table.Column<string>(type: "text", nullable: false),
+                    PostalCode = table.Column<string>(type: "text", nullable: false),
+                    Country = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Address", x => x.Id);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Feature",
@@ -197,7 +211,7 @@ namespace Emma.Data.Migrations
                     ClientFirstName = table.Column<string>(type: "text", nullable: false),
                     ClientLastName = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ExternalIds = table.Column<Dictionary<string, string>>(type: "hstore", nullable: true),
+                    ExternalIds = table.Column<Dictionary<string, string>>(type: "jsonb", nullable: true),
                     Type = table.Column<string>(type: "text", nullable: false),
                     Direction = table.Column<string>(type: "text", nullable: false),
                     Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -206,11 +220,29 @@ namespace Emma.Data.Migrations
                     Channel = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
                     Tags = table.Column<List<string>>(type: "text[]", nullable: false),
-                    CustomFields = table.Column<Dictionary<string, string>>(type: "hstore", nullable: true)
+                    CustomFields = table.Column<Dictionary<string, string>>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Interactions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ResourceCategories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    IconName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ResourceCategories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -223,6 +255,46 @@ namespace Emma.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SubscriptionPlan", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "test_entities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_test_entities", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Contact",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FirstName = table.Column<string>(type: "text", nullable: false),
+                    LastName = table.Column<string>(type: "text", nullable: false),
+                    AddressId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Tags = table.Column<List<string>>(type: "text[]", nullable: false),
+                    LeadSource = table.Column<string>(type: "text", nullable: true),
+                    OwnerId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CustomFields = table.Column<Dictionary<string, string>>(type: "jsonb", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Contact", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Contact_Address_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "Address",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -247,6 +319,68 @@ namespace Emma.Data.Migrations
                         column: x => x.InteractionId,
                         principalTable: "Interactions",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Resources",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    CompanyName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    Phone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    Website = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    AddressId = table.Column<Guid>(type: "uuid", nullable: true),
+                    LicenseNumber = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Specialties = table.Column<List<string>>(type: "text[]", nullable: false),
+                    ServiceAreas = table.Column<List<string>>(type: "text[]", nullable: false),
+                    RelationshipType = table.Column<int>(type: "integer", nullable: false),
+                    Rating = table.Column<decimal>(type: "numeric", nullable: true),
+                    ReviewCount = table.Column<int>(type: "integer", nullable: false),
+                    IsPreferred = table.Column<bool>(type: "boolean", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    AgentId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedByAgentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    CustomFields = table.Column<Dictionary<string, string>>(type: "jsonb", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Resources", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Resources_Address_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "Address",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Resources_Agents_AgentId",
+                        column: x => x.AgentId,
+                        principalTable: "Agents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_Resources_Agents_CreatedByAgentId",
+                        column: x => x.CreatedByAgentId,
+                        principalTable: "Agents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Resources_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Resources_ResourceCategories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "ResourceCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -301,6 +435,168 @@ namespace Emma.Data.Migrations
                         principalTable: "SubscriptionPlan",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EmailAddress",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Address = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false),
+                    Verified = table.Column<bool>(type: "boolean", nullable: false),
+                    ContactId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmailAddress", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EmailAddress_Contact_ContactId",
+                        column: x => x.ContactId,
+                        principalTable: "Contact",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PhoneNumber",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Number = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false),
+                    Verified = table.Column<bool>(type: "boolean", nullable: false),
+                    ContactId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PhoneNumber", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PhoneNumber_Contact_ContactId",
+                        column: x => x.ContactId,
+                        principalTable: "Contact",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ResourceAssignments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ContactId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ResourceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssignedByAgentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Purpose = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Priority = table.Column<int>(type: "integer", nullable: false),
+                    InteractionId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ClientRequest = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    AssignedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CompletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    FollowUpAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    WasUsed = table.Column<bool>(type: "boolean", nullable: false),
+                    ClientRating = table.Column<decimal>(type: "numeric", nullable: true),
+                    ClientFeedback = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    OutcomeNotes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    InternalNotes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CustomFields = table.Column<Dictionary<string, string>>(type: "jsonb", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ResourceAssignments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ResourceAssignments_Agents_AssignedByAgentId",
+                        column: x => x.AssignedByAgentId,
+                        principalTable: "Agents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ResourceAssignments_Contact_ContactId",
+                        column: x => x.ContactId,
+                        principalTable: "Contact",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ResourceAssignments_Interactions_InteractionId",
+                        column: x => x.InteractionId,
+                        principalTable: "Interactions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_ResourceAssignments_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ResourceAssignments_Resources_ResourceId",
+                        column: x => x.ResourceId,
+                        principalTable: "Resources",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ResourceRecommendations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ContactId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ResourceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RecommendedByAgentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    InteractionId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Purpose = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    RecommendationOrder = table.Column<int>(type: "integer", nullable: false),
+                    RecommendationNotes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    RecommendedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    WasSelected = table.Column<bool>(type: "boolean", nullable: false),
+                    WasContacted = table.Column<bool>(type: "boolean", nullable: false),
+                    ContactedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    SelectedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    AlternativeResourceName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    AlternativeResourceContact = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    WhyAlternativeChosen = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    ClientFeedback = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CustomFields = table.Column<Dictionary<string, string>>(type: "jsonb", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ResourceRecommendations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ResourceRecommendations_Agents_RecommendedByAgentId",
+                        column: x => x.RecommendedByAgentId,
+                        principalTable: "Agents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ResourceRecommendations_Contact_ContactId",
+                        column: x => x.ContactId,
+                        principalTable: "Contact",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ResourceRecommendations_Interactions_InteractionId",
+                        column: x => x.InteractionId,
+                        principalTable: "Interactions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_ResourceRecommendations_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ResourceRecommendations_Resources_ResourceId",
+                        column: x => x.ResourceId,
+                        principalTable: "Resources",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -360,6 +656,16 @@ namespace Emma.Data.Migrations
                 column: "OrganizationSubscriptionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Contact_AddressId",
+                table: "Contact",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmailAddress_ContactId",
+                table: "EmailAddress",
+                column: "ContactId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Interactions_AgentId",
                 table: "Interactions",
                 column: "AgentId");
@@ -381,6 +687,11 @@ namespace Emma.Data.Migrations
                 column: "SubscriptionPlanId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PhoneNumber_ContactId",
+                table: "PhoneNumber",
+                column: "ContactId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RelatedEntity_ConversationId",
                 table: "RelatedEntity",
                 column: "ConversationId");
@@ -389,6 +700,92 @@ namespace Emma.Data.Migrations
                 name: "IX_RelatedEntity_InteractionId",
                 table: "RelatedEntity",
                 column: "InteractionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceAssignments_AssignedByAgentId",
+                table: "ResourceAssignments",
+                column: "AssignedByAgentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceAssignments_ContactId_Status",
+                table: "ResourceAssignments",
+                columns: new[] { "ContactId", "Status" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceAssignments_InteractionId",
+                table: "ResourceAssignments",
+                column: "InteractionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceAssignments_OrganizationId_AssignedAt",
+                table: "ResourceAssignments",
+                columns: new[] { "OrganizationId", "AssignedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceAssignments_ResourceId_Status",
+                table: "ResourceAssignments",
+                columns: new[] { "ResourceId", "Status" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceCategories_Name",
+                table: "ResourceCategories",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceCategories_SortOrder",
+                table: "ResourceCategories",
+                column: "SortOrder");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceRecommendations_ContactId_RecommendedAt",
+                table: "ResourceRecommendations",
+                columns: new[] { "ContactId", "RecommendedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceRecommendations_InteractionId",
+                table: "ResourceRecommendations",
+                column: "InteractionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceRecommendations_OrganizationId_RecommendedAt",
+                table: "ResourceRecommendations",
+                columns: new[] { "OrganizationId", "RecommendedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceRecommendations_RecommendedByAgentId",
+                table: "ResourceRecommendations",
+                column: "RecommendedByAgentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceRecommendations_ResourceId_WasSelected",
+                table: "ResourceRecommendations",
+                columns: new[] { "ResourceId", "WasSelected" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resources_AddressId",
+                table: "Resources",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resources_AgentId",
+                table: "Resources",
+                column: "AgentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resources_CategoryId_IsPreferred_Rating",
+                table: "Resources",
+                columns: new[] { "CategoryId", "IsPreferred", "Rating" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resources_CreatedByAgentId",
+                table: "Resources",
+                column: "CreatedByAgentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resources_OrganizationId_Name_CategoryId",
+                table: "Resources",
+                columns: new[] { "OrganizationId", "Name", "CategoryId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_SubscriptionPlanFeature_FeatureId",
@@ -497,22 +894,49 @@ namespace Emma.Data.Migrations
                 name: "AgentSubscriptionAssignment");
 
             migrationBuilder.DropTable(
+                name: "EmailAddress");
+
+            migrationBuilder.DropTable(
+                name: "PhoneNumber");
+
+            migrationBuilder.DropTable(
                 name: "RelatedEntity");
+
+            migrationBuilder.DropTable(
+                name: "ResourceAssignments");
+
+            migrationBuilder.DropTable(
+                name: "ResourceRecommendations");
 
             migrationBuilder.DropTable(
                 name: "SubscriptionPlanFeature");
 
             migrationBuilder.DropTable(
+                name: "test_entities");
+
+            migrationBuilder.DropTable(
                 name: "OrganizationSubscription");
 
             migrationBuilder.DropTable(
+                name: "Contact");
+
+            migrationBuilder.DropTable(
                 name: "Interactions");
+
+            migrationBuilder.DropTable(
+                name: "Resources");
 
             migrationBuilder.DropTable(
                 name: "Feature");
 
             migrationBuilder.DropTable(
                 name: "SubscriptionPlan");
+
+            migrationBuilder.DropTable(
+                name: "Address");
+
+            migrationBuilder.DropTable(
+                name: "ResourceCategories");
 
             migrationBuilder.DropIndex(
                 name: "IX_Subscriptions_PlanId",
@@ -601,9 +1025,6 @@ namespace Emma.Data.Migrations
                 name: "IX_Conversation_OrganizationId",
                 table: "Conversations",
                 newName: "IX_Conversations_OrganizationId");
-
-            migrationBuilder.AlterDatabase()
-                .OldAnnotation("Npgsql:PostgresExtension:hstore", ",,");
 
             migrationBuilder.AddColumn<int>(
                 name: "Plan",

@@ -15,7 +15,7 @@ namespace Emma.Data.Validation
             new[] { "CRM", "PERSONAL", "PRIVATE" },
             StringComparer.OrdinalIgnoreCase);
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             if (value is IEnumerable<string> tags)
             {
@@ -25,7 +25,7 @@ namespace Emma.Data.Validation
                     return new ValidationResult($"Contact.Tags must not contain privacy/business tags: CRM, PERSONAL, PRIVATE. Found: {string.Join(", ", forbidden)}");
                 }
             }
-            return ValidationResult.Success;
+            return ValidationResult.Success!;
         }
     }
 }

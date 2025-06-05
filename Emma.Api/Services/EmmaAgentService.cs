@@ -106,13 +106,13 @@ namespace Emma.Api.Services
                 var validationErrors = new List<string>();
                 if (string.IsNullOrEmpty(Config.ApiKey)) validationErrors.Add("ApiKey is required");
                 if (string.IsNullOrEmpty(Config.Endpoint)) validationErrors.Add("Endpoint is required");
-                if (string.IsNullOrEmpty(Config.DeploymentName)) validationErrors.Add("DeploymentName is required");
+                if (string.IsNullOrEmpty(Config.ChatDeploymentName)) validationErrors.Add("ChatDeploymentName is required");
                 if (Config.Temperature < 0 || Config.Temperature > 2) validationErrors.Add("Temperature must be between 0.0 and 2.0");
                 
                 throw new InvalidOperationException($"Invalid Azure OpenAI configuration: {string.Join(", ", validationErrors)}");
             }
             
-            _logger.LogInformation("EmmaAgentService initialized with deployment: {DeploymentName}", Config.DeploymentName);
+            _logger.LogInformation("EmmaAgentService initialized with deployment: {ChatDeploymentName}", Config.ChatDeploymentName);
         }
 
         private string GetCorrelationId()
@@ -161,7 +161,7 @@ namespace Emma.Api.Services
                 // Create chat completion options
                 var chatCompletionsOptions = new ChatCompletionsOptions
                 {
-                    DeploymentName = Config.DeploymentName,
+                    DeploymentName = Config.ChatDeploymentName,
                     Messages =
                     {
                         new ChatRequestSystemMessage(SystemPrompt),
@@ -169,7 +169,6 @@ namespace Emma.Api.Services
                     },
                     Temperature = Config.Temperature,
                     MaxTokens = Config.MaxTokens,
-                    NucleusSamplingFactor = Config.TopP,
                     ResponseFormat = ChatCompletionsResponseFormat.JsonObject
                 };
 
@@ -177,7 +176,7 @@ namespace Emma.Api.Services
                 var context = new Context
                 {
                     ["logger"] = _logger,
-                    ["deployment"] = Config.DeploymentName,
+                    ["deployment"] = Config.ChatDeploymentName,
                     ["correlationId"] = correlationId
                 };
 
@@ -188,7 +187,7 @@ namespace Emma.Api.Services
                         var response = await _retryPolicy.ExecuteAsync(
                             action: async (ctx, ct) =>
                             {
-                                _logger.LogDebug("Sending request to Azure OpenAI deployment: {Deployment}", Config.DeploymentName);
+                                _logger.LogDebug("Sending request to Azure OpenAI deployment: {Deployment}", Config.ChatDeploymentName);
                                 var result = await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions, ct);
                                 if (result == null)
                                 {
@@ -215,8 +214,8 @@ namespace Emma.Api.Services
                 }
                 catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
                 {
-                    _logger.LogError(ex, "Azure OpenAI deployment not found: {Deployment}", Config.DeploymentName);
-                    return EmmaResponseDto.ErrorResponse($"AI model deployment '{Config.DeploymentName}' not found", correlationId, null);
+                    _logger.LogError(ex, "Azure OpenAI deployment not found: {Deployment}", Config.ChatDeploymentName);
+                    return EmmaResponseDto.ErrorResponse($"AI model deployment '{Config.ChatDeploymentName}' not found", correlationId, null);
                 }
                 catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.TooManyRequests)
                 {
@@ -323,4 +322,3 @@ namespace Emma.Api.Services
 
     // Agent interfaces are defined in Emma.Core.Interfaces
 }
-

@@ -1,0 +1,450 @@
+using Emma.Data;
+using Emma.Data.Models;
+using Emma.Data.Enums;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+
+namespace Emma.Api.Services;
+
+/// <summary>
+/// Service for retrieving curated context for Next Best Action (NBA) recommendations.
+/// Implements the hybrid approach combining rolling summaries, vector search, and state modeling.
+/// </summary>
+public class NbaContextService : INbaContextService
+{
+    private readonly AppDbContext _context;
+    private readonly IAzureOpenAIService _azureOpenAIService;
+    private readonly IVectorSearchService _vectorSearchService;
+    private readonly ILogger<NbaContextService> _logger;
+
+    public NbaContextService(
+        AppDbContext context, 
+        IAzureOpenAIService azureOpenAIService,
+        IVectorSearchService vectorSearchService,
+        ILogger<NbaContextService> logger)
+    {
+        _context = context;
+        _azureOpenAIService = azureOpenAIService;
+        _vectorSearchService = vectorSearchService;
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Retrieves complete NBA context for a client
+    /// </summary>
+    public async Task<NbaContext> GetNbaContextAsync(
+        Guid contactId, 
+        Guid organizationId, 
+        int maxRecentInteractions = 5, 
+        int maxRelevantInteractions = 10)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        
+        try
+        {
+            _logger.LogInformation("Retrieving NBA context for contact {ContactId}", contactId);
+
+            // Get rolling summary
+            var rollingSummary = await GetClientSummaryAsync(contactId, organizationId);
+            
+            // Get current client state
+            var clientState = await GetClientStateAsync(contactId, organizationId);
+            
+            // Get recent interactions
+            var recentInteractions = await GetRecentInteractionsAsync(
+                contactId, organizationId, maxRecentInteractions);
+            
+            // Get relevant interactions via vector search (fallback to recent for now)
+            var relevantInteractions = await GetRelevantInteractionsAsync(
+                contactId, organizationId, maxRelevantInteractions);
+            
+            // Get active resource assignments
+            var activeResourceAssignments = await GetActiveResourceAssignmentsAsync(
+                contactId, organizationId);
+
+            // Get total interaction count
+            var totalInteractionCount = await _context.Interactions
+                .CountAsync(i => i.ContactId == contactId && i.OrganizationId == organizationId);
+
+            var context = new NbaContext
+            {
+                ContactId = contactId,
+                OrganizationId = organizationId,
+                RollingSummary = rollingSummary,
+                CurrentState = clientState,
+                RecentInteractions = recentInteractions,
+                RelevantInteractions = relevantInteractions.Select(ri => new RelevantInteraction
+                {
+                    Interaction = ri.Interaction,
+                    Embedding = ri.Embedding,
+                    SimilarityScore = ri.SimilarityScore,
+                    RelevanceReason = ri.RelevanceReason
+                }).ToList(),
+                ActiveResourceAssignments = activeResourceAssignments,
+                Metadata = new NbaContextMetadata
+                {
+                    GeneratedAt = DateTime.UtcNow,
+                    TotalInteractionCount = totalInteractionCount,
+                    RetrievalTimeMs = (int)stopwatch.ElapsedMilliseconds,
+                    ContextVersion = "1.0"
+                }
+            };
+
+            _logger.LogInformation("Retrieved NBA context for contact {ContactId} in {ElapsedMs}ms", 
+                contactId, stopwatch.ElapsedMilliseconds);
+
+            return context;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving NBA context for contact {ContactId}", contactId);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Gets the client summary for a contact
+    /// </summary>
+    public async Task<ClientSummary?> GetClientSummaryAsync(Guid contactId, Guid organizationId)
+    {
+        return await _context.ClientSummaries
+            .FirstOrDefaultAsync(cs => cs.ContactId == contactId && 
+                                     cs.OrganizationId == organizationId &&
+                                     cs.SummaryType == "rolling");
+    }
+
+    /// <summary>
+    /// Gets the current client state for a contact
+    /// </summary>
+    public async Task<ClientState?> GetClientStateAsync(Guid contactId, Guid organizationId)
+    {
+        return await _context.ClientStates
+            .FirstOrDefaultAsync(cs => cs.ContactId == contactId && 
+                                     cs.OrganizationId == organizationId);
+    }
+
+    /// <summary>
+    /// Updates the rolling summary for a client after a new interaction
+    /// </summary>
+    public async Task<ClientSummary> UpdateRollingSummaryAsync(
+        Guid contactId, 
+        Guid organizationId, 
+        Interaction newInteraction)
+    {
+        // Get existing summary or create new one
+        var existingSummary = await GetClientSummaryAsync(contactId, organizationId);
+        
+        // Get recent interactions for context
+        var recentInteractions = await _context.Interactions
+            .Where(i => i.ContactId == contactId && i.OrganizationId == organizationId)
+            .OrderByDescending(i => i.Timestamp)
+            .Take(5)
+            .ToListAsync();
+
+        if (existingSummary == null)
+        {
+            // Create initial summary using AI
+            var initialSummaryText = await _azureOpenAIService.UpdateRollingSummaryAsync(
+                null, newInteraction, recentInteractions);
+
+            existingSummary = new ClientSummary
+            {
+                Id = $"summary-{contactId}",
+                ContactId = contactId,
+                OrganizationId = organizationId,
+                SummaryType = "rolling",
+                SummaryText = initialSummaryText,
+                InteractionCount = 1,
+                EarliestInteraction = newInteraction.Timestamp,
+                LatestInteraction = newInteraction.Timestamp,
+                KeyMilestones = new List<string>(),
+                ImportantPreferences = new Dictionary<string, object>(),
+                CustomFields = new Dictionary<string, object>()
+            };
+        }
+        else
+        {
+            // Update existing summary using AI
+            var updatedSummaryText = await _azureOpenAIService.UpdateRollingSummaryAsync(
+                existingSummary.SummaryText, newInteraction, recentInteractions);
+
+            existingSummary.SummaryText = updatedSummaryText;
+            existingSummary.InteractionCount++;
+            existingSummary.LatestInteraction = newInteraction.Timestamp;
+            existingSummary.LastUpdated = DateTime.UtcNow;
+        }
+
+        _context.ClientSummaries.Update(existingSummary);
+        await _context.SaveChangesAsync();
+
+        return existingSummary;
+    }
+
+    /// <summary>
+    /// Updates the client state after a new interaction
+    /// </summary>
+    public async Task<ClientState> UpdateClientStateAsync(
+        Guid contactId, 
+        Guid organizationId, 
+        Interaction newInteraction)
+    {
+        // Get existing state or create new one
+        var existingState = await GetClientStateAsync(contactId, organizationId);
+        
+        if (existingState == null)
+        {
+            existingState = new ClientState
+            {
+                Id = $"state-{contactId}",
+                ContactId = contactId,
+                OrganizationId = organizationId,
+                CurrentStage = "Initial Contact",
+                AssignedAgentId = newInteraction.AgentId,
+                Priority = "Medium",
+                PendingTasks = new List<string>(),
+                OpenObjections = new List<string>(),
+                ImportantDates = new Dictionary<string, DateTime>(),
+                PropertyInfo = new Dictionary<string, object>(),
+                FinancialInfo = new Dictionary<string, object>(),
+                CustomFields = new Dictionary<string, object>()
+            };
+        }
+        else
+        {
+            existingState.LastUpdated = DateTime.UtcNow;
+            
+            // Check if state transition should occur using AI
+            var (newState, reason) = await _azureOpenAIService.SuggestStateTransitionAsync(
+                existingState, newInteraction);
+            
+            if (!string.IsNullOrEmpty(newState))
+            {
+                _logger.LogInformation(
+                    "State transition suggested for contact {ContactId}: {OldState} -> {NewState}. Reason: {Reason}",
+                    contactId, existingState.CurrentStage, newState, reason);
+                
+                existingState.CurrentStage = newState;
+                
+                // Add transition to custom fields for audit trail
+                var transitions = existingState.CustomFields.ContainsKey("stateTransitions") 
+                    ? (List<object>)existingState.CustomFields["stateTransitions"]
+                    : new List<object>();
+                
+                transitions.Add(new
+                {
+                    timestamp = DateTime.UtcNow,
+                    fromState = existingState.CurrentStage,
+                    toState = newState,
+                    reason = reason,
+                    interactionId = newInteraction.Id
+                });
+                
+                existingState.CustomFields["stateTransitions"] = transitions;
+            }
+        }
+
+        _context.ClientStates.Update(existingState);
+        await _context.SaveChangesAsync();
+
+        return existingState;
+    }
+
+    /// <summary>
+    /// Generates and stores vector embedding for an interaction
+    /// </summary>
+    public async Task<InteractionEmbedding> GenerateInteractionEmbeddingAsync(Interaction interaction)
+    {
+        // Generate embedding using Azure OpenAI
+        var embeddingVector = await _azureOpenAIService.GenerateEmbeddingAsync(
+            interaction.Content ?? $"{interaction.Type} interaction");
+
+        // Extract entities and analyze sentiment
+        var extractedEntities = await _azureOpenAIService.ExtractEntitiesAsync(
+            interaction.Content ?? "");
+        var sentimentScore = await _azureOpenAIService.AnalyzeSentimentAsync(
+            interaction.Content ?? "");
+
+        var embedding = new InteractionEmbedding
+        {
+            Id = $"interaction-{interaction.Id}",
+            ContactId = interaction.ContactId,
+            InteractionId = interaction.Id,
+            OrganizationId = interaction.OrganizationId,
+            Timestamp = interaction.Timestamp,
+            Type = interaction.Type,
+            Summary = interaction.Content?.Substring(0, Math.Min(200, interaction.Content.Length)) ?? "",
+            RawContent = interaction.Content,
+            Embedding = embeddingVector,
+            EmbeddingModel = "text-embedding-ada-002",
+            ModelVersion = "2",
+            PrivacyTags = interaction.Tags,
+            ExtractedEntities = extractedEntities,
+            Topics = extractedEntities.ContainsKey("topics") 
+                ? (List<string>)extractedEntities["topics"] 
+                : new List<string>(),
+            SentimentScore = sentimentScore,
+            CustomFields = new Dictionary<string, object>()
+        };
+
+        _context.InteractionEmbeddings.Add(embedding);
+        await _context.SaveChangesAsync();
+
+        return embedding;
+    }
+
+    /// <summary>
+    /// Performs vector search for relevant interactions using provided query embedding
+    /// </summary>
+    public async Task<List<RelevantInteraction>> FindRelevantInteractionsAsync(
+        float[] queryEmbedding, 
+        Guid contactId, 
+        Guid organizationId, 
+        int maxResults = 10)
+    {
+        try
+        {
+            _logger.LogDebug("Performing vector search for contact {ContactId} with embedding of dimension {Dimension}", 
+                contactId, queryEmbedding?.Length ?? 0);
+
+            if (queryEmbedding == null || queryEmbedding.Length == 0)
+            {
+                _logger.LogWarning("Invalid query embedding provided for contact {ContactId}", contactId);
+                return new List<RelevantInteraction>();
+            }
+
+            // Use the vector search service to find similar interactions
+            var relevantInteractions = await _vectorSearchService.FindSimilarInteractionsAsync(
+                queryEmbedding, contactId, organizationId, maxResults, minSimilarity: 0.6);
+
+            _logger.LogInformation("Vector search returned {Count} relevant interactions for contact {ContactId}", 
+                relevantInteractions.Count, contactId);
+
+            return relevantInteractions;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in vector search for contact {ContactId}, falling back to recent interactions", contactId);
+            
+            // Fallback to recent interactions on error
+            var recentInteractions = await GetRecentInteractionsAsync(contactId, organizationId, maxResults);
+            
+            return recentInteractions.Select(i => new RelevantInteraction
+            {
+                Interaction = i,
+                Embedding = new InteractionEmbedding(), // Placeholder for fallback
+                SimilarityScore = 0.3, // Lower score for fallback
+                RelevanceReason = "Recent interaction (vector search error fallback)"
+            }).ToList();
+        }
+    }
+
+    /// <summary>
+    /// Processes a new interaction end-to-end
+    /// </summary>
+    public async Task ProcessNewInteractionAsync(Interaction interaction)
+    {
+        try
+        {
+            _logger.LogInformation("Processing new interaction {InteractionId} for contact {ContactId}", 
+                interaction.Id, interaction.ContactId);
+
+            // Generate and store embedding
+            var embedding = await GenerateInteractionEmbeddingAsync(interaction);
+            
+            // Index the embedding in vector search service
+            var indexSuccess = await _vectorSearchService.IndexInteractionAsync(embedding);
+            if (!indexSuccess)
+            {
+                _logger.LogWarning("Failed to index interaction embedding {InteractionId} in vector search", interaction.Id);
+            }
+            
+            // Update rolling summary
+            await UpdateRollingSummaryAsync(
+                interaction.ContactId, interaction.OrganizationId, interaction);
+            
+            // Update client state
+            await UpdateClientStateAsync(
+                interaction.ContactId, interaction.OrganizationId, interaction);
+
+            _logger.LogInformation("Successfully processed interaction {InteractionId}", interaction.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing interaction {InteractionId}", interaction.Id);
+            throw;
+        }
+    }
+
+    private async Task<List<Interaction>> GetRecentInteractionsAsync(
+        Guid contactId, 
+        Guid organizationId, 
+        int maxResults)
+    {
+        return await _context.Interactions
+            .Where(i => i.ContactId == contactId && i.OrganizationId == organizationId)
+            .OrderByDescending(i => i.Timestamp)
+            .Take(maxResults)
+            .ToListAsync();
+    }
+
+    private async Task<List<RelevantInteraction>> GetRelevantInteractionsAsync(
+        Guid contactId, 
+        Guid organizationId, 
+        int maxResults)
+    {
+        try
+        {
+            // Get the latest client summary to use as search context
+            var clientSummary = await GetClientSummaryAsync(contactId, organizationId);
+            var searchQuery = clientSummary?.SummaryText ?? "client interactions";
+            
+            // Use vector search to find semantically relevant interactions
+            var relevantInteractions = await _vectorSearchService.SearchInteractionsAsync(
+                searchQuery, contactId, organizationId, maxResults, minSimilarity: 0.6);
+            
+            if (relevantInteractions.Any())
+            {
+                _logger.LogDebug("Found {Count} relevant interactions via vector search for contact {ContactId}", 
+                    relevantInteractions.Count, contactId);
+                return relevantInteractions;
+            }
+            
+            // Fallback to recent interactions if no vector matches found
+            _logger.LogInformation("No vector search results found, falling back to recent interactions for contact {ContactId}", contactId);
+            var recentInteractions = await GetRecentInteractionsAsync(contactId, organizationId, maxResults);
+            
+            return recentInteractions.Select(i => new RelevantInteraction
+            {
+                Interaction = i,
+                Embedding = new InteractionEmbedding(), // Placeholder for fallback
+                SimilarityScore = 0.5, // Lower score for fallback
+                RelevanceReason = "Recent interaction (fallback - no embeddings found)"
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting relevant interactions for contact {ContactId}, falling back to recent", contactId);
+            
+            // Final fallback to recent interactions
+            var recentInteractions = await GetRecentInteractionsAsync(contactId, organizationId, maxResults);
+            return recentInteractions.Select(i => new RelevantInteraction
+            {
+                Interaction = i,
+                Embedding = new InteractionEmbedding(),
+                SimilarityScore = 0.3,
+                RelevanceReason = "Recent interaction (error fallback)"
+            }).ToList();
+        }
+    }
+
+    private async Task<List<ResourceAssignment>> GetActiveResourceAssignmentsAsync(
+        Guid contactId, 
+        Guid organizationId)
+    {
+        return await _context.ResourceAssignments
+            .Where(ra => ra.ContactId == contactId && 
+                        ra.OrganizationId == organizationId &&
+                        ra.Status == ResourceAssignmentStatus.Active)
+            .ToListAsync();
+    }
+}

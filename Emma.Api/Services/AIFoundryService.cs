@@ -23,7 +23,6 @@ namespace Emma.Api.Services
     public class AIFoundryService : IAIFoundryService
     {
         private readonly ILogger<AIFoundryService> _logger;
-        private readonly IAsyncPolicy _retryPolicy;
         private readonly OpenAIClient _openAIClient;
         private readonly AzureAIFoundryConfig _config;
         private readonly CosmosAgentRepository _cosmosRepo;
@@ -93,7 +92,7 @@ namespace Emma.Api.Services
                     _config.Temperature);
 
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                var response = await _retryPolicy.ExecuteAsync(async () => await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions));
+                var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
                 stopwatch.Stop();
                 
                 _logger.LogDebug("[{RequestId}] Received response from Azure OpenAI in {ElapsedMs}ms. Status: {Status}, RequestId: {RequestId}, CompletionTokens: {CompletionTokens}", 
@@ -199,7 +198,7 @@ namespace Emma.Api.Services
                 }
 
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                var response = await _retryPolicy.ExecuteAsync(async () => await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions));
+                var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
                 stopwatch.Stop();
                 
                 _logger.LogDebug("[{RequestId}] Received response from Azure OpenAI in {ElapsedMs}ms. Status: {Status}, RequestId: {RequestId}, CompletionTokens: {CompletionTokens}", 

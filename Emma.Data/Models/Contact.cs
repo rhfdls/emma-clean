@@ -24,6 +24,7 @@ public class Contact
 
 public class EmailAddress
 {
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string Address { get; set; } = string.Empty;
     public string Type { get; set; } = "primary"; // primary|work|personal|other
     public bool Verified { get; set; } = false;
@@ -31,6 +32,7 @@ public class EmailAddress
 
 public class PhoneNumber
 {
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string Number { get; set; } = string.Empty;
     public string Type { get; set; } = "mobile"; // mobile|work|home|other
     public bool Verified { get; set; } = false;
@@ -38,10 +40,10 @@ public class PhoneNumber
 
 public class Address
 {
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string Street { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
     public string PostalCode { get; set; } = string.Empty;
     public string Country { get; set; } = string.Empty;
 }
-

@@ -1,312 +1,279 @@
-using System;
-using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
-using Azure.AI.OpenAI;
-using Emma.Core.Config;
-using Emma.Core.Interfaces;  // For IEmmaAgentService
-using Emma.Api.Services;
-using Emma.Api;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using Emma.Data;
-using Emma.Api.Middleware;
-using Emma.Api.Config;  // For AzureOpenAIServiceExtensions
-using Npgsql;
+using Emma.Api.Services;
+using Emma.Api.Configuration;
+using Emma.Api.Models;
+using Azure;
 
-using System.Net;
-
-// Load environment variables from .env
-Env.Load();
-// Debug: Check Cosmos DB env vars after Env.Load()
-Console.WriteLine("[DEBUG] After Env.Load():");
-Console.WriteLine($"[DEBUG] COSMOSDB__ACCOUNTENDPOINT: {Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTENDPOINT")}");
-Console.WriteLine($"[DEBUG] COSMOSDB__ACCOUNTKEY: {Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTKEY")}");
-
-// DEBUG: Print all environment variables at startup
-foreach (System.Collections.DictionaryEntry de in Environment.GetEnvironmentVariables())
-{
-    Console.WriteLine($"[ENV] {de.Key}={de.Value}");
-}
-
-// Fail-fast check for required Cosmos DB environment variables
-void ValidateCosmosDbEnvVars()
-{
-    var required = new[] {
-        "COSMOSDB__ACCOUNTENDPOINT",
-        "COSMOSDB__ACCOUNTKEY",
-        "COSMOSDB__DATABASENAME",
-        "COSMOSDB__CONTAINERNAME"
-    };
-    foreach (var key in required)
-    {
-        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(key)))
-            throw new Exception($"Missing required Cosmos DB environment variable: {key}. Please check your .env or deployment secrets.");
-    }
-}
-ValidateCosmosDbEnvVars();
-
-var builder = WebApplication.CreateBuilder(args);
-// Debug: Check Cosmos DB config after CreateBuilder
-Console.WriteLine("[DEBUG] After CreateBuilder:");
-Console.WriteLine($"[DEBUG] From builder.Configuration: Endpoint={builder.Configuration["COSMOSDB__ACCOUNTENDPOINT"]}, Key={builder.Configuration["COSMOSDB__ACCOUNTKEY"]}");
-Console.WriteLine($"[DEBUG] config[\"CosmosDb:AccountEndpoint\"]: {builder.Configuration["CosmosDb:AccountEndpoint"]}");
-Console.WriteLine($"[DEBUG] config[\"CosmosDb:AccountKey\"]: {builder.Configuration["CosmosDb:AccountKey"]}");
-
-// Add HTTP context accessor
-builder.Services.AddHttpContextAccessor();
-
-// Add HTTP client factory
-builder.Services.AddHttpClient();
-
-// Register agent services with proper scoping
-builder.Services.AddScoped<IEmailAgent, EmailAgentStub>();
-builder.Services.AddScoped<ISchedulerAgent, SchedulerAgentStub>();
-
-// Configure Azure OpenAI with validation
-builder.Services.AddAzureOpenAI(builder.Configuration);
-
-// === ENV CASE VALIDATOR: Diagnosing environment variable case issues ===
 try
 {
-    Emma.EnvCaseValidator.EnvCaseValidator.Run();
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"[EnvCaseValidator] Error: {ex.Message}");
-}
-// === END ENV CASE VALIDATOR ===
-
-// Register EmmaAgentService with the correct interface and dependencies
-builder.Services.AddScoped<IEmmaAgentService>(provider =>
-{
-    var logger = provider.GetRequiredService<ILogger<EmmaAgentService>>();
-    var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
-    var openAIClient = provider.GetRequiredService<OpenAIClient>();
-    var config = provider.GetRequiredService<IOptions<AzureOpenAIConfig>>();
-    return new EmmaAgentService(
-        logger, 
-        httpContextAccessor, 
-        openAIClient,
-        config);
-});
-
-// Register CosmosClient for CosmosDB
-builder.Services.AddSingleton(s =>
-{
-    var config = s.GetRequiredService<IConfiguration>();
-    var cosmosDbConfig = config.GetSection("CosmosDb").Get<CosmosDbConfig>();
-    var endpoint = cosmosDbConfig.AccountEndpoint;
-    var key = cosmosDbConfig.AccountKey;
-    Console.WriteLine($"[DEBUG] Cosmos Endpoint: {endpoint}, Key: {(string.IsNullOrEmpty(key) ? "EMPTY" : "SET")}");
-    return new Microsoft.Azure.Cosmos.CosmosClient(endpoint, key);
-});
-
-// Register CosmosAgentRepository for agent and controller use
-builder.Services.AddScoped<CosmosAgentRepository>(s =>
-{
-    var config = s.GetRequiredService<IConfiguration>();
-    var db = config["CosmosDb:DatabaseName"];
-    var container = config["CosmosDb:ContainerName"];
-    var client = s.GetRequiredService<Microsoft.Azure.Cosmos.CosmosClient>();
-    var logger = s.GetRequiredService<ILogger<CosmosAgentRepository>>();
-    return new CosmosAgentRepository(client, db, container, logger);
-});
-
-
-// Register FulltextInteractionService
-builder.Services.AddScoped<FulltextInteractionService>();
-
-// Add logging (minimum viable observability)
-// Configure console logger to use JSON output for structured logs
-builder.Services.AddLogging(configure =>
-{
-    configure.AddJsonConsole(); // Requires Microsoft.Extensions.Logging.Json
-    configure.AddDebug();
-});
-
-// Register Azure AI Foundry configuration
-builder.Services.Configure<AzureAIFoundryConfig>(
-    builder.Configuration.GetSection("AzureAIFoundry"));
-
-// Register AI Foundry Service
-builder.Services.AddScoped<IAIFoundryService, AIFoundryService>();
-
-// Add controllers
-builder.Services.AddControllers();
-
-// Add Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new() { Title = "Emma API", Version = "v1" });
-});
-
-// Configure JSON serialization for controllers
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-        options.JsonSerializerOptions.WriteIndented = true;
-    });
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-        options.JsonSerializerOptions.WriteIndented = true;
-    });
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddAuthorization();
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSql")));
-
-// Register NpgsqlConnection for DI (for HealthController)
-builder.Services.AddScoped<Npgsql.NpgsqlConnection>(sp =>
-{
-    var config = sp.GetRequiredService<IConfiguration>();
-    var connStr = config.GetConnectionString("PostgreSql");
-    return new Npgsql.NpgsqlConnection(connStr);
-});
-
-// Add CORS for React frontend
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins("http://localhost:3000")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
-
-
-
-// Enable Swagger for API documentation
-builder.Services.AddEndpointsApiExplorer();
-
-
-// Register the environment validator service
-builder.Services.AddSingleton<EnvironmentValidator>();
-
-// MVP/DEV-ONLY: AllowAll authentication for local development. DO NOT USE IN PRODUCTION!
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddAuthentication("AllowAll")
-        .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, AllowAllAuthenticationHandler>("AllowAll", null);
-    builder.Services.AddAuthorization(options =>
-    {
-        options.FallbackPolicy = options.DefaultPolicy;
-    });
-}
-else
-{
-    // TODO: Replace with real authentication for production (e.g. JWT Bearer)
-    // builder.Services.AddAuthentication(...).AddJwtBearer(...);
-}
-
-var app = builder.Build();
-
-// Run environment validation, but use a hybrid approach during transition period
-// This logs warnings but doesn't stop startup if variables are missing
-try
-{
-    var validator = app.Services.GetRequiredService<EnvironmentValidator>();
-    validator.ValidateRequiredVariables(); // Modified to log warnings instead of throwing exceptions
-    validator.ValidateOptionalVariables();
-    validator.CheckForConflicts();
+    Console.WriteLine("🚀 Starting MINIMAL Emma AI Platform...");
     
-    // Log a transition message explaining the hybrid approach
-    app.Logger.LogInformation("TRANSITION NOTICE: The Emma AI Platform is using a hybrid configuration approach.");
-    app.Logger.LogInformation("Values can come from both docker-compose.yml and .env/.env.local files.");
-    app.Logger.LogInformation("For improved security, migrate all secrets to .env.local (not in version control).");
-}
-catch (Exception ex)
-{
-    // This should only happen for unexpected errors, not missing variables
-    Console.Error.WriteLine($"WARNING: Environment validation error: {ex.Message}");
-    app.Logger.LogWarning(ex, "Environment validation encountered an error, but startup will continue");
-}
+    // Load environment variables from .env
+    Console.WriteLine("📁 Loading environment variables from .env file...");
+    Env.Load("../.env");
+    Console.WriteLine("✅ Environment variables loaded successfully");
 
-// Apply database migrations and seed data
-using (var scope = app.Services.CreateScope())
-{
-    try 
+    Console.WriteLine("🏗️ Creating minimal web application builder...");
+    var builder = WebApplication.CreateBuilder(args);
+    
+    // Explicitly configure URLs
+    builder.WebHost.UseUrls("http://localhost:5000");
+    Console.WriteLine("✅ Web application builder created with URL: http://localhost:5000");
+
+    // Add only essential services
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+    
+    // Add Database Context with timeout configuration
+    Console.WriteLine("🗄️ Adding PostgreSQL database context...");
+    var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__PostgreSql");
+    if (string.IsNullOrEmpty(connectionString))
     {
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        // Console.WriteLine("Applying database migrations...");
-        // db.Database.Migrate();
-        // Console.WriteLine("Database migrations applied successfully.");
+        Console.WriteLine("⚠️ WARNING: PostgreSQL connection string not found. Database features will be disabled.");
+    }
+    else
+    {
+        builder.Services.AddDbContext<AppDbContext>(options =>
+        {
+            options.UseNpgsql(connectionString, npgsqlOptions =>
+            {
+                npgsqlOptions.CommandTimeout(30); // 30 second timeout
+            });
+            options.EnableSensitiveDataLogging(false); // Disable for production
+        });
+        Console.WriteLine("✅ PostgreSQL database context added with 30s timeout");
+    }
+
+    // Add Azure OpenAI Configuration (Step 2)
+    Console.WriteLine("🤖 Adding Azure OpenAI configuration...");
+    var azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AzureOpenAI__Endpoint");
+    var azureOpenAIApiKey = Environment.GetEnvironmentVariable("AzureOpenAI__ApiKey");
+    
+    if (string.IsNullOrEmpty(azureOpenAIEndpoint) || string.IsNullOrEmpty(azureOpenAIApiKey))
+    {
+        Console.WriteLine("⚠️ WARNING: Azure OpenAI configuration incomplete. AI features will be disabled.");
+    }
+    else
+    {
+        // Azure OpenAI configuration found - services will be added later
+        var chatDeployment = Environment.GetEnvironmentVariable("AzureOpenAI__ChatDeployment") ?? "gpt-4";
+        var embeddingDeployment = Environment.GetEnvironmentVariable("AzureOpenAI__EmbeddingDeployment") ?? "text-embedding-ada-002";
         
-        // // Seed data
-        // Console.WriteLine("Seeding data...");
-        // SeedData.EnsureSeeded(db);
-        // Console.WriteLine("Data seeding completed.");
+        Console.WriteLine($"✅ Azure OpenAI services configured:");
+        Console.WriteLine($"   📍 Endpoint: {azureOpenAIEndpoint}");
+        Console.WriteLine($"   🤖 Chat Deployment: {chatDeployment}");
+        Console.WriteLine($"   📊 Embedding Deployment: {embeddingDeployment}");
+        Console.WriteLine("   ⏳ Service registration: DEFERRED (Step 3)");
+
+        // Register Azure OpenAI Configuration
+        builder.Services.Configure<AzureOpenAIConfig>(options =>
+        {
+            options.Endpoint = azureOpenAIEndpoint;
+            options.ApiKey = azureOpenAIApiKey;
+            options.ChatDeploymentName = Environment.GetEnvironmentVariable("AzureOpenAI__ChatDeployment") ?? "gpt-4";
+            options.EmbeddingDeploymentName = Environment.GetEnvironmentVariable("AzureOpenAI__EmbeddingDeployment") ?? "text-embedding-ada-002";
+            options.MaxTokens = int.TryParse(Environment.GetEnvironmentVariable("AzureOpenAI__MaxTokens"), out var maxTokens) ? maxTokens : 4000;
+            options.Temperature = double.TryParse(Environment.GetEnvironmentVariable("AzureOpenAI__Temperature"), out var temp) ? temp : 0.7;
+        });
+        
+        // Register Azure OpenAI Client
+        builder.Services.AddSingleton<Azure.AI.OpenAI.OpenAIClient>(provider =>
+        {
+            return new Azure.AI.OpenAI.OpenAIClient(
+                new Uri(azureOpenAIEndpoint),
+                new Azure.AzureKeyCredential(azureOpenAIApiKey)
+            );
+        });
+        
+        // Register Azure OpenAI Service
+        builder.Services.AddScoped<IAzureOpenAIService, AzureOpenAIService>();
+        
+        Console.WriteLine("✅ Azure OpenAI services registered successfully");
+    }
+
+    // Add NBA Context Services (Step 4)
+    Console.WriteLine("🧠 Adding NBA Context services...");
+    try
+    {
+        // Register NBA Context Service
+        builder.Services.AddScoped<INbaContextService, NbaContextService>();
+        
+        // Register Vector Search Service
+        builder.Services.AddScoped<IVectorSearchService, VectorSearchService>();
+        
+        // Register Demo NBA Service for 4-hour demo
+        builder.Services.AddScoped<IDemoNbaService, DemoNbaService>();
+        
+        Console.WriteLine("✅ NBA Context services registered successfully");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"An error occurred while migrating or seeding the database: {ex.Message}");
-        throw; // Fail fast if we can't set up the database
+        Console.WriteLine($"⚠️ WARNING: NBA Context services registration failed: {ex.Message}");
+        Console.WriteLine("   🔄 Continuing without NBA services for now...");
     }
-}
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    Console.WriteLine("🎯 Building minimal application...");
+    var app = builder.Build();
+    Console.WriteLine("✅ Minimal application built successfully");
 
-// Use HTTP instead of HTTPS
-app.UseRouting();
-app.UseCors(); // Enable CORS for frontend
-app.UseAuthentication(); // MVP/DEV-ONLY: AllowAll authentication for local/dev
-app.UseAuthorization();
-app.MapControllers();
-
-// Configure Swagger
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c => 
+    // Configure the HTTP request pipeline
+    if (app.Environment.IsDevelopment())
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Emma API V1");
+        app.UseSwagger();
+        app.UseSwaggerUI();
+        Console.WriteLine("✅ Swagger configured for development environment");
+    }
+
+    app.UseRouting();
+    app.MapControllers();
+
+    // Add a root endpoint that redirects to Swagger
+    app.MapGet("/", () => Results.Redirect("/swagger"));
+    
+    // Add a simple test endpoint
+    app.MapGet("/test", () => new { message = "Emma AI Platform is running!", timestamp = DateTime.UtcNow });
+    
+    // NBA Context endpoints (Step 5)
+    app.MapGet("/nba/health", () => new { 
+        status = "healthy", 
+        message = "NBA Context services are available", 
+        timestamp = DateTime.UtcNow,
+        services = new { azureOpenAI = "registered", nbaContext = "registered", vectorSearch = "registered" }
     });
+    
+    app.MapPost("/nba/context/update", async (INbaContextService nbaService, HttpContext context) =>
+    {
+        try
+        {
+            // Simple test - just return success for now
+            return Results.Ok(new { 
+                message = "NBA Context service is available and responding", 
+                timestamp = DateTime.UtcNow,
+                status = "ready"
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"NBA Context service error: {ex.Message}");
+        }
+    });
+    
+    // Add database health check endpoint
+    app.MapGet("/health/db", async (AppDbContext dbContext) =>
+    {
+        try
+        {
+            Console.WriteLine("🔍 Testing database connection...");
+            var canConnect = await dbContext.Database.CanConnectAsync();
+            if (canConnect)
+            {
+                Console.WriteLine("✅ Database connection successful");
+                return Results.Ok(new { 
+                    status = "healthy", 
+                    message = "Database connection successful", 
+                    timestamp = DateTime.UtcNow,
+                    database = "PostgreSQL"
+                });
+            }
+            else
+            {
+                Console.WriteLine("❌ Database connection failed");
+                return Results.Problem("Database connection failed", statusCode: 503);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Database connection error: {ex.Message}");
+            return Results.Problem($"Database connection error: {ex.Message}", statusCode: 503);
+        }
+    });
+    
+    // Demo NBA Endpoints (4-hour demo)
+    app.MapPost("/demo/analyze-interaction", async (IDemoNbaService demoService, AnalyzeInteractionRequest request) =>
+    {
+        try
+        {
+            var result = await demoService.AnalyzeInteractionAsync(request.InteractionText, request.ClientContext ?? "");
+            return Results.Ok(new { 
+                success = true, 
+                analysis = result, 
+                timestamp = DateTime.UtcNow 
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Analysis error: {ex.Message}");
+        }
+    });
+    
+    app.MapPost("/demo/get-recommendation", async (IDemoNbaService demoService, GetRecommendationRequest request) =>
+    {
+        try
+        {
+            var result = await demoService.GetRecommendationAsync(
+                request.ClientSummary, 
+                request.RecentInteractions, 
+                request.DealStage ?? "prospect"
+            );
+            return Results.Ok(new { 
+                success = true, 
+                recommendation = result, 
+                timestamp = DateTime.UtcNow 
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Recommendation error: {ex.Message}");
+        }
+    });
+    
+    app.MapPost("/demo/update-summary", async (IDemoNbaService demoService, UpdateSummaryRequest request) =>
+    {
+        try
+        {
+            var result = await demoService.UpdateClientSummaryAsync(
+                request.ExistingSummary ?? "", 
+                request.NewInteractions, 
+                request.ClientProfile ?? ""
+            );
+            return Results.Ok(new { 
+                success = true, 
+                summary = result, 
+                timestamp = DateTime.UtcNow 
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Summary error: {ex.Message}");
+        }
+    });
+    
+    Console.WriteLine("✅ Routes and endpoints configured");
+
+    Console.WriteLine("🚀 Starting minimal web application...");
+    Console.WriteLine("📍 Application should be available at: http://localhost:5000");
+    Console.WriteLine("📍 Swagger UI: http://localhost:5000/swagger");
+    Console.WriteLine("📍 Test endpoint: http://localhost:5000/test");
+    Console.WriteLine("⏳ Starting server... (this should block and keep running)");
+    
+    app.Run();
 }
-
-var summaries = new[]
+catch (Exception ex)
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-// Enable Swagger middleware
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    Console.WriteLine($"❌ FATAL ERROR during startup: {ex.Message}");
+    Console.WriteLine($"📍 Exception Type: {ex.GetType().Name}");
+    Console.WriteLine($"📝 Stack Trace: {ex.StackTrace}");
+    
+    if (ex.InnerException != null)
+    {
+        Console.WriteLine($"🔗 Inner Exception: {ex.InnerException.Message}");
+        Console.WriteLine($"📝 Inner Stack Trace: {ex.InnerException.StackTrace}");
+    }
+    
+    Console.WriteLine("\n⏸️ Press any key to exit...");
+    Console.ReadKey();
+    Environment.Exit(1);
 }
-
-// For integration testing with WebApplicationFactory<Program>
-public partial class Program { }

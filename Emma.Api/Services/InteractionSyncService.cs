@@ -1,9 +1,8 @@
 using System;
-using Emma.Api.Models; // Only once, remove duplicates
+using Emma.Api.Models;
 using Emma.Data;
 using System.Threading.Tasks;
-using Emma.Api.Models; // Only once, remove duplicates
-using Emma.Data.Models; // Assuming this is your EF/PostgreSQL model
+using Emma.Data.Models; 
 using Microsoft.Extensions.Logging;
 
 namespace Emma.Api.Services

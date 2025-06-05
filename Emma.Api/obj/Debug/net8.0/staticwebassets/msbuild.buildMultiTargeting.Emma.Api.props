@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Emma.Api.props" />
+</Project>
