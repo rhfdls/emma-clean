@@ -266,12 +266,12 @@ Please provide 2-3 specific next best actions in order of priority.";
             var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
             var recommendations = response.Value.Choices[0].Message.Content;
 
-            _logger.LogInformation("Generated NBA recommendations for contact {ContactId}", context.ContactId);
+            _logger.LogInformation("Generated NBA recommendations for client {ContactId}", context.ContactId);
             return recommendations;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating NBA recommendations for contact {ContactId}", context.ContactId);
+            _logger.LogError(ex, "Error generating NBA recommendations for client {ContactId}", context.ContactId);
             return "Unable to generate recommendations at this time. Please review client context manually.";
         }
     }
@@ -280,7 +280,7 @@ Please provide 2-3 specific next best actions in order of priority.";
     /// Suggests state transitions based on interaction content
     /// </summary>
     public async Task<(string? newState, string? reason)> SuggestStateTransitionAsync(
-        ClientState currentState, 
+        ContactState currentState, 
         Interaction interaction)
     {
         try
@@ -350,7 +350,7 @@ RELEVANT INTERACTIONS ({context.RelevantInteractions.Count}):
 {string.Join("\n", context.RelevantInteractions.Take(3).Select(ri => 
     $"- {ri.Interaction.Timestamp:MM/dd} {ri.Interaction.Type} (Score: {ri.SimilarityScore:F2})"))}
 
-ACTIVE RESOURCES: {context.ActiveResourceAssignments.Count} assignments
+ACTIVE RESOURCES: {context.ActiveContactAssignments.Count} assignments
 TOTAL INTERACTIONS: {context.Metadata.TotalInteractionCount}";
 
         return summary;

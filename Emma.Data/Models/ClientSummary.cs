@@ -10,7 +10,7 @@ public class ClientSummary
     [Key]
     public string Id { get; set; } = string.Empty;
     
-    public Guid ContactId { get; set; }
+    public Guid ClientId { get; set; }
     public Guid OrganizationId { get; set; }
     
     /// <summary>

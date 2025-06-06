@@ -11,14 +11,14 @@ public interface IVectorSearchService
     /// Performs semantic search to find relevant interactions based on query embedding
     /// </summary>
     /// <param name="queryEmbedding">Query vector embedding</param>
-    /// <param name="contactId">Contact ID to filter results</param>
+    /// <param name="clientId">Client ID to filter results</param>
     /// <param name="organizationId">Organization ID to filter results</param>
     /// <param name="topK">Number of top results to return</param>
     /// <param name="minSimilarity">Minimum similarity threshold (0.0 to 1.0)</param>
     /// <returns>List of relevant interactions with similarity scores</returns>
     Task<List<RelevantInteraction>> FindSimilarInteractionsAsync(
         float[] queryEmbedding,
-        Guid contactId,
+        Guid clientId,
         Guid organizationId,
         int topK = 5,
         double minSimilarity = 0.7);
@@ -27,14 +27,14 @@ public interface IVectorSearchService
     /// Performs semantic search using text query (generates embedding internally)
     /// </summary>
     /// <param name="query">Text query</param>
-    /// <param name="contactId">Contact ID to filter results</param>
+    /// <param name="clientId">Client ID to filter results</param>
     /// <param name="organizationId">Organization ID to filter results</param>
     /// <param name="topK">Number of top results to return</param>
     /// <param name="minSimilarity">Minimum similarity threshold (0.0 to 1.0)</param>
     /// <returns>List of relevant interactions with similarity scores</returns>
     Task<List<RelevantInteraction>> SearchInteractionsAsync(
         string query,
-        Guid contactId,
+        Guid clientId,
         Guid organizationId,
         int topK = 5,
         double minSimilarity = 0.7);

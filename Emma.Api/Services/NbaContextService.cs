@@ -30,7 +30,7 @@ public class NbaContextService : INbaContextService
     }
 
     /// <summary>
-    /// Retrieves complete NBA context for a client
+    /// Retrieves complete NBA context for a contact
     /// </summary>
     public async Task<NbaContext> GetNbaContextAsync(
         Guid contactId, 
@@ -45,10 +45,10 @@ public class NbaContextService : INbaContextService
             _logger.LogInformation("Retrieving NBA context for contact {ContactId}", contactId);
 
             // Get rolling summary
-            var rollingSummary = await GetClientSummaryAsync(contactId, organizationId);
+            var rollingSummary = await GetContactSummaryAsync(contactId, organizationId);
             
-            // Get current client state
-            var clientState = await GetClientStateAsync(contactId, organizationId);
+            // Get current contact state
+            var contactState = await GetContactStateAsync(contactId, organizationId);
             
             // Get recent interactions
             var recentInteractions = await GetRecentInteractionsAsync(
@@ -58,8 +58,8 @@ public class NbaContextService : INbaContextService
             var relevantInteractions = await GetRelevantInteractionsAsync(
                 contactId, organizationId, maxRelevantInteractions);
             
-            // Get active resource assignments
-            var activeResourceAssignments = await GetActiveResourceAssignmentsAsync(
+            // Get active contact assignments
+            var activeContactAssignments = await GetActiveContactAssignmentsAsync(
                 contactId, organizationId);
 
             // Get total interaction count
@@ -71,7 +71,7 @@ public class NbaContextService : INbaContextService
                 ContactId = contactId,
                 OrganizationId = organizationId,
                 RollingSummary = rollingSummary,
-                CurrentState = clientState,
+                CurrentState = contactState,
                 RecentInteractions = recentInteractions,
                 RelevantInteractions = relevantInteractions.Select(ri => new RelevantInteraction
                 {
@@ -80,7 +80,7 @@ public class NbaContextService : INbaContextService
                     SimilarityScore = ri.SimilarityScore,
                     RelevanceReason = ri.RelevanceReason
                 }).ToList(),
-                ActiveResourceAssignments = activeResourceAssignments,
+                ActiveContactAssignments = activeContactAssignments,
                 Metadata = new NbaContextMetadata
                 {
                     GeneratedAt = DateTime.UtcNow,
@@ -103,36 +103,30 @@ public class NbaContextService : INbaContextService
     }
 
     /// <summary>
-    /// Gets the client summary for a contact
+    /// Gets the contact summary for a contact
     /// </summary>
-    public async Task<ClientSummary?> GetClientSummaryAsync(Guid contactId, Guid organizationId)
+    public async Task<ContactSummary?> GetContactSummaryAsync(Guid contactId, Guid organizationId)
     {
-        return await _context.ClientSummaries
-            .FirstOrDefaultAsync(cs => cs.ContactId == contactId && 
-                                     cs.OrganizationId == organizationId &&
-                                     cs.SummaryType == "rolling");
+        return await _context.ContactSummaries
+            .FirstOrDefaultAsync(cs => cs.ContactId == contactId && cs.OrganizationId == organizationId);
     }
 
     /// <summary>
-    /// Gets the current client state for a contact
+    /// Gets the current contact state for a contact
     /// </summary>
-    public async Task<ClientState?> GetClientStateAsync(Guid contactId, Guid organizationId)
+    public async Task<ContactState?> GetContactStateAsync(Guid contactId, Guid organizationId)
     {
-        return await _context.ClientStates
-            .FirstOrDefaultAsync(cs => cs.ContactId == contactId && 
-                                     cs.OrganizationId == organizationId);
+        return await _context.ContactStates
+            .FirstOrDefaultAsync(cs => cs.ContactId == contactId && cs.OrganizationId == organizationId);
     }
 
     /// <summary>
-    /// Updates the rolling summary for a client after a new interaction
+    /// Updates the rolling summary for a contact after a new interaction
     /// </summary>
-    public async Task<ClientSummary> UpdateRollingSummaryAsync(
-        Guid contactId, 
-        Guid organizationId, 
-        Interaction newInteraction)
+    public async Task<ContactSummary> UpdateRollingSummaryAsync(Guid contactId, Guid organizationId, Interaction interaction)
     {
         // Get existing summary or create new one
-        var existingSummary = await GetClientSummaryAsync(contactId, organizationId);
+        var existingSummary = await GetContactSummaryAsync(contactId, organizationId);
         
         // Get recent interactions for context
         var recentInteractions = await _context.Interactions
@@ -145,9 +139,9 @@ public class NbaContextService : INbaContextService
         {
             // Create initial summary using AI
             var initialSummaryText = await _azureOpenAIService.UpdateRollingSummaryAsync(
-                null, newInteraction, recentInteractions);
+                null, interaction, recentInteractions);
 
-            existingSummary = new ClientSummary
+            existingSummary = new ContactSummary
             {
                 Id = $"summary-{contactId}",
                 ContactId = contactId,
@@ -155,8 +149,8 @@ public class NbaContextService : INbaContextService
                 SummaryType = "rolling",
                 SummaryText = initialSummaryText,
                 InteractionCount = 1,
-                EarliestInteraction = newInteraction.Timestamp,
-                LatestInteraction = newInteraction.Timestamp,
+                EarliestInteraction = interaction.Timestamp,
+                LatestInteraction = interaction.Timestamp,
                 KeyMilestones = new List<string>(),
                 ImportantPreferences = new Dictionary<string, object>(),
                 CustomFields = new Dictionary<string, object>()
@@ -166,34 +160,34 @@ public class NbaContextService : INbaContextService
         {
             // Update existing summary using AI
             var updatedSummaryText = await _azureOpenAIService.UpdateRollingSummaryAsync(
-                existingSummary.SummaryText, newInteraction, recentInteractions);
+                existingSummary.SummaryText, interaction, recentInteractions);
 
             existingSummary.SummaryText = updatedSummaryText;
             existingSummary.InteractionCount++;
-            existingSummary.LatestInteraction = newInteraction.Timestamp;
+            existingSummary.LatestInteraction = interaction.Timestamp;
             existingSummary.LastUpdated = DateTime.UtcNow;
         }
 
-        _context.ClientSummaries.Update(existingSummary);
+        _context.ContactSummaries.Update(existingSummary);
         await _context.SaveChangesAsync();
 
         return existingSummary;
     }
 
     /// <summary>
-    /// Updates the client state after a new interaction
+    /// Updates the contact state after a new interaction
     /// </summary>
-    public async Task<ClientState> UpdateClientStateAsync(
+    public async Task<ContactState> UpdateContactStateAsync(
         Guid contactId, 
         Guid organizationId, 
         Interaction newInteraction)
     {
         // Get existing state or create new one
-        var existingState = await GetClientStateAsync(contactId, organizationId);
+        var existingState = await GetContactStateAsync(contactId, organizationId);
         
         if (existingState == null)
         {
-            existingState = new ClientState
+            existingState = new ContactState
             {
                 Id = $"state-{contactId}",
                 ContactId = contactId,
@@ -243,7 +237,7 @@ public class NbaContextService : INbaContextService
             }
         }
 
-        _context.ClientStates.Update(existingState);
+        _context.ContactStates.Update(existingState);
         await _context.SaveChangesAsync();
 
         return existingState;
@@ -362,8 +356,8 @@ public class NbaContextService : INbaContextService
             await UpdateRollingSummaryAsync(
                 interaction.ContactId, interaction.OrganizationId, interaction);
             
-            // Update client state
-            await UpdateClientStateAsync(
+            // Update contact state
+            await UpdateContactStateAsync(
                 interaction.ContactId, interaction.OrganizationId, interaction);
 
             _logger.LogInformation("Successfully processed interaction {InteractionId}", interaction.Id);
@@ -394,9 +388,9 @@ public class NbaContextService : INbaContextService
     {
         try
         {
-            // Get the latest client summary to use as search context
-            var clientSummary = await GetClientSummaryAsync(contactId, organizationId);
-            var searchQuery = clientSummary?.SummaryText ?? "client interactions";
+            // Get the latest contact summary to use as search context
+            var contactSummary = await GetContactSummaryAsync(contactId, organizationId);
+            var searchQuery = contactSummary?.SummaryText ?? "contact interactions";
             
             // Use vector search to find semantically relevant interactions
             var relevantInteractions = await _vectorSearchService.SearchInteractionsAsync(
@@ -437,14 +431,14 @@ public class NbaContextService : INbaContextService
         }
     }
 
-    private async Task<List<ResourceAssignment>> GetActiveResourceAssignmentsAsync(
+    private async Task<List<ContactAssignment>> GetActiveContactAssignmentsAsync(
         Guid contactId, 
         Guid organizationId)
     {
-        return await _context.ResourceAssignments
-            .Where(ra => ra.ContactId == contactId && 
-                        ra.OrganizationId == organizationId &&
-                        ra.Status == ResourceAssignmentStatus.Active)
+        return await _context.ContactAssignments
+            .Where(ca => ca.ClientContactId == contactId && 
+                        ca.OrganizationId == organizationId &&
+                        ca.Status == ResourceAssignmentStatus.Active)
             .ToListAsync();
     }
 }

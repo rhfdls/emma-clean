@@ -1,0 +1,168 @@
+[
+  {
+    "id": "cosmos-550e8400-e29b-41d4-a716-446655440800",
+    "agentId": "550e8400-e29b-41d4-a716-446655440002",
+    "contactId": "550e8400-e29b-41d4-a716-446655440100",
+    "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+    "type": "call",
+    "content": "Emily called excited about the Hillcrest condo we saw yesterday. She wants to make an offer but is nervous about competing with other buyers. I discussed offer strategy with her - recommended full price ($525K) with quick close (21 days) and a personal letter to the seller. She's getting her pre-approval letter updated to show the higher amount. We're scheduling the offer presentation for tomorrow morning at 10 AM. She's also concerned about the HOA fees but understands the value of the location and amenities. I assured her this is a competitive market and we need to put our best foot forward.",
+    "timestamp": "2024-11-20T10:30:00Z",
+    "metadata": {
+      "propertyAddress": "456 Hillcrest Ave, San Diego, CA",
+      "offerAmount": "525000",
+      "competingOffers": "2",
+      "clientEmotion": "excited-nervous",
+      "hoaFees": "450",
+      "closeTimeline": "21"
+    },
+    "tags": ["OfferStrategy", "FirstTimeBuyer", "CompetitiveBid", "CondoPurchase", "HOAConcerns"]
+  },
+  {
+    "id": "cosmos-550e8400-e29b-41d4-a716-446655440801",
+    "agentId": "550e8400-e29b-41d4-a716-446655440004",
+    "contactId": "550e8400-e29b-41d4-a716-446655440110",
+    "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+    "type": "call",
+    "content": "Robert called to discuss his offer strategy for the La Jolla oceanview property. He's seen the property twice and is ready to move forward. Given the $1.2M asking price and the premium location, I recommended offering full price with a 30-day close. Since he's a cash buyer, we're waiving the appraisal contingency to strengthen the offer. He's comfortable with this approach given his due diligence on the property and neighborhood. We discussed the inspection timeline - he wants a thorough inspection despite being confident in the property. I'm coordinating with the listing agent to present the offer this afternoon. Robert is excited about the ocean views and the potential for appreciation in this prime La Jolla location.",
+    "timestamp": "2024-11-19T08:15:00Z",
+    "metadata": {
+      "propertyAddress": "123 Ocean View Drive, La Jolla, CA",
+      "offerAmount": "1200000",
+      "buyerType": "cash",
+      "contingencies": "inspection-only",
+      "closeTimeline": "30",
+      "propertyType": "luxury-oceanview"
+    },
+    "tags": ["LuxuryOffer", "CashBuyer", "OceanView", "LaJolla", "FullPrice", "WaivedAppraisal"]
+  },
+  {
+    "id": "cosmos-550e8400-e29b-41d4-a716-446655440802",
+    "agentId": "550e8400-e29b-41d4-a716-446655440003",
+    "contactId": "550e8400-e29b-41d4-a716-446655440200",
+    "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+    "type": "call",
+    "content": "James Wilson called from Seattle about relocating to San Diego for his new tech job at Qualcomm. He needs to find and close on a home within 60 days to start his position. Budget is $800K-$900K, pre-approved with a Seattle lender but open to local recommendations. He's looking for a modern townhome or single-family home in Sorrento Valley, Carmel Valley, or nearby areas for the commute. Wants 3+ bedrooms, 2-car garage, and good schools for future family planning. I'm sending him 5 listings that match his criteria and we're scheduling a virtual tour session for this weekend. He can fly down for in-person showings next week if we find good options. Very motivated buyer with solid financing and timeline pressure.",
+    "timestamp": "2024-11-19T17:30:00Z",
+    "metadata": {
+      "relocationCompany": "Qualcomm",
+      "timeline": "60-days",
+      "budget": "800000-900000",
+      "preferredAreas": "Sorrento Valley, Carmel Valley",
+      "requirements": "3BR, 2-car garage, good schools",
+      "currentLocation": "Seattle",
+      "employmentStatus": "new-job"
+    },
+    "tags": ["Relocation", "TechWorker", "Qualcomm", "TimelinePressure", "VirtualTour", "HotProspect"]
+  },
+  {
+    "id": "cosmos-550e8400-e29b-41d4-a716-446655440803",
+    "agentId": "550e8400-e29b-41d4-a716-446655440001",
+    "contactId": "550e8400-e29b-41d4-a716-446655440120",
+    "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+    "type": "meeting",
+    "content": "Met with Maria Garcia at her beautiful Encinitas home to discuss the listing strategy. The home is a 2018 build, 4 bedrooms, 3 bathrooms, approximately 2,400 square feet with an open floor plan and modern finishes. The backyard has mature landscaping and a built-in BBQ area. After reviewing recent comparable sales in the neighborhood, I'm recommending a listing price between $1.1M and $1.15M. Maria and her husband need to relocate to Phoenix by February for his job transfer, so we have some flexibility on timing but want to be on the market by early December. We discussed minor staging improvements - fresh paint in a couple of rooms, professional deep cleaning, and some landscaping touch-ups. I'm arranging for professional photography next week and will have the full marketing package ready by Friday. Maria is motivated to sell and understands the current market conditions.",
+    "timestamp": "2024-11-16T14:00:00Z",
+    "metadata": {
+      "propertyType": "single-family",
+      "yearBuilt": "2018",
+      "bedrooms": "4",
+      "bathrooms": "3",
+      "squareFeet": "2400",
+      "listingPriceRange": "1100000-1150000",
+      "relocationTimeline": "February",
+      "marketingLaunch": "early-December"
+    },
+    "tags": ["ListingConsultation", "Relocation", "Encinitas", "ModernHome", "StagingNeeded", "Photography"]
+  },
+  {
+    "id": "cosmos-550e8400-e29b-41d4-a716-446655440804",
+    "agentId": "550e8400-e29b-41d4-a716-446655440003",
+    "contactId": "550e8400-e29b-41d4-a716-446655440300",
+    "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+    "type": "email",
+    "content": "Kevin Brown reached out through our website about the 5th Avenue condo listing. He mentioned he's pre-approved up to $500K and is looking to move quickly. This is exactly the type of motivated buyer we want for this property. I responded immediately with availability for weekend showings and also sent him information about three comparable properties in the area. His email tone suggests he's serious and ready to act. I'm following up with a phone call tomorrow to better understand his timeline and requirements. Given the competitive market for condos in this price range, I want to make sure we're prepared to move quickly if he's interested. This could be a great opportunity for a quick sale on the 5th Avenue property.",
+    "timestamp": "2024-11-18T15:45:00Z",
+    "metadata": {
+      "leadSource": "website",
+      "propertyInterest": "5th Avenue condo",
+      "preApprovalAmount": "500000",
+      "urgency": "high",
+      "responseTime": "75-minutes"
+    },
+    "tags": ["WebsiteLead", "CondoInquiry", "PreApproved", "QuickMove", "FollowUpScheduled"]
+  },
+  {
+    "id": "cosmos-550e8400-e29b-41d4-a716-446655440805",
+    "agentId": "550e8400-e29b-41d4-a716-446655440002",
+    "contactId": "550e8400-e29b-41d4-a716-446655440400",
+    "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+    "type": "call",
+    "content": "Called Thomas Anderson for his one-year home anniversary check-in. It's been exactly one year since he closed on his Hillcrest home, and I wanted to see how everything is going. Thomas is extremely happy with his purchase and loves the neighborhood. He mentioned that several neighbors have become good friends and he feels very settled. When I shared recent comparable sales showing his home has appreciated about 8% since purchase, he was thrilled. The conversation took an interesting turn when he mentioned his brother Mark is looking to relocate to San Diego from Denver for a job opportunity. Mark is in his early 30s, single, and looking for a condo or townhome under $600K. I'm getting Mark's contact information and will reach out this week. Thomas also expressed interest in refinancing to take advantage of current rates, so I connected him with Jennifer Adams at Pacific Coast Lending. This is exactly the type of relationship building that leads to referrals and repeat business.",
+    "timestamp": "2024-11-15T10:30:00Z",
+    "metadata": {
+      "anniversaryDate": "2023-11-15",
+      "propertyAppreciation": "8%",
+      "referralContact": "Mark Anderson (brother)",
+      "referralBudget": "under-600000",
+      "refinanceInterest": "yes",
+      "satisfactionLevel": "extremely-happy"
+    },
+    "tags": ["AnniversaryCall", "PastClient", "ReferralOpportunity", "PropertyAppreciation", "RefinanceInterest", "RelationshipBuilding"]
+  },
+  {
+    "id": "cosmos_interaction_007",
+    "contactId": "550e8400-e29b-41d4-a716-446655440140",
+    "agentId": "550e8400-e29b-41d4-a716-446655440004",
+    "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+    "interactionType": "call",
+    "channel": "phone",
+    "direction": "outbound",
+    "duration": "18 minutes",
+    "summary": "Property inspection call with Chris Gabriel discussing repair findings and decision between two properties under timeline pressure",
+    "fullTranscript": [
+      {"Speaker":"Agent","Text":"Hi Chris, it's David from Premier Realty. How did the inspection go?"},
+      {"Speaker":"Chris","Text":"Hey David. It went okay, but there are some issues we need to discuss."},
+      {"Speaker":"Inspector","Text":"Chris, how's it look?"},
+      {"Speaker":"Chris","Text":"OK. How does it look?"},
+      {"Speaker":"Inspector","Text":"Good. It needs some TLC in some areas. And some the roof is need some patches the the plants are older. There's some framework to do on the stairs for the basement. So there, there's more stuff to do moving into the house, there's more things to do right away. Like the furnace is 2008, so that's past the 15 years. So it's more likely to go down, right?"},
+      {"Speaker":"Chris","Text":"2024."},
+      {"Speaker":"Inspector","Text":"Yeah. They only a few kilometers on it maybe, yeah."},
+      {"Speaker":"Chris","Text":"Yeah, OK. Yeah. Is that right?"},
+      {"Speaker":"Inspector","Text":"So there's just more to do in this house to get it, uh, you to be moving friendly right by. The way?"},
+      {"Speaker":"Chris","Text":"Umm anything. Anything. Anything. Anything else major or."},
+      {"Speaker":"Inspector","Text":"Uh, no. There's no foundation cracked here. Nothing like that. You even see finish the basement. It finish the. It's finished, right?"},
+      {"Speaker":"Chris","Text":"Uh, unfinished. The basement here is unfinished, yeah. Umm, so we can see everything. There's no crack or anything, but yeah, they, I mean these little items like, you know. Updating the dryer van diesel cost money doing the stairs with doing the framing stuff like that, right? So, uh, and this one, they said the maintenance feature is 200 a month too, right? So yeah, they have the decision to make in terms of one of them is moving ready and the other one needs some needs some love, right?"},
+      {"Speaker":"Chris","Text":"Yeah, but don't ask me to do something. I know what to do again though, right? So I, I I just wanna confirm. You're gonna be able to in terms of, in terms of risk as they start in terms of risk, uh, the other one has less risk, uh. At at the moment."},
+      {"Speaker":"Chris","Text":"Auto renew. It's got it's got Christian Z. A Mm-hmm. What's it? Like Micron in the contract? Don't, uh, don't, don't, don't don't don't get you might go to this. Umm, so it's just scissors. That's it. You mean we have to repetite? You know, it was. I can't trust. I guess I can't. Mm-hmm. Mm-hmm. Passing the salary. So she sent me the Oliver back there. What year is the AC?"},
+      {"Speaker":"Inspector","Text":"The AC the 18th, 2011."},
+      {"Speaker":"Chris","Text":"Nicholas. Yes. 2011, yeah, OK. This is yes. This is 2011 as well, right? Just to confirm 2011. Yeah, the furnace is 2000. Yeah, 2008, you said right. Yeah, for the furnace? Mm-hmm."},
+      {"Speaker":"Chris","Text":"So. The bustle of law, possibly my support. So what was the word that needs to be done right away? You said for the the stairs?"},
+      {"Speaker":"Inspector","Text":"Yes, so the the the framing on. The stairs, it's not properly supported. So umm, it's just, it's just, it's just smaller jobs, you know, but it probably it's probably uh. It depends. Label neighbor's neighbor, right? You know, probably number and stuff like they'll charge you 500 bucks, right?"},
+      {"Speaker":"Chris","Text":"Probably. Mm-hmm. Got it. Umm. But of course, it's important that we make a decision, right? Yeah. However, I don't want you guys to make a question. This is, you know. You don't see it's coming. Thank you. Uh, they can kill you. They can keep on fire. Umm. I think, I think I'll take that, you know? That's the point of the container. OK, good. OK, so so OK. OK. OK, bye. Bye. Thanks. Bye."}
+    ],
+    "timestamp": "2024-11-20T15:30:00Z",
+    "metadata": {
+      "propertyAddress": "TBD - Under Inspection",
+      "inspectionFindings": {
+        "furnace": "2008 (16 years old)",
+        "ac": "2011 (13 years old)",
+        "roof": "2010 - needs patches",
+        "stairs": "framing needs support",
+        "dryerVent": "needs updating",
+        "basement": "unfinished",
+        "foundation": "no cracks found"
+      },
+      "repairEstimate": "$1500-2000",
+      "competingProperty": {
+        "status": "move-in ready",
+        "maintenanceFee": "$200/month higher"
+      },
+      "timeline": "conditions due at 6pm",
+      "competingOffers": true,
+      "clientConcern": "repair costs vs move-in ready alternative",
+      "decisionPending": true,
+      "riskAssessment": "current property higher risk due to repairs needed"
+    },
+    "tags": ["PropertyInspection", "RepairEstimate", "CompetingOffers", "TimelinePressure", "DecisionPending", "RiskAssessment", "MaintenanceConcerns"]
+  }
+]

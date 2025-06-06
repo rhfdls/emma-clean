@@ -56,6 +56,6 @@ public interface IAzureOpenAIService
     /// <param name="interaction">New interaction</param>
     /// <returns>Suggested new state and transition reason, or null if no transition</returns>
     Task<(string? newState, string? reason)> SuggestStateTransitionAsync(
-        ClientState currentState, 
+        ContactState currentState, 
         Interaction interaction);
 }

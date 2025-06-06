@@ -3,6 +3,12 @@ using Emma.Data.Enums;
 
 namespace Emma.Data.Models;
 
+/// <summary>
+/// OBSOLETE: This entity is being phased out in favor of Contact-centric approach.
+/// Service providers are now represented as Contact entities with RelationshipState.ServiceProvider.
+/// Use ContactAssignment instead of ResourceAssignment for service provider assignments.
+/// </summary>
+[Obsolete("Use Contact with RelationshipState.ServiceProvider instead. This will be removed in a future version.")]
 public class Resource
 {
     public Guid Id { get; set; } = Guid.NewGuid();

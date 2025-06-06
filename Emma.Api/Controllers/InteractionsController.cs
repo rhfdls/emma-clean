@@ -48,11 +48,11 @@ namespace Emma.Api.Controllers
         /// <summary>
         /// [AI Agent] Retrieve agent interactions in CosmosDB using typed parameters.
         /// </summary>
-        /// <param name="query">Query DTO with optional LeadId, AgentId, Start, End.</param>
+        /// <param name="query">Query DTO with optional ContactId, AgentId, Start, End.</param>
         /// <remarks>
         /// Sample payload:
         /// {
-        ///   "leadId": "00000000-0000-0000-0000-000000000000",
+        ///   "contactId": "00000000-0000-0000-0000-000000000000",
         ///   "agentId": "00000000-0000-0000-0000-000000000000",
         ///   "start": "2024-05-01T00:00:00Z",
         ///   "end": "2024-05-28T23:59:59Z"

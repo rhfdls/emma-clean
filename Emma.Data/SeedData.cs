@@ -57,8 +57,8 @@ namespace Emma.Data
                     Id = Guid.NewGuid(),
                     AgentId = agent.Id,
                     OrganizationId = org.Id,
-                    ClientFirstName = "TestClient",
-                    ClientLastName = "Example",
+                    ContactFirstName = "TestClient",
+                    ContactLastName = "Example",
                     CreatedAt = DateTime.UtcNow
                 };
                 context.Interactions.Add(conversation);

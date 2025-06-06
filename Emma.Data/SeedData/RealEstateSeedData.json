@@ -1,0 +1,461 @@
+{
+  "organization": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "email": "admin@premierrealtyhomes.com",
+    "industryCode": "RealEstate",
+    "ownerAgentId": "550e8400-e29b-41d4-a716-446655440001",
+    "createdAt": "2023-01-15T00:00:00Z"
+  },
+  "agents": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "firstName": "Sarah",
+      "lastName": "Mitchell",
+      "email": "sarah@premierrealtyhomes.com",
+      "password": "hashed_password_placeholder",
+      "isActive": true,
+      "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+      "createdAt": "2023-01-15T00:00:00Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "firstName": "Michael",
+      "lastName": "Rodriguez",
+      "email": "michael@premierrealtyhomes.com",
+      "password": "hashed_password_placeholder",
+      "isActive": true,
+      "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+      "createdAt": "2023-02-01T00:00:00Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "firstName": "Jessica",
+      "lastName": "Chen",
+      "email": "jessica@premierrealtyhomes.com",
+      "password": "hashed_password_placeholder",
+      "isActive": true,
+      "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+      "createdAt": "2024-05-15T00:00:00Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440004",
+      "firstName": "David",
+      "lastName": "Thompson",
+      "email": "david@premierrealtyhomes.com",
+      "password": "hashed_password_placeholder",
+      "isActive": true,
+      "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+      "createdAt": "2022-08-10T00:00:00Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440005",
+      "firstName": "Amanda",
+      "lastName": "Foster",
+      "email": "amanda@premierrealtyhomes.com",
+      "password": "hashed_password_placeholder",
+      "isActive": true,
+      "organizationId": "550e8400-e29b-41d4-a716-446655440000",
+      "createdAt": "2023-06-01T00:00:00Z"
+    }
+  ],
+  "contacts": {
+    "activeClients": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440100",
+        "firstName": "Emily",
+        "lastName": "Johnson",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440101",
+            "address": "emily.johnson@gmail.com",
+            "type": "primary",
+            "verified": true
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440102",
+            "number": "+1-619-555-0123",
+            "type": "mobile",
+            "verified": true
+          }
+        ],
+        "address": {
+          "id": "550e8400-e29b-41d4-a716-446655440103",
+          "street": "1234 Maple Street",
+          "city": "San Diego",
+          "state": "CA",
+          "postalCode": "92101",
+          "country": "USA"
+        },
+        "relationshipState": "Client",
+        "isActiveClient": true,
+        "clientSince": "2024-10-15T00:00:00Z",
+        "tags": ["FirstTimeBuyer", "PreApproved", "CondoShopping"],
+        "createdAt": "2024-09-20T00:00:00Z",
+        "updatedAt": "2024-11-20T00:00:00Z"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440110",
+        "firstName": "Robert",
+        "lastName": "Williams",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440111",
+            "address": "rwilliams@techcorp.com",
+            "type": "work",
+            "verified": true
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440112",
+            "number": "+1-858-555-0456",
+            "type": "mobile",
+            "verified": true
+          }
+        ],
+        "address": {
+          "id": "550e8400-e29b-41d4-a716-446655440113",
+          "street": "5678 Ocean View Drive",
+          "city": "La Jolla",
+          "state": "CA",
+          "postalCode": "92037",
+          "country": "USA"
+        },
+        "relationshipState": "Client",
+        "isActiveClient": true,
+        "clientSince": "2024-11-01T00:00:00Z",
+        "tags": ["LuxuryBuyer", "CashBuyer", "WaterfrontPreferred"],
+        "createdAt": "2024-10-15T00:00:00Z",
+        "updatedAt": "2024-11-20T00:00:00Z"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440120",
+        "firstName": "Maria",
+        "lastName": "Garcia",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440121",
+            "address": "maria.garcia@email.com",
+            "type": "primary",
+            "verified": true
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440122",
+            "number": "+1-760-555-0789",
+            "type": "mobile",
+            "verified": true
+          }
+        ],
+        "address": {
+          "id": "550e8400-e29b-41d4-a716-446655440123",
+          "street": "9876 Sunset Boulevard",
+          "city": "Encinitas",
+          "state": "CA",
+          "postalCode": "92024",
+          "country": "USA"
+        },
+        "relationshipState": "Client",
+        "isActiveClient": true,
+        "clientSince": "2024-09-20T00:00:00Z",
+        "tags": ["Seller", "Relocation", "UpsizeNeeded"],
+        "createdAt": "2024-08-15T00:00:00Z",
+        "updatedAt": "2024-11-18T00:00:00Z"
+      }
+    ],
+    "prospects": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440200",
+        "firstName": "James",
+        "lastName": "Wilson",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440201",
+            "address": "james.wilson@startup.com",
+            "type": "work",
+            "verified": true
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440202",
+            "number": "+1-619-555-1111",
+            "type": "mobile",
+            "verified": false
+          }
+        ],
+        "address": {
+          "id": "550e8400-e29b-41d4-a716-446655440203",
+          "street": "2468 Tech Boulevard",
+          "city": "San Diego",
+          "state": "CA",
+          "postalCode": "92121",
+          "country": "USA"
+        },
+        "relationshipState": "Prospect",
+        "isActiveClient": false,
+        "tags": ["HotProspect", "ActivelyLooking", "PreApproved", "TechWorker"],
+        "createdAt": "2024-10-25T00:00:00Z",
+        "updatedAt": "2024-11-19T00:00:00Z"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440210",
+        "firstName": "Lisa",
+        "lastName": "Chang",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440211",
+            "address": "lisa.chang@gmail.com",
+            "type": "primary",
+            "verified": true
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440212",
+            "number": "+1-858-555-2222",
+            "type": "mobile",
+            "verified": true
+          }
+        ],
+        "relationshipState": "Prospect",
+        "isActiveClient": false,
+        "tags": ["HotProspect", "InvestmentProperty", "CashBuyer"],
+        "createdAt": "2024-11-05T00:00:00Z",
+        "updatedAt": "2024-11-20T00:00:00Z"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440140",
+        "firstName": "Chris",
+        "lastName": "Gabriel",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440141",
+            "address": "chris.gabriel@email.com",
+            "type": "primary",
+            "verified": true
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440142",
+            "number": "+1-416-555-0789",
+            "type": "mobile",
+            "verified": true
+          }
+        ],
+        "address": {
+          "id": "550e8400-e29b-41d4-a716-446655440143",
+          "street": "789 Temporary Address",
+          "city": "Toronto",
+          "state": "ON",
+          "postalCode": "M5V 3A8",
+          "country": "Canada"
+        },
+        "relationshipState": "Prospect",
+        "isActiveClient": false,
+        "tags": ["PropertyInspection", "CompetingOffers", "TimelinePressure", "RepairConcerns"],
+        "createdAt": "2024-11-15T00:00:00Z",
+        "updatedAt": "2024-11-20T00:00:00Z"
+      }
+    ],
+    "leads": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440300",
+        "firstName": "Kevin",
+        "lastName": "Brown",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440301",
+            "address": "kevin.brown@email.com",
+            "type": "primary",
+            "verified": false
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440302",
+            "number": "+1-619-555-3333",
+            "type": "mobile",
+            "verified": false
+          }
+        ],
+        "relationshipState": "Lead",
+        "isActiveClient": false,
+        "tags": ["NewLead", "WebsiteInquiry", "FirstContact"],
+        "createdAt": "2024-11-18T00:00:00Z",
+        "updatedAt": "2024-11-18T00:00:00Z"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440310",
+        "firstName": "Sarah",
+        "lastName": "Davis",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440311",
+            "address": "sarah.davis@company.com",
+            "type": "work",
+            "verified": false
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440312",
+            "number": "+1-760-555-4444",
+            "type": "mobile",
+            "verified": false
+          }
+        ],
+        "relationshipState": "Lead",
+        "isActiveClient": false,
+        "tags": ["NewLead", "OpenHouseVisitor", "Relocation"],
+        "createdAt": "2024-11-17T00:00:00Z",
+        "updatedAt": "2024-11-17T00:00:00Z"
+      }
+    ],
+    "pastClients": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440400",
+        "firstName": "Thomas",
+        "lastName": "Anderson",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440401",
+            "address": "thomas.anderson@email.com",
+            "type": "primary",
+            "verified": true
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440402",
+            "number": "+1-619-555-5555",
+            "type": "mobile",
+            "verified": true
+          }
+        ],
+        "address": {
+          "id": "550e8400-e29b-41d4-a716-446655440403",
+          "street": "1357 Pine Street",
+          "city": "San Diego",
+          "state": "CA",
+          "postalCode": "92103",
+          "country": "USA"
+        },
+        "relationshipState": "PastClient",
+        "isActiveClient": false,
+        "clientSince": "2023-08-15T00:00:00Z",
+        "tags": ["PastClient", "ReferralSource", "AnniversaryContact"],
+        "createdAt": "2023-06-01T00:00:00Z",
+        "updatedAt": "2024-08-15T00:00:00Z"
+      }
+    ],
+    "serviceProviders": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440500",
+        "firstName": "Jennifer",
+        "lastName": "Adams",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440501",
+            "address": "jadams@pacificcoastlending.com",
+            "type": "work",
+            "verified": true
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440502",
+            "number": "+1-619-555-1234",
+            "type": "work",
+            "verified": true
+          }
+        ],
+        "relationshipState": "ServiceProvider",
+        "isActiveClient": false,
+        "companyName": "Pacific Coast Lending",
+        "licenseNumber": "CA-DRE-01234567",
+        "specialties": ["FHA Loans", "VA Loans", "First-Time Buyer Programs"],
+        "serviceAreas": ["San Diego County", "Orange County"],
+        "rating": 4.8,
+        "reviewCount": 127,
+        "isPreferred": true,
+        "website": "https://pacificcoastlending.com",
+        "tags": ["PreferredLender", "FHASpecialist"],
+        "createdAt": "2023-03-01T00:00:00Z",
+        "updatedAt": "2024-11-15T00:00:00Z"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440510",
+        "firstName": "Mark",
+        "lastName": "Thompson",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440511",
+            "address": "mthompson@eliteinspections.com",
+            "type": "work",
+            "verified": true
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440512",
+            "number": "+1-858-555-5678",
+            "type": "work",
+            "verified": true
+          }
+        ],
+        "relationshipState": "ServiceProvider",
+        "isActiveClient": false,
+        "companyName": "Elite Home Inspections",
+        "licenseNumber": "CA-HI-98765",
+        "specialties": ["Residential Inspections", "Condo Inspections", "New Construction"],
+        "serviceAreas": ["San Diego County"],
+        "rating": 4.9,
+        "reviewCount": 89,
+        "isPreferred": true,
+        "website": "https://elitehomeinspections.com",
+        "tags": ["PreferredInspector", "FastTurnaround"],
+        "createdAt": "2023-04-15T00:00:00Z",
+        "updatedAt": "2024-11-10T00:00:00Z"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440520",
+        "firstName": "Rachel",
+        "lastName": "Martinez",
+        "emails": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440521",
+            "address": "rmartinez@securetitle.com",
+            "type": "work",
+            "verified": true
+          }
+        ],
+        "phones": [
+          {
+            "id": "550e8400-e29b-41d4-a716-446655440522",
+            "number": "+1-619-555-9999",
+            "type": "work",
+            "verified": true
+          }
+        ],
+        "relationshipState": "ServiceProvider",
+        "isActiveClient": false,
+        "companyName": "Secure Title Services",
+        "licenseNumber": "CA-TITLE-11111",
+        "specialties": ["Residential Title", "Commercial Title", "Escrow Services"],
+        "serviceAreas": ["San Diego County", "Riverside County"],
+        "rating": 4.7,
+        "reviewCount": 156,
+        "isPreferred": true,
+        "website": "https://securetitleservices.com",
+        "tags": ["PreferredTitle", "FastClose"],
+        "createdAt": "2023-02-01T00:00:00Z",
+        "updatedAt": "2024-11-12T00:00:00Z"
+      }
+    ]
+  }
+}

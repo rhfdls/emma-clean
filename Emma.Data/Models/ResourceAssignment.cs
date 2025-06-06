@@ -3,6 +3,11 @@ using Emma.Data.Enums;
 
 namespace Emma.Data.Models;
 
+/// <summary>
+/// OBSOLETE: This entity is being phased out in favor of Contact-centric approach.
+/// Use ContactAssignment instead, which links ClientContact to ServiceContact (both are Contact entities).
+/// </summary>
+[Obsolete("Use ContactAssignment instead. This will be removed in a future version.")]
 public class ResourceAssignment
 {
     public Guid Id { get; set; } = Guid.NewGuid();

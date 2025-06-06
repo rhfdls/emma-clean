@@ -8,7 +8,7 @@ namespace Emma.Api.Services;
 public interface INbaContextService
 {
     /// <summary>
-    /// Retrieves complete NBA context for a client including summary, state, and relevant interactions
+    /// Retrieves complete NBA context for a contact including summary, state, and relevant interactions
     /// </summary>
     /// <param name="contactId">Contact ID</param>
     /// <param name="organizationId">Organization ID</param>
@@ -22,41 +22,41 @@ public interface INbaContextService
         int maxRelevantInteractions = 10);
 
     /// <summary>
-    /// Gets the client summary for a contact
+    /// Gets the contact summary for a contact
     /// </summary>
     /// <param name="contactId">Contact ID</param>
     /// <param name="organizationId">Organization ID</param>
-    /// <returns>Client summary or null if not found</returns>
-    Task<ClientSummary?> GetClientSummaryAsync(Guid contactId, Guid organizationId);
+    /// <returns>Contact summary or null if not found</returns>
+    Task<ContactSummary?> GetContactSummaryAsync(Guid contactId, Guid organizationId);
 
     /// <summary>
-    /// Gets the current client state for a contact
+    /// Gets the current contact state for a contact
     /// </summary>
     /// <param name="contactId">Contact ID</param>
     /// <param name="organizationId">Organization ID</param>
-    /// <returns>Client state or null if not found</returns>
-    Task<ClientState?> GetClientStateAsync(Guid contactId, Guid organizationId);
+    /// <returns>Contact state or null if not found</returns>
+    Task<ContactState?> GetContactStateAsync(Guid contactId, Guid organizationId);
 
     /// <summary>
-    /// Updates the rolling summary for a client after a new interaction
+    /// Updates the rolling summary for a contact after a new interaction
     /// </summary>
     /// <param name="contactId">Contact ID</param>
     /// <param name="organizationId">Organization ID</param>
     /// <param name="newInteraction">New interaction to incorporate</param>
-    /// <returns>Updated client summary</returns>
-    Task<ClientSummary> UpdateRollingSummaryAsync(
+    /// <returns>Updated contact summary</returns>
+    Task<ContactSummary> UpdateRollingSummaryAsync(
         Guid contactId, 
         Guid organizationId, 
         Interaction newInteraction);
 
     /// <summary>
-    /// Updates the client state after a new interaction
+    /// Updates the contact state after a new interaction
     /// </summary>
     /// <param name="contactId">Contact ID</param>
     /// <param name="organizationId">Organization ID</param>
     /// <param name="newInteraction">New interaction to process</param>
-    /// <returns>Updated client state</returns>
-    Task<ClientState> UpdateClientStateAsync(
+    /// <returns>Updated contact state</returns>
+    Task<ContactState> UpdateContactStateAsync(
         Guid contactId, 
         Guid organizationId, 
         Interaction newInteraction);

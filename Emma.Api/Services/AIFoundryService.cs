@@ -25,19 +25,19 @@ namespace Emma.Api.Services
         private readonly ILogger<AIFoundryService> _logger;
         private readonly OpenAIClient _openAIClient;
         private readonly AzureAIFoundryConfig _config;
-        private readonly CosmosAgentRepository _cosmosRepo;
+        private readonly CosmosAgentRepository? _cosmosRepo;
 
         /// <summary>
-        /// Inject CosmosAgentRepository for agent data access
+        /// Inject CosmosAgentRepository for agent data access (optional)
         /// </summary>
         public AIFoundryService(
             IOptions<AzureAIFoundryConfig> config,
             ILogger<AIFoundryService> logger,
-            CosmosAgentRepository cosmosRepo)
+            CosmosAgentRepository? cosmosRepo = null)
         {
             _config = config?.Value ?? throw new ArgumentNullException(nameof(config));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _cosmosRepo = cosmosRepo ?? throw new ArgumentNullException(nameof(cosmosRepo));
+            _cosmosRepo = cosmosRepo; // Allow null for basic functionality
             
             if (string.IsNullOrWhiteSpace(_config.Endpoint))
                 throw new ArgumentException("Azure AI Foundry endpoint is not configured", nameof(_config.Endpoint));
@@ -257,14 +257,19 @@ namespace Emma.Api.Services
         /// <summary>
         /// CosmosDB-backed skill/tool: Retrieve agent interactions using typed parameters.
         /// </summary>
-        /// <param name="query">Query DTO with optional leadId, agentId, start, end.</param>
+        /// <param name="query">Query DTO with optional contactId, agentId, start, end.</param>
         /// <returns>Enumerable of FulltextInteractionDocument matching the query.</returns>
         public async Task<IEnumerable<FulltextInteractionDocument>> RetrieveAgentInteractionsAsync(Models.InteractionQueryDto query)
         {
+            if (_cosmosRepo == null)
+            {
+                throw new InvalidOperationException("CosmosAgentRepository is not initialized.");
+            }
+
             // Build CosmosDB SQL query from parameters
             var sql = "SELECT * FROM c WHERE 1=1";
-            if (query.LeadId.HasValue)
-                sql += $" AND c.contactId = '{query.LeadId.Value}'";
+            if (query.ContactId.HasValue)
+                sql += $" AND c.contactId = '{query.ContactId.Value}'";
             if (query.AgentId.HasValue)
                 sql += $" AND c.agentId = '{query.AgentId.Value}'";
             if (query.Start.HasValue)

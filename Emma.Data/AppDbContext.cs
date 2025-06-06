@@ -15,6 +15,8 @@ public class AppDbContext : DbContext
     public DbSet<Transcription> Transcriptions { get; set; }
     public DbSet<Organization> Organizations { get; set; }
     public DbSet<Agent> Agents { get; set; }
+    public DbSet<Contact> Contacts { get; set; }
+    public DbSet<EmailAddress> EmailAddresses { get; set; }
     public DbSet<EmmaAnalysis> EmmaAnalyses { get; set; }
     public DbSet<AgentAssignment> AgentAssignments { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
@@ -25,15 +27,19 @@ public class AppDbContext : DbContext
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<TestEntity> TestEntities { get; set; }
     
-    // Resource Assignment System
+    // Resource Assignment System (OBSOLETE - migrating to Contact-centric)
     public DbSet<ResourceCategory> ResourceCategories { get; set; }
     public DbSet<Resource> Resources { get; set; }
     public DbSet<ResourceAssignment> ResourceAssignments { get; set; }
     public DbSet<ResourceRecommendation> ResourceRecommendations { get; set; }
 
+    // Contact Assignment System (NEW - Contact-centric approach)
+    public DbSet<ContactAssignment> ContactAssignments { get; set; }
+    public DbSet<ContactCollaborator> ContactCollaborators { get; set; }
+
     // NBA Context Management System
-    public DbSet<ClientSummary> ClientSummaries { get; set; }
-    public DbSet<ClientState> ClientStates { get; set; }
+    public DbSet<ContactSummary> ContactSummaries { get; set; }
+    public DbSet<ContactState> ContactStates { get; set; }
     public DbSet<InteractionEmbedding> InteractionEmbeddings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -79,8 +85,44 @@ public class AppDbContext : DbContext
             .HasForeignKey(a => a.EmmaAnalysisId)
             .IsRequired();
         modelBuilder.Entity<Interaction>().HasKey(c => c.Id);
-        modelBuilder.Entity<Interaction>().HasIndex(c => c.ClientId).IsUnique();
+        modelBuilder.Entity<Interaction>().HasIndex(c => c.ContactId).IsUnique();
         modelBuilder.Entity<Interaction>().HasIndex(c => c.AgentId);
+        
+        // Contact entity configuration
+        modelBuilder.Entity<Contact>().HasKey(c => c.Id);
+        modelBuilder.Entity<Contact>().HasIndex(c => c.OwnerId);
+        
+        // EmailAddress entity configuration with unique constraint
+        modelBuilder.Entity<EmailAddress>().HasKey(e => e.Id);
+        modelBuilder.Entity<EmailAddress>()
+            .HasIndex(e => e.Address)
+            .IsUnique()
+            .HasDatabaseName("IX_EmailAddresses_Address_Unique");
+        
+        // Contact -> EmailAddress relationship (one-to-many)
+        modelBuilder.Entity<EmailAddress>()
+            .HasOne(e => e.Contact)
+            .WithMany(c => c.Emails)
+            .HasForeignKey(e => e.ContactId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Contact>()
+            .Property(c => c.Phones)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<Contact>()
+            .Property(c => c.Tags)
+            .HasColumnType("jsonb");
+        modelBuilder.Entity<Contact>()
+            .Property(c => c.CustomFields)
+            .HasColumnType("jsonb");
+        
+        // Contact -> Agent (Owner) relationship
+        modelBuilder.Entity<Contact>()
+            .HasOne(c => c.Owner)
+            .WithMany()
+            .HasForeignKey(c => c.OwnerId)
+            .OnDelete(DeleteBehavior.SetNull);
+            
         modelBuilder.Entity<Message>().HasKey(m => m.Id);
         // Unique index for Message on OccurredAt and Type
         modelBuilder.Entity<Message>()
@@ -92,6 +134,21 @@ public class AppDbContext : DbContext
             .WithMany(a => a.Messages)
             .HasForeignKey(m => m.AgentId)
             .OnDelete(DeleteBehavior.Restrict);
+            
+        // Interaction -> Contact relationship
+        modelBuilder.Entity<Interaction>()
+            .HasOne(i => i.Contact)
+            .WithMany(c => c.Interactions)
+            .HasForeignKey(i => i.ContactId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // Interaction -> Agent relationship
+        modelBuilder.Entity<Interaction>()
+            .HasOne(i => i.Agent)
+            .WithMany()
+            .HasForeignKey(i => i.AgentId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
         modelBuilder.Entity<Transcription>().HasKey(t => t.Id);
         modelBuilder.Entity<Organization>().HasKey(o => o.Id);
         modelBuilder.Entity<Organization>().HasIndex(o => o.Email).IsUnique();
@@ -234,11 +291,6 @@ public class AppDbContext : DbContext
             
         // Configure Dictionary properties to use JSON instead of hstore for Azure PostgreSQL compatibility
         
-        // Contact
-        modelBuilder.Entity<Contact>()
-            .Property(c => c.CustomFields)
-            .HasColumnType("jsonb");
-            
         // Conversation
         modelBuilder.Entity<Conversation>()
             .Property(c => c.ExternalIds)
@@ -272,39 +324,39 @@ public class AppDbContext : DbContext
             
         // NBA Context Management Models
         
-        // ClientSummary
-        modelBuilder.Entity<ClientSummary>()
+        // ContactSummary
+        modelBuilder.Entity<ContactSummary>()
             .Property(cs => cs.KeyMilestones)
             .HasColumnType("jsonb");
-        modelBuilder.Entity<ClientSummary>()
+        modelBuilder.Entity<ContactSummary>()
             .Property(cs => cs.ImportantPreferences)
             .HasColumnType("jsonb");
-        modelBuilder.Entity<ClientSummary>()
+        modelBuilder.Entity<ContactSummary>()
             .Property(cs => cs.CustomFields)
             .HasColumnType("jsonb");
-        modelBuilder.Entity<ClientSummary>()
+        modelBuilder.Entity<ContactSummary>()
             .HasIndex(cs => new { cs.ContactId, cs.OrganizationId, cs.SummaryType });
             
-        // ClientState
-        modelBuilder.Entity<ClientState>()
+        // ContactState
+        modelBuilder.Entity<ContactState>()
             .Property(cs => cs.PendingTasks)
             .HasColumnType("jsonb");
-        modelBuilder.Entity<ClientState>()
+        modelBuilder.Entity<ContactState>()
             .Property(cs => cs.OpenObjections)
             .HasColumnType("jsonb");
-        modelBuilder.Entity<ClientState>()
+        modelBuilder.Entity<ContactState>()
             .Property(cs => cs.ImportantDates)
             .HasColumnType("jsonb");
-        modelBuilder.Entity<ClientState>()
+        modelBuilder.Entity<ContactState>()
             .Property(cs => cs.PropertyInfo)
             .HasColumnType("jsonb");
-        modelBuilder.Entity<ClientState>()
+        modelBuilder.Entity<ContactState>()
             .Property(cs => cs.FinancialInfo)
             .HasColumnType("jsonb");
-        modelBuilder.Entity<ClientState>()
+        modelBuilder.Entity<ContactState>()
             .Property(cs => cs.CustomFields)
             .HasColumnType("jsonb");
-        modelBuilder.Entity<ClientState>()
+        modelBuilder.Entity<ContactState>()
             .HasIndex(cs => new { cs.ContactId, cs.OrganizationId })
             .IsUnique();
             

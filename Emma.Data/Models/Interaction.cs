@@ -3,11 +3,10 @@ namespace Emma.Data.Models;
 public class Interaction
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public Guid ContactId { get; set; } // Link to Contact (legacy)
-    public Guid ClientId { get => ContactId; set => ContactId = value; } // Alias for backward compatibility
+    public Guid ContactId { get; set; } // Primary reference to Contact
     public Guid OrganizationId { get; set; }
-    public string ClientFirstName { get; set; } = string.Empty;
-    public string ClientLastName { get; set; } = string.Empty;
+    public string ContactFirstName { get; set; } = string.Empty;
+    public string ContactLastName { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Dictionary<string, string>? ExternalIds { get; set; } // e.g., FUB, HubSpot, Salesforce
     public string Type { get; set; } = string.Empty; // call|email|sms|meeting|note|task|other
@@ -21,6 +20,9 @@ public class Interaction
     public List<string> Tags { get; set; } = new(); // Privacy/business logic tags (CRM, PERSONAL, PRIVATE, etc.)
     public Dictionary<string, string>? CustomFields { get; set; }
     public List<Message> Messages { get; set; } = new();
+    
+    // Navigation properties
+    public Contact? Contact { get; set; }
+    public Agent? Agent { get; set; }
+    public Organization? Organization { get; set; }
 }
-
-

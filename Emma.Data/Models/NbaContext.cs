@@ -8,12 +8,12 @@ public class NbaContext
     public Guid ContactId { get; set; }
     public Guid OrganizationId { get; set; }
     
-    public ClientSummary? RollingSummary { get; set; }
-    public ClientState? CurrentState { get; set; }
+    public ContactSummary? RollingSummary { get; set; }
+    public ContactState? CurrentState { get; set; }
     
     public List<Interaction> RecentInteractions { get; set; } = new();
     public List<RelevantInteraction> RelevantInteractions { get; set; } = new();
-    public List<ResourceAssignment> ActiveResourceAssignments { get; set; } = new();
+    public List<ContactAssignment> ActiveContactAssignments { get; set; } = new();
     
     public NbaContextMetadata Metadata { get; set; } = new();
 }

@@ -153,7 +153,11 @@
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj"
+              }
+            }
           }
         },
         "warningProperties": {

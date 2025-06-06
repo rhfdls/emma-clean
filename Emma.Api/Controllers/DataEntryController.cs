@@ -138,8 +138,8 @@ public class DataEntryController : ControllerBase
                 Id = Guid.NewGuid(),
                 AgentId = dto.AgentId,
                 OrganizationId = dto.OrganizationId,
-                ClientFirstName = dto.ClientFirstName,
-                ClientLastName = dto.ClientLastName,
+                ContactFirstName = dto.ClientFirstName,
+                ContactLastName = dto.ClientLastName,
                 CreatedAt = DateTime.UtcNow
             };
             await _db.Interactions.AddAsync(conversation);
@@ -214,8 +214,8 @@ public class DataEntryController : ControllerBase
                 OccurredAtValue = m.OccurredAt,
                 CreatedAtValue = m.CreatedAt,
                 InteractionIdValue = m.Interaction != null ? m.Interaction.Id : Guid.Empty,
-                ClientFirstNameValue = m.Interaction != null ? m.Interaction.ClientFirstName : null,
-                ClientLastNameValue = m.Interaction != null ? m.Interaction.ClientLastName : null
+                ContactFirstNameValue = m.Interaction != null ? m.Interaction.ContactFirstName : null,
+                ContactLastNameValue = m.Interaction != null ? m.Interaction.ContactLastName : null
             })
             .ToListAsync();
         return Ok(messages);

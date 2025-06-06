@@ -1,7 +1,8 @@
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
+using System;
+using Microsoft.Azure.Cosmos;
 
 namespace Emma.Api
 {

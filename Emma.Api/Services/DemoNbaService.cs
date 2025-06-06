@@ -82,7 +82,7 @@ public class DemoNbaService : IDemoNbaService
                 OrganizationId = Guid.NewGuid(),
                 RecentInteractions = new List<Interaction>(),
                 RelevantInteractions = new List<RelevantInteraction>(),
-                ActiveResourceAssignments = new List<ResourceAssignment>()
+                ActiveContactAssignments = new List<ContactAssignment>()
             };
             
             var recommendation = await _openAIService.GenerateNbaRecommendationsAsync(mockContext, dealStage);

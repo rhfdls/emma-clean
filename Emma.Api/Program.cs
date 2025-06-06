@@ -4,7 +4,10 @@ using Emma.Data;
 using Emma.Api.Services;
 using Emma.Api.Configuration;
 using Emma.Api.Models;
+using Emma.Core.Interfaces;
 using Azure;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 try
 {
@@ -91,6 +94,38 @@ try
         // Register Azure OpenAI Service
         builder.Services.AddScoped<IAzureOpenAIService, AzureOpenAIService>();
         
+        // Configure Azure AI Foundry Config
+        builder.Services.Configure<Emma.Core.Config.AzureAIFoundryConfig>(options =>
+        {
+            options.Endpoint = azureOpenAIEndpoint;
+            options.ApiKey = azureOpenAIApiKey;
+            options.DeploymentName = Environment.GetEnvironmentVariable("AZURE_OPENAI_CHAT_DEPLOYMENT") ?? "gpt-4.1";
+        });
+        
+        // Register AI Foundry Service
+        builder.Services.AddScoped<IAIFoundryService>(provider =>
+        {
+            var config = provider.GetRequiredService<IOptions<Emma.Core.Config.AzureAIFoundryConfig>>();
+            var logger = provider.GetRequiredService<ILogger<Emma.Api.Services.AIFoundryService>>();
+            var cosmosRepo = provider.GetService<Emma.Api.Services.CosmosAgentRepository>(); // Optional - may be null
+            return new Emma.Api.Services.AIFoundryService(config, logger, cosmosRepo);
+        });
+        
+        // Add Cosmos DB Services (Step 3.5)
+        Console.WriteLine("🌌 Adding Cosmos DB services...");
+        try
+        {
+            Emma.Api.CosmosStartupExtensions.AddCosmosDb(builder.Services, builder.Configuration);
+            Console.WriteLine("✅ Cosmos DB services registered successfully");
+            Console.WriteLine("   📊 Database: emma-agent");
+            Console.WriteLine("   📦 Container: messages");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"⚠️ Cosmos DB registration failed: {ex.Message}");
+            Console.WriteLine("   ℹ️ Continuing without Cosmos DB - basic AI functionality available");
+        }
+        
         Console.WriteLine("✅ Azure OpenAI services registered successfully");
     }
 
@@ -113,6 +148,22 @@ try
     {
         Console.WriteLine($"⚠️ WARNING: NBA Context services registration failed: {ex.Message}");
         Console.WriteLine("   🔄 Continuing without NBA services for now...");
+    }
+
+    // Add Industry Profile Services (Step 5)
+    Console.WriteLine("🏭 Adding Industry Profile services...");
+    try
+    {
+        // Register Industry Profile Service for multi-industry support
+        builder.Services.AddScoped<Emma.Core.Interfaces.IIndustryProfileService, Emma.Api.Services.IndustryProfileService>();
+        
+        Console.WriteLine("✅ Industry Profile services registered successfully");
+        Console.WriteLine("   🏢 Supported industries: Real Estate, Mortgage, Financial Advisory");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠️ WARNING: Industry Profile services registration failed: {ex.Message}");
+        Console.WriteLine("   🔄 Continuing without Industry Profile services for now...");
     }
 
     Console.WriteLine("🎯 Building minimal application...");
@@ -158,6 +209,36 @@ try
         catch (Exception ex)
         {
             return Results.Problem($"NBA Context service error: {ex.Message}");
+        }
+    });
+    
+    // Add industry profile demo endpoint
+    app.MapGet("/demo/industries", async (Emma.Core.Interfaces.IIndustryProfileService industryService) =>
+    {
+        try
+        {
+            var profiles = await industryService.GetAvailableProfilesAsync();
+            var result = profiles.Select(p => new {
+                code = p.IndustryCode,
+                name = p.DisplayName,
+                sampleQueries = p.SampleQueries.Take(2).Select(q => new { 
+                    query = q.Query, 
+                    description = q.Description,
+                    category = q.Category 
+                }),
+                availableActions = p.AvailableActions.Take(3),
+                workflowStates = p.WorkflowDefinitions.ContactStates.Take(3)
+            });
+            
+            return Results.Ok(new {
+                message = "Multi-industry EMMA platform is ready!",
+                timestamp = DateTime.UtcNow,
+                supportedIndustries = result
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Industry Profile service error: {ex.Message}");
         }
     });
     
