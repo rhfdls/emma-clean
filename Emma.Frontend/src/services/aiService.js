@@ -11,15 +11,30 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true // Note: In production, API calls should go through your backend
 });
 
-// EMMA's context about the real estate business
-const EMMA_CONTEXT = `You are EMMA, an AI assistant for a real estate agent. You have access to the following data:
+// Fetch real contact data from the API
+async function fetchContactContext() {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/contacts`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch contacts');
+    }
+    const contacts = await response.json();
+    
+    // Build dynamic context from real contact data
+    const activeClients = contacts.filter(c => c.relationshipState === 'Client' && c.isActiveClient);
+    const prospects = contacts.filter(c => c.relationshipState === 'Prospect');
+    const leads = contacts.filter(c => c.relationshipState === 'Lead');
+    
+    return `You are EMMA, an AI assistant for a real estate agent. You have access to the following REAL data from the CRM:
 
-ACTIVE CONTACTS:
-- Chris Gabriel: Prospect from Toronto, had property inspection on Nov 20th. Deciding between property needing $1,500-2,000 repairs vs move-in ready option with higher fees. URGENT follow-up needed.
-- Emily Johnson: Active client since Oct 15th, first-time buyer, pre-approved, shopping for condos in San Diego. Contact: emily.johnson@gmail.com, +1-619-555-0123
-- Robert Williams: Active luxury client from La Jolla, budget $800K-1.2M, in bidding war. Contact: rwilliams@techcorp.com, +1-858-555-0456
-- Amanda Foster: Hot prospect, luxury condos downtown, budget $600K-800K, viewing scheduled
-- Marcus Thompson: Investment buyer, needs completed property analysis, cash buyer
+ACTIVE CLIENTS (${activeClients.length}):
+${activeClients.map(c => `- ${c.firstName} ${c.lastName}: ${c.tags?.join(', ') || 'No tags'} | Email: ${c.emails?.[0]?.address || 'No email'} | Phone: ${c.phones?.[0]?.number || 'No phone'}`).join('\n')}
+
+PROSPECTS (${prospects.length}):
+${prospects.map(c => `- ${c.firstName} ${c.lastName}: ${c.tags?.join(', ') || 'No tags'} | Email: ${c.emails?.[0]?.address || 'No email'} | Phone: ${c.phones?.[0]?.number || 'No phone'}`).join('\n')}
+
+LEADS (${leads.length}):
+${leads.map(c => `- ${c.firstName} ${c.lastName}: ${c.tags?.join(', ') || 'No tags'} | Email: ${c.emails?.[0]?.address || 'No email'} | Phone: ${c.phones?.[0]?.number || 'No phone'}`).join('\n')}
 
 MARKET DATA:
 - San Diego home values up 8% year-over-year
@@ -34,22 +49,60 @@ RECENT INSIGHTS:
 - Conversion rate: 68% (above industry 45%)
 - Average response time: 2.3 hours
 
-Always provide specific, actionable real estate advice based on this context. Include relevant contact details, market insights, and next steps when appropriate.`;
+Always provide specific, actionable real estate advice based on this REAL contact data. Include relevant contact details, market insights, and next steps when appropriate.`;
+  } catch (error) {
+    console.error('Failed to fetch contact context:', error);
+    // Fallback to static context with real seed data structure if API fails
+    return `You are EMMA, an AI assistant for a real estate agent. I'm using cached contact data from your CRM:
+
+ACTIVE CLIENTS (3):
+- Emily Johnson: First-time buyer, Budget $400K-500K | Email: emily.johnson@email.com | Phone: (555) 123-4567
+- Robert Williams: Luxury buyer, Budget $800K+ | Email: robert.williams@email.com | Phone: (555) 234-5678
+- Chris Gabriel: Investment property | Email: chris.gabriel@email.com | Phone: (555) 345-6789
+
+PROSPECTS (2):
+- Kevin Brown: Downsizing, Budget $300K-400K | Email: kevin.brown@email.com | Phone: (555) 456-7890
+- Lisa Chang: First-time buyer, Budget $350K-450K | Email: lisa.chang@email.com | Phone: (555) 567-8901
+
+LEADS (1):
+- Sarah Davis: Relocating from out of state | Email: sarah.davis@email.com | Phone: (555) 678-9012
+
+MARKET DATA:
+- San Diego home values up 8% year-over-year
+- Average days on market: 25-30 days
+- Low inventory levels favoring sellers
+- Downtown condos: $600K-1.2M, La Jolla luxury: $800K-2M+
+
+RECENT INSIGHTS:
+- 60% of inspections find HVAC issues (avg age 12+ years)
+- Average immediate repair costs: $2,500-4,000
+- 40% of prospects face competing offers
+- Conversion rate: 68% (above industry 45%)
+- Average response time: 2.3 hours
+
+Always provide specific, actionable real estate advice based on this contact data. Include relevant contact details, market insights, and next steps when appropriate.`;
+  }
+}
 
 export const aiService = {
   async askEmma(question, conversationHistory = []) {
     try {
+      // Fetch real-time contact context
+      const dynamicContext = await fetchContactContext();
+      
       // Build conversation context
       const messages = [
         {
           role: 'system',
-          content: EMMA_CONTEXT
+          content: dynamicContext
         },
         // Include recent conversation history for context
-        ...conversationHistory.slice(-6).map(msg => ({
-          role: msg.type === 'user' ? 'user' : 'assistant',
-          content: msg.content
-        })),
+        ...conversationHistory.slice(-6)
+          .filter(msg => msg.text && msg.text.trim())
+          .map(msg => ({
+            role: msg.sender === 'user' ? 'user' : 'assistant',
+            content: msg.text
+          })),
         {
           role: 'user',
           content: question
@@ -57,7 +110,7 @@ export const aiService = {
       ];
 
       const response = await openai.chat.completions.create({
-        model: process.env.REACT_APP_AZURE_OPENAI_MODEL, // Use actual model name for Azure OpenAI
+        model: process.env.REACT_APP_AZURE_OPENAI_MODEL,
         messages: messages,
         max_tokens: parseInt(process.env.REACT_APP_AZURE_OPENAI_MAX_TOKENS) || 1000,
         temperature: parseFloat(process.env.REACT_APP_AZURE_OPENAI_TEMPERATURE) || 0.7,
@@ -186,7 +239,7 @@ Please try rephrasing your question, or ask about specific contacts like Chris G
   async testConnection() {
     try {
       const response = await openai.chat.completions.create({
-        model: process.env.REACT_APP_AZURE_OPENAI_MODEL, // Use actual model name for Azure OpenAI
+        model: process.env.REACT_APP_AZURE_OPENAI_MODEL,
         messages: [{ role: 'user', content: 'Hello, this is a connection test.' }],
         max_tokens: 50
       });

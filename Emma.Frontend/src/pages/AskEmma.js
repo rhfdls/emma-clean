@@ -46,7 +46,7 @@ const AskEmma = () => {
       id: Date.now(),
       sender: 'user',
       text: inputValue.trim(),
-      timestamp: new Date()
+      timestamp: new Date().toLocaleTimeString()
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -61,7 +61,7 @@ const AskEmma = () => {
         id: Date.now() + 1,
         sender: 'assistant',
         text: aiResponse.content,
-        timestamp: new Date(),
+        timestamp: new Date().toLocaleTimeString(),
         insights: aiResponse.insights.map(insight => ({
           ...insight,
           icon: insightIcons[insight.icon] || Sparkles
@@ -77,7 +77,7 @@ const AskEmma = () => {
         id: Date.now() + 1,
         sender: 'assistant',
         text: "I'm having trouble processing your request right now. Please try again, or ask about specific contacts like Chris Gabriel, Emily Johnson, or current market trends.",
-        timestamp: new Date(),
+        timestamp: new Date().toLocaleTimeString(),
         insights: [
           { icon: AlertCircle, text: "Service temporarily unavailable", color: "text-orange-600" }
         ]

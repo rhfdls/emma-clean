@@ -42,6 +42,10 @@ public class AppDbContext : DbContext
     public DbSet<ContactState> ContactStates { get; set; }
     public DbSet<InteractionEmbedding> InteractionEmbeddings { get; set; }
 
+    // Privacy and Access Control System
+    // TODO: Implement AccessAuditLog entity for privacy enforcement
+    // public DbSet<AccessAuditLog> AccessAuditLogs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Composite primary key for SubscriptionPlanFeature
@@ -378,5 +382,37 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<InteractionEmbedding>()
             .HasIndex(ie => ie.InteractionId)
             .IsUnique();
+        
+        // TODO: Uncomment when AccessAuditLog entity is implemented
+        /*
+        modelBuilder.Entity<AccessAuditLog>().HasKey(aal => aal.Id);
+        modelBuilder.Entity<AccessAuditLog>().HasIndex(aal => aal.RequestingAgentId);
+        modelBuilder.Entity<AccessAuditLog>().HasIndex(aal => aal.ContactId);
+        modelBuilder.Entity<AccessAuditLog>().HasIndex(aal => aal.AccessedAt);
+        modelBuilder.Entity<AccessAuditLog>().HasIndex(aal => aal.ResourceType);
+        modelBuilder.Entity<AccessAuditLog>().HasIndex(aal => aal.OrganizationId);
+        
+        modelBuilder.Entity<AccessAuditLog>()
+            .HasOne(aal => aal.RequestingAgent)
+            .WithMany()
+            .HasForeignKey(aal => aal.RequestingAgentId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<AccessAuditLog>()
+            .HasOne(aal => aal.Contact)
+            .WithMany()
+            .HasForeignKey(aal => aal.ContactId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<AccessAuditLog>()
+            .HasOne(aal => aal.Organization)
+            .WithMany()
+            .HasForeignKey(aal => aal.OrganizationId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<AccessAuditLog>()
+            .Property(aal => aal.PrivacyTags)
+            .HasColumnType("jsonb");
+        */
     }
 }

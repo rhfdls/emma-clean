@@ -30,6 +30,17 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     
+    // Add CORS policy for React frontend
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowReactFrontend", policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+    });
+    
     // Add Database Context with timeout configuration
     Console.WriteLine("🗄️ Adding PostgreSQL database context...");
     var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__PostgreSql");
@@ -179,6 +190,7 @@ try
     }
 
     app.UseRouting();
+    app.UseCors("AllowReactFrontend");
     app.MapControllers();
 
     // Add a root endpoint that redirects to Swagger

@@ -159,3 +159,4 @@ C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Api\obj\Debug\net8.0\refint\Emm
 C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Api\obj\Debug\net8.0\Emma.Api.pdb
 C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Api\obj\Debug\net8.0\Emma.Api.genruntimeconfig.cache
 C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Api\obj\Debug\net8.0\ref\Emma.Api.dll
+C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Api\bin\Debug\net8.0\appsettings.Privacy.Example.json
