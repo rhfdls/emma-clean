@@ -8,6 +8,9 @@ namespace Emma.Data
     {
         public static void EnsureSeeded(AppDbContext context)
         {
+            // Seed Resource Categories first
+            SeedResourceCategories(context);
+            
             // Seed Organization
             var orgEmail = "regionrealty@example.com";
             var org = context.Organizations.FirstOrDefault(o => o.Email == orgEmail);
@@ -45,20 +48,20 @@ namespace Emma.Data
                 context.Agents.Add(agent);
                 context.SaveChanges();
             }
-            // Seed Conversation for the Agent and Organization
-            var conversation = context.Conversations.FirstOrDefault(c => c.AgentId == agent.Id && c.OrganizationId == org.Id);
+            // Seed Interaction for the Agent and Organization
+            var conversation = context.Interactions.FirstOrDefault(c => c.AgentId == agent.Id && c.OrganizationId == org.Id);
             if (conversation == null)
             {
-                conversation = new Conversation
+                conversation = new Interaction
                 {
                     Id = Guid.NewGuid(),
                     AgentId = agent.Id,
                     OrganizationId = org.Id,
-                    ClientFirstName = "TestClient",
-                    ClientLastName = "Example",
+                    ContactFirstName = "TestClient",
+                    ContactLastName = "Example",
                     CreatedAt = DateTime.UtcNow
                 };
-                context.Conversations.Add(conversation);
+                context.Interactions.Add(conversation);
                 context.SaveChanges();
             }
             // Seed Message for the Agent
@@ -76,11 +79,27 @@ namespace Emma.Data
                     CreatedAt = DateTime.UtcNow,
                     OccurredAt = messageOccurredAt,
                     AgentId = agent.Id,
-                    ConversationId = conversation.Id,
+                    InteractionId = conversation.Id,
                 };
                 context.Messages.Add(message);
                 context.SaveChanges();
             }
+        }
+
+        private static void SeedResourceCategories(AppDbContext context)
+        {
+            var categories = ResourceCategorySeed.GetDefaultCategories();
+            
+            foreach (var category in categories)
+            {
+                var existingCategory = context.ResourceCategories.FirstOrDefault(rc => rc.Name == category.Name);
+                if (existingCategory == null)
+                {
+                    context.ResourceCategories.Add(category);
+                }
+            }
+            
+            context.SaveChanges();
         }
     }
 }

@@ -42,11 +42,11 @@ public static class AzureOpenAIServiceExtensions
                     return false;
                 if (string.IsNullOrWhiteSpace(config.ApiKey))
                     return false;
-                if (string.IsNullOrWhiteSpace(config.DeploymentName))
+                if (string.IsNullOrWhiteSpace(config.ChatDeploymentName))
                     return false;
                 
                 return Uri.TryCreate(config.Endpoint.TrimEnd('/'), UriKind.Absolute, out _);
-            }, "Azure OpenAI configuration is invalid. Ensure Endpoint, ApiKey, and DeploymentName are properly set.");
+            }, "Azure OpenAI configuration is invalid. Ensure Endpoint, ApiKey, and ChatDeploymentName are properly set.");
 
         // Register OpenAIClient as a singleton with retry policy
         services.AddSingleton(provider =>
@@ -100,7 +100,24 @@ public static class AzureOpenAIServiceExtensions
             client.DefaultRequestHeaders.Add("api-key", config.ApiKey);
             client.DefaultRequestHeaders.Add("User-Agent", "Emma.API");
         })
-        .AddPolicyHandler(GetRetryPolicy())
+        .AddPolicyHandler((provider, _) => 
+            Policy<HttpResponseMessage>
+                .Handle<HttpRequestException>()
+                .OrResult(x => (int)x.StatusCode >= 500 || x.StatusCode == System.Net.HttpStatusCode.RequestTimeout)
+                .WaitAndRetryAsync(
+                    retryCount: 3,
+                    sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    onRetry: (outcome, delay, retryAttempt, context) =>
+                    {
+                        var logger = provider.GetRequiredService<ILogger<AzureOpenAIService>>();
+                        var requestUri = outcome.Result?.RequestMessage?.RequestUri?.ToString() ?? "unknown";
+                        logger.LogWarning(
+                            "Delaying for {delay}ms, then making retry {retryAttempt} of {retryCount} for {requestUri}",
+                            delay.TotalMilliseconds,
+                            retryAttempt,
+                            3,
+                            requestUri);
+                    }))
         .AddPolicyHandler(GetCircuitBreakerPolicy());
 
         // Add health check for Azure OpenAI
@@ -108,38 +125,6 @@ public static class AzureOpenAIServiceExtensions
             .AddCheck<AzureOpenAIHealthCheck>("azure-openai");
 
         return services;
-    }
-
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
-    {
-        return HttpPolicyExtensions
-            .HandleTransientHttpError()
-            .OrResult(msg => (int)msg.StatusCode == 429) // Too Many Requests
-            .WaitAndRetryAsync(
-                retryCount: 3,
-                sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                onRetry: (outcome, delay, retryAttempt, context) =>
-                {
-                    try
-                    {
-                        var logger = context?.GetLogger();
-                        if (logger != null)
-                        {
-                            var requestUri = outcome.Result?.RequestMessage?.RequestUri?.ToString() ?? "unknown";
-                            logger.LogWarning(
-                                "Delaying for {delay}ms, then making retry {retryAttempt} of {retryCount} for {requestUri}",
-                                delay.TotalMilliseconds,
-                                retryAttempt,
-                                3,
-                                requestUri);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log the error but don't let it affect the retry logic
-                        System.Diagnostics.Debug.WriteLine($"Error in retry policy: {ex.Message}");
-                    }
-                });
     }
 
     private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
@@ -181,7 +166,7 @@ public class AzureOpenAIHealthCheck : IHealthCheck
             await _openAIClient.GetChatCompletionsAsync(
                 new ChatCompletionsOptions
                 {
-                    DeploymentName = _config.Value.DeploymentName,
+                    DeploymentName = _config.Value.ChatDeploymentName,
                     Messages = { new ChatRequestSystemMessage("Health check") },
                     MaxTokens = 1
                 }, 
@@ -192,7 +177,7 @@ public class AzureOpenAIHealthCheck : IHealthCheck
         catch (RequestFailedException ex) when (ex.Status == 404)
         {
             // Deployment not found - configuration issue
-            _logger.LogError(ex, "Deployment {DeploymentName} not found in Azure OpenAI", _config.Value.DeploymentName);
+            _logger.LogError(ex, "Deployment {DeploymentName} not found in Azure OpenAI", _config.Value.ChatDeploymentName);
             return HealthCheckResult.Unhealthy("Deployment not found in Azure OpenAI");
         }
         catch (RequestFailedException ex) when (ex.Status == 401 || ex.Status == 403)

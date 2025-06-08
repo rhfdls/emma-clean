@@ -1,0 +1,68 @@
+{
+  "agents": [
+    {
+      "id": "agent001",
+      "externalIds": {"google": "g001"},
+      "name": "Samantha Rivera",
+      "email": "samantha.rivera@emma-demo.com",
+      "roles": ["agent"],
+      "organizationId": "org1",
+      "status": "active",
+      "createdAt": "2025-04-15T09:12:00Z"
+    },
+    {
+      "id": "agent002",
+      "externalIds": {"microsoft": "m002"},
+      "name": "Michael Chen",
+      "email": "michael.chen@emma-demo.com",
+      "roles": ["agent"],
+      "organizationId": "org1",
+      "status": "active",
+      "createdAt": "2025-03-29T14:45:00Z"
+    },
+    {
+      "id": "agent003",
+      "externalIds": {"fub": "f003"},
+      "name": "Priya Patel",
+      "email": "priya.patel@emma-demo.com",
+      "roles": ["admin", "agent"],
+      "organizationId": "org1",
+      "status": "active",
+      "createdAt": "2025-05-05T11:30:00Z"
+    }
+  ],
+  "contacts": [
+    {"id": "contact001", "externalIds": {"fub": "fubc001"}, "firstName": "Emily", "lastName": "Johnson", "emails": [{"address": "emily.johnson@example.com", "type": "work", "verified": true}], "phones": [{"number": "+1-555-1010", "type": "mobile", "verified": true}], "address": {"street": "123 Maple St", "city": "Boston", "state": "MA", "postalCode": "02118", "country": "USA"}, "tags": ["VIP", "Buyer"], "leadSource": "Website", "ownerId": "agent001", "createdAt": "2025-04-16T10:00:00Z", "updatedAt": "2025-05-20T15:00:00Z", "customFields": {"preferredLanguage": "English"}, "privacyLevel": "public"},
+    {"id": "contact002", "externalIds": {"hubspot": "hbs002"}, "firstName": "Carlos", "lastName": "Martinez", "emails": [{"address": "carlos.martinez@example.com", "type": "work", "verified": true}], "phones": [{"number": "+1-555-2020", "type": "mobile", "verified": true}], "address": {"street": "456 Oak Ave", "city": "Miami", "state": "FL", "postalCode": "33101", "country": "USA"}, "tags": ["Seller"], "leadSource": "Referral", "ownerId": "agent002", "createdAt": "2025-04-20T11:30:00Z", "updatedAt": "2025-05-25T13:15:00Z", "customFields": {"preferredContactTime": "Morning"}, "privacyLevel": "public"},
+    {"id": "contact003", "externalIds": {"salesforce": "sf003"}, "firstName": "Ava", "lastName": "Nguyen", "emails": [{"address": "ava.nguyen@example.com", "type": "work", "verified": true}], "phones": [{"number": "+1-555-3030", "type": "mobile", "verified": true}], "address": {"street": "789 Pine Rd", "city": "Seattle", "state": "WA", "postalCode": "98101", "country": "USA"}, "tags": ["Buyer"], "leadSource": "Social Media", "ownerId": "agent003", "createdAt": "2025-05-01T09:45:00Z", "updatedAt": "2025-05-28T10:00:00Z", "customFields": {}, "privacyLevel": "public"},
+    {"id": "contact004", "externalIds": {}, "firstName": "Olivia", "lastName": "Lee", "emails": [{"address": "olivia.lee@example.com", "type": "work", "verified": true}], "phones": [{"number": "+1-555-4040", "type": "mobile", "verified": true}], "address": {"street": "321 Birch Ln", "city": "Austin", "state": "TX", "postalCode": "78701", "country": "USA"}, "tags": ["VIP"], "leadSource": "Event", "ownerId": "agent001", "createdAt": "2025-05-10T12:00:00Z", "updatedAt": "2025-05-27T09:30:00Z", "customFields": {"notes": "Interested in downtown condos"}, "privacyLevel": "public"},
+    {"id": "contact005", "externalIds": {}, "firstName": "Noah", "lastName": "Smith", "emails": [{"address": "noah.smith@example.com", "type": "work", "verified": true}], "phones": [{"number": "+1-555-5050", "type": "mobile", "verified": true}], "address": {"street": "654 Cedar St", "city": "Denver", "state": "CO", "postalCode": "80203", "country": "USA"}, "tags": ["Buyer"], "leadSource": "Website", "ownerId": "agent002", "createdAt": "2025-04-25T14:20:00Z", "updatedAt": "2025-05-18T16:00:00Z", "customFields": {}, "privacyLevel": "public"},
+    {"id": "contact006", "externalIds": {}, "firstName": "Sophia", "lastName": "Davis", "emails": [{"address": "sophia.davis@example.com", "type": "work", "verified": true}], "phones": [{"number": "+1-555-6060", "type": "mobile", "verified": true}], "address": {"street": "987 Spruce Ave", "city": "Chicago", "state": "IL", "postalCode": "60616", "country": "USA"}, "tags": ["Seller"], "leadSource": "Referral", "ownerId": "agent003", "createdAt": "2025-05-02T11:15:00Z", "updatedAt": "2025-05-29T10:50:00Z", "customFields": {}, "privacyLevel": "public"},
+    {"id": "contact007", "externalIds": {}, "firstName": "Liam", "lastName": "Wilson", "emails": [{"address": "liam.wilson@example.com", "type": "work", "verified": true}], "phones": [{"number": "+1-555-7070", "type": "mobile", "verified": true}], "address": {"street": "246 Willow Dr", "city": "San Diego", "state": "CA", "postalCode": "92103", "country": "USA"}, "tags": ["Buyer"], "leadSource": "Social Media", "ownerId": "agent001", "createdAt": "2025-05-12T10:30:00Z", "updatedAt": "2025-05-30T09:00:00Z", "customFields": {}, "privacyLevel": "public"},
+    {"id": "contact008", "externalIds": {}, "firstName": "Mia", "lastName": "Anderson", "emails": [{"address": "mia.anderson@example.com", "type": "work", "verified": true}], "phones": [{"number": "+1-555-8080", "type": "mobile", "verified": true}], "address": {"street": "159 Aspen Ct", "city": "Portland", "state": "OR", "postalCode": "97201", "country": "USA"}, "tags": ["VIP"], "leadSource": "Event", "ownerId": "agent002", "createdAt": "2025-05-15T13:45:00Z", "updatedAt": "2025-05-31T08:00:00Z", "customFields": {}, "privacyLevel": "public"},
+    {"id": "contact009", "externalIds": {}, "firstName": "Benjamin", "lastName": "Thomas", "emails": [{"address": "benjamin.thomas@example.com", "type": "work", "verified": true}], "phones": [{"number": "+1-555-9090", "type": "mobile", "verified": true}], "address": {"street": "753 Elm St", "city": "Dallas", "state": "TX", "postalCode": "75201", "country": "USA"}, "tags": ["Seller"], "leadSource": "Website", "ownerId": "agent003", "createdAt": "2025-04-30T16:00:00Z", "updatedAt": "2025-05-22T14:00:00Z", "customFields": {}, "privacyLevel": "public"},
+    {"id": "contact010", "externalIds": {}, "firstName": "Charlotte", "lastName": "Moore", "emails": [{"address": "charlotte.moore@example.com", "type": "work", "verified": true}], "phones": [{"number": "+1-555-0000", "type": "mobile", "verified": true}], "address": {"street": "852 Poplar Ave", "city": "Atlanta", "state": "GA", "postalCode": "30301", "country": "USA"}, "tags": ["Buyer"], "leadSource": "Referral", "ownerId": "agent001", "createdAt": "2025-04-18T09:00:00Z", "updatedAt": "2025-05-17T11:00:00Z", "customFields": {}, "privacyLevel": "public"}
+  ],
+  "interactions": [
+    {"id": "int001", "contactId": "contact001", "externalIds": {"fub": "fubint001"}, "type": "call", "direction": "inbound", "timestamp": "2025-05-29T10:15:00Z", "agentId": "agent001", "content": "Discussed property requirements. Follow-up scheduled.", "channel": "twilio", "status": "completed", "relatedEntities": [], "tags": ["CRM"], "customFields": {}},
+    {"id": "int002", "contactId": "contact001", "externalIds": {}, "type": "note", "direction": "system", "timestamp": "2025-05-28T09:00:00Z", "agentId": "agent001", "content": "Client prefers email communication.", "channel": "crm", "status": "completed", "relatedEntities": [], "tags": ["PERSONAL"], "customFields": {}},
+    {"id": "int003", "contactId": "contact002", "externalIds": {}, "type": "email", "direction": "outbound", "timestamp": "2025-05-26T11:30:00Z", "agentId": "agent002", "content": "Sent listing details. Awaiting response.", "channel": "email", "status": "pending", "relatedEntities": [], "tags": ["CRM"], "customFields": {}},
+    {"id": "int004", "contactId": "contact002", "externalIds": {}, "type": "call", "direction": "inbound", "timestamp": "2025-05-25T14:00:00Z", "agentId": "agent002", "content": "Client called to ask about open house schedule.", "channel": "twilio", "status": "completed", "relatedEntities": [], "tags": [], "customFields": {}},
+    {"id": "int005", "contactId": "contact003", "externalIds": {}, "type": "call", "direction": "outbound", "timestamp": "2025-05-27T16:45:00Z", "agentId": "agent003", "content": "Left voicemail regarding new listings.", "channel": "twilio", "status": "completed", "relatedEntities": [], "tags": ["PRIVATE"], "customFields": {}},
+    {"id": "int006", "contactId": "contact003", "externalIds": {}, "type": "note", "direction": "system", "timestamp": "2025-05-28T10:00:00Z", "agentId": "agent003", "content": "Client is interested in 2-bedroom apartments.", "channel": "crm", "status": "completed", "relatedEntities": [], "tags": ["CRM"], "customFields": {}},
+    {"id": "int007", "contactId": "contact004", "externalIds": {}, "type": "email", "direction": "outbound", "timestamp": "2025-05-27T09:30:00Z", "agentId": "agent001", "content": "Sent market analysis report.", "channel": "email", "status": "completed", "relatedEntities": [], "tags": [], "customFields": {}},
+    {"id": "int008", "contactId": "contact004", "externalIds": {}, "type": "call", "direction": "inbound", "timestamp": "2025-05-26T13:00:00Z", "agentId": "agent001", "content": "Discussed financing options.", "channel": "twilio", "status": "completed", "relatedEntities": [], "tags": ["CRM"], "customFields": {}},
+    {"id": "int009", "contactId": "contact005", "externalIds": {}, "type": "call", "direction": "inbound", "timestamp": "2025-05-25T15:00:00Z", "agentId": "agent002", "content": "Initial inquiry about available properties.", "channel": "twilio", "status": "completed", "relatedEntities": [], "tags": [], "customFields": {}},
+    {"id": "int010", "contactId": "contact005", "externalIds": {}, "type": "note", "direction": "system", "timestamp": "2025-05-18T16:00:00Z", "agentId": "agent002", "content": "Client prefers properties with garages.", "channel": "crm", "status": "completed", "relatedEntities": [], "tags": ["PERSONAL"], "customFields": {}},
+    {"id": "int011", "contactId": "contact006", "externalIds": {}, "type": "email", "direction": "outbound", "timestamp": "2025-05-29T10:50:00Z", "agentId": "agent003", "content": "Sent contract for review.", "channel": "email", "status": "completed", "relatedEntities": [], "tags": [], "customFields": {}},
+    {"id": "int012", "contactId": "contact006", "externalIds": {}, "type": "call", "direction": "inbound", "timestamp": "2025-05-28T09:00:00Z", "agentId": "agent003", "content": "Answered questions about listing process.", "channel": "twilio", "status": "completed", "relatedEntities": [], "tags": ["CRM"], "customFields": {}},
+    {"id": "int013", "contactId": "contact007", "externalIds": {}, "type": "call", "direction": "outbound", "timestamp": "2025-05-30T09:00:00Z", "agentId": "agent001", "content": "Provided update on property search.", "channel": "twilio", "status": "completed", "relatedEntities": [], "tags": [], "customFields": {}},
+    {"id": "int014", "contactId": "contact007", "externalIds": {}, "type": "note", "direction": "system", "timestamp": "2025-05-29T08:00:00Z", "agentId": "agent001", "content": "Client is relocating from out of state.", "channel": "crm", "status": "completed", "relatedEntities": [], "tags": ["CRM"], "customFields": {}},
+    {"id": "int015", "contactId": "contact008", "externalIds": {}, "type": "email", "direction": "outbound", "timestamp": "2025-05-31T08:00:00Z", "agentId": "agent002", "content": "Confirmed showing appointment.", "channel": "email", "status": "completed", "relatedEntities": [], "tags": [], "customFields": {}},
+    {"id": "int016", "contactId": "contact008", "externalIds": {}, "type": "call", "direction": "inbound", "timestamp": "2025-05-30T10:00:00Z", "agentId": "agent002", "content": "Client called to reschedule.", "channel": "twilio", "status": "completed", "relatedEntities": [], "tags": ["CRM"], "customFields": {}},
+    {"id": "int017", "contactId": "contact009", "externalIds": {}, "type": "call", "direction": "inbound", "timestamp": "2025-05-22T14:00:00Z", "agentId": "agent003", "content": "Discussed listing price.", "channel": "twilio", "status": "completed", "relatedEntities": [], "tags": [], "customFields": {}},
+    {"id": "int018", "contactId": "contact009", "externalIds": {}, "type": "note", "direction": "system", "timestamp": "2025-05-23T12:00:00Z", "agentId": "agent003", "content": "Client is open to negotiation.", "channel": "crm", "status": "completed", "relatedEntities": [], "tags": ["CRM"], "customFields": {}},
+    {"id": "int019", "contactId": "contact010", "externalIds": {}, "type": "call", "direction": "inbound", "timestamp": "2025-05-17T11:00:00Z", "agentId": "agent001", "content": "Introductory call with client.", "channel": "twilio", "status": "completed", "relatedEntities": [], "tags": [], "customFields": {}},
+    {"id": "int020", "contactId": "contact010", "externalIds": {}, "type": "note", "direction": "system", "timestamp": "2025-05-18T09:00:00Z", "agentId": "agent001", "content": "Client requested more information on neighborhoods.", "channel": "crm", "status": "completed", "relatedEntities": [], "tags": ["CRM"], "customFields": {}}
+  ]
+}

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using System.IO;
+using DotNetEnv;
 
 namespace Emma.Data
 {
@@ -10,13 +11,23 @@ namespace Emma.Data
     {
         public AppDbContext CreateDbContext(string[] args)
         {
+            // Load environment variables from .env file
+            Env.Load("../.env");
+            
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json", optional: true)
                 .Build();
 
             var builder = new DbContextOptionsBuilder<AppDbContext>();
-            var connectionString = configuration.GetConnectionString("PostgreSql");
+            var envConn = Environment.GetEnvironmentVariable("ConnectionStrings__PostgreSql");
+            var connectionString = !string.IsNullOrWhiteSpace(envConn)
+                ? envConn
+                : configuration.GetConnectionString("PostgreSql");
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+                throw new InvalidOperationException("No PostgreSql connection string found in environment variables or appsettings.json.");
+
             builder.UseNpgsql(connectionString);
 
             return new AppDbContext(builder.Options);

@@ -1,165 +1,372 @@
-using System;
-using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
-using Azure.AI.OpenAI;
-using Emma.Core.Config;
-using Emma.Core.Interfaces;  // For IEmmaAgentService
-using Emma.Api.Services;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using Emma.Data;
-using Emma.Api.Middleware;
-using Emma.Api.Config;  // For AzureOpenAIServiceExtensions
-using Npgsql;
+using Emma.Api.Services;
+using Emma.Api.Configuration;
+using Emma.Api.Models;
+using Emma.Core.Interfaces;
+using Azure;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
-// Load environment variables from .env
-Env.Load();
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Add HTTP context accessor
-builder.Services.AddHttpContextAccessor();
-
-// Add HTTP client factory
-builder.Services.AddHttpClient();
-
-// Register agent services with proper scoping
-builder.Services.AddScoped<IEmailAgent, EmailAgentStub>();
-builder.Services.AddScoped<ISchedulerAgent, SchedulerAgentStub>();
-
-// Configure Azure OpenAI with validation
-builder.Services.AddAzureOpenAI(builder.Configuration);
-
-// Register EmmaAgentService with the correct interface and dependencies
-builder.Services.AddScoped<IEmmaAgentService>(provider =>
+try
 {
-    var logger = provider.GetRequiredService<ILogger<EmmaAgentService>>();
-    var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
-    var openAIClient = provider.GetRequiredService<OpenAIClient>();
-    var config = provider.GetRequiredService<IOptions<AzureOpenAIConfig>>();
+    Console.WriteLine("🚀 Starting MINIMAL Emma AI Platform...");
     
-    return new EmmaAgentService(
-        logger, 
-        httpContextAccessor, 
-        openAIClient,
-        config);
-});
+    // Load environment variables from .env
+    Console.WriteLine("📁 Loading environment variables from .env file...");
+    Env.Load("../.env");
+    Console.WriteLine("✅ Environment variables loaded successfully");
 
-// Add logging
-builder.Services.AddLogging(configure => configure.AddConsole().AddDebug());
+    Console.WriteLine("🏗️ Creating minimal web application builder...");
+    var builder = WebApplication.CreateBuilder(args);
+    
+    // Explicitly configure URLs
+    builder.WebHost.UseUrls("http://localhost:5000");
+    Console.WriteLine("✅ Web application builder created with URL: http://localhost:5000");
 
-// Configure JSON serialization for controllers
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
+    // Add only essential services
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+    
+    // Add CORS policy for React frontend
+    builder.Services.AddCors(options =>
     {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-        options.JsonSerializerOptions.WriteIndented = true;
+        options.AddPolicy("AllowReactFrontend", policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
     });
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
+    
+    // Add Database Context with timeout configuration
+    Console.WriteLine("🗄️ Adding PostgreSQL database context...");
+    var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__PostgreSql");
+    if (string.IsNullOrEmpty(connectionString))
     {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-        options.JsonSerializerOptions.WriteIndented = true;
-    });
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddAuthorization();
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSql")));
-
-// Register NpgsqlConnection for DI (for HealthController)
-builder.Services.AddScoped<Npgsql.NpgsqlConnection>(sp =>
-{
-    var config = sp.GetRequiredService<IConfiguration>();
-    var connStr = config.GetConnectionString("PostgreSql");
-    return new Npgsql.NpgsqlConnection(connStr);
-});
-
-// Add CORS for React frontend
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
+        Console.WriteLine("⚠️ WARNING: PostgreSQL connection string not found. Database features will be disabled.");
+    }
+    else
     {
-        policy.WithOrigins("http://localhost:3000")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
+        builder.Services.AddDbContext<AppDbContext>(options =>
+        {
+            options.UseNpgsql(connectionString, npgsqlOptions =>
+            {
+                npgsqlOptions.CommandTimeout(30); // 30 second timeout
+            });
+            options.EnableSensitiveDataLogging(false); // Disable for production
+        });
+        Console.WriteLine("✅ PostgreSQL database context added with 30s timeout");
+    }
 
-
-
-// Enable Swagger for API documentation
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Apply database migrations and seed data
-using (var scope = app.Services.CreateScope())
-{
-    try 
+    // Add Azure OpenAI Configuration (Step 2)
+    Console.WriteLine("🤖 Adding Azure OpenAI configuration...");
+    var azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AzureOpenAI__Endpoint");
+    var azureOpenAIApiKey = Environment.GetEnvironmentVariable("AzureOpenAI__ApiKey");
+    
+    if (string.IsNullOrEmpty(azureOpenAIEndpoint) || string.IsNullOrEmpty(azureOpenAIApiKey))
     {
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        Console.WriteLine("Applying database migrations...");
-        db.Database.Migrate();
-        Console.WriteLine("Database migrations applied successfully.");
+        Console.WriteLine("⚠️ WARNING: Azure OpenAI configuration incomplete. AI features will be disabled.");
+    }
+    else
+    {
+        // Azure OpenAI configuration found - services will be added later
+        var chatDeployment = Environment.GetEnvironmentVariable("AzureOpenAI__ChatDeployment") ?? "gpt-4";
+        var embeddingDeployment = Environment.GetEnvironmentVariable("AzureOpenAI__EmbeddingDeployment") ?? "text-embedding-ada-002";
         
-        // Seed data
-        Console.WriteLine("Seeding data...");
-        SeedData.EnsureSeeded(db);
-        Console.WriteLine("Data seeding completed.");
+        Console.WriteLine($"✅ Azure OpenAI services configured:");
+        Console.WriteLine($"   📍 Endpoint: {azureOpenAIEndpoint}");
+        Console.WriteLine($"   🤖 Chat Deployment: {chatDeployment}");
+        Console.WriteLine($"   📊 Embedding Deployment: {embeddingDeployment}");
+        Console.WriteLine("   ⏳ Service registration: DEFERRED (Step 3)");
+
+        // Register Azure OpenAI Configuration
+        builder.Services.Configure<AzureOpenAIConfig>(options =>
+        {
+            options.Endpoint = azureOpenAIEndpoint;
+            options.ApiKey = azureOpenAIApiKey;
+            options.ChatDeploymentName = Environment.GetEnvironmentVariable("AzureOpenAI__ChatDeployment") ?? "gpt-4";
+            options.EmbeddingDeploymentName = Environment.GetEnvironmentVariable("AzureOpenAI__EmbeddingDeployment") ?? "text-embedding-ada-002";
+            options.MaxTokens = int.TryParse(Environment.GetEnvironmentVariable("AzureOpenAI__MaxTokens"), out var maxTokens) ? maxTokens : 4000;
+            options.Temperature = double.TryParse(Environment.GetEnvironmentVariable("AzureOpenAI__Temperature"), out var temp) ? temp : 0.7;
+        });
+        
+        // Register Azure OpenAI Client
+        builder.Services.AddSingleton<Azure.AI.OpenAI.OpenAIClient>(provider =>
+        {
+            return new Azure.AI.OpenAI.OpenAIClient(
+                new Uri(azureOpenAIEndpoint),
+                new Azure.AzureKeyCredential(azureOpenAIApiKey)
+            );
+        });
+        
+        // Register Azure OpenAI Service
+        builder.Services.AddScoped<IAzureOpenAIService, AzureOpenAIService>();
+        
+        // Configure Azure AI Foundry Config
+        builder.Services.Configure<Emma.Core.Config.AzureAIFoundryConfig>(options =>
+        {
+            options.Endpoint = azureOpenAIEndpoint;
+            options.ApiKey = azureOpenAIApiKey;
+            options.DeploymentName = Environment.GetEnvironmentVariable("AZURE_OPENAI_CHAT_DEPLOYMENT") ?? "gpt-4.1";
+        });
+        
+        // Register AI Foundry Service
+        builder.Services.AddScoped<IAIFoundryService>(provider =>
+        {
+            var config = provider.GetRequiredService<IOptions<Emma.Core.Config.AzureAIFoundryConfig>>();
+            var logger = provider.GetRequiredService<ILogger<Emma.Api.Services.AIFoundryService>>();
+            var cosmosRepo = provider.GetService<Emma.Api.Services.CosmosAgentRepository>(); // Optional - may be null
+            return new Emma.Api.Services.AIFoundryService(config, logger, cosmosRepo);
+        });
+        
+        // Add Cosmos DB Services (Step 3.5)
+        Console.WriteLine("🌌 Adding Cosmos DB services...");
+        try
+        {
+            Emma.Api.CosmosStartupExtensions.AddCosmosDb(builder.Services, builder.Configuration);
+            Console.WriteLine("✅ Cosmos DB services registered successfully");
+            Console.WriteLine("   📊 Database: emma-agent");
+            Console.WriteLine("   📦 Container: messages");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"⚠️ Cosmos DB registration failed: {ex.Message}");
+            Console.WriteLine("   ℹ️ Continuing without Cosmos DB - basic AI functionality available");
+        }
+        
+        Console.WriteLine("✅ Azure OpenAI services registered successfully");
+    }
+
+    // Add NBA Context Services (Step 4)
+    Console.WriteLine("🧠 Adding NBA Context services...");
+    try
+    {
+        // Register NBA Context Service
+        builder.Services.AddScoped<INbaContextService, NbaContextService>();
+        
+        // Register Vector Search Service
+        builder.Services.AddScoped<IVectorSearchService, VectorSearchService>();
+        
+        // Register Demo NBA Service for 4-hour demo
+        builder.Services.AddScoped<IDemoNbaService, DemoNbaService>();
+        
+        Console.WriteLine("✅ NBA Context services registered successfully");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"An error occurred while migrating or seeding the database: {ex.Message}");
-        throw; // Fail fast if we can't set up the database
+        Console.WriteLine($"⚠️ WARNING: NBA Context services registration failed: {ex.Message}");
+        Console.WriteLine("   🔄 Continuing without NBA services for now...");
     }
+
+    // Add Industry Profile Services (Step 5)
+    Console.WriteLine("🏭 Adding Industry Profile services...");
+    try
+    {
+        // Register Industry Profile Service for multi-industry support
+        builder.Services.AddScoped<Emma.Core.Interfaces.IIndustryProfileService, Emma.Api.Services.IndustryProfileService>();
+        
+        Console.WriteLine("✅ Industry Profile services registered successfully");
+        Console.WriteLine("   🏢 Supported industries: Real Estate, Mortgage, Financial Advisory");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠️ WARNING: Industry Profile services registration failed: {ex.Message}");
+        Console.WriteLine("   🔄 Continuing without Industry Profile services for now...");
+    }
+
+    Console.WriteLine("🎯 Building minimal application...");
+    var app = builder.Build();
+    Console.WriteLine("✅ Minimal application built successfully");
+
+    // Configure the HTTP request pipeline
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+        Console.WriteLine("✅ Swagger configured for development environment");
+    }
+
+    app.UseRouting();
+    app.UseCors("AllowReactFrontend");
+    app.MapControllers();
+
+    // Add a root endpoint that redirects to Swagger
+    app.MapGet("/", () => Results.Redirect("/swagger"));
+    
+    // Add a simple test endpoint
+    app.MapGet("/test", () => new { message = "Emma AI Platform is running!", timestamp = DateTime.UtcNow });
+    
+    // NBA Context endpoints (Step 5)
+    app.MapGet("/nba/health", () => new { 
+        status = "healthy", 
+        message = "NBA Context services are available", 
+        timestamp = DateTime.UtcNow,
+        services = new { azureOpenAI = "registered", nbaContext = "registered", vectorSearch = "registered" }
+    });
+    
+    app.MapPost("/nba/context/update", async (INbaContextService nbaService, HttpContext context) =>
+    {
+        try
+        {
+            // Simple test - just return success for now
+            return Results.Ok(new { 
+                message = "NBA Context service is available and responding", 
+                timestamp = DateTime.UtcNow,
+                status = "ready"
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"NBA Context service error: {ex.Message}");
+        }
+    });
+    
+    // Add industry profile demo endpoint
+    app.MapGet("/demo/industries", async (Emma.Core.Interfaces.IIndustryProfileService industryService) =>
+    {
+        try
+        {
+            var profiles = await industryService.GetAvailableProfilesAsync();
+            var result = profiles.Select(p => new {
+                code = p.IndustryCode,
+                name = p.DisplayName,
+                sampleQueries = p.SampleQueries.Take(2).Select(q => new { 
+                    query = q.Query, 
+                    description = q.Description,
+                    category = q.Category 
+                }),
+                availableActions = p.AvailableActions.Take(3),
+                workflowStates = p.WorkflowDefinitions.ContactStates.Take(3)
+            });
+            
+            return Results.Ok(new {
+                message = "Multi-industry EMMA platform is ready!",
+                timestamp = DateTime.UtcNow,
+                supportedIndustries = result
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Industry Profile service error: {ex.Message}");
+        }
+    });
+    
+    // Add database health check endpoint
+    app.MapGet("/health/db", async (AppDbContext dbContext) =>
+    {
+        try
+        {
+            Console.WriteLine("🔍 Testing database connection...");
+            var canConnect = await dbContext.Database.CanConnectAsync();
+            if (canConnect)
+            {
+                Console.WriteLine("✅ Database connection successful");
+                return Results.Ok(new { 
+                    status = "healthy", 
+                    message = "Database connection successful", 
+                    timestamp = DateTime.UtcNow,
+                    database = "PostgreSQL"
+                });
+            }
+            else
+            {
+                Console.WriteLine("❌ Database connection failed");
+                return Results.Problem("Database connection failed", statusCode: 503);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Database connection error: {ex.Message}");
+            return Results.Problem($"Database connection error: {ex.Message}", statusCode: 503);
+        }
+    });
+    
+    // Demo NBA Endpoints (4-hour demo)
+    app.MapPost("/demo/analyze-interaction", async (IDemoNbaService demoService, AnalyzeInteractionRequest request) =>
+    {
+        try
+        {
+            var result = await demoService.AnalyzeInteractionAsync(request.InteractionText, request.ClientContext ?? "");
+            return Results.Ok(new { 
+                success = true, 
+                analysis = result, 
+                timestamp = DateTime.UtcNow 
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Analysis error: {ex.Message}");
+        }
+    });
+    
+    app.MapPost("/demo/get-recommendation", async (IDemoNbaService demoService, GetRecommendationRequest request) =>
+    {
+        try
+        {
+            var result = await demoService.GetRecommendationAsync(
+                request.ClientSummary, 
+                request.RecentInteractions, 
+                request.DealStage ?? "prospect"
+            );
+            return Results.Ok(new { 
+                success = true, 
+                recommendation = result, 
+                timestamp = DateTime.UtcNow 
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Recommendation error: {ex.Message}");
+        }
+    });
+    
+    app.MapPost("/demo/update-summary", async (IDemoNbaService demoService, UpdateSummaryRequest request) =>
+    {
+        try
+        {
+            var result = await demoService.UpdateClientSummaryAsync(
+                request.ExistingSummary ?? "", 
+                request.NewInteractions, 
+                request.ClientProfile ?? ""
+            );
+            return Results.Ok(new { 
+                success = true, 
+                summary = result, 
+                timestamp = DateTime.UtcNow 
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Summary error: {ex.Message}");
+        }
+    });
+    
+    Console.WriteLine("✅ Routes and endpoints configured");
+
+    Console.WriteLine("🚀 Starting minimal web application...");
+    Console.WriteLine("📍 Application should be available at: http://localhost:5000");
+    Console.WriteLine("📍 Swagger UI: http://localhost:5000/swagger");
+    Console.WriteLine("📍 Test endpoint: http://localhost:5000/test");
+    Console.WriteLine("⏳ Starting server... (this should block and keep running)");
+    
+    app.Run();
 }
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+catch (Exception ex)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-// Use HTTP instead of HTTPS
-app.UseRouting();
-app.UseCors(); // Enable CORS for frontend
-app.UseAuthorization();
-app.MapControllers();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-// Enable Swagger middleware
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    Console.WriteLine($"❌ FATAL ERROR during startup: {ex.Message}");
+    Console.WriteLine($"📍 Exception Type: {ex.GetType().Name}");
+    Console.WriteLine($"📝 Stack Trace: {ex.StackTrace}");
+    
+    if (ex.InnerException != null)
+    {
+        Console.WriteLine($"🔗 Inner Exception: {ex.InnerException.Message}");
+        Console.WriteLine($"📝 Inner Stack Trace: {ex.InnerException.StackTrace}");
+    }
+    
+    Console.WriteLine("\n⏸️ Press any key to exit...");
+    Console.ReadKey();
+    Environment.Exit(1);
 }

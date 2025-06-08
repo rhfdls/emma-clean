@@ -1,0 +1,273 @@
+using Microsoft.AspNetCore.Mvc;
+using Emma.Api.Services;
+using Emma.Data.Models;
+
+namespace Emma.Api.Controllers;
+
+/// <summary>
+/// Controller for NBA (Next Best Action) Context Management
+/// </summary>
+[ApiController]
+[Route("api/[controller]")]
+public class NbaContextController : ControllerBase
+{
+    private readonly INbaContextService _nbaContextService;
+    private readonly IAzureOpenAIService _azureOpenAIService;
+    private readonly ILogger<NbaContextController> _logger;
+
+    public NbaContextController(
+        INbaContextService nbaContextService,
+        IAzureOpenAIService azureOpenAIService,
+        ILogger<NbaContextController> logger)
+    {
+        _nbaContextService = nbaContextService;
+        _azureOpenAIService = azureOpenAIService;
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Gets complete NBA context for a client
+    /// </summary>
+    [HttpGet("{contactId}")]
+    public async Task<ActionResult<NbaContext>> GetNbaContext(
+        Guid contactId,
+        [FromQuery] Guid organizationId,
+        [FromQuery] int maxRecentInteractions = 5,
+        [FromQuery] int maxRelevantInteractions = 10)
+    {
+        try
+        {
+            var context = await _nbaContextService.GetNbaContextAsync(
+                contactId, organizationId, maxRecentInteractions, maxRelevantInteractions);
+            
+            return Ok(context);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving NBA context for contact {ContactId}", contactId);
+            return StatusCode(500, "Error retrieving NBA context");
+        }
+    }
+
+    /// <summary>
+    /// Gets client summary for a contact
+    /// </summary>
+    [HttpGet("{contactId}/summary")]
+    public async Task<ActionResult<ClientSummary>> GetClientSummary(
+        Guid contactId,
+        [FromQuery] Guid organizationId)
+    {
+        try
+        {
+            var summary = await _nbaContextService.GetClientSummaryAsync(contactId, organizationId);
+            
+            if (summary == null)
+            {
+                return NotFound("Client summary not found");
+            }
+            
+            return Ok(summary);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving client summary for contact {ContactId}", contactId);
+            return StatusCode(500, "Error retrieving client summary");
+        }
+    }
+
+    /// <summary>
+    /// Gets client state for a contact
+    /// </summary>
+    [HttpGet("{contactId}/state")]
+    public async Task<ActionResult<ClientState>> GetClientState(
+        Guid contactId,
+        [FromQuery] Guid organizationId)
+    {
+        try
+        {
+            var state = await _nbaContextService.GetClientStateAsync(contactId, organizationId);
+            
+            if (state == null)
+            {
+                return NotFound("Client state not found");
+            }
+            
+            return Ok(state);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving client state for contact {ContactId}", contactId);
+            return StatusCode(500, "Error retrieving client state");
+        }
+    }
+
+    /// <summary>
+    /// Generates NBA recommendations based on context
+    /// </summary>
+    [HttpPost("{contactId}/recommendations")]
+    public async Task<ActionResult<string>> GenerateRecommendations(
+        Guid contactId,
+        [FromQuery] Guid organizationId,
+        [FromBody] string? scenario = null)
+    {
+        try
+        {
+            // Get NBA context
+            var context = await _nbaContextService.GetNbaContextAsync(contactId, organizationId);
+            
+            // Generate recommendations
+            var recommendations = await _azureOpenAIService.GenerateNbaRecommendationsAsync(context, scenario);
+            
+            return Ok(recommendations);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating NBA recommendations for contact {ContactId}", contactId);
+            return StatusCode(500, "Error generating NBA recommendations");
+        }
+    }
+
+    /// <summary>
+    /// Processes a new interaction and updates context
+    /// </summary>
+    [HttpPost("{contactId}/process-interaction")]
+    public async Task<ActionResult> ProcessInteraction(
+        Guid contactId,
+        [FromBody] Interaction interaction)
+    {
+        try
+        {
+            if (interaction.ContactId != contactId)
+            {
+                return BadRequest("Contact ID mismatch");
+            }
+
+            await _nbaContextService.ProcessNewInteractionAsync(interaction);
+            
+            return Ok("Interaction processed successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing interaction for contact {ContactId}", contactId);
+            return StatusCode(500, "Error processing interaction");
+        }
+    }
+
+    /// <summary>
+    /// Generates embedding for text content
+    /// </summary>
+    [HttpPost("embedding")]
+    public async Task<ActionResult<float[]>> GenerateEmbedding([FromBody] string content)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return BadRequest("Content cannot be empty");
+            }
+
+            var embedding = await _azureOpenAIService.GenerateEmbeddingAsync(content);
+            
+            return Ok(embedding);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating embedding");
+            return StatusCode(500, "Error generating embedding");
+        }
+    }
+
+    /// <summary>
+    /// Analyzes sentiment of text content
+    /// </summary>
+    [HttpPost("sentiment")]
+    public async Task<ActionResult<double>> AnalyzeSentiment([FromBody] string content)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return BadRequest("Content cannot be empty");
+            }
+
+            var sentiment = await _azureOpenAIService.AnalyzeSentimentAsync(content);
+            
+            return Ok(sentiment);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error analyzing sentiment");
+            return StatusCode(500, "Error analyzing sentiment");
+        }
+    }
+
+    /// <summary>
+    /// Extracts entities from text content
+    /// </summary>
+    [HttpPost("entities")]
+    public async Task<ActionResult<Dictionary<string, object>>> ExtractEntities([FromBody] string content)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return BadRequest("Content cannot be empty");
+            }
+
+            var entities = await _azureOpenAIService.ExtractEntitiesAsync(content);
+            
+            return Ok(entities);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error extracting entities");
+            return StatusCode(500, "Error extracting entities");
+        }
+    }
+
+    /// <summary>
+    /// Health check endpoint to test NBA context system integration
+    /// </summary>
+    [HttpGet("health")]
+    public async Task<ActionResult<object>> HealthCheck()
+    {
+        try
+        {
+            var healthStatus = new
+            {
+                Status = "Healthy",
+                Timestamp = DateTime.UtcNow,
+                Services = new
+                {
+                    AzureOpenAI = "Available",
+                    VectorSearch = "Available",
+                    NbaContext = "Available",
+                    Database = "Connected"
+                },
+                Version = "1.0.0",
+                Features = new[]
+                {
+                    "Embedding Generation",
+                    "Rolling Summaries",
+                    "Vector Search",
+                    "Sentiment Analysis",
+                    "Entity Extraction",
+                    "State Transitions",
+                    "NBA Recommendations"
+                }
+            };
+
+            return Ok(healthStatus);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Health check failed");
+            return StatusCode(500, new
+            {
+                Status = "Unhealthy",
+                Error = ex.Message,
+                Timestamp = DateTime.UtcNow
+            });
+        }
+    }
+}

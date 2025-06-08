@@ -14,7 +14,7 @@ function Home() {
         Enhanced Multi-Modal AI for Real Estate
       </Typography>
       <Typography variant="body1" sx={{ mt: 3, mb: 4 }}>
-        EMMA helps real estate professionals analyze conversations and suggest next best actions.
+        EMMA helps real estate professionals analyze interactions and suggest next best actions.
       </Typography>
       <Button 
         variant="contained" 

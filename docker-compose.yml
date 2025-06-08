@@ -13,6 +13,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=emma
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
@@ -31,13 +33,12 @@ services:
       - "10010:10010"
     volumes:
       - azurite_data:/data
+
   emmaapi:
     build:
       context: .
       dockerfile: Emma.Api/Dockerfile
     container_name: emma_api
-    env_file:
-      - env.docker
     ports:
       - "5262:80"
     networks:
@@ -45,14 +46,121 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__PostgreSql=Host=postgres;Port=5432;Database=emma;Username=postgres;Password=postgres
-      - ASPNETCORE_URLS=http://+:80
-      - AzureOpenAI__ApiKey=CwyApoXh8uPhXeyY6Bx8SbNh69hAY1xXr05zWnXBxHdhxNyi99pzJQQJ99BEACfhMk5XJ3w3AAABACOGK8Ux
-      - AzureOpenAI__Endpoint=https://emma-ai-rg.openai.azure.com/
-      - AzureOpenAI__DeploymentName=gpt-4.1
-      - AzureOpenAI__ApiVersion=2023-05-15
+      - ConnectionStrings__PostgreSql=${ConnectionStrings__PostgreSql}
+      - COSMOSDB__ACCOUNTENDPOINT=${COSMOSDB__ACCOUNTENDPOINT}
+      - COSMOSDB__ACCOUNTKEY=${COSMOSDB__ACCOUNTKEY}
+      - COSMOSDB__DATABASENAME=${COSMOSDB__DATABASENAME}
+      - COSMOSDB__CONTAINERNAME=${COSMOSDB__CONTAINERNAME}
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS}
+      - AzureOpenAI__ApiKey=${AzureOpenAI__ApiKey}
+      - AzureOpenAI__Endpoint=${AzureOpenAI__Endpoint}
+      - AzureOpenAI__DeploymentName=${AzureOpenAI__DeploymentName}
+      - AzureOpenAI__ApiVersion=${AzureOpenAI__ApiVersion}
+      - AzureAIFoundry__Endpoint=${AzureAIFoundry__Endpoint}
+      - AzureAIFoundry__ApiKey=${AzureAIFoundry__ApiKey}
+      - AzureAIFoundry__DeploymentName=${AzureAIFoundry__DeploymentName}
+      - AzureAIFoundry__MaxTokens=${AzureAIFoundry__MaxTokens}
+      - AzureAIFoundry__Temperature=${AzureAIFoundry__Temperature}
+      - Swagger__BaseUrl=${Swagger__BaseUrl}
+      - Swagger__ExternalUrl=${Swagger__ExternalUrl}
+      - AzureStorage__AccountName=${AzureStorage__AccountName}
+      - AzureStorage__AccountKey=${AzureStorage__AccountKey}
+      - AzureSearch__ServiceName=${AzureSearch__ServiceName}
+      - AzureSearch__ApiKey=${AzureSearch__ApiKey}
+      - AzureSearch__Endpoint=${AzureSearch__Endpoint}
+      - KeyVault__Name=${KeyVault__Name}
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+      - FUB_API_KEY=${FUB_API_KEY}
+      - FUB_API_BASE_URL=${FUB_API_BASE_URL}
+
+  emmaapi-dev:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    container_name: emma_api_dev
+    working_dir: /app
+    volumes:
+      - .:/app
+    networks:
+      - emma-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgreSql=${ConnectionStrings__PostgreSql}
+      - COSMOSDB__ACCOUNTENDPOINT=${COSMOSDB__ACCOUNTENDPOINT}
+      - COSMOSDB__ACCOUNTKEY=${COSMOSDB__ACCOUNTKEY}
+      - COSMOSDB__DATABASENAME=${COSMOSDB__DATABASENAME}
+      - COSMOSDB__CONTAINERNAME=${COSMOSDB__CONTAINERNAME}
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS}
+      - AzureOpenAI__ApiKey=${AzureOpenAI__ApiKey}
+      - AzureOpenAI__Endpoint=${AzureOpenAI__Endpoint}
+      - AzureOpenAI__DeploymentName=${AzureOpenAI__DeploymentName}
+      - AzureOpenAI__ApiVersion=${AzureOpenAI__ApiVersion}
+      - AzureAIFoundry__Endpoint=${AzureAIFoundry__Endpoint}
+      - AzureAIFoundry__ApiKey=${AzureAIFoundry__ApiKey}
+      - AzureAIFoundry__DeploymentName=${AzureAIFoundry__DeploymentName}
+      - AzureAIFoundry__MaxTokens=${AzureAIFoundry__MaxTokens}
+      - AzureAIFoundry__Temperature=${AzureAIFoundry__Temperature}
+      - Swagger__BaseUrl=${Swagger__BaseUrl}
+      - Swagger__ExternalUrl=${Swagger__ExternalUrl}
+      - AzureStorage__AccountName=${AzureStorage__AccountName}
+      - AzureStorage__AccountKey=${AzureStorage__AccountKey}
+      - AzureSearch__ServiceName=${AzureSearch__ServiceName}
+      - AzureSearch__ApiKey=${AzureSearch__ApiKey}
+      - AzureSearch__Endpoint=${AzureSearch__Endpoint}
+      - KeyVault__Name=${KeyVault__Name}
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+      - FUB_API_KEY=${FUB_API_KEY}
+      - FUB_API_BASE_URL=${FUB_API_BASE_URL}
+
+  emmamigration:
+    build:
+      context: .
+      dockerfile: Emma.Api/Dockerfile
+      target: migration
+    volumes:
+      - .:/src
+    networks:
+      - emma-network
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgreSql=${ConnectionStrings__PostgreSql}
+      - COSMOSDB__ACCOUNTENDPOINT=${COSMOSDB__ACCOUNTENDPOINT}
+      - COSMOSDB__ACCOUNTKEY=${COSMOSDB__ACCOUNTKEY}
+      - COSMOSDB__DATABASENAME=${COSMOSDB__DATABASENAME}
+      - COSMOSDB__CONTAINERNAME=${COSMOSDB__CONTAINERNAME}
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS}
+      - AzureOpenAI__ApiKey=${AzureOpenAI__ApiKey}
+      - AzureOpenAI__Endpoint=${AzureOpenAI__Endpoint}
+      - AzureOpenAI__DeploymentName=${AzureOpenAI__DeploymentName}
+      - AzureOpenAI__ApiVersion=${AzureOpenAI__ApiVersion}
+      - AzureAIFoundry__Endpoint=${AzureAIFoundry__Endpoint}
+      - AzureAIFoundry__ApiKey=${AzureAIFoundry__ApiKey}
+      - AzureAIFoundry__DeploymentName=${AzureAIFoundry__DeploymentName}
+      - AzureAIFoundry__MaxTokens=${AzureAIFoundry__MaxTokens}
+      - AzureAIFoundry__Temperature=${AzureAIFoundry__Temperature}
+      - Swagger__BaseUrl=${Swagger__BaseUrl}
+      - Swagger__ExternalUrl=${Swagger__ExternalUrl}
+      - AzureStorage__AccountName=${AzureStorage__AccountName}
+      - AzureStorage__AccountKey=${AzureStorage__AccountKey}
+      - AzureSearch__ServiceName=${AzureSearch__ServiceName}
+      - AzureSearch__ApiKey=${AzureSearch__ApiKey}
+      - AzureSearch__Endpoint=${AzureSearch__Endpoint}
+      - KeyVault__Name=${KeyVault__Name}
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+      - FUB_API_KEY=${FUB_API_KEY}
+      - FUB_API_BASE_URL=${FUB_API_BASE_URL}
+
 
   emmaweb:
     build:
@@ -67,6 +175,9 @@ services:
       - emma-network
     depends_on:
       - emmaapi
+    env_file:
+      - .env
+    # Frontend typically needs fewer environment variables than API
 
 volumes:
   pgdata:

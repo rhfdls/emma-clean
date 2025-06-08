@@ -1,0 +1,50 @@
+using Emma.Data.Models;
+
+namespace Emma.Api.Services;
+
+/// <summary>
+/// Stub implementation of IVectorSearchService for testing without database dependency
+/// </summary>
+public class StubVectorSearchService : IVectorSearchService
+{
+    private readonly ILogger<StubVectorSearchService> _logger;
+
+    public StubVectorSearchService(ILogger<StubVectorSearchService> logger)
+    {
+        _logger = logger;
+    }
+
+    public Task<List<RelevantInteraction>> FindSimilarInteractionsAsync(
+        float[] queryEmbedding,
+        Guid contactId,
+        Guid organizationId,
+        int topK = 5,
+        double minSimilarity = 0.7)
+    {
+        _logger.LogInformation("StubVectorSearchService: FindSimilarInteractionsAsync called for contact {ContactId}", contactId);
+        return Task.FromResult(new List<RelevantInteraction>());
+    }
+
+    public Task<List<RelevantInteraction>> SearchInteractionsAsync(
+        string query,
+        Guid contactId,
+        Guid organizationId,
+        int topK = 5,
+        double minSimilarity = 0.7)
+    {
+        _logger.LogInformation("StubVectorSearchService: SearchInteractionsAsync called with query '{Query}' for contact {ContactId}", query, contactId);
+        return Task.FromResult(new List<RelevantInteraction>());
+    }
+
+    public Task<bool> IndexInteractionAsync(InteractionEmbedding embedding)
+    {
+        _logger.LogInformation("StubVectorSearchService: IndexInteractionAsync called for interaction {InteractionId}", embedding.InteractionId);
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> RemoveInteractionAsync(Guid interactionId)
+    {
+        _logger.LogInformation("StubVectorSearchService: RemoveInteractionAsync called for interaction {InteractionId}", interactionId);
+        return Task.FromResult(true);
+    }
+}

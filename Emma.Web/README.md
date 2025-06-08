@@ -2,7 +2,7 @@
 
 This is the React frontend for manual data entry and emulation of user interaction for the Emma platform. It allows you to:
 - Select an organization and agent
-- Enter client info and message content/type (conversation, text, email, note)
+- Enter client info and message content/type (interaction, text, email, note)
 - Submit records to the backend API for testing and emulation purposes
 
 ## Getting Started

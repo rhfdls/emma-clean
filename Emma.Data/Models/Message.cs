@@ -13,8 +13,8 @@ public class Message
     public required MessageType Type { get; init; }
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     public required DateTime OccurredAt { get; init; }
-    public required Guid ConversationId { get; init; }
-    public Conversation? Conversation { get; init; }
+    public required Guid InteractionId { get; init; }
+    public Interaction? Interaction { get; init; }
     public Transcription? Transcription { get; init; }
     public CallMetadata? CallMetadata { get; init; }
     public List<EmmaAnalysis> EmmaAnalyses { get; init; } = new();

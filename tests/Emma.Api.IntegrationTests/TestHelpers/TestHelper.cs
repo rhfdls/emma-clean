@@ -13,6 +13,10 @@ using Xunit.Abstractions;
 
 namespace Emma.Api.IntegrationTests.TestHelpers
 {
+    /// <summary>
+    /// TestHelper provides utilities for integration tests, including configuration loading,
+    /// OpenAI client mocking, and CosmosDB connectivity checks.
+    /// </summary>
     public static class TestHelper
     {
         public static IConfiguration BuildConfiguration()
@@ -31,11 +35,6 @@ namespace Emma.Api.IntegrationTests.TestHelpers
             services.AddLogging(builder =>
             {
                 builder.AddConsole();
-                
-                if (output != null)
-                {
-                    builder.AddXUnit(output);
-                }
             });
             
             // Add test configuration
@@ -55,28 +54,35 @@ namespace Emma.Api.IntegrationTests.TestHelpers
             this Mock<OpenAIClient> mockClient,
             string responseContent = "{ \"action\": \"none\", \"payload\": \"\" }")
         {
-            var chatCompletions = ChatCompletions.DeserializeChatCompletions(
-                JsonDocument.Parse($"""
-                {{
-                    "id": "chatcmpl-{Guid.NewGuid()}",
-                    "object": "chat.completion",
-                    "created": {DateTimeOffset.UtcNow.ToUnixTimeSeconds()},
-                    "model": "gpt-4.1",
-                    "choices": [{{
-                        "index": 0,
-                        "message": {{
-                            "role": "assistant",
-                            "content": {JsonSerializer.Serialize(responseContent)}
-                        }},
-                        "finish_reason": "stop"
-                    }}],
-                    "usage": {{
-                        "prompt_tokens": 10,
-                        "completion_tokens": 15,
-                        "total_tokens": 25
-                    }}
-                }}
-                """).RootElement);
+            var chatCompletionsObj = new
+            {
+                id = $"chatcmpl-{Guid.NewGuid()}",
+                @object = "chat.completion",
+                created = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                model = "gpt-4.1",
+                choices = new[]
+                {
+                    new
+                    {
+                        index = 0,
+                        message = new
+                        {
+                            role = "assistant",
+                            content = responseContent
+                        },
+                        finish_reason = "stop"
+                    }
+                },
+                usage = new
+                {
+                    prompt_tokens = 10,
+                    completion_tokens = 15,
+                    total_tokens = 25
+                }
+            };
+
+            var chatCompletionsJson = JsonSerializer.Serialize(chatCompletionsObj);
+            var chatCompletions = JsonSerializer.Deserialize<ChatCompletions>(chatCompletionsJson);
 
             mockClient
                 .Setup(x => x.GetChatCompletionsAsync(
@@ -95,6 +101,28 @@ namespace Emma.Api.IntegrationTests.TestHelpers
                     It.IsAny<ChatCompletionsOptions>(),
                     It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException(statusCode, errorMessage));
+        }
+        /// <summary>
+        /// Verifies that CosmosDB is reachable and queries can be performed.
+        /// Returns true if successful; otherwise, false.
+        /// </summary>
+        /// <param name="cosmosRepo">The CosmosAgentRepository instance to test.</param>
+        /// <returns>True if CosmosDB is reachable and responds to a simple query; otherwise, false.</returns>
+        public static async Task<bool> CanConnectToCosmosDb(object cosmosRepo)
+        {
+            try
+            {
+                // Use reflection to call QueryItemsAsync<object>("SELECT TOP 1 * FROM c")
+                var method = cosmosRepo.GetType().GetMethod("QueryItemsAsync");
+                if (method == null) return false;
+                var task = (Task)method.MakeGenericMethod(typeof(object)).Invoke(cosmosRepo, new object[] { "SELECT TOP 1 * FROM c" });
+                await task.ConfigureAwait(false);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

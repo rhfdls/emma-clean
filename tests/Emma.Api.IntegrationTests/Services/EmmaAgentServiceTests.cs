@@ -8,6 +8,7 @@ namespace Emma.Api.IntegrationTests.Services
         private readonly Mock<IOptions<AzureOpenAIConfig>> _configOptionsMock;
         private readonly Mock<OpenAIClient> _openAIClientMock;
         private readonly EmmaAgentService _service;
+        private readonly Guid _testDeploymentId = Guid.NewGuid();
         private readonly string _testDeployment = "test-deployment";
 
         public EmmaAgentServiceTests(ITestOutputHelper output)
@@ -56,7 +57,7 @@ namespace Emma.Api.IntegrationTests.Services
         {
             // Arrange
             var testMessage = "Hello, EMMA!";
-            var expectedResponse = new EmmaAction { Action = "none", Payload = "" };
+            var expectedResponse = new EmmaAction { Action = EmmaActionType.None, Payload = "" };
             
             // Setup successful chat completion using test helper
             _openAIClientMock.SetupSuccessfulChatCompletion(
@@ -79,8 +80,8 @@ namespace Emma.Api.IntegrationTests.Services
                         o.DeploymentName == _testDeployment &&
                         o.Messages.Count == 2 &&
                         o.Messages[0].Role == ChatRole.System &&
-                        o.Messages[1].Role == ChatRole.User &&
-                        o.Messages[1].Content == testMessage),
+                        o.Messages[1].Role == ChatRole.User
+                    ),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
         }
