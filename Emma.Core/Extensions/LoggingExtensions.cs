@@ -1,3 +1,4 @@
+using Emma.Core.Interfaces;
 using Emma.Core.Services;
 using Emma.Data.Models;
 using Microsoft.Extensions.Logging;
@@ -12,7 +13,7 @@ namespace Emma.Core.Extensions;
 public static class LoggingExtensions
 {
     /// <summary>
-    /// Logs contact information with appropriate masking based on environment.
+    /// Logs contact information with privacy-aware masking.
     /// </summary>
     public static void LogContactAccess(this ILogger logger, Contact contact, string action, string? agentId = null, 
         IDataMaskingService? maskingService = null)
@@ -25,8 +26,8 @@ public static class LoggingExtensions
         }
         else
         {
-            logger.LogInformation("Contact {Action}: ID={ContactId}, RelationshipState={RelationshipState}", 
-                action, contact.Id, contact.RelationshipState);
+            logger.LogInformation("Contact {Action}: ID={ContactId}, Name={FirstName} {LastName}", 
+                action, contact.Id, contact.FirstName, contact.LastName);
         }
     }
 
@@ -40,8 +41,7 @@ public static class LoggingExtensions
         {
             var level = maskingService.GetMaskingLevel(agentId);
             var maskedInteraction = maskingService.MaskInteraction(interaction, level);
-            logger.LogInformation("Interaction {Action}: {Interaction}", action, 
-                maskingService.ToMaskedJson(maskedInteraction, level));
+            logger.LogInformation("Interaction {Action}: {Interaction}", action, maskingService.ToMaskedJson(maskedInteraction, level));
         }
         else
         {

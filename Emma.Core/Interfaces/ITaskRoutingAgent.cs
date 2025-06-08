@@ -58,3 +58,18 @@ public enum TaskPriority
     Urgent,
     Critical
 }
+
+/// <summary>
+/// Types of triggers that can initiate task routing
+/// </summary>
+public enum TriggerType
+{
+    IncomingCall,
+    IncomingText,
+    IncomingEmail,
+    ScheduledFollowUp,
+    PropertyUpdate,
+    MarketChange,
+    UserAction,
+    SystemEvent
+}

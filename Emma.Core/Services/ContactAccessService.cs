@@ -138,47 +138,39 @@ public class ContactAccessService : IContactAccessService
 
     public async Task LogContactAccessAsync(Guid contactId, Guid requestingAgentId, bool accessGranted, string reason)
     {
+        await LogContactAccessInternalAsync(contactId, requestingAgentId, accessGranted, reason);
+    }
+
+    private async Task LogContactAccessInternalAsync(Guid contactId, Guid requestingAgentId, bool accessGranted, string reason, string[]? privacyTags = null)
+    {
         try
         {
-            // TODO: Re-enable when AccessAuditLog entity is implemented
-            // Temporarily disabled for demo - just log to console
-            _logger.LogInformation("Contact access logged: Agent {AgentId}, Contact {ContactId}, Granted: {AccessGranted}, Reason: {Reason}",
-                requestingAgentId, contactId, accessGranted, reason);
-            
-            /*
-            var requestingAgent = await _context.Agents
-                .Include(a => a.Organization)
-                .FirstOrDefaultAsync(a => a.Id == requestingAgentId);
-
-            if (requestingAgent?.OrganizationId == null)
-            {
-                _logger.LogWarning("Cannot log access for agent {AgentId} - no organization found", requestingAgentId);
-                return;
-            }
+            var agent = await _context.Agents.FirstOrDefaultAsync(a => a.Id == requestingAgentId);
+            var organizationId = agent?.OrganizationId ?? Guid.Empty;
 
             var auditLog = new AccessAuditLog
             {
                 RequestingAgentId = requestingAgentId,
+                OrganizationId = organizationId,
                 ResourceType = "Contact",
                 ResourceId = contactId,
                 ContactId = contactId,
                 AccessGranted = accessGranted,
                 Reason = reason,
-                OrganizationId = requestingAgent.OrganizationId.Value,
-                PrivacyTags = new List<string>(), // Will be populated by interaction service
+                PrivacyTags = System.Text.Json.JsonSerializer.Serialize(privacyTags ?? Array.Empty<string>()),
                 AccessedAt = DateTime.UtcNow
             };
 
             _context.AccessAuditLogs.Add(auditLog);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Logged contact access: Agent {AgentId}, Contact {ContactId}, Granted: {AccessGranted}, Reason: {Reason}",
-                requestingAgentId, contactId, accessGranted, reason);
-            */
+            _logger.LogInformation("Contact access logged: Agent {AgentId} {AccessResult} contact {ContactId} - {Reason} (Tags: {Tags})",
+                requestingAgentId, accessGranted ? "accessed" : "denied access to", contactId, reason, 
+                privacyTags != null ? string.Join(",", privacyTags) : "none");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to log contact access for agent {AgentId}, contact {ContactId}", 
+            _logger.LogError(ex, "Failed to log contact access for agent {AgentId} and contact {ContactId}", 
                 requestingAgentId, contactId);
         }
     }

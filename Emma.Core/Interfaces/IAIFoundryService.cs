@@ -25,6 +25,15 @@ namespace Emma.Core.Interfaces
         Task<string> ProcessMessageWithContextAsync(string message, string context, string? conversationId = null);
 
         /// <summary>
+        /// Processes an agent request with system and user prompts
+        /// </summary>
+        /// <param name="systemPrompt">The system prompt for agent context</param>
+        /// <param name="userPrompt">The user prompt/request</param>
+        /// <param name="conversationId">Optional conversation ID for context</param>
+        /// <returns>The AI agent's response</returns>
+        Task<string> ProcessAgentRequestAsync(string systemPrompt, string userPrompt, string? conversationId = null);
+
+        /// <summary>
         /// Starts a new conversation
         /// </summary>
         /// <returns>A new conversation ID</returns>

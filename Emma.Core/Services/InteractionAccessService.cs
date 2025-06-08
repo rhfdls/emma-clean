@@ -147,21 +147,8 @@ public class InteractionAccessService : IInteractionAccessService
     {
         try
         {
-            // TODO: Re-enable when AccessAuditLog entity is implemented
-            // Temporarily disabled for demo - just log to console
-            _logger.LogInformation("Interaction access logged: Agent {AgentId}, Interaction {InteractionId}, Granted: {AccessGranted}, Reason: {Reason}",
-                requestingAgentId, interactionId, accessGranted, reason);
-            
-            /*
-            var requestingAgent = await _context.Agents
-                .Include(a => a.Organization)
-                .FirstOrDefaultAsync(a => a.Id == requestingAgentId);
-
-            if (requestingAgent?.OrganizationId == null)
-            {
-                _logger.LogWarning("Cannot log interaction access for agent {AgentId} - no organization found", requestingAgentId);
-                return;
-            }
+            var agent = await _context.Agents.FirstOrDefaultAsync(a => a.Id == requestingAgentId);
+            var organizationId = agent?.OrganizationId ?? Guid.Empty;
 
             Interaction? interaction = null;
             Guid? contactId = null;
@@ -186,26 +173,25 @@ public class InteractionAccessService : IInteractionAccessService
             var auditLog = new AccessAuditLog
             {
                 RequestingAgentId = requestingAgentId,
+                OrganizationId = organizationId,
                 ResourceType = "Interaction",
                 ResourceId = interactionId,
                 ContactId = contactId,
                 AccessGranted = accessGranted,
                 Reason = reason,
-                OrganizationId = requestingAgent.OrganizationId.Value,
-                PrivacyTags = privacyTags,
+                PrivacyTags = System.Text.Json.JsonSerializer.Serialize(privacyTags),
                 AccessedAt = DateTime.UtcNow
             };
 
             _context.AccessAuditLogs.Add(auditLog);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Logged interaction access: Agent {AgentId}, Interaction {InteractionId}, Granted: {AccessGranted}, Reason: {Reason}, Tags: {Tags}",
-                requestingAgentId, interactionId, accessGranted, reason, string.Join(",", privacyTags));
-            */
+            _logger.LogInformation("Interaction access logged: Agent {AgentId} {AccessResult} interaction {InteractionId} - {Reason} (Tags: {Tags})",
+                requestingAgentId, accessGranted ? "accessed" : "denied access to", interactionId, reason, string.Join(",", privacyTags));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to log interaction access for agent {AgentId}, interaction {InteractionId}", 
+            _logger.LogError(ex, "Failed to log interaction access for agent {AgentId} and interaction {InteractionId}", 
                 requestingAgentId, interactionId);
         }
     }
