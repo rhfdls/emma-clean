@@ -1,46 +1,39 @@
-using Emma.Data;
 using Emma.Data.Models;
+using Emma.Core.Models;
 
 namespace Emma.Core.Interfaces;
 
 /// <summary>
-/// Retrieves relevant context and history for ongoing interactions
+/// Service for retrieving and managing contact context
 /// </summary>
 public interface IContextRetriever
 {
     /// <summary>
     /// Get comprehensive context for a contact
     /// </summary>
-    Task<ContactContext> GetContactContextAsync(Guid contactId, int maxInteractions = 10);
+    /// <param name="contactId">Contact identifier</param>
+    /// <param name="includeInteractions">Include interaction history</param>
+    /// <param name="includeAssignments">Include active assignments</param>
+    /// <returns>Complete contact context</returns>
+    Task<ContactContext?> GetContactContextAsync(
+        Guid contactId, 
+        bool includeInteractions = true, 
+        bool includeAssignments = true);
     
     /// <summary>
-    /// Find relevant interactions based on content similarity
+    /// Get quick contact snapshot for performance-critical scenarios
     /// </summary>
-    Task<List<RelevantInteraction>> FindRelevantInteractionsAsync(Guid contactId, string content, int maxResults = 5);
+    /// <param name="contactId">Contact identifier</param>
+    /// <returns>Basic contact information</returns>
+    Task<ContactSnapshot?> GetContactSnapshotAsync(Guid contactId);
     
     /// <summary>
-    /// Get recent interactions for a contact
+    /// Update contact context with new interaction data
     /// </summary>
-    Task<List<Interaction>> GetRecentInteractionsAsync(Guid contactId, int maxResults = 10);
-    
-    /// <summary>
-    /// Get contact summary and current state
-    /// </summary>
-    Task<ContactSnapshot> GetContactSnapshotAsync(Guid contactId);
-}
-
-/// <summary>
-/// Comprehensive context for a contact
-/// </summary>
-public class ContactContext
-{
-    public Contact Contact { get; set; } = null!;
-    public ContactSummary? Summary { get; set; }
-    public ContactState? State { get; set; }
-    public List<Interaction> RecentInteractions { get; set; } = new();
-    public List<RelevantInteraction> RelevantInteractions { get; set; } = new();
-    public List<ContactAssignment> ActiveAssignments { get; set; } = new();
-    public Dictionary<string, object> Metadata { get; set; } = new();
+    /// <param name="contactId">Contact identifier</param>
+    /// <param name="interaction">New interaction to add</param>
+    /// <returns>Updated contact context</returns>
+    Task<ContactContext?> UpdateContactContextAsync(Guid contactId, Interaction interaction);
 }
 
 /// <summary>
@@ -50,10 +43,9 @@ public class ContactSnapshot
 {
     public Guid ContactId { get; set; }
     public string Name { get; set; } = string.Empty;
-    public RelationshipState RelationshipState { get; set; }
-    public bool IsActiveClient { get; set; }
-    public string? CurrentStage { get; set; }
-    public string? Priority { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string Phone { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
     public DateTime LastInteraction { get; set; }
-    public int TotalInteractions { get; set; }
+    public int InteractionCount { get; set; }
 }

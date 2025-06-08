@@ -1,5 +1,6 @@
 using Emma.Core.Interfaces;
 using Emma.Core.Services;
+using Emma.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Emma.Core.Extensions;
@@ -25,15 +26,51 @@ public static class ServiceCollectionExtensions
     }
     
     /// <summary>
-    /// Registers Emma Core services for development with enhanced debugging capabilities.
+    /// Registers all Emma Core AI agent services for Azure AI Foundry integration.
     /// </summary>
-    public static IServiceCollection AddEmmaPrivacyServicesForDevelopment(this IServiceCollection services)
+    public static IServiceCollection AddEmmaAgentServices(this IServiceCollection services)
     {
-        // Add all privacy services
-        services.AddEmmaPrivacyServices();
+        // Register core agent services
+        services.AddSingleton<IAgentRegistryService, AgentRegistryService>();
+        services.AddScoped<IIntentClassificationService, IntentClassificationService>();
+        services.AddScoped<IAgentCommunicationBus, AgentCommunicationBus>();
+        services.AddScoped<IContextIntelligenceService, ContextIntelligenceService>();
         
-        // Additional development-specific configurations can be added here
-        // For example: enhanced logging, debug middleware, etc.
+        return services;
+    }
+
+    /// <summary>
+    /// Registers Emma Core agent services for development with enhanced debugging.
+    /// </summary>
+    public static IServiceCollection AddEmmaAgentServicesForDevelopment(this IServiceCollection services)
+    {
+        // Add all agent services
+        services.AddEmmaAgentServices();
+        
+        // Additional development-specific configurations
+        // Enhanced logging, debug middleware, agent monitoring, etc.
+        
+        return services;
+    }
+
+    /// <summary>
+    /// Registers all Emma Core services (privacy + agents).
+    /// </summary>
+    public static IServiceCollection AddEmmaCoreServices(this IServiceCollection services)
+    {
+        services.AddEmmaPrivacyServices();
+        services.AddEmmaAgentServices();
+        
+        return services;
+    }
+
+    /// <summary>
+    /// Registers all Emma Core services for development environment.
+    /// </summary>
+    public static IServiceCollection AddEmmaCoreServicesForDevelopment(this IServiceCollection services)
+    {
+        services.AddEmmaPrivacyServicesForDevelopment();
+        services.AddEmmaAgentServicesForDevelopment();
         
         return services;
     }
