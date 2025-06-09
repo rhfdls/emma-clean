@@ -1,7 +1,7 @@
-using Emma.Core.Services;
 using Emma.Core.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
+using Emma.Core.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Emma.Core.Extensions;
@@ -68,7 +68,7 @@ public static class PrivacyServiceExtensions
         services.AddScoped<IInteractionAccessService, InteractionAccessService>();
         
         // Bind configuration from appsettings
-        services.Configure<PrivacySettings>(configuration.GetSection("Privacy"));
+        services.Configure<PrivacySettings>(options => configuration.GetSection("Privacy").Bind(options));
         
         return services;
     }

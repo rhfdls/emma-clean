@@ -5,6 +5,7 @@ using Emma.Api.Services;
 using Emma.Api.Configuration;
 using Emma.Api.Models;
 using Emma.Core.Interfaces;
+using Emma.Core.Services;
 using Azure;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
@@ -175,6 +176,65 @@ try
     {
         Console.WriteLine($"⚠️ WARNING: Industry Profile services registration failed: {ex.Message}");
         Console.WriteLine("   🔄 Continuing without Industry Profile services for now...");
+    }
+
+    // Add Dynamic Prompt Management (Step 5.5 - HIGHEST PRIORITY)
+    Console.WriteLine("📝 Adding Dynamic Prompt Management services...");
+    try
+    {
+        // Configure PromptProvider settings
+        var promptConfigPath = Path.Combine(builder.Environment.ContentRootPath, "Configuration", "prompts.json");
+        var enablePromptHotReload = builder.Environment.IsDevelopment();
+        builder.Services.AddSingleton<IPromptProvider>(serviceProvider =>
+        {
+            var logger = serviceProvider.GetRequiredService<ILogger<PromptProvider>>();
+            return new PromptProvider(logger, promptConfigPath, enablePromptHotReload);
+        });
+        
+        // Configure EnumProvider settings
+        var enumConfigPath = Path.Combine(builder.Environment.ContentRootPath, "Configuration", "enums.json");
+        var enableEnumHotReload = builder.Environment.IsDevelopment();
+        builder.Services.AddSingleton<IEnumProvider>(serviceProvider =>
+        {
+            var logger = serviceProvider.GetRequiredService<ILogger<EnumProvider>>();
+            return new EnumProvider(logger, enumConfigPath, enableEnumHotReload);
+        });
+        
+        Console.WriteLine("✅ Dynamic Prompt Management services registered successfully");
+        Console.WriteLine("   📄 Configuration file: Configuration/prompts.json");
+        Console.WriteLine("   🔄 Hot reload: " + (builder.Environment.IsDevelopment() ? "ENABLED" : "DISABLED"));
+        Console.WriteLine("   🎯 Business-configurable AI prompts without code changes");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠️ WARNING: Prompt Management services registration failed: {ex.Message}");
+        Console.WriteLine("   🔄 Continuing without dynamic prompts - agents will use fallback prompts...");
+    }
+
+    // Add AI Agent Services (Step 6)
+    Console.WriteLine("🤖 Adding AI Agent services...");
+    try
+    {
+        // Register Tenant Context Service
+        builder.Services.AddScoped<ITenantContextService, Emma.Core.Services.TenantContextService>();
+        
+        // Register SQL Context Extractor
+        builder.Services.AddScoped<ISqlContextExtractor, Emma.Core.Services.SqlContextExtractor>();
+        
+        // Register NBA Agent as first-class AI agent
+        builder.Services.AddScoped<INbaAgent, Emma.Core.Services.NbaAgent>();
+        
+        // Register Agent Orchestrator
+        builder.Services.AddScoped<IAgentOrchestrator, Emma.Core.Services.AgentOrchestrator>();
+        
+        Console.WriteLine("✅ AI Agent services registered successfully");
+        Console.WriteLine("   🎯 NBA Agent: Intelligent next best action recommendations");
+        Console.WriteLine("   🎭 Agent Orchestrator: Manages all AI agents including NBA");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠️ WARNING: AI Agent services registration failed: {ex.Message}");
+        Console.WriteLine("   🔄 Continuing without AI Agent services for now...");
     }
 
     Console.WriteLine("🎯 Building minimal application...");

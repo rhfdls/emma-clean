@@ -19,7 +19,11 @@ namespace Emma.Core.Models
         GeneralInquiry,
         DataAnalysis,
         ReportGeneration,
-        WorkflowAutomation
+        WorkflowAutomation,
+        BusinessIntelligence,
+        IntentClassification,
+        ResourceManagement,
+        ServiceProviderRecommendation
     }
 
     /// <summary>
@@ -519,5 +523,242 @@ namespace Emma.Core.Models
         public string? UserId { get; set; }
         
         public string? Industry { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a scheduled action that needs relevance verification before execution
+    /// Mission-critical safeguard against automation failures
+    /// </summary>
+    public class ScheduledAction
+    {
+        [Required]
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        
+        [Required]
+        public string ActionType { get; set; } = string.Empty;
+        
+        [Required]
+        public string Description { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Contact ID this action is associated with
+        /// </summary>
+        [Required]
+        public Guid ContactId { get; set; }
+        
+        /// <summary>
+        /// Organization context for the action
+        /// </summary>
+        [Required]
+        public Guid OrganizationId { get; set; }
+        
+        /// <summary>
+        /// Agent that scheduled this action
+        /// </summary>
+        [Required]
+        public string ScheduledByAgentId { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// When this action was originally scheduled
+        /// </summary>
+        public DateTime ScheduledAt { get; set; } = DateTime.UtcNow;
+        
+        /// <summary>
+        /// When this action should be executed
+        /// </summary>
+        [Required]
+        public DateTime ExecuteAt { get; set; }
+        
+        /// <summary>
+        /// Action parameters and context data
+        /// </summary>
+        public Dictionary<string, object> Parameters { get; set; } = new();
+        
+        /// <summary>
+        /// Relevance criteria that must be met for execution
+        /// Key-value pairs defining conditions for action validity
+        /// Examples: {"dealStatus": "Closed"}, {"contactEngagement": "Active"}
+        /// </summary>
+        public Dictionary<string, object> RelevanceCriteria { get; set; } = new();
+        
+        /// <summary>
+        /// Current status of the scheduled action
+        /// </summary>
+        public ScheduledActionStatus Status { get; set; } = ScheduledActionStatus.Pending;
+        
+        /// <summary>
+        /// Reason for suppression if action was deemed irrelevant
+        /// </summary>
+        public string? SuppressionReason { get; set; }
+        
+        /// <summary>
+        /// Trace ID for correlation and debugging
+        /// </summary>
+        public string? TraceId { get; set; }
+        
+        /// <summary>
+        /// Priority level for execution ordering
+        /// </summary>
+        public UrgencyLevel Priority { get; set; } = UrgencyLevel.Medium;
+        
+        /// <summary>
+        /// Maximum number of relevance check attempts
+        /// </summary>
+        public int MaxRetryAttempts { get; set; } = 3;
+        
+        /// <summary>
+        /// Current retry attempt count
+        /// </summary>
+        public int RetryAttempts { get; set; } = 0;
+        
+        /// <summary>
+        /// When the last relevance check was performed
+        /// </summary>
+        public DateTime? LastRelevanceCheck { get; set; }
+        
+        /// <summary>
+        /// Result of the last relevance check
+        /// </summary>
+        public ActionRelevanceResult? LastRelevanceResult { get; set; }
+    }
+
+    /// <summary>
+    /// Status of a scheduled action
+    /// </summary>
+    public enum ScheduledActionStatus
+    {
+        Pending,
+        RelevanceCheckPassed,
+        RelevanceCheckFailed,
+        Executing,
+        Completed,
+        Suppressed,
+        Failed,
+        Expired
+    }
+
+    /// <summary>
+    /// Result of an action relevance verification check
+    /// </summary>
+    public class ActionRelevanceResult
+    {
+        [Required]
+        public string ActionId { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Whether the action is still relevant and should be executed
+        /// </summary>
+        [Required]
+        public bool IsRelevant { get; set; }
+        
+        /// <summary>
+        /// Confidence score for the relevance determination (0.0 to 1.0)
+        /// </summary>
+        public double ConfidenceScore { get; set; } = 1.0;
+        
+        /// <summary>
+        /// Detailed reason for the relevance determination
+        /// </summary>
+        public string Reason { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Context data used in the relevance check
+        /// </summary>
+        public Dictionary<string, object> ContextData { get; set; } = new();
+        
+        /// <summary>
+        /// Specific criteria that failed (if any)
+        /// </summary>
+        public List<string> FailedCriteria { get; set; } = new();
+        
+        /// <summary>
+        /// When this relevance check was performed
+        /// </summary>
+        public DateTime CheckedAt { get; set; } = DateTime.UtcNow;
+        
+        /// <summary>
+        /// Agent or service that performed the relevance check
+        /// </summary>
+        public string CheckedBy { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Trace ID for correlation
+        /// </summary>
+        public string? TraceId { get; set; }
+        
+        /// <summary>
+        /// Recommended action if not relevant (reschedule, modify, cancel)
+        /// </summary>
+        public string? RecommendedAction { get; set; }
+        
+        /// <summary>
+        /// Alternative actions that might be more relevant
+        /// </summary>
+        public List<string> AlternativeActions { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Request for action relevance verification
+    /// </summary>
+    public class ActionRelevanceRequest
+    {
+        [Required]
+        public ScheduledAction Action { get; set; } = new();
+        
+        /// <summary>
+        /// Current contact context for verification
+        /// </summary>
+        public ContactContext? CurrentContext { get; set; }
+        
+        /// <summary>
+        /// Whether to use LLM for semantic relevance checking
+        /// </summary>
+        public bool UseLLMValidation { get; set; } = false;
+        
+        /// <summary>
+        /// Additional context for relevance checking
+        /// </summary>
+        public Dictionary<string, object> AdditionalContext { get; set; } = new();
+        
+        /// <summary>
+        /// Trace ID for correlation
+        /// </summary>
+        public string? TraceId { get; set; }
+    }
+
+    /// <summary>
+    /// Configuration for action relevance validation
+    /// </summary>
+    public class ActionRelevanceConfig
+    {
+        /// <summary>
+        /// Default timeout for relevance checks (in seconds)
+        /// </summary>
+        public int DefaultTimeoutSeconds { get; set; } = 30;
+        
+        /// <summary>
+        /// Whether to enable LLM-based semantic validation
+        /// </summary>
+        public bool EnableLLMValidation { get; set; } = true;
+        
+        /// <summary>
+        /// Minimum confidence score for LLM validation
+        /// </summary>
+        public double MinimumConfidenceScore { get; set; } = 0.7;
+        
+        /// <summary>
+        /// Maximum age of context data before refresh (in minutes)
+        /// </summary>
+        public int MaxContextAgeMinutes { get; set; } = 5;
+        
+        /// <summary>
+        /// Whether to log all relevance checks for audit purposes
+        /// </summary>
+        public bool EnableAuditLogging { get; set; } = true;
+        
+        /// <summary>
+        /// Default action when relevance cannot be determined
+        /// </summary>
+        public string DefaultActionOnUncertainty { get; set; } = "suppress";
     }
 }

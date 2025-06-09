@@ -1,6 +1,6 @@
-using Emma.Core.Interfaces;
 using Emma.Core.Services;
 using Emma.Core.Extensions;
+using Emma.Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Emma.Core.Extensions;
@@ -30,11 +30,20 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddEmmaAgentServices(this IServiceCollection services)
     {
-        // Register core agent services
-        services.AddSingleton<IAgentRegistryService, AgentRegistryService>();
-        services.AddScoped<IIntentClassificationService, IntentClassificationService>();
-        services.AddScoped<IAgentCommunicationBus, AgentCommunicationBus>();
+        // Register core services
+        services.AddScoped<IResourceService, ResourceService>();
         services.AddScoped<IContextIntelligenceService, ContextIntelligenceService>();
+        services.AddScoped<IIntentClassificationService, IntentClassificationService>();
+        services.AddScoped<ITenantContextService, TenantContextService>();
+        
+        // Register layered agents (first-class AI agents)
+        services.AddScoped<INbaAgent, NbaAgent>();
+        services.AddScoped<IContextIntelligenceAgent, ContextIntelligenceAgent>();
+        services.AddScoped<IIntentClassificationAgent, IntentClassificationAgent>();
+        services.AddScoped<IResourceAgent, ResourceAgent>();
+        
+        // Register the AgentOrchestrator that manages all agents
+        services.AddScoped<IAgentOrchestrator, AgentOrchestrator>();
         
         return services;
     }

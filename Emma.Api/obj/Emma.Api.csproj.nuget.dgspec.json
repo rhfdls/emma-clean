@@ -50,6 +50,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Azure.AI.ContentSafety": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            },
             "Azure.AI.OpenAI": {
               "target": "Package",
               "version": "[1.0.0-beta.13, )"
@@ -61,6 +65,14 @@
             "DotNetEnv": {
               "target": "Package",
               "version": "[3.1.1, )"
+            },
+            "Microsoft.ApplicationInsights": {
+              "target": "Package",
+              "version": "[2.21.0, )"
+            },
+            "Microsoft.ApplicationInsights.AspNetCore": {
+              "target": "Package",
+              "version": "[2.21.0, )"
             },
             "Microsoft.Azure.Cosmos": {
               "target": "Package",
@@ -178,6 +190,10 @@
             "Microsoft.Extensions.Configuration": {
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Binder": {
+              "target": "Package",
+              "version": "[9.0.5, )"
             },
             "Microsoft.Extensions.Options": {
               "target": "Package",

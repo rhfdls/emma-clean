@@ -1,39 +1,25 @@
-using Emma.Data.Models;
+using Emma.Core.Models;
+using Emma.Core.Industry;
 
 namespace Emma.Core.Services;
 
 /// <summary>
-/// Provides tenant-aware context for industry-specific AI operations
+/// Provides tenant-aware context for multi-tenant scenarios
 /// </summary>
 public interface ITenantContextService
 {
     /// <summary>
-    /// Get the current tenant organization
+    /// Get the current tenant context
     /// </summary>
-    Task<Organization> GetCurrentTenantAsync();
+    Task<TenantContext> GetCurrentTenantAsync();
     
     /// <summary>
-    /// Get industry-specific AI configuration for the current tenant
+    /// Get the industry profile for the current tenant
     /// </summary>
-    Task<IndustryProfile> GetIndustryProfileAsync();
+    Task<IIndustryProfile> GetIndustryProfileAsync();
     
     /// <summary>
-    /// Get specialized agents available for the current tenant's industry
+    /// Validate if a user has access to a specific tenant
     /// </summary>
-    Task<List<string>> GetAvailableAgentsAsync();
-    
-    /// <summary>
-    /// Get industry-specific resource types for the current tenant
-    /// </summary>
-    Task<List<string>> GetIndustryResourceTypesAsync();
-    
-    /// <summary>
-    /// Get tenant-specific system prompt for AI interactions
-    /// </summary>
-    Task<string> GetSystemPromptAsync();
-    
-    /// <summary>
-    /// Check if a specific agent is available for the current tenant
-    /// </summary>
-    Task<bool> IsAgentAvailableAsync(string agentType);
+    Task<bool> ValidateTenantAccessAsync(Guid tenantId, Guid userId);
 }

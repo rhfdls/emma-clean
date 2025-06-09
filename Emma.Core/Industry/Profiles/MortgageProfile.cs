@@ -189,5 +189,32 @@ Please provide insights and recommendations.",
             new() { Query = "What's my pipeline for next month's closings?", Description = "View upcoming loan closings and revenue", Category = "Pipeline Analysis" },
             new() { Query = "Who should I contact about refinancing?", Description = "Find past clients who could benefit from current rates", Category = "Business Development" }
         };
+
+        public List<string> SpecializedAgents => new()
+        {
+            "LoanProcessingAgent",
+            "UnderwritingAgent",
+            "RateLockAgent",
+            "DocumentCollectionAgent",
+            "NbaAgent"
+        };
+
+        public List<string> NbaActionTypes => new()
+        {
+            "collect_documents",
+            "schedule_appraisal",
+            "lock_rate",
+            "order_title",
+            "submit_to_underwriting",
+            "request_conditions",
+            "schedule_closing",
+            "follow_up_borrower",
+            "contact_realtor",
+            "verify_employment",
+            "order_insurance",
+            "coordinate_closing",
+            "post_closing_follow_up",
+            "refinance_opportunity"
+        };
     }
 }

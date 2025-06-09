@@ -1,0 +1,106 @@
+{
+  "agentId": "interaction-analysis-agent-v1",
+  "name": "Interaction Analysis Agent",
+  "description": "Specialized agent for analyzing customer interactions, extracting insights, sentiment analysis, and identifying buying signals",
+  "version": "1.0.0",
+  "type": "specialized",
+  "protocol": "A2A",
+  "capabilities": [
+    {
+      "name": "SentimentAnalysis",
+      "description": "Analyzes emotional tone and sentiment of customer interactions",
+      "inputTypes": ["text", "conversation_transcript"],
+      "outputTypes": ["sentiment_score", "emotional_indicators"],
+      "confidence": 0.93,
+      "supportedLanguages": ["en"]
+    },
+    {
+      "name": "BuyingSignalDetection",
+      "description": "Identifies and extracts buying signals from customer communications",
+      "inputTypes": ["interaction_content", "conversation_history"],
+      "outputTypes": ["buying_signals", "intent_indicators"],
+      "confidence": 0.89,
+      "supportedLanguages": ["en"]
+    },
+    {
+      "name": "InteractionSummarization",
+      "description": "Creates concise summaries of customer interactions with key insights",
+      "inputTypes": ["conversation_transcript", "interaction_data"],
+      "outputTypes": ["interaction_summary", "key_points"],
+      "confidence": 0.91,
+      "supportedLanguages": ["en"]
+    },
+    {
+      "name": "CloseProbabilityPrediction",
+      "description": "Predicts likelihood of closing deals based on interaction patterns",
+      "inputTypes": ["interaction_history", "contact_context"],
+      "outputTypes": ["close_probability", "prediction_factors"],
+      "confidence": 0.85,
+      "supportedLanguages": ["en"]
+    }
+  ],
+  "supportedIntents": [
+    "InteractionAnalysis"
+  ],
+  "supportedIndustries": [
+    "real_estate",
+    "financial_services",
+    "healthcare", 
+    "technology",
+    "manufacturing",
+    "retail",
+    "professional_services"
+  ],
+  "endpoints": {
+    "primary": {
+      "url": "/api/agents/interaction-analysis",
+      "method": "POST",
+      "contentType": "application/json",
+      "authentication": "bearer_token"
+    },
+    "health": {
+      "url": "/api/agents/interaction-analysis/health",
+      "method": "GET",
+      "contentType": "application/json"
+    }
+  },
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "requestId": {"type": "string"},
+      "traceId": {"type": "string"},
+      "analysisType": {
+        "type": "string",
+        "enum": ["sentiment", "buying_signals", "summarization", "close_probability", "comprehensive"]
+      },
+      "interactionContent": {"type": "string"},
+      "contactContext": {"type": "object"},
+      "conversationHistory": {"type": "array"}
+    },
+    "required": ["requestId", "analysisType", "interactionContent"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "requestId": {"type": "string"},
+      "success": {"type": "boolean"},
+      "analysisResults": {
+        "type": "object",
+        "properties": {
+          "sentimentScore": {"type": "number"},
+          "buyingSignals": {"type": "array"},
+          "summary": {"type": "string"},
+          "closeProbability": {"type": "number"},
+          "recommendations": {"type": "array"}
+        }
+      },
+      "confidence": {"type": "number"},
+      "processingTimeMs": {"type": "number"}
+    }
+  },
+  "metadata": {
+    "author": "EMMA AI Team",
+    "createdAt": "2024-12-08T00:00:00Z",
+    "tags": ["interaction-analysis", "sentiment", "ai-insights", "specialized-agent"]
+  }
+}

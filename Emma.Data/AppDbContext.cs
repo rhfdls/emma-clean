@@ -36,6 +36,7 @@ public class AppDbContext : DbContext
     // Contact Assignment System (NEW - Contact-centric approach)
     public DbSet<ContactAssignment> ContactAssignments { get; set; }
     public DbSet<ContactCollaborator> ContactCollaborators { get; set; }
+    public DbSet<AccessAuditLog> AccessAuditLogs { get; set; }
 
     // NBA Context Management System
     public DbSet<ContactSummary> ContactSummaries { get; set; }
@@ -44,7 +45,6 @@ public class AppDbContext : DbContext
 
     // Privacy and Access Control System
     // TODO: Implement AccessAuditLog entity for privacy enforcement
-    // public DbSet<AccessAuditLog> AccessAuditLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -383,8 +383,6 @@ public class AppDbContext : DbContext
             .HasIndex(ie => ie.InteractionId)
             .IsUnique();
         
-        // TODO: Uncomment when AccessAuditLog entity is implemented
-        /*
         modelBuilder.Entity<AccessAuditLog>().HasKey(aal => aal.Id);
         modelBuilder.Entity<AccessAuditLog>().HasIndex(aal => aal.RequestingAgentId);
         modelBuilder.Entity<AccessAuditLog>().HasIndex(aal => aal.ContactId);
@@ -413,6 +411,5 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AccessAuditLog>()
             .Property(aal => aal.PrivacyTags)
             .HasColumnType("jsonb");
-        */
     }
 }

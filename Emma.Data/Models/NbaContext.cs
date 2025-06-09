@@ -25,6 +25,8 @@ public class NbaContextMetadata
 {
     public DateTime GeneratedAt { get; set; }
     public int TotalInteractionCount { get; set; }
-    public int RetrievalTimeMs { get; set; }
-    public string ContextVersion { get; set; } = "1.0";
+    public int RelevantInteractionCount { get; set; }
+    public int ActiveAssignmentCount { get; set; }
+    public string? ContextVersion { get; set; }
+    public bool IncludesSqlContext { get; set; }
 }

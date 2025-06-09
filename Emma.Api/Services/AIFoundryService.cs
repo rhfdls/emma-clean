@@ -249,6 +249,72 @@ namespace Emma.Api.Services
             }
         }
 
+        public async Task<string> ProcessAgentRequestAsync(string systemPrompt, string userPrompt, string? conversationId = null)
+        {
+            var requestId = Guid.NewGuid();
+            _logger.LogDebug("[{RequestId}] Processing agent request. Interaction ID: {InteractionId}", 
+                requestId, conversationId ?? "(new)");
+            
+            if (string.IsNullOrWhiteSpace(systemPrompt))
+                throw new ArgumentException("System prompt cannot be empty", nameof(systemPrompt));
+                
+            if (string.IsNullOrWhiteSpace(userPrompt))
+                throw new ArgumentException("User prompt cannot be empty", nameof(userPrompt));
+
+            try
+            {
+                var chatCompletionsOptions = new ChatCompletionsOptions()
+                {
+                    DeploymentName = _config.DeploymentName,
+                    Messages =
+                    {
+                        new ChatRequestSystemMessage(systemPrompt),
+                        new ChatRequestUserMessage(userPrompt)
+                    },
+                    MaxTokens = 1000,
+                    Temperature = 0.7f
+                };
+
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
+                stopwatch.Stop();
+                
+                _logger.LogDebug("[{RequestId}] Received agent response from Azure OpenAI in {ElapsedMs}ms", 
+                    requestId, stopwatch.ElapsedMilliseconds);
+                
+                if (response?.Value?.Choices?.Count > 0)
+                {
+                    var content = response.Value.Choices[0].Message.Content;
+                    _logger.LogDebug("[{RequestId}] Agent response content length: {ResponseLength} chars", 
+                        requestId, content?.Length ?? 0);
+                        
+                    return content ?? string.Empty;
+                }
+                
+                throw new InvalidOperationException("No response content received from Azure OpenAI");
+            }
+            catch (RequestFailedException ex) when (ex.Status == 401)
+            {
+                _logger.LogError("Authentication failed for Azure OpenAI. Please check your API key and endpoint.");
+                throw new UnauthorizedAccessException("Authentication failed for Azure OpenAI. Please check your API key and endpoint.", ex);
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                _logger.LogError("The specified Azure OpenAI deployment was not found. Deployment: {DeploymentName}", _config.DeploymentName);
+                throw new InvalidOperationException($"The specified Azure OpenAI deployment was not found: {_config.DeploymentName}", ex);
+            }
+            catch (RequestFailedException ex)
+            {
+                _logger.LogError(ex, "Azure OpenAI request failed with status code {StatusCode}", ex.Status);
+                throw new HttpRequestException($"Azure OpenAI request failed: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error processing agent request");
+                throw new Exception("An unexpected error occurred while processing your agent request.", ex);
+            }
+        }
+
         public Task<string> StartNewInteractionAsync()
         {
             return Task.FromResult(Guid.NewGuid().ToString());

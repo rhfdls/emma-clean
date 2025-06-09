@@ -1,6 +1,8 @@
 using Emma.Data;
 using Emma.Data.Models;
 using Emma.Data.Enums;
+using Emma.Core.Interfaces;
+using Emma.Core.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -10,7 +12,7 @@ namespace Emma.Core.Services;
 /// Service for managing Resources (service providers) and their assignments.
 /// Provides enhanced Resource discovery, filtering, and compliance tracking.
 /// </summary>
-public class ResourceService
+public class ResourceService : IResourceService
 {
     private readonly AppDbContext _context;
     private readonly ILogger<ResourceService> _logger;
@@ -263,7 +265,7 @@ public class ResourceService
             throw new ArgumentException("Assignment not found");
         }
 
-        assignment.MarkReferralDisclosureProvided(method, disclaimerText);
+        assignment.MarkReferralDisclosureProvided();
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Referral disclosure marked as provided for Assignment {AssignmentId} via {Method}", 

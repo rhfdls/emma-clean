@@ -85,7 +85,27 @@ public class ContactAssignment
     /// </summary>
     [MaxLength(1000)]
     public string? InternalNotes { get; set; }
-    
+
+    /// <summary>
+    /// Whether referral disclosure has been provided to the client.
+    /// </summary>
+    public bool ReferralDisclosureProvided { get; set; } = false;
+
+    /// <summary>
+    /// Date when referral disclosure was provided.
+    /// </summary>
+    public DateTime? ReferralDisclosureDate { get; set; }
+
+    /// <summary>
+    /// Whether liability disclaimer has been acknowledged by the client.
+    /// </summary>
+    public bool LiabilityDisclaimerAcknowledged { get; set; } = false;
+
+    /// <summary>
+    /// Date when liability disclaimer was acknowledged.
+    /// </summary>
+    public DateTime? LiabilityDisclaimerDate { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     

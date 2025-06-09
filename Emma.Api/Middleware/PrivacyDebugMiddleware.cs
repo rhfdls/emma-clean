@@ -1,5 +1,6 @@
 using Emma.Core.Services;
 using Emma.Core.Extensions;
+using Emma.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

@@ -1,31 +1,38 @@
+using Emma.Core.Interfaces;
+using Emma.Core.Models;
 using Emma.Data;
-using Emma.Data.Models;
 using Emma.Data.Enums;
+using Emma.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace Emma.Api.Services;
 
 /// <summary>
-/// Service for retrieving curated context for Next Best Action (NBA) recommendations.
-/// Implements the hybrid approach combining rolling summaries, vector search, and state modeling.
+/// Service for managing NBA (Next Best Action) context data
+/// Aggregates contact information, interaction history, and state for AI decision-making
 /// </summary>
 public class NbaContextService : INbaContextService
 {
     private readonly AppDbContext _context;
     private readonly IAzureOpenAIService _azureOpenAIService;
     private readonly IVectorSearchService _vectorSearchService;
+    private readonly ISqlContextExtractor _sqlContextExtractor;
     private readonly ILogger<NbaContextService> _logger;
 
     public NbaContextService(
         AppDbContext context, 
         IAzureOpenAIService azureOpenAIService,
         IVectorSearchService vectorSearchService,
+        ISqlContextExtractor sqlContextExtractor,
         ILogger<NbaContextService> logger)
     {
         _context = context;
         _azureOpenAIService = azureOpenAIService;
         _vectorSearchService = vectorSearchService;
+        _sqlContextExtractor = sqlContextExtractor;
         _logger = logger;
     }
 
@@ -35,14 +42,17 @@ public class NbaContextService : INbaContextService
     public async Task<NbaContext> GetNbaContextAsync(
         Guid contactId, 
         Guid organizationId, 
+        Guid requestingAgentId,
         int maxRecentInteractions = 5, 
-        int maxRelevantInteractions = 10)
+        int maxRelevantInteractions = 10,
+        bool includeSqlContext = true)
     {
         var stopwatch = Stopwatch.StartNew();
         
         try
         {
-            _logger.LogInformation("Retrieving NBA context for contact {ContactId}", contactId);
+            _logger.LogInformation("Retrieving NBA context for contact {ContactId} by agent {AgentId}", 
+                contactId, requestingAgentId);
 
             // Get rolling summary
             var rollingSummary = await GetContactSummaryAsync(contactId, organizationId);
@@ -61,6 +71,35 @@ public class NbaContextService : INbaContextService
             // Get active contact assignments
             var activeContactAssignments = await GetActiveContactAssignmentsAsync(
                 contactId, organizationId);
+
+            // Extract SQL context data for comprehensive business intelligence
+            var sqlContextIncluded = false;
+            var sqlContextSecurityLevel = "";
+            var sqlContextFilters = new List<string>();
+            
+            if (includeSqlContext)
+            {
+                try
+                {
+                    var sqlContext = await _sqlContextExtractor.ExtractContextAsync(
+                        contactId, requestingAgentId, UserRole.Agent, CancellationToken.None);
+                    
+                    sqlContextIncluded = true;
+                    sqlContextSecurityLevel = sqlContext.Security.DataClassification;
+                    sqlContextFilters = sqlContext.Security.AppliedFilters;
+                    
+                    _logger.LogInformation("SQL context extracted for contact {ContactId} with data classification {DataClassification}", 
+                        contactId, sqlContext.Security.DataClassification);
+                        
+                    // TODO: Use SQL context to enrich the NBA context
+                    // For now, we're extracting it but not directly storing it in NbaContext
+                    // This maintains the separation of concerns while enabling future integration
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to extract SQL context for contact {ContactId}, continuing without it", contactId);
+                }
+            }
 
             // Get total interaction count
             var totalInteractionCount = await _context.Interactions
@@ -85,13 +124,15 @@ public class NbaContextService : INbaContextService
                 {
                     GeneratedAt = DateTime.UtcNow,
                     TotalInteractionCount = totalInteractionCount,
-                    RetrievalTimeMs = (int)stopwatch.ElapsedMilliseconds,
-                    ContextVersion = "1.0"
+                    RelevantInteractionCount = relevantInteractions.Count,
+                    ActiveAssignmentCount = activeContactAssignments.Count,
+                    ContextVersion = "1.1",
+                    IncludesSqlContext = sqlContextIncluded
                 }
             };
 
-            _logger.LogInformation("Retrieved NBA context for contact {ContactId} in {ElapsedMs}ms", 
-                contactId, stopwatch.ElapsedMilliseconds);
+            _logger.LogInformation("Retrieved NBA context for contact {ContactId} in {ElapsedMs}ms with SQL context: {SqlIncluded}", 
+                contactId, stopwatch.ElapsedMilliseconds, sqlContextIncluded);
 
             return context;
         }
@@ -395,7 +436,7 @@ public class NbaContextService : INbaContextService
             // Use vector search to find semantically relevant interactions
             var relevantInteractions = await _vectorSearchService.SearchInteractionsAsync(
                 searchQuery, contactId, organizationId, maxResults, minSimilarity: 0.6);
-            
+
             if (relevantInteractions.Any())
             {
                 _logger.LogDebug("Found {Count} relevant interactions via vector search for contact {ContactId}", 

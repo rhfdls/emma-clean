@@ -28,6 +28,16 @@ namespace Emma.Core.Industry
         List<string> AvailableActions { get; }
 
         /// <summary>
+        /// Specialized AI agents available for this industry
+        /// </summary>
+        List<string> SpecializedAgents { get; }
+
+        /// <summary>
+        /// Industry-specific NBA action types
+        /// </summary>
+        List<string> NbaActionTypes { get; }
+
+        /// <summary>
         /// Industry-specific contact states and workflows
         /// </summary>
         ContactWorkflowDefinitions WorkflowDefinitions { get; }

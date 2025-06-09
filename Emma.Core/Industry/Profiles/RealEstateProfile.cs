@@ -88,6 +88,37 @@ Please provide insights and recommendations.",
             "create_buyer_consultation"
         };
 
+        public List<string> SpecializedAgents => new()
+        {
+            "ContractorAgent",
+            "MortgageAgent", 
+            "InspectorAgent",
+            "AttorneyAgent",
+            "NbaAgent"
+        };
+
+        public List<string> NbaActionTypes => new()
+        {
+            "qualify_lead",
+            "schedule_consultation",
+            "send_market_info",
+            "schedule_showing",
+            "send_listings",
+            "follow_up_interest",
+            "show_properties",
+            "submit_offer",
+            "coordinate_inspection",
+            "create_listing",
+            "schedule_photos",
+            "review_offers",
+            "manage_transaction",
+            "coordinate_closing",
+            "provide_updates",
+            "request_referral",
+            "send_market_updates",
+            "check_satisfaction"
+        };
+
         public ContactWorkflowDefinitions WorkflowDefinitions => new()
         {
             ContactStates = new List<string>

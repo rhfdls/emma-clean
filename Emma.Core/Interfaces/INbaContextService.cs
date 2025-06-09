@@ -1,6 +1,7 @@
+using Emma.Core.Models;
 using Emma.Data.Models;
 
-namespace Emma.Api.Services;
+namespace Emma.Core.Interfaces;
 
 /// <summary>
 /// Interface for NBA (Next Best Action) context management service
@@ -12,14 +13,18 @@ public interface INbaContextService
     /// </summary>
     /// <param name="contactId">Contact ID</param>
     /// <param name="organizationId">Organization ID</param>
+    /// <param name="requestingAgentId">ID of the agent requesting the context (for security filtering)</param>
     /// <param name="maxRecentInteractions">Maximum number of recent interactions to include</param>
     /// <param name="maxRelevantInteractions">Maximum number of relevant interactions to include</param>
+    /// <param name="includeSqlContext">Whether to include comprehensive SQL context data</param>
     /// <returns>Complete NBA context</returns>
     Task<NbaContext> GetNbaContextAsync(
         Guid contactId, 
         Guid organizationId, 
+        Guid requestingAgentId,
         int maxRecentInteractions = 5, 
-        int maxRelevantInteractions = 10);
+        int maxRelevantInteractions = 10,
+        bool includeSqlContext = true);
 
     /// <summary>
     /// Gets the contact summary for a contact

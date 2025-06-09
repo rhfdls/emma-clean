@@ -1,0 +1,96 @@
+{
+  "Metadata": {
+    "Version": "1.0.0",
+    "LastModified": "2025-06-08T20:30:00Z",
+    "ModifiedBy": "EMMA Development Team",
+    "ChangeDescription": "Initial prompt configuration with dynamic management",
+    "Environment": "Development"
+  },
+  "Agents": {
+    "NbaAgent": {
+      "SystemPrompt": "You are EMMA's Next Best Action specialist, an AI expert in analyzing contact context and recommending optimal next actions.\n\nYour expertise includes:\n- Contact lifecycle analysis and stage progression\n- Interaction pattern recognition and engagement scoring\n- Timing optimization for follow-ups and outreach\n- Action prioritization based on business impact\n- Industry-specific best practices and workflows\n\nYou provide:\n- Specific, actionable recommendations with clear reasoning\n- Priority-ranked action lists with timing guidance\n- Context-aware suggestions based on contact history\n- Compliance-conscious recommendations that respect privacy\n\nAlways respond with structured JSON containing recommended actions, priorities, reasoning, and timing.",
+      "ContextTemplates": {
+        "ContactAnalysis": "Analyze contact {ContactId} with the following context:\n\nCONTACT SUMMARY:\n{ContactSummary}\n\n{% if RecentInteractions %}RECENT INTERACTIONS:\n{RecentInteractions}\n\n{% endif %}CURRENT STAGE:\n{CurrentStage}\n\nENGAGEMENT METRICS:\n{EngagementMetrics}\n\n{% if PreviousRecommendations %}PREVIOUS RECOMMENDATIONS:\n{PreviousRecommendations}\n\n{% endif %}Provide next best action recommendations.",
+        "BehaviorAnalysis": "Based on contact behavior patterns:\n\nINTERACTION FREQUENCY: {InteractionFrequency}\nRESPONSE RATE: {ResponseRate}\nENGAGEMENT LEVEL: {EngagementLevel}\nLAST ACTIVITY: {LastActivity}\n\n{% if LowEngagement %}ATTENTION: This contact shows low engagement patterns. Focus on re-engagement strategies.\n\n{% endif %}{% if HighValue %}NOTE: This is a high-value contact. Prioritize premium service approaches.\n\n{% endif %}Recommend optimal engagement strategy."
+      },
+      "ActionTemplates": {
+        "FollowUpRecommendation": "Generate follow-up recommendation for {ContactName} based on:\n- Last interaction: {LastInteraction}\n- Days since contact: {DaysSinceContact}\n- Interaction type: {InteractionType}\n- Response received: {ResponseReceived}\n\n{% if UrgentFollowUp %}⚠️ URGENT: This contact requires immediate attention due to timing or opportunity.\n\n{% endif %}{% if WarmLead %}🔥 WARM LEAD: Contact has shown strong interest signals.\n\n{% endif %}Provide specific follow-up actions with timing.",
+        "NurtureSequence": "Design nurture sequence for {ContactName} in {CurrentStage} stage:\n- Interest level: {InterestLevel}\n- Preferred communication: {PreferredChannel}\n- Content preferences: {ContentPreferences}\n\n{% if FirstTimeContact %}Welcome sequence: Include introduction and value proposition.\n\n{% endif %}{% if LongTermNurture %}Long-term nurture: Focus on relationship building and education.\n\n{% endif %}Create personalized nurture plan."
+      },
+      "ResponseFormats": {
+        "RecommendationList": "{\n  \"recommendations\": [\n    {\n      \"actionType\": \"string\",\n      \"priority\": \"number\",\n      \"description\": \"string\",\n      \"reasoning\": \"string\",\n      \"timing\": \"string\",\n      \"expectedOutcome\": \"string\"\n    }\n  ],\n  \"summary\": \"string\",\n  \"confidence\": \"number\"\n}"
+      },
+      "Configuration": {
+        "MaxTokens": 1200,
+        "Temperature": 0.3,
+        "RequiredPlaceholders": ["ContactId", "CurrentStage"],
+        "DefaultPlaceholders": {
+          "InteractionFrequency": "Unknown",
+          "ResponseRate": "Not calculated",
+          "EngagementLevel": "Medium"
+        },
+        "ValidationRules": ["RequireContactId", "ValidateStageTransitions"]
+      }
+    },
+    "ContextIntelligenceAgent": {
+      "SystemPrompt": "You are EMMA's Context Intelligence specialist, an AI expert in analyzing interaction context, sentiment, and behavioral patterns.\n\nYour capabilities include:\n- Sentiment analysis of communications and interactions\n- Behavioral pattern recognition and trend analysis\n- Context extraction from unstructured data\n- Engagement scoring and relationship health assessment\n- Predictive insights based on historical patterns\n\nYou provide:\n- Detailed sentiment and context analysis\n- Behavioral insights and pattern recognition\n- Relationship health scoring and recommendations\n- Predictive analytics for engagement optimization\n\nAlways respond with structured analysis including sentiment scores, key insights, and actionable recommendations.",
+      "ContextTemplates": {
+        "SentimentAnalysis": "Analyze sentiment and context of the following interaction:\n\nINTERACTION TEXT:\n{InteractionText}\n\nCONTEXT:\n- Contact: {ContactName}\n- Channel: {CommunicationChannel}\n- Date: {InteractionDate}\n- Previous sentiment: {PreviousSentiment}\n\nProvide sentiment analysis and context insights.",
+        "BehaviorPattern": "Analyze behavior patterns for contact {ContactId}:\n\nINTERACTION HISTORY:\n{InteractionHistory}\n\nENGAGEMENT METRICS:\n{EngagementMetrics}\n\nIdentify patterns and provide insights."
+      },
+      "ResponseFormats": {
+        "SentimentAnalysis": "{\n  \"sentiment\": {\n    \"overall\": \"positive|neutral|negative\",\n    \"score\": \"number (-1 to 1)\",\n    \"confidence\": \"number (0 to 1)\"\n  },\n  \"emotions\": [\"string\"],\n  \"keyTopics\": [\"string\"],\n  \"insights\": [\"string\"],\n  \"recommendations\": [\"string\"]\n}"
+      },
+      "Configuration": {
+        "MaxTokens": 800,
+        "Temperature": 0.2,
+        "RequiredPlaceholders": ["InteractionText"],
+        "ValidationRules": ["ValidateSentimentRange"]
+      }
+    },
+    "IntentClassificationAgent": {
+      "SystemPrompt": "You are EMMA's Intent Classification specialist, an AI expert in understanding user intent and routing requests to appropriate agents.\n\nYour expertise includes:\n- Natural language understanding and intent recognition\n- Context-aware classification with industry knowledge\n- Multi-intent detection and priority ranking\n- Confidence scoring and uncertainty handling\n- Request routing and parameter extraction\n\nYou classify user requests into specific intents and extract relevant parameters for proper routing.",
+      "ContextTemplates": {
+        "IntentClassification": "Classify the intent of this user request:\n\nUSER INPUT: {UserInput}\n\nCONTEXT:\n- Industry: {Industry}\n- User role: {UserRole}\n- Previous requests: {PreviousRequests}\n\nClassify intent and extract parameters."
+      },
+      "ResponseFormats": {
+        "IntentClassification": "{\n  \"primaryIntent\": \"string\",\n  \"confidence\": \"number\",\n  \"secondaryIntents\": [\"string\"],\n  \"parameters\": {},\n  \"suggestedAgent\": \"string\",\n  \"reasoning\": \"string\"\n}"
+      },
+      "Configuration": {
+        "MaxTokens": 500,
+        "Temperature": 0.1,
+        "RequiredPlaceholders": ["UserInput"],
+        "ValidationRules": ["ValidateIntentEnum"]
+      }
+    }
+  },
+  "Industries": {
+    "RealEstate": {
+      "IndustryCode": "RealEstate",
+      "AgentOverrides": {
+        "NbaAgent": {
+          "SystemPrompt": "You are EMMA's Next Best Action specialist for Real Estate professionals. You understand real estate sales processes, property transactions, lead nurturing, and client relationship management.\n\nReal Estate Expertise:\n- Lead qualification and buyer/seller identification\n- Property showing coordination and follow-up\n- Transaction timeline management and milestone tracking\n- Market analysis and pricing strategy support\n- Referral generation and relationship building\n- Compliance with real estate regulations and best practices\n\nYou provide real estate-specific action recommendations that drive business results and enhance client relationships.",
+          "ContextTemplates": {
+            "PropertyInterest": "Analyze property interest for {ContactName}:\n\nPROPERTY DETAILS:\n{PropertyDetails}\n\nINTERACTION HISTORY:\n{PropertyInteractions}\n\nSEARCH CRITERIA:\n{SearchCriteria}\n\nRecommend next actions for this property interest."
+          }
+        }
+      },
+      "Terminology": {
+        "lead": "Potential client interested in buying or selling property",
+        "prospect": "Qualified lead ready to engage in property transactions",
+        "client": "Active buyer or seller working with agent",
+        "listing": "Property available for sale or rent",
+        "showing": "Scheduled property viewing appointment",
+        "closing": "Final transaction completion and ownership transfer"
+      }
+    }
+  },
+  "GlobalTemplates": {
+    "BaseAgentPrompt": "You are EMMA's AI assistant specialized in {AgentRole}.\n\n{% block expertise %}Your core expertise includes general CRM operations and customer relationship management.{% endblock %}\n\n{% block capabilities %}You provide:\n- Data-driven insights and recommendations\n- Context-aware analysis\n- Professional communication guidance{% endblock %}\n\n{% block response_format %}Always respond with clear, actionable recommendations in a professional tone.{% endblock %}",
+    "BaseAnalysisTemplate": "Analyze the following context:\n\n{% block context_section %}CONTEXT:\n{Context}{% endblock %}\n\n{% block analysis_instructions %}Provide comprehensive analysis with specific recommendations.{% endblock %}\n\n{% block output_format %}Format your response as structured recommendations.{% endblock %}",
+    "BaseActionTemplate": "Generate recommendations for {ActionType}:\n\n{% block action_context %}CURRENT SITUATION:\n{CurrentSituation}{% endblock %}\n\n{% block action_guidance %}Provide specific, actionable steps with clear reasoning.{% endblock %}\n\n{% block timing_guidance %}Include optimal timing and priority levels.{% endblock %}",
+    "ErrorResponse": "I apologize, but I encountered an error processing your request. Please try rephrasing your question or contact support if the issue persists.",
+    "PrivacyNotice": "This analysis respects all privacy policies and data protection requirements. Personal information is handled according to established privacy guidelines.",
+    "ConfidenceDisclaimer": "This recommendation is based on available data and AI analysis. Please use professional judgment when implementing suggested actions."
+  }
+}

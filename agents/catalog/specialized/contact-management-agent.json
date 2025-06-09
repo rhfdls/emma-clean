@@ -1,0 +1,113 @@
+{
+  "agentId": "contact-management-agent-v1",
+  "name": "Contact Management Agent",
+  "description": "Specialized agent for managing contact information, relationships, and contact-related operations in the CRM system",
+  "version": "1.0.0",
+  "type": "specialized",
+  "protocol": "A2A",
+  "capabilities": [
+    {
+      "name": "ContactCreation",
+      "description": "Creates new contact records with comprehensive information validation",
+      "inputTypes": ["contact_data", "natural_language"],
+      "outputTypes": ["contact_record", "validation_results"],
+      "confidence": 0.95,
+      "supportedLanguages": ["en"]
+    },
+    {
+      "name": "ContactSearch",
+      "description": "Searches and retrieves contact information using various criteria",
+      "inputTypes": ["search_criteria", "natural_language_query"],
+      "outputTypes": ["contact_list", "search_results"],
+      "confidence": 0.92,
+      "supportedLanguages": ["en"]
+    },
+    {
+      "name": "ContactUpdate",
+      "description": "Updates existing contact information with change tracking",
+      "inputTypes": ["contact_id", "update_data"],
+      "outputTypes": ["updated_contact", "change_log"],
+      "confidence": 0.94,
+      "supportedLanguages": ["en"]
+    },
+    {
+      "name": "RelationshipMapping",
+      "description": "Maps and manages relationships between contacts and organizations",
+      "inputTypes": ["contact_data", "relationship_info"],
+      "outputTypes": ["relationship_map", "connection_insights"],
+      "confidence": 0.88,
+      "supportedLanguages": ["en"]
+    }
+  ],
+  "supportedIntents": [
+    "ContactManagement"
+  ],
+  "supportedIndustries": [
+    "real_estate",
+    "financial_services", 
+    "healthcare",
+    "technology",
+    "manufacturing",
+    "retail",
+    "professional_services"
+  ],
+  "endpoints": {
+    "primary": {
+      "url": "/api/agents/contact-management",
+      "method": "POST",
+      "contentType": "application/json",
+      "authentication": "bearer_token"
+    },
+    "health": {
+      "url": "/api/agents/contact-management/health",
+      "method": "GET",
+      "contentType": "application/json"
+    }
+  },
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "requestId": {"type": "string"},
+      "traceId": {"type": "string"},
+      "action": {
+        "type": "string",
+        "enum": ["create", "search", "update", "delete", "relationship_map"]
+      },
+      "contactData": {
+        "type": "object",
+        "properties": {
+          "firstName": {"type": "string"},
+          "lastName": {"type": "string"},
+          "email": {"type": "string"},
+          "phone": {"type": "string"},
+          "company": {"type": "string"},
+          "title": {"type": "string"},
+          "industry": {"type": "string"}
+        }
+      },
+      "searchCriteria": {
+        "type": "object",
+        "properties": {
+          "query": {"type": "string"},
+          "filters": {"type": "object"}
+        }
+      }
+    },
+    "required": ["requestId", "action"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "requestId": {"type": "string"},
+      "success": {"type": "boolean"},
+      "data": {"type": "object"},
+      "confidence": {"type": "number"},
+      "processingTimeMs": {"type": "number"}
+    }
+  },
+  "metadata": {
+    "author": "EMMA AI Team",
+    "createdAt": "2024-12-08T00:00:00Z",
+    "tags": ["contact-management", "crm", "specialized-agent"]
+  }
+}
