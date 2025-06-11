@@ -17,18 +17,26 @@ namespace Emma.Core.Services
             _industryProfileService = industryProfileService;
         }
 
-        public Task<TenantContext> GetCurrentTenantAsync()
+        public async Task<TenantContext> GetCurrentTenantAsync()
         {
             // For demo purposes, return a default tenant
+            var industryProfile = await GetIndustryProfileAsync();
+            
             var defaultTenant = new TenantContext
             {
-                TenantId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
-                TenantName = "Demo Organization",
-                DatabaseConnectionString = "DefaultConnection",
-                IsActive = true
+                TenantId = Guid.NewGuid(),
+                TenantName = "Demo Tenant",
+                DatabaseConnectionString = "Demo Connection",
+                IsActive = true,
+                IndustryCode = "RealEstate",
+                IndustryProfile = industryProfile,
+                Settings = new Dictionary<string, object>(),
+                EnabledFeatures = new HashSet<string>(),
+                AuditId = Guid.NewGuid(),
+                Reason = "Default tenant context for demo"
             };
 
-            return Task.FromResult(defaultTenant);
+            return defaultTenant;
         }
 
         public async Task<IIndustryProfile> GetIndustryProfileAsync()
@@ -39,9 +47,10 @@ namespace Emma.Core.Services
             return profile ?? throw new InvalidOperationException("RealEstate profile not found");
         }
 
-        public Task<bool> ValidateTenantAccessAsync(Guid tenantId, Guid userId)
+        public Task<bool> ValidateTenantAccessAsync(Guid tenantId)
         {
-            // For demo purposes, always allow access
+            // For demo purposes, always return true
+            // In a real multi-tenant scenario, this would validate tenant access
             return Task.FromResult(true);
         }
     }

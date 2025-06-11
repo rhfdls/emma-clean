@@ -60,13 +60,13 @@ namespace Emma.Core.Interfaces
         /// </summary>
         /// <param name="agentId">Agent identifier</param>
         /// <returns>Health status information</returns>
-        Task<AgentHealthStatus> GetAgentHealthAsync(string agentId);
+        Task<AgentHealthInfo> GetAgentHealthAsync(string agentId);
         
         /// <summary>
         /// Get all agent health statuses
         /// </summary>
         /// <returns>Dictionary of health statuses by agent ID</returns>
-        Task<Dictionary<string, AgentHealthStatus>> GetAllAgentHealthAsync();
+        Task<Dictionary<string, AgentHealthInfo>> GetAllAgentHealthAsync();
         
         /// <summary>
         /// Update agent performance metrics
@@ -97,7 +97,7 @@ namespace Emma.Core.Interfaces
     /// <summary>
     /// Agent health status information
     /// </summary>
-    public class AgentHealthStatus
+    public class AgentHealthInfo
     {
         public string AgentId { get; set; } = string.Empty;
         

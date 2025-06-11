@@ -12,8 +12,8 @@ public class AllowAllAuthenticationHandler : AuthenticationHandler<Authenticatio
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
-        ISystemClock clock)
-        : base(options, logger, encoder, clock)
+        TimeProvider timeProvider)
+        : base(options, logger, encoder, timeProvider)
     {
     }
 

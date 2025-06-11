@@ -1,5 +1,5 @@
-using Emma.Core.Models;
 using Emma.Core.Interfaces;
+using Emma.Core.Models;
 using Emma.Core.Services;
 using Emma.Data;
 using Emma.Data.Models;
@@ -98,9 +98,9 @@ namespace Emma.Core.Services
             }
         }
 
-        private async Task<AgentContext> ExtractAgentContextAsync(Guid agentId, Guid? focusContactId = null)
+        private async Task<Emma.Core.Models.AgentContext> ExtractAgentContextAsync(Guid agentId, Guid? focusContactId = null)
         {
-            var context = new AgentContext();
+            var context = new Emma.Core.Models.AgentContext();
 
             // Get agent's assigned contacts (limit to recent/active for performance)
             var contactsQuery = _context.Contacts.AsQueryable();
@@ -291,6 +291,21 @@ namespace Emma.Core.Services
             return stageGroups.ToDictionary(g => g.Stage, g => g.Count);
         }
 
+        /// <summary>
+        /// Determines the data classification level for agent access to contact data.
+        /// </summary>
+        private string DetermineAgentDataClassification(Guid contactId, Guid requestingAgentId)
+        {
+            // For demo purposes, return a safe default classification
+            // In production, this would analyze:
+            // - Contact sensitivity level
+            // - Agent clearance level
+            // - Regulatory requirements
+            // - Data residency rules
+            
+            return "Business"; // Safe default for demo
+        }
+
         private async Task<bool> ValidateContactAccessAsync(Guid contactId, Guid requestingAgentId, UserRole role)
         {
             // For demo purposes, allow access to all contacts
@@ -302,15 +317,6 @@ namespace Emma.Core.Services
             
             var contact = await _context.Contacts.FindAsync(contactId);
             return contact != null;
-        }
-
-        private string DetermineAgentDataClassification(Guid contactId, Guid agentId)
-        {
-            // In production, determine based on:
-            // - Is agent assigned to contact? -> "Private" access
-            // - Is agent a collaborator? -> "Business" access
-            // - Is contact an active client? -> "Confidential" if assigned agent
-            return "Business";
         }
 
         public async Task<string> SerializeContextAsync(SqlContextData contextData, CancellationToken cancellationToken = default)

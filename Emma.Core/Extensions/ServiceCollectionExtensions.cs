@@ -1,15 +1,37 @@
 using Emma.Core.Services;
 using Emma.Core.Extensions;
 using Emma.Core.Interfaces;
+using Emma.Core.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Emma.Core.Extensions;
 
 /// <summary>
 /// Extension methods for registering Emma Core services.
+/// Enhanced with Sprint 1 Agent Factory services.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Registers Sprint 1 Agent Factory services including dynamic agent registry and feature flags.
+    /// </summary>
+    public static IServiceCollection AddEmmaSprint1Services(this IServiceCollection services)
+    {
+        // Register Agent Registry for dynamic agent management
+        services.AddSingleton<IAgentRegistry, AgentRegistry>();
+        
+        // Register Feature Flag service for runtime configuration
+        services.AddFeatureFlags();
+        
+        // Register API versioning for scalable evolution
+        services.AddEmmaApiVersioning();
+        
+        // Register Context Provider for unified context access
+        services.AddScoped<IContextProvider, ContextProvider>();
+        
+        return services;
+    }
+
     /// <summary>
     /// Registers all Emma Core privacy and access control services.
     /// </summary>
@@ -27,10 +49,15 @@ public static class ServiceCollectionExtensions
     
     /// <summary>
     /// Registers all Emma Core AI agent services for Azure AI Foundry integration.
+    /// Enhanced with Sprint 1 dynamic routing capabilities.
     /// </summary>
     public static IServiceCollection AddEmmaAgentServices(this IServiceCollection services)
     {
+        // Register Sprint 1 services first
+        services.AddEmmaSprint1Services();
+        
         // Register core services
+        services.AddScoped<IContactService, ContactService>();
         services.AddScoped<IResourceService, ResourceService>();
         services.AddScoped<IContextIntelligenceService, ContextIntelligenceService>();
         services.AddScoped<IIntentClassificationService, IntentClassificationService>();

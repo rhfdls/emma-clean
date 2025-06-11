@@ -1,14 +1,4 @@
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\bin\Debug\net8.0\Emma.Core.deps.json
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\bin\Debug\net8.0\Emma.Core.dll
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\bin\Debug\net8.0\Emma.Core.pdb
 C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\obj\Debug\net8.0\Emma.Core.csproj.AssemblyReference.cache
 C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\obj\Debug\net8.0\Emma.Core.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\obj\Debug\net8.0\Emma.Core.csproj.CoreCompileInputs.cache
 C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\obj\Debug\net8.0\Emma.Core.sourcelink.json
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\obj\Debug\net8.0\Emma.Core.dll
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\obj\Debug\net8.0\refint\Emma.Core.dll
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\obj\Debug\net8.0\Emma.Core.pdb
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\obj\Debug\net8.0\ref\Emma.Core.dll
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\bin\Debug\net8.0\Emma.Data.dll
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\bin\Debug\net8.0\Emma.Data.pdb
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core\obj\Debug\net8.0\Emma.Core.csproj.Up2Date

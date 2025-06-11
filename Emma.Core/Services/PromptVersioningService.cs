@@ -10,8 +10,10 @@ namespace Emma.Core.Services;
 /// Provides comprehensive versioning, audit logging, and rollback capabilities for prompt configurations
 /// Implements enterprise-grade configuration governance and operational safety
 /// </summary>
-public class PromptVersioningService
+public class PromptVersioningService : IDisposable
 {
+    private bool _disposed = false; // To detect redundant calls
+
     private readonly ILogger<PromptVersioningService> _logger;
     private readonly string _configurationPath;
     private readonly string _backupDirectory;
@@ -205,8 +207,8 @@ public class PromptVersioningService
             var configContent = await File.ReadAllTextAsync(_configurationPath);
             var config = JsonSerializer.Deserialize<PromptConfiguration>(configContent);
             
-            return config?.Metadata?.VersionHistory?.OrderByDescending(v => v.CreatedAt) 
-                   ?? Enumerable.Empty<PromptVersionHistoryEntry>();
+            return (config?.Metadata?.VersionHistory?.OrderByDescending(v => v.CreatedAt).AsEnumerable() 
+                   ?? Enumerable.Empty<PromptVersionHistoryEntry>());
         }
         catch (Exception ex)
         {
@@ -594,4 +596,31 @@ public class PromptVersioningService
     }
 
     #endregion
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            // Free any other managed objects here.
+            // If there are any file streams or other IDisposable resources, dispose them here.
+        }
+
+        // Free any unmanaged resources here.
+
+        _disposed = true;
+    }
+
+    ~PromptVersioningService()
+    {
+        Dispose(false);
+    }
 }

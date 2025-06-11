@@ -16,13 +16,15 @@ public interface INbaAgent
     /// <param name="requestingAgentId">Agent making the request</param>
     /// <param name="maxRecommendations">Maximum number of recommendations to return</param>
     /// <param name="traceId">Optional trace ID for logging</param>
+    /// <param name="userOverrides">Optional user overrides for validation framework</param>
     /// <returns>Prioritized list of recommended actions</returns>
     Task<AgentResponse> RecommendNextBestActionsAsync(
         Guid contactId,
         Guid organizationId,
         Guid requestingAgentId,
         int maxRecommendations = 3,
-        string? traceId = null);
+        string? traceId = null,
+        Dictionary<string, object>? userOverrides = null);
 
     /// <summary>
     /// Processes a general NBA request (implements standard agent interface)

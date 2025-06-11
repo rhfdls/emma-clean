@@ -27,7 +27,8 @@ namespace Emma.Core.Interfaces
         /// <param name="userInput">User input text to classify</param>
         /// <param name="conversationContext">Optional conversation context</param>
         /// <param name="traceId">Optional trace ID for logging</param>
+        /// <param name="userOverrides">Optional user overrides for validation framework</param>
         /// <returns>Classification results with intent and confidence</returns>
-        Task<AgentResponse> ClassifyIntentAsync(string userInput, Dictionary<string, object>? conversationContext = null, string? traceId = null);
+        Task<AgentResponse> ClassifyIntentAsync(string userInput, Dictionary<string, object>? conversationContext = null, string? traceId = null, Dictionary<string, object>? userOverrides = null);
     }
 }

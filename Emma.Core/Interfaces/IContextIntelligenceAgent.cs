@@ -28,7 +28,8 @@ namespace Emma.Core.Interfaces
         /// <param name="organizationId">Organization ID for scoping</param>
         /// <param name="analysisType">Type of context analysis to perform</param>
         /// <param name="traceId">Optional trace ID for logging</param>
+        /// <param name="userOverrides">Optional user overrides for validation framework</param>
         /// <returns>Context intelligence analysis results</returns>
-        Task<AgentResponse> AnalyzeContextAsync(Guid contactId, Guid organizationId, string analysisType, string? traceId = null);
+        Task<AgentResponse> AnalyzeContextAsync(Guid contactId, Guid organizationId, string analysisType, string? traceId = null, Dictionary<string, object>? userOverrides = null);
     }
 }

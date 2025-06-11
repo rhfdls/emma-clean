@@ -355,15 +355,8 @@ public class PromptProvider : IPromptProvider, IDisposable
 
     public async Task<PromptMetadata?> GetConfigurationMetadataAsync()
     {
-        try
-        {
-            return await _versioningService.GetConfigurationMetadataAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to retrieve prompt configuration metadata");
-            return null;
-        }
+        Console.WriteLine($"[PromptProvider] {typeof(EnumConfigurationMetadata).AssemblyQualifiedName}");
+        return await _versioningService.GetConfigurationMetadataAsync();
     }
 
     #region Private Helper Methods

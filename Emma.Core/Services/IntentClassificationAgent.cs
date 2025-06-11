@@ -1,6 +1,7 @@
 using Emma.Core.Interfaces;
 using Emma.Core.Models;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace Emma.Core.Services
 {
@@ -53,7 +54,8 @@ namespace Emma.Core.Services
                     request.Context.ContainsKey("requestType") && 
                     request.Context["requestType"]?.ToString() == "intent_classification")
                 {
-                    return await ClassifyIntentAsync(userInput, request.Context, traceId);
+                    return await ClassifyIntentAsync(userInput, request.Context, traceId, 
+                        request.Context.ContainsKey("userOverrides") ? (Dictionary<string, object>)request.Context["userOverrides"] : null);
                 }
 
                 return new AgentResponse
@@ -129,14 +131,14 @@ namespace Emma.Core.Services
             }
         }
 
-        public async Task<AgentResponse> ClassifyIntentAsync(string userInput, Dictionary<string, object>? conversationContext = null, string? traceId = null)
+        public async Task<AgentResponse> ClassifyIntentAsync(string userInput, Dictionary<string, object>? conversationContext = null, string? traceId = null, Dictionary<string, object>? userOverrides = null)
         {
             traceId ??= Guid.NewGuid().ToString();
             
             try
             {
-                _logger.LogInformation("Classifying intent for input: {UserInput}, TraceId: {TraceId}", 
-                    userInput, traceId);
+                _logger.LogInformation("Classifying intent for input: {UserInput}, TraceId: {TraceId}, UserOverrides: {HasOverrides}", 
+                    userInput, traceId, userOverrides?.Count > 0);
 
                 // Add industry context if available
                 var context = conversationContext ?? new Dictionary<string, object>();

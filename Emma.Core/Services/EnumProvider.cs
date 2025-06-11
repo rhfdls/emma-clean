@@ -13,6 +13,7 @@ namespace Emma.Core.Services;
 public class EnumProvider : IEnumProvider, IDisposable
 {
     private readonly ILogger<EnumProvider> _logger;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly string _configurationFilePath;
     private readonly bool _enableHotReload;
     private readonly EnumVersioningService _versioningService;
@@ -22,13 +23,15 @@ public class EnumProvider : IEnumProvider, IDisposable
     private readonly JsonSerializerOptions _jsonOptions;
 
     public event EventHandler<EnumConfigurationChangedEventArgs>? ConfigurationChanged;
+    public event EventHandler<EnumConfigurationChangedEventArgs>? ConfigurationReloaded;
 
-    public EnumProvider(ILogger<EnumProvider> logger, string configurationFilePath, bool enableHotReload = false)
+    public EnumProvider(ILoggerFactory loggerFactory, string configurationFilePath, bool enableHotReload = false)
     {
-        _logger = logger;
+        _loggerFactory = loggerFactory;
+        _logger = loggerFactory.CreateLogger<EnumProvider>();
         _configurationFilePath = configurationFilePath;
         _enableHotReload = enableHotReload;
-        _versioningService = new EnumVersioningService(logger.CreateLogger<EnumVersioningService>(), configurationFilePath);
+        _versioningService = new EnumVersioningService(loggerFactory.CreateLogger<EnumVersioningService>(), configurationFilePath);
 
         _jsonOptions = new JsonSerializerOptions
         {
@@ -36,6 +39,8 @@ public class EnumProvider : IEnumProvider, IDisposable
             ReadCommentHandling = JsonCommentHandling.Skip,
             AllowTrailingCommas = true
         };
+
+        Console.WriteLine(typeof(EnumConfigurationMetadata).AssemblyQualifiedName);
 
         // Load initial configuration
         _ = Task.Run(LoadConfigurationAsync);
@@ -139,7 +144,12 @@ public class EnumProvider : IEnumProvider, IDisposable
 
     public async Task<EnumMetadata?> GetEnumMetadataAsync(string enumType, EnumContext? context = null)
     {
-        try
+        if (_enumConfiguration == null)
+        {
+            await LoadConfigurationAsync();
+        }
+
+        if (_enumConfiguration?.Metadata != null)
         {
             var enumDefinition = await GetEnumDefinitionAsync(enumType, context);
             if (enumDefinition == null)
@@ -161,8 +171,13 @@ public class EnumProvider : IEnumProvider, IDisposable
                 ActiveValueCount = values.Count(),
                 DefaultValue = enumDefinition.DefaultValue,
                 AllowCustomValues = enumDefinition.AllowCustomValues,
-                LastModified = _enumConfiguration?.Metadata.LastUpdated ?? DateTime.UtcNow,
-                Categories = categories!
+                LastModified = _enumConfiguration.Metadata.LastUpdated ?? DateTime.UtcNow,
+                Categories = categories,
+                VersionId = _enumConfiguration.Metadata.VersionId,
+                ChangeType = _enumConfiguration.Metadata.ChangeType,
+                ChangedBy = _enumConfiguration.Metadata.ChangedBy,
+                IndustryOverrides = _enumConfiguration.Industries,
+                AgentOverrides = _enumConfiguration.Agents
             };
 
             _logger.LogDebug("Generated metadata for {EnumType}: {ValueCount} total, {ActiveCount} active", 
@@ -170,11 +185,8 @@ public class EnumProvider : IEnumProvider, IDisposable
             
             return metadata;
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving metadata for {EnumType}", enumType);
-            return null;
-        }
+
+        return null;
     }
 
     public async Task<IEnumerable<string>> GetAvailableEnumTypesAsync(EnumContext? context = null)
@@ -334,10 +346,16 @@ public class EnumProvider : IEnumProvider, IDisposable
                 _enumConfiguration = configuration;
             }
 
+            Console.WriteLine(typeof(EnumConfigurationMetadata).AssemblyQualifiedName);
+
             _logger.LogInformation("Enum configuration loaded successfully from {FilePath}", _configurationFilePath);
             
             // Notify subscribers of configuration change
             ConfigurationChanged?.Invoke(this, new EnumConfigurationChangedEventArgs
+            {
+                ChangedAt = DateTime.UtcNow
+            });
+            ConfigurationReloaded?.Invoke(this, new EnumConfigurationChangedEventArgs
             {
                 ChangedAt = DateTime.UtcNow
             });
@@ -553,9 +571,6 @@ public class EnumProvider : IEnumProvider, IDisposable
         }
     }
 
-    /// <summary>
-    /// Get configuration metadata including version info
-    /// </summary>
     public async Task<EnumConfigurationMetadata> GetConfigurationMetadataAsync()
     {
         try
@@ -580,6 +595,11 @@ public class EnumProvider : IEnumProvider, IDisposable
             _logger.LogError(ex, "Failed to get configuration metadata");
             throw;
         }
+    }
+
+    Task<EnumConfigurationMetadata> IEnumProvider.GetConfigurationMetadataAsync()
+    {
+        return GetConfigurationMetadataAsync();
     }
 
     /// <summary>
@@ -611,7 +631,7 @@ public class EnumProvider : IEnumProvider, IDisposable
             {
                 if (_enumConfiguration?.Metadata != null)
                 {
-                    _enumConfiguration.Metadata.ApprovalStatus = new ApprovalStatus
+                    _enumConfiguration.Metadata.ApprovalStatus = new EnumApprovalStatus
                     {
                         Status = ApprovalState.Pending,
                         SubmittedBy = submittedBy,
@@ -925,4 +945,13 @@ public class EnumProvider : IEnumProvider, IDisposable
         _fileWatcher?.Dispose();
         _logger.LogInformation("EnumProvider disposed");
     }
+}
+
+public class EnumConfigurationMetadata
+{
+    public string? VersionId { get; set; }
+    public string? ChangeType { get; set; }
+    public string? ChangedBy { get; set; }
+    public Dictionary<string, EnumValueOverrides>? IndustryOverrides { get; set; }
+    public Dictionary<string, EnumValueOverrides>? AgentOverrides { get; set; }
 }

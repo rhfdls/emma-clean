@@ -1,1 +1,0 @@
-C:\Users\david\GitHub\WindsurfProjects\emma\CosmosDbTester\obj\Debug\net8.0\CosmosDbTester.csproj.AssemblyReference.cache

@@ -437,7 +437,7 @@ public class EnumConfigurationMetadata
     /// Approval status for changes
     /// </summary>
     [JsonPropertyName("approvalStatus")]
-    public ApprovalStatus? ApprovalStatus { get; set; }
+    public EnumApprovalStatus? ApprovalStatus { get; set; }
 
     /// <summary>
     /// Backup configuration for rollback
@@ -653,7 +653,7 @@ public class VersionChangeSummary
 /// <summary>
 /// Approval status for enum changes
 /// </summary>
-public class ApprovalStatus
+public class EnumApprovalStatus
 {
     /// <summary>
     /// Current approval state
@@ -1009,4 +1009,58 @@ public enum MergeStrategy
     Merge,
     KeepExisting,
     Interactive
+}
+
+/// <summary>
+/// Version information for enum configuration
+/// </summary>
+public class EnumVersion
+{
+    /// <summary>
+    /// Version identifier
+    /// </summary>
+    [JsonPropertyName("version")]
+    public string Version { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Creation timestamp
+    /// </summary>
+    [JsonPropertyName("createdAt")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// User who created this version
+    /// </summary>
+    [JsonPropertyName("createdBy")]
+    public string CreatedBy { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Version description or change summary
+    /// </summary>
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// SHA256 hash for integrity verification
+    /// </summary>
+    [JsonPropertyName("hash")]
+    public string? Hash { get; set; }
+
+    /// <summary>
+    /// File path to the version backup
+    /// </summary>
+    [JsonPropertyName("filePath")]
+    public string? FilePath { get; set; }
+
+    /// <summary>
+    /// Whether this is the current active version
+    /// </summary>
+    [JsonPropertyName("isActive")]
+    public bool IsActive { get; set; } = false;
+
+    /// <summary>
+    /// Tags associated with this version
+    /// </summary>
+    [JsonPropertyName("tags")]
+    public List<string> Tags { get; set; } = new();
 }

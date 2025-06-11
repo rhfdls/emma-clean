@@ -62,7 +62,7 @@ emma/
 
 ### Testing
 
-For detailed information on testing, especially for Azure OpenAI SDK integration, see the [Testing Guide](./docs/TESTING.md).
+For detailed information on testing, especially for Azure OpenAI SDK integration, see the [Testing Guide](./docs/development/TESTING.md).
 
 ### Running the Application
 
@@ -104,7 +104,7 @@ dotnet ef database update --project ../Emma.Data
 
 ### Environment Variables
 
-Copy `env.template` to `.env` and update values. See [Infrastructure](./docs/infrastructure.md) for details on required Azure services.
+Copy `env.template` to `.env` and update values. See [Infrastructure](./docs/operations/infrastructure.md) for details on required Azure services.
 
 > Note: The Emma AI Platform currently supports both `.env` files and docker-compose.yml for configuration. This dual approach is intentionally maintained during the transition period.
 
@@ -127,12 +127,24 @@ API documentation is available via Swagger UI at [http://localhost:5262/swagger]
 
 ## Additional Documentation
 
-Additional documentation can be found in the `docs/` directory:
+📚 **Comprehensive documentation is now organized in the [`docs/`](./docs/) directory:**
 
-- [Architecture Overview](./ARCHITECTURE.md)
-- [Infrastructure Guide](./docs/infrastructure.md)
-- [Secret Management](./SECRETS_MANAGEMENT.md)
-- [Cloud Setup Guide](./CLOUD_SETUP.md)
+### Quick Links by Category:
+- **🏗️ [Architecture](./docs/architecture/)** - System design and technical architecture
+- **🔒 [Security](./docs/security/)** - Security, privacy, and compliance  
+- **⚙️ [Operations](./docs/operations/)** - Deployment and operational guides
+- **🤖 [Agents](./docs/agents/)** - Agent system documentation
+- **👨‍💻 [Development](./docs/development/)** - Development guides and processes
+- **📋 [Project Management](./docs/project-management/)** - Tasks, roadmaps, and planning
+- **📚 [Reference](./docs/reference/)** - Data dictionary, contracts, and specifications
+
+### Essential Documents:
+- [📖 Documentation Index](./docs/README.md) - Complete documentation guide
+- [🏗️ System Architecture](./docs/architecture/EMMA-AI-ARCHITECTURE-GUIDE.md) - Comprehensive architecture guide
+- [📚 Data Dictionary](./docs/reference/EMMA-DATA-DICTIONARY.md) - Official terminology and business rules
+- [🔒 Security Guide](./docs/security/PRIVACY_IMPLEMENTATION_GUIDE.md) - Privacy and security implementation
+- [⚙️ Cloud Setup](./docs/operations/CLOUD_SETUP.md) - Azure deployment guide
+- [📋 Current Tasks](./docs/project-management/TODO.md) - Active development tasks
 
 ## Licensing
 

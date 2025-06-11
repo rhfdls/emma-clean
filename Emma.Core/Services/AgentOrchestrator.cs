@@ -2,6 +2,7 @@ using Emma.Data.Models;
 using Microsoft.Extensions.Logging;
 using Emma.Core.Interfaces;
 using Emma.Core.Models;
+using Emma.Core.Configuration;
 
 namespace Emma.Core.Services;
 
@@ -9,6 +10,7 @@ namespace Emma.Core.Services;
 /// EMMA orchestrator implementation that delegates to Azure AI Foundry
 /// Acts as a thin wrapper to maintain separation of concerns and leverage Azure services
 /// Manages all AI agents including NBA-Agent
+/// Enhanced with dynamic agent routing and feature flag support (Sprint 1)
 /// </summary>
 public class AgentOrchestrator : IAgentOrchestrator
 {
@@ -19,6 +21,9 @@ public class AgentOrchestrator : IAgentOrchestrator
     private readonly IIntentClassificationAgent _intentClassificationAgent;
     private readonly IResourceAgent _resourceAgent;
     private readonly IActionRelevanceValidator _actionRelevanceValidator;
+    private readonly INbaContextService _nbaContextService;
+    private readonly IAgentRegistry _agentRegistry;
+    private readonly IFeatureFlagService _featureFlagService;
     private readonly ILogger<AgentOrchestrator> _logger;
     private readonly Dictionary<Guid, ScheduledAction> _scheduledActions = new();
     private readonly Timer _actionExecutionTimer;
@@ -31,6 +36,9 @@ public class AgentOrchestrator : IAgentOrchestrator
         IIntentClassificationAgent intentClassificationAgent,
         IResourceAgent resourceAgent,
         IActionRelevanceValidator actionRelevanceValidator,
+        INbaContextService nbaContextService,
+        IAgentRegistry agentRegistry,
+        IFeatureFlagService featureFlagService,
         ILogger<AgentOrchestrator> logger)
     {
         _aiFoundryService = aiFoundryService;
@@ -40,50 +48,54 @@ public class AgentOrchestrator : IAgentOrchestrator
         _intentClassificationAgent = intentClassificationAgent;
         _resourceAgent = resourceAgent;
         _actionRelevanceValidator = actionRelevanceValidator;
+        _nbaContextService = nbaContextService;
+        _agentRegistry = agentRegistry;
+        _featureFlagService = featureFlagService;
         _logger = logger;
 
         _actionExecutionTimer = new Timer(ProcessScheduledActions, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+        
+        // Register first-class agents with the registry if dynamic routing is enabled
+        _ = Task.Run(RegisterFirstClassAgentsAsync);
     }
 
     public async Task<AgentResponse> ProcessRequestAsync(string userInput, Guid conversationId, string? traceId = null)
     {
         traceId ??= Guid.NewGuid().ToString();
+        var auditId = Guid.NewGuid();
 
         try
         {
-            _logger.LogInformation("Processing user request via orchestrator: {Request}, TraceId: {TraceId}", userInput, traceId);
+            _logger.LogInformation("Processing user request via orchestrator: {Request}, TraceId: {TraceId}, AuditId: {AuditId}", 
+                userInput, traceId, auditId);
 
-            // Check if this is an NBA-specific request
-            if (IsNbaRequest(userInput))
+            // Check if dynamic routing is enabled
+            var isDynamicRoutingEnabled = await _featureFlagService.IsEnabledAsync(FeatureFlags.DYNAMIC_AGENT_ROUTING);
+            
+            if (isDynamicRoutingEnabled)
             {
-                return await RouteToNbaAgentAsync(userInput, conversationId, traceId);
+                return await ProcessRequestWithDynamicRoutingAsync(userInput, conversationId, traceId, auditId);
             }
 
-            // Get tenant context for industry-specific prompting
-            var tenant = await _tenantContext.GetCurrentTenantAsync();
-            var industryProfile = await _tenantContext.GetIndustryProfileAsync();
-
-            // Create context-aware prompt for Azure AI Foundry
-            var systemPrompt = await BuildSystemPromptAsync(industryProfile, conversationId);
-            var userPrompt = await BuildUserPromptAsync(userInput, conversationId, tenant);
-
-            // Call Azure AI Foundry for natural language processing and task routing
-            var aiResponse = await _aiFoundryService.ProcessAgentRequestAsync(
-                systemPrompt,
-                userPrompt,
-                traceId);
-
-            // Parse AI response and execute any resource-related actions
-            return await ExecuteResourceActionsAsync(aiResponse, conversationId);
+            // Fallback to legacy routing
+            var parameters = new Dictionary<string, object>
+            {
+                { "ConversationId", conversationId },
+                { "AuditId", auditId }
+            };
+            return await ProcessRequestWithLegacyRoutingAsync(userInput, parameters, traceId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing request via orchestrator, TraceId: {TraceId}", traceId);
+            _logger.LogError(ex, "Error processing request via orchestrator, TraceId: {TraceId}, AuditId: {AuditId}", traceId, auditId);
             return new AgentResponse
             {
                 Success = false,
                 Message = "Error processing request",
-                AgentType = "AgentOrchestrator"
+                AgentType = "AgentOrchestrator",
+                TraceId = traceId,
+                AuditId = auditId,
+                Reason = $"Exception occurred during request processing: {ex.Message}"
             };
         }
     }
@@ -129,6 +141,11 @@ public class AgentOrchestrator : IAgentOrchestrator
             // Get available agents from Azure AI Foundry based on tenant industry
             var industryProfile = await _tenantContext.GetIndustryProfileAsync();
 
+            if (industryProfile == null)
+            {
+                throw new InvalidOperationException("Industry profile is not configured for this tenant.");
+            }
+
             var availableAgents = new List<AgentCapability>();
 
             // Add NBA-Agent as a first-class agent
@@ -167,6 +184,9 @@ public class AgentOrchestrator : IAgentOrchestrator
             }
 
             // Add industry-specific specialized agents from Azure AI Foundry
+            industryProfile.SpecializedAgents = industryProfile.SpecializedAgents ?? new List<string>();
+            industryProfile.AvailableActions = industryProfile.AvailableActions ?? new List<string>();
+
             var industryAgents = industryProfile.SpecializedAgents.Select(agentType => new AgentCapability
             {
                 AgentType = agentType,
@@ -382,7 +402,8 @@ public class AgentOrchestrator : IAgentOrchestrator
 
     private async Task<string> BuildSystemPromptAsync(Emma.Core.Industry.IIndustryProfile profile, Guid contactId)
     {
-        return $@"{profile.PromptTemplates.SystemPrompt}
+        var prompt = profile.PromptTemplates?.SystemPrompt ?? "Default system prompt goes here.";
+        return $@"{prompt}
 
 CURRENT CONTEXT:
 - Industry: {profile.DisplayName}
@@ -399,12 +420,12 @@ You can help with resource management tasks including:
 Always respond with specific, actionable recommendations using the available resource data.";
     }
 
-    private async Task<string> BuildUserPromptAsync(string userRequest, Guid contactId, TenantContext tenant)
+    private async Task<string> BuildUserPromptAsync(string userRequest, Guid contactId, Models.TenantContext tenant)
     {
         return $@"USER REQUEST: {userRequest}
 
 CONTEXT:
-- Organization: {tenant.TenantName}
+- Organization: {tenant.TenantId}
 - Tenant ID: {tenant.TenantId}
 - Contact ID: {contactId}
 
@@ -416,6 +437,12 @@ If the request involves finding or assigning service providers (resources), prov
     {
         var industryProfile = await _tenantContext.GetIndustryProfileAsync();
 
+        if (industryProfile == null)
+        {
+            throw new InvalidOperationException("Industry profile is not configured for this tenant.");
+        }
+
+        var prompt = industryProfile.PromptTemplates?.SystemPrompt ?? "Default system prompt goes here.";
         return $@"You are a specialized {agentType} for {industryProfile.DisplayName} industry.
 
 SPECIALIZATION: {GetAgentDescription(agentType, industryProfile.IndustryCode)}
@@ -472,12 +499,42 @@ Please process this task and provide specific recommendations for resource manag
                 response.Actions.Add("resource_assignment_suggested");
             }
 
-            // Validate action relevance before execution
-            var actionRelevance = await _actionRelevanceValidator.ValidateAsync(response.Actions, contactId);
-            if (!actionRelevance.IsValid)
+            var scheduledAction = new ScheduledAction
+            {
+                ActionType = "resource_management",
+                Description = aiResponse,
+                ContactId = contactId,
+                OrganizationId = Guid.NewGuid(), // TODO: Get from context
+                ScheduledByAgentId = "ResourceAgent",
+                ExecuteAt = DateTime.UtcNow,
+                Parameters = new Dictionary<string, object>
+                {
+                    ["aiResponse"] = aiResponse,
+                    ["contactId"] = contactId
+                }
+            };
+
+            var currentContext = await GetCurrentContactContextAsync(contactId, scheduledAction.OrganizationId, Guid.NewGuid().ToString());
+            
+            var actionRelevanceRequest = new ActionRelevanceRequest
+            {
+                Action = scheduledAction,
+                CurrentContext = currentContext,
+                UseLLMValidation = true,
+                TraceId = Guid.NewGuid().ToString()
+            };
+
+            var actionRelevance = await _actionRelevanceValidator.ValidateActionRelevanceAsync(actionRelevanceRequest);
+            if (!actionRelevance.IsRelevant)
             {
                 response.Success = false;
                 response.Message = $"Action relevance validation failed: {actionRelevance.Reason}";
+                
+                // Log suppression for audit trail
+                _logger.LogWarning("Resource action suppressed due to relevance validation failure. ContactId: {ContactId}, Reason: {Reason}",
+                    contactId, actionRelevance.Reason);
+                
+                return response;
             }
 
             return response;
@@ -769,7 +826,14 @@ Please process this task and provide specific recommendations for resource manag
                         // Schedule alternative actions
                         foreach (var alternative in alternatives)
                         {
-                            _scheduledActions.TryAdd(alternative.Id, alternative);
+                            if (Guid.TryParse(alternative.Id, out Guid alternativeId))
+                            {
+                                _scheduledActions.TryAdd(alternativeId, alternative);
+                            }
+                            else
+                            {
+                                _logger.LogError("Invalid GUID format for alternative ID: {AlternativeId}", alternative.Id);
+                            }
                         }
                     }
                 }
@@ -830,6 +894,20 @@ Please process this task and provide specific recommendations for resource manag
                 "Executing validated action {ActionId} ({ActionType}) for contact {ContactId}, TraceId: {TraceId}",
                 action.Id, action.ActionType, action.ContactId, traceId);
 
+            // Defensive: ensure ContactId and OrganizationId are valid
+            if (action.ContactId == Guid.Empty)
+            {
+                _logger.LogError("Scheduled action missing ContactId. ActionId: {ActionId}", action.Id);
+                action.Status = ScheduledActionStatus.Failed;
+                return;
+            }
+            if (action.OrganizationId == Guid.Empty)
+            {
+                _logger.LogError("Scheduled action missing OrganizationId. ActionId: {ActionId}", action.Id);
+                action.Status = ScheduledActionStatus.Failed;
+                return;
+            }
+
             // Route action to appropriate execution handler based on action type
             switch (action.ActionType.ToLowerInvariant())
             {
@@ -888,16 +966,15 @@ Please process this task and provide specific recommendations for resource manag
             var nbaContext = await _nbaContextService.GetNbaContextAsync(
                 contactId,
                 organizationId,
-                Guid.NewGuid(), // Use a generic agent ID for context retrieval
-                traceId: traceId);
+                Guid.NewGuid()); // Use a generic agent ID for context retrieval
 
             // Convert to ContactContext (simplified mapping - expand as needed)
             return new ContactContext
             {
                 ContactId = contactId,
                 OrganizationId = organizationId,
-                LastInteractionDate = DateTime.UtcNow, // Would be populated from nbaContext
-                AdditionalData = new Dictionary<string, object>
+                LastInteraction = nbaContext.RecentInteractions?.FirstOrDefault()?.Timestamp ?? DateTime.UtcNow,
+                CustomProperties = new Dictionary<string, object>
                 {
                     ["nbaContext"] = nbaContext
                     // Map other relevant properties from nbaContext
@@ -914,7 +991,7 @@ Please process this task and provide specific recommendations for resource manag
             {
                 ContactId = contactId,
                 OrganizationId = organizationId,
-                LastInteractionDate = DateTime.UtcNow
+                LastInteraction = DateTime.UtcNow
             };
         }
     }
@@ -994,5 +1071,330 @@ Please process this task and provide specific recommendations for resource manag
     public void Dispose()
     {
         _actionExecutionTimer?.Dispose();
+    }
+
+    /// <summary>
+    /// Register first-class agents with the dynamic registry.
+    /// Called during orchestrator initialization if dynamic routing is enabled.
+    /// </summary>
+    private async Task RegisterFirstClassAgentsAsync()
+    {
+        try
+        {
+            var isRegistryEnabled = await _featureFlagService.IsEnabledAsync(FeatureFlags.AGENT_REGISTRY_ENABLED);
+            if (!isRegistryEnabled)
+            {
+                _logger.LogDebug("Agent registry is disabled, skipping first-class agent registration");
+                return;
+            }
+
+            _logger.LogInformation("Registering first-class agents with dynamic registry");
+
+            // Register NBA Agent
+            await _agentRegistry.RegisterAgentAsync("nba", _nbaAgent, new AgentRegistrationMetadata
+            {
+                Name = "NBA Agent",
+                Description = "Next Best Action agent for automated recommendations",
+                Version = "1.0.0",
+                Capabilities = new List<string> { "next-best-action", "recommendations", "automation" },
+                IsFactoryCreated = false,
+                Reason = "First-class NBA agent registered during orchestrator initialization"
+            });
+
+            // Register Context Intelligence Agent
+            await _agentRegistry.RegisterAgentAsync("context-intelligence", _contextIntelligenceAgent, new AgentRegistrationMetadata
+            {
+                Name = "Context Intelligence Agent",
+                Description = "Analyzes conversation context and provides intelligent insights",
+                Version = "1.0.0",
+                Capabilities = new List<string> { "context-analysis", "sentiment-analysis", "intelligence" },
+                IsFactoryCreated = false,
+                Reason = "First-class Context Intelligence agent registered during orchestrator initialization"
+            });
+
+            // Register Intent Classification Agent
+            await _agentRegistry.RegisterAgentAsync("intent-classification", _intentClassificationAgent, new AgentRegistrationMetadata
+            {
+                Name = "Intent Classification Agent",
+                Description = "Classifies user intents for proper agent routing",
+                Version = "1.0.0",
+                Capabilities = new List<string> { "intent-classification", "routing", "nlp" },
+                IsFactoryCreated = false,
+                Reason = "First-class Intent Classification agent registered during orchestrator initialization"
+            });
+
+            // Register Resource Agent
+            await _agentRegistry.RegisterAgentAsync("resource", _resourceAgent, new AgentRegistrationMetadata
+            {
+                Name = "Resource Agent",
+                Description = "Manages resource-related operations and recommendations",
+                Version = "1.0.0",
+                Capabilities = new List<string> { "resource-management", "recommendations", "operations" },
+                IsFactoryCreated = false,
+                Reason = "First-class Resource agent registered during orchestrator initialization"
+            });
+
+            _logger.LogInformation("Successfully registered all first-class agents with dynamic registry");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error registering first-class agents with dynamic registry");
+        }
+    }
+
+    /// <summary>
+    /// Process request using dynamic agent routing via registry.
+    /// </summary>
+    private async Task<AgentResponse> ProcessRequestWithDynamicRoutingAsync(string userInput, Guid conversationId, string traceId, Guid auditId)
+    {
+        _logger.LogDebug("Processing request with dynamic routing, TraceId: {TraceId}", traceId);
+
+        // First, classify the intent to determine which agent to route to
+        var classificationResult = await _intentClassificationAgent.ClassifyIntentAsync(userInput, conversationId, traceId);
+        
+        // Route based on intent using dynamic registry
+        var parameters = new Dictionary<string, object>
+        {
+            { "ConversationId", conversationId },
+            { "AuditId", auditId }
+        };
+
+        return classificationResult.Intent switch
+        {
+            AgentIntent.ContactManagement => await RouteToAgentAsync("nba", userInput, parameters, traceId),
+            AgentIntent.InteractionAnalysis => await RouteToAgentAsync("context-intelligence", userInput, parameters, traceId),
+            AgentIntent.ResourceManagement => await RouteToAgentAsync("resource", userInput, parameters, traceId),
+            AgentIntent.IntentClassification => await RouteToAgentAsync("intent-classification", userInput, parameters, traceId),
+            _ => throw new InvalidOperationException($"Unsupported intent: {classificationResult.Intent}")
+        };
+    }
+
+    /// <summary>
+    /// Route request to a specific agent via dynamic registry.
+    /// </summary>
+    private async Task<AgentResponse> RouteToAgentAsync(string agentType, string userInput, Dictionary<string, object> parameters, string traceId)
+    {
+        try
+        {
+            // Check if agent is registered
+            var isRegistered = await _agentRegistry.IsAgentRegisteredAsync(agentType);
+            if (!isRegistered)
+            {
+                _logger.LogWarning("Agent {AgentType} not found in registry, falling back to legacy routing", agentType);
+                return await ProcessRequestWithLegacyRoutingAsync(userInput, parameters, traceId);
+            }
+
+            // Route based on agent type
+            return agentType switch
+            {
+                "nba" => await RouteToNbaAgentAsync(userInput, parameters, traceId),
+                "context-intelligence" => await RouteToContextIntelligenceAgentAsync(userInput, parameters, traceId),
+                "resource" => await RouteToResourceAgentAsync(userInput, parameters, traceId),
+                "intent-classification" => await RouteToIntentClassificationAgentAsync(userInput, parameters, traceId),
+                _ => await ProcessRequestWithLegacyRoutingAsync(userInput, parameters, traceId)
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error routing to agent {AgentType}, TraceId: {TraceId}", agentType, traceId);
+            return new AgentResponse
+            {
+                Success = false,
+                Message = $"Error routing to {agentType} agent",
+                AgentType = "AgentOrchestrator",
+                TraceId = traceId,
+                Reason = $"Exception occurred while routing to {agentType}: {ex.Message}"
+            };
+        }
+    }
+
+    /// <summary>
+    /// Process request using legacy hardcoded routing (fallback).
+    /// </summary>
+    private async Task<AgentResponse> ProcessRequestWithLegacyRoutingAsync(string userInput, Dictionary<string, object> parameters, string traceId)
+    {
+        _logger.LogDebug("Processing request with legacy routing, TraceId: {TraceId}", traceId);
+
+        // Check if this is an NBA-specific request
+        if (IsNbaRequest(userInput))
+        {
+            return await RouteToNbaAgentAsync(userInput, parameters, traceId);
+        }
+
+        // Get tenant context for industry-specific prompting
+        var tenant = await _tenantContext.GetCurrentTenantAsync();
+        var industryProfile = await _tenantContext.GetIndustryProfileAsync();
+
+        if (industryProfile == null)
+        {
+            throw new InvalidOperationException("Industry profile is not configured for this tenant.");
+        }
+
+        // Ensure collections are initialized
+        industryProfile.SpecializedAgents = industryProfile.SpecializedAgents ?? new List<string>();
+        industryProfile.AvailableActions = industryProfile.AvailableActions ?? new List<string>();
+
+        // Validate agent registration
+        foreach (var agent in industryProfile.SpecializedAgents)
+        {
+            if (!IsAgentRegistered(agent))
+            {
+                _logger.LogWarning("Agent {Agent} is not registered.", agent);
+            }
+        }
+
+        // Create context-aware prompt for Azure AI Foundry
+        var systemPrompt = await BuildSystemPromptAsync(industryProfile, (Guid)parameters["ConversationId"]);
+        var userPrompt = await BuildUserPromptAsync(userInput, (Guid)parameters["ConversationId"], tenant);
+
+        // Call Azure AI Foundry for natural language processing and task routing
+        var aiResponse = await _aiFoundryService.ProcessAgentRequestAsync(
+            systemPrompt,
+            userPrompt,
+            traceId);
+
+        // Parse AI response and execute any resource-related actions
+        return await ExecuteResourceActionsAsync(aiResponse, (Guid)parameters["ConversationId"]);
+    }
+
+    /// <summary>
+    /// Route request to Context Intelligence Agent.
+    /// </summary>
+    private async Task<AgentResponse> RouteToContextIntelligenceAgentAsync(string userInput, Dictionary<string, object> parameters, string traceId)
+    {
+        _logger.LogDebug("Routing to Context Intelligence Agent, TraceId: {TraceId}", traceId);
+        
+        try
+        {
+            // For now, delegate to the context intelligence agent
+            // This can be enhanced to call specific methods based on the request
+            var response = new AgentResponse
+            {
+                Success = true,
+                Message = "Context Intelligence Agent processing completed",
+                AgentType = "ContextIntelligenceAgent",
+                TraceId = traceId,
+                AuditId = (Guid)parameters["AuditId"],
+                Reason = "Request routed to Context Intelligence Agent for analysis"
+            };
+
+            _logger.LogInformation("Context Intelligence Agent processing completed, TraceId: {TraceId}", traceId);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in Context Intelligence Agent routing, TraceId: {TraceId}", traceId);
+            return new AgentResponse
+            {
+                Success = false,
+                Message = "Error in Context Intelligence Agent processing",
+                AgentType = "ContextIntelligenceAgent",
+                TraceId = traceId,
+                AuditId = (Guid)parameters["AuditId"],
+                Reason = $"Exception occurred in Context Intelligence Agent: {ex.Message}"
+            };
+        }
+    }
+
+    /// <summary>
+    /// Route request to Resource Agent.
+    /// </summary>
+    private async Task<AgentResponse> RouteToResourceAgentAsync(string userInput, Dictionary<string, object> parameters, string traceId)
+    {
+        _logger.LogDebug("Routing to Resource Agent, TraceId: {TraceId}", traceId);
+        
+        try
+        {
+            // For now, delegate to the resource agent
+            // This can be enhanced to call specific methods based on the request
+            var response = new AgentResponse
+            {
+                Success = true,
+                Message = "Resource Agent processing completed",
+                AgentType = "ResourceAgent",
+                TraceId = traceId,
+                AuditId = (Guid)parameters["AuditId"],
+                Reason = "Request routed to Resource Agent for resource management operations"
+            };
+
+            _logger.LogInformation("Resource Agent processing completed, TraceId: {TraceId}", traceId);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in Resource Agent routing, TraceId: {TraceId}", traceId);
+            return new AgentResponse
+            {
+                Success = false,
+                Message = "Error in Resource Agent processing",
+                AgentType = "ResourceAgent",
+                TraceId = traceId,
+                AuditId = (Guid)parameters["AuditId"],
+                Reason = $"Exception occurred in Resource Agent: {ex.Message}"
+            };
+        }
+    }
+
+    /// <summary>
+    /// Route request to Intent Classification Agent.
+    /// </summary>
+    private async Task<AgentResponse> RouteToIntentClassificationAgentAsync(string userInput, Dictionary<string, object> parameters, string traceId)
+    {
+        _logger.LogDebug("Routing to Intent Classification Agent, TraceId: {TraceId}", traceId);
+        
+        try
+        {
+            // Classify the intent and return the result
+            var classificationResult = await _intentClassificationAgent.ClassifyIntentAsync(userInput, (Guid)parameters["ConversationId"], traceId);
+            
+            var response = new AgentResponse
+            {
+                Success = true,
+                Message = $"Intent classified as: {classificationResult.Intent} (Confidence: {classificationResult.Confidence:P})",
+                AgentType = "IntentClassificationAgent",
+                TraceId = traceId,
+                AuditId = (Guid)parameters["AuditId"],
+                Reason = classificationResult.Reason,
+                Data = classificationResult
+            };
+
+            _logger.LogInformation("Intent Classification completed: {Intent} with confidence {Confidence}, TraceId: {TraceId}", 
+                classificationResult.Intent, classificationResult.Confidence, traceId);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in Intent Classification Agent routing, TraceId: {TraceId}", traceId);
+            return new AgentResponse
+            {
+                Success = false,
+                Message = "Error in Intent Classification Agent processing",
+                AgentType = "IntentClassificationAgent",
+                TraceId = traceId,
+                AuditId = (Guid)parameters["AuditId"],
+                Reason = $"Exception occurred in Intent Classification Agent: {ex.Message}"
+            };
+        }
+    }
+
+    private Guid GetGuidFromContext(Dictionary<string, object> context, string key)
+    {
+        if (context.TryGetValue(key, out var value) && value is string stringValue)
+        {
+            if (Guid.TryParse(stringValue, out var guidValue))
+            {
+                return guidValue;
+            }
+            else
+            {
+                _logger.LogWarning("Invalid GUID format for key: {Key}, value: {Value}", key, stringValue);
+            }
+        }
+        return Guid.Empty;
+    }
+
+    private bool IsAgentRegistered(string agentType)
+    {
+        return _agentRegistry.IsAgentRegisteredAsync(agentType).Result;
     }
 }

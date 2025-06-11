@@ -4,7 +4,7 @@ using Emma.Core.Industry;
 namespace Emma.Core.Services;
 
 /// <summary>
-/// Provides tenant-aware context for multi-tenant scenarios
+/// Service for managing tenant context in multi-tenant scenarios
 /// </summary>
 public interface ITenantContextService
 {
@@ -19,7 +19,7 @@ public interface ITenantContextService
     Task<IIndustryProfile> GetIndustryProfileAsync();
     
     /// <summary>
-    /// Validate if a user has access to a specific tenant
+    /// Validate tenant access for the given tenant ID
     /// </summary>
-    Task<bool> ValidateTenantAccessAsync(Guid tenantId, Guid userId);
+    Task<bool> ValidateTenantAccessAsync(Guid tenantId);
 }

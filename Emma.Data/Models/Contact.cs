@@ -36,6 +36,12 @@ public class ContactStateHistory
 public class Contact
 {
     public Guid Id { get; set; } = Guid.NewGuid();
+    
+    /// <summary>
+    /// Organization that owns this contact (for multi-tenant support).
+    /// </summary>
+    public Guid OrganizationId { get; set; }
+    
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public List<EmailAddress> Emails { get; set; } = new();
@@ -118,6 +124,7 @@ public class Contact
     
     // Navigation properties
     public Agent? Owner { get; set; }
+    public Organization? Organization { get; set; }
     public Agent? Agent { get; set; }  // For agent contacts
     public List<Interaction> Interactions { get; set; } = new();
     public List<ContactAssignment> AssignedResources { get; set; } = new();  // Resources assigned to this contact

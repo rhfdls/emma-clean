@@ -188,4 +188,8 @@ public class EnumConfigurationChangedEventArgs : EventArgs
     public string? EnumType { get; set; }
     public string? IndustryCode { get; set; }
     public DateTime ChangedAt { get; set; } = DateTime.UtcNow;
+    public string? ChangeType { get; set; }
+    public string? ChangedBy { get; set; }
+    public string? Description { get; set; }
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }

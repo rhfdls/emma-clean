@@ -57,11 +57,11 @@ namespace Emma.Api.Services
             _logger.LogInformation("Azure AI Foundry client initialized for deployment: {DeploymentName}", _config.DeploymentName);
         }
 
-        public async Task<string> ProcessMessageAsync(string message, string? conversationId = null)
+        public async Task<string> ProcessMessageAsync(string message, string? interactionId = null)
         {
             var requestId = Guid.NewGuid();
             _logger.LogDebug("[{RequestId}] Processing message. Interaction ID: {InteractionId}", 
-                requestId, conversationId ?? "(new)");
+                requestId, interactionId ?? "(new)");
             
             if (string.IsNullOrWhiteSpace(message))
                 throw new ArgumentException("Message cannot be empty", nameof(message));
@@ -80,7 +80,7 @@ namespace Emma.Api.Services
                     },
                     MaxTokens = _config.MaxTokens,
                     Temperature = (float?)_config.Temperature,
-                    User = conversationId ?? "default-user"
+                    User = interactionId ?? "default-user"
                 };
                 
                 _logger.LogDebug("[{RequestId}] Sending request to Azure OpenAI. Endpoint: {Endpoint}, Deployment: {Deployment}, Message length: {MessageLength} chars, MaxTokens: {MaxTokens}, Temperature: {Temperature}", 
@@ -143,11 +143,11 @@ namespace Emma.Api.Services
             }
         }
 
-        public async Task<string> ProcessMessageWithContextAsync(string message, string context, string? conversationId = null)
+        public async Task<string> ProcessMessageWithContextAsync(string message, string context, string? interactionId = null)
         {
             var requestId = Guid.NewGuid();
             _logger.LogDebug("[{RequestId}] Processing message with context. Interaction ID: {InteractionId}", 
-                requestId, conversationId ?? "(new)");
+                requestId, interactionId ?? "(new)");
                 
             if (string.IsNullOrWhiteSpace(message))
                 throw new ArgumentException("Message cannot be empty", nameof(message));
@@ -162,18 +162,16 @@ namespace Emma.Api.Services
                 var chatCompletionsOptions = new ChatCompletionsOptions()
                 {
                     DeploymentName = _config.DeploymentName,
+                    Messages =
+                    {
+                        new ChatRequestSystemMessage($"Context: {context}"),
+                        new ChatRequestUserMessage(message)
+                    },
                     MaxTokens = _config.MaxTokens,
                     Temperature = (float?)_config.Temperature,
-                    User = conversationId ?? "default-user"
+                    User = interactionId ?? "default-user"
                 };
 
-                // Add system message with context
-                chatCompletionsOptions.Messages.Add(
-                    new ChatRequestSystemMessage($"Context: {context}"));
-
-                // Add the current user message
-                chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(message));
-                
                 _logger.LogDebug("[{RequestId}] Sending request to Azure OpenAI with context. Endpoint: {Endpoint}, Deployment: {Deployment}", 
                     requestId,
                     _config.Endpoint,
@@ -249,11 +247,11 @@ namespace Emma.Api.Services
             }
         }
 
-        public async Task<string> ProcessAgentRequestAsync(string systemPrompt, string userPrompt, string? conversationId = null)
+        public async Task<string> ProcessAgentRequestAsync(string systemPrompt, string userPrompt, string? interactionId = null)
         {
             var requestId = Guid.NewGuid();
             _logger.LogDebug("[{RequestId}] Processing agent request. Interaction ID: {InteractionId}", 
-                requestId, conversationId ?? "(new)");
+                requestId, interactionId ?? "(new)");
             
             if (string.IsNullOrWhiteSpace(systemPrompt))
                 throw new ArgumentException("System prompt cannot be empty", nameof(systemPrompt));

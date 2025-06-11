@@ -53,11 +53,13 @@ public interface IActionRelevanceValidator
     /// </summary>
     /// <param name="action">Scheduled action to validate</param>
     /// <param name="context">Current contact context</param>
+    /// <param name="userOverrides">User override preferences to include in LLM decision-making</param>
     /// <param name="traceId">Optional trace ID for correlation</param>
     /// <returns>LLM-based relevance validation result</returns>
     Task<ActionRelevanceResult> ValidateWithLLMAsync(
         ScheduledAction action, 
-        ContactContext context, 
+        ContactContext context,
+        Dictionary<string, object>? userOverrides = null,
         string? traceId = null);
     
     /// <summary>
@@ -98,4 +100,73 @@ public interface IActionRelevanceValidator
         DateTime? startDate = null,
         DateTime? endDate = null,
         string? actionType = null);
+
+    /// <summary>
+    /// Determines if an action requires user approval based on operating mode and context
+    /// </summary>
+    /// <param name="action">Scheduled action to evaluate</param>
+    /// <param name="relevanceResult">Result of relevance validation</param>
+    /// <param name="userId">User ID for personalized approval rules</param>
+    /// <param name="traceId">Optional trace ID for correlation</param>
+    /// <returns>True if user approval is required, false if action can proceed automatically</returns>
+    Task<bool> RequiresUserApprovalAsync(
+        ScheduledAction action, 
+        ActionRelevanceResult relevanceResult, 
+        string userId, 
+        string? traceId = null);
+
+    /// <summary>
+    /// Creates a user approval request for actions that require manual review
+    /// </summary>
+    /// <param name="action">Scheduled action requiring approval</param>
+    /// <param name="relevanceResult">Result of relevance validation</param>
+    /// <param name="userId">User ID who needs to provide approval</param>
+    /// <param name="reason">Reason why approval is needed</param>
+    /// <param name="userOverrides">Original user override preferences that led to this approval request</param>
+    /// <param name="traceId">Optional trace ID for correlation</param>
+    /// <returns>User approval request</returns>
+    Task<UserApprovalRequest> CreateApprovalRequestAsync(
+        ScheduledAction action, 
+        ActionRelevanceResult relevanceResult, 
+        string userId, 
+        string reason,
+        Dictionary<string, object> userOverrides,
+        string? traceId = null);
+
+    /// <summary>
+    /// Processes a user approval response
+    /// </summary>
+    /// <param name="response">User's approval response</param>
+    /// <returns>Updated scheduled action based on user decision</returns>
+    Task<ScheduledAction?> ProcessApprovalResponseAsync(UserApprovalResponse response);
+
+    /// <summary>
+    /// Gets pending approval requests for a user
+    /// </summary>
+    /// <param name="userId">User ID to get requests for</param>
+    /// <param name="includeExpired">Whether to include expired requests</param>
+    /// <returns>List of pending approval requests</returns>
+    Task<List<UserApprovalRequest>> GetPendingApprovalsAsync(string userId, bool includeExpired = false);
+
+    /// <summary>
+    /// Uses LLM to determine if user approval is needed based on context and risk assessment
+    /// </summary>
+    /// <param name="action">Scheduled action to evaluate</param>
+    /// <param name="relevanceResult">Result of relevance validation</param>
+    /// <param name="context">Current contact context</param>
+    /// <param name="traceId">Optional trace ID for correlation</param>
+    /// <returns>True if LLM recommends user approval, false otherwise</returns>
+    Task<bool> LLMRecommendsApprovalAsync(
+        ScheduledAction action, 
+        ActionRelevanceResult relevanceResult, 
+        ContactContext context, 
+        string? traceId = null);
+
+    /// <summary>
+    /// Applies bulk approval decision to similar pending actions
+    /// </summary>
+    /// <param name="response">User approval response with bulk flag</param>
+    /// <param name="userId">User ID for filtering similar actions</param>
+    /// <returns>Number of actions affected by bulk approval</returns>
+    Task<int> ApplyBulkApprovalAsync(UserApprovalResponse response, string userId);
 }

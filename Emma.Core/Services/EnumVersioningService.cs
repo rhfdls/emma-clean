@@ -407,6 +407,180 @@ public class EnumVersioningService
         }
     }
 
+    /// <summary>
+    /// Get the current version information
+    /// </summary>
+    public async Task<EnumVersion> GetCurrentVersionAsync()
+    {
+        try
+        {
+            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var config = JsonSerializer.Deserialize<EnumConfiguration>(configContent);
+            
+            if (config?.Metadata == null)
+            {
+                return new EnumVersion
+                {
+                    Version = "1.0.0",
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = "System",
+                    Description = "Initial version"
+                };
+            }
+
+            if (config.Metadata.VersionHistory?.Any() == true)
+            {
+                return new EnumVersion
+                {
+                    Version = config.Metadata.Version ?? "1.0.0",
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = "System",
+                    Description = "Current version"
+                };
+            }
+
+            var latestVersion = config.Metadata.VersionHistory.OrderByDescending(v => v.CreatedAt).FirstOrDefault();
+            return new EnumVersion
+            {
+                Version = latestVersion.Version,
+                CreatedAt = latestVersion.CreatedAt,
+                CreatedBy = latestVersion.CreatedBy,
+                Description = latestVersion.Description
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get current version");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get a specific version by ID
+    /// </summary>
+    public async Task<EnumVersion> GetVersionAsync(string versionId)
+    {
+        try
+        {
+            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var config = JsonSerializer.Deserialize<EnumConfiguration>(configContent);
+            
+            var versionEntry = config?.Metadata?.VersionHistory
+                .FirstOrDefault(v => v.Version == versionId);
+
+            if (versionEntry == null)
+            {
+                throw new ArgumentException($"Version {versionId} not found");
+            }
+
+            return new EnumVersion
+            {
+                Version = versionEntry.Version,
+                CreatedAt = versionEntry.CreatedAt,
+                CreatedBy = versionEntry.CreatedBy,
+                Description = versionEntry.Description
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get version {VersionId}", versionId);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get all available versions
+    /// </summary>
+    public async Task<IEnumerable<EnumVersion>> GetVersionsAsync()
+    {
+        try
+        {
+            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var config = JsonSerializer.Deserialize<EnumConfiguration>(configContent);
+            
+            if (config?.Metadata?.VersionHistory == null)
+            {
+                return new List<EnumVersion>();
+            }
+
+            return config.Metadata.VersionHistory.Select(v => new EnumVersion
+            {
+                Version = v.Version,
+                CreatedAt = v.CreatedAt,
+                CreatedBy = v.CreatedBy,
+                Description = v.Description
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get versions");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Create a new version (overload for EnumVersion parameter)
+    /// </summary>
+    public async Task<EnumVersion> CreateVersionAsync(EnumVersion version)
+    {
+        var versionId = await CreateVersionAsync(version.Description, version.CreatedBy);
+        return new EnumVersion
+        {
+            Version = versionId,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = version.CreatedBy,
+            Description = version.Description
+        };
+    }
+
+    /// <summary>
+    /// Update an existing version (placeholder implementation)
+    /// </summary>
+    public async Task<EnumVersion> UpdateVersionAsync(EnumVersion version)
+    {
+        // For now, just return the version as-is since version history is typically immutable
+        // In a real implementation, you might update metadata or description
+        _logger.LogWarning("UpdateVersionAsync called - version history is typically immutable");
+        return version;
+    }
+
+    /// <summary>
+    /// Delete a version (placeholder implementation)
+    /// </summary>
+    public async Task DeleteVersionAsync(string versionId)
+    {
+        try
+        {
+            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var config = JsonSerializer.Deserialize<EnumConfiguration>(configContent);
+            
+            if (config?.Metadata?.VersionHistory != null)
+            {
+                var versionToRemove = config.Metadata.VersionHistory
+                    .FirstOrDefault(v => v.Version == versionId);
+                
+                if (versionToRemove != null)
+                {
+                    config.Metadata.VersionHistory.Remove(versionToRemove);
+                    
+                    var updatedContent = JsonSerializer.Serialize(config, new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
+                    await File.WriteAllTextAsync(_configurationPath, updatedContent);
+                    
+                    _logger.LogInformation("Deleted version {VersionId}", versionId);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to delete version {VersionId}", versionId);
+            throw;
+        }
+    }
+
     #region Private Helper Methods
 
     private string GenerateVersionId()

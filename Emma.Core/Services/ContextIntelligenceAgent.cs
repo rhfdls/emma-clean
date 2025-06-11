@@ -64,8 +64,10 @@ namespace Emma.Core.Services
                 // Handle different types of context intelligence requests
                 return request.Intent switch
                 {
-                    AgentIntent.InteractionAnalysis => await AnalyzeContextAsync(contactId, organizationId, analysisType, traceId),
-                    AgentIntent.DataAnalysis => await AnalyzeContextAsync(contactId, organizationId, "comprehensive", traceId),
+                    AgentIntent.InteractionAnalysis => await AnalyzeContextAsync(contactId, organizationId, analysisType, traceId, 
+                        request.Context.ContainsKey("userOverrides") ? (Dictionary<string, object>)request.Context["userOverrides"] : null),
+                    AgentIntent.DataAnalysis => await AnalyzeContextAsync(contactId, organizationId, "comprehensive", traceId,
+                        request.Context.ContainsKey("userOverrides") ? (Dictionary<string, object>)request.Context["userOverrides"] : null),
                     _ => new AgentResponse
                     {
                         Success = false,
@@ -139,14 +141,14 @@ namespace Emma.Core.Services
             }
         }
 
-        public async Task<AgentResponse> AnalyzeContextAsync(Guid contactId, Guid organizationId, string analysisType, string? traceId = null)
+        public async Task<AgentResponse> AnalyzeContextAsync(Guid contactId, Guid organizationId, string analysisType, string? traceId = null, Dictionary<string, object>? userOverrides = null)
         {
             traceId ??= Guid.NewGuid().ToString();
             
             try
             {
-                _logger.LogInformation("Analyzing context for Contact: {ContactId}, Type: {AnalysisType}, TraceId: {TraceId}", 
-                    contactId, analysisType, traceId);
+                _logger.LogInformation("Analyzing context for Contact: {ContactId}, Type: {AnalysisType}, TraceId: {TraceId}, UserOverrides: {HasOverrides}", 
+                    contactId, analysisType, traceId, userOverrides?.Count > 0);
 
                 var results = new Dictionary<string, object>();
 

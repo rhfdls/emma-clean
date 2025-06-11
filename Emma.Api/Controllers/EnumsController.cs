@@ -294,6 +294,7 @@ public class EnumsController : ControllerBase
     {
         try
         {
+            Console.WriteLine($"[IEnumProvider] {typeof(EnumConfigurationMetadata).AssemblyQualifiedName}");
             var metadata = await _enumProvider.GetConfigurationMetadataAsync();
             return Ok(metadata);
         }

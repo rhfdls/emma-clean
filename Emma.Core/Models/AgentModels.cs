@@ -38,6 +38,37 @@ namespace Emma.Core.Models
     }
 
     /// <summary>
+    /// Defines the scope of an agent action to determine appropriate validation intensity
+    /// Essential for the three-tier validation framework performance optimization
+    /// </summary>
+    public enum ActionScope
+    {
+        /// <summary>
+        /// Internal agent-to-agent coordination actions (minimal validation)
+        /// High-frequency, low-risk operations for agent coordination
+        /// Examples: Context enrichment, state updates, internal recommendations
+        /// Validation: Schema validation, basic logging, auto-approval
+        /// </summary>
+        InnerWorld,
+        
+        /// <summary>
+        /// Internal actions that significantly impact downstream external actions (moderate validation)
+        /// Critical internal decisions that influence real-world outcomes
+        /// Examples: Risk assessment, compliance checks, intent classification, orchestration decisions
+        /// Validation: Automated risk scoring, conditional approval, structured logging
+        /// </summary>
+        Hybrid,
+        
+        /// <summary>
+        /// External real-world actions that impact contacts/systems (full validation)
+        /// Direct external impact requiring comprehensive validation and approval
+        /// Examples: Send emails, schedule appointments, update CRM, process payments
+        /// Validation: Full LLM assessment, human approval workflows, comprehensive audit trails
+        /// </summary>
+        RealWorld
+    }
+
+    /// <summary>
     /// Agent-to-Agent communication request following A2A protocol principles
     /// Includes versioning and trace ID for migration readiness
     /// </summary>
@@ -102,6 +133,16 @@ namespace Emma.Core.Models
         /// Industry context for specialized processing
         /// </summary>
         public string? Industry { get; set; }
+        
+        /// <summary>
+        /// Unique identifier for audit trail (Sprint 1 explainability)
+        /// </summary>
+        public Guid AuditId { get; set; } = Guid.NewGuid();
+        
+        /// <summary>
+        /// Human-readable reason for this request (Sprint 1 explainability)
+        /// </summary>
+        public string Reason { get; set; } = "Agent request initiated";
     }
 
     /// <summary>
@@ -170,6 +211,16 @@ namespace Emma.Core.Models
         /// Orchestration method used for this response
         /// </summary>
         public string OrchestrationMethod { get; set; } = "custom";
+        
+        /// <summary>
+        /// Unique identifier for audit trail (Sprint 1 explainability)
+        /// </summary>
+        public Guid AuditId { get; set; } = Guid.NewGuid();
+        
+        /// <summary>
+        /// Human-readable reason for this response (Sprint 1 explainability)
+        /// </summary>
+        public string Reason { get; set; } = "Agent response generated";
     }
 
     /// <summary>
@@ -207,6 +258,16 @@ namespace Emma.Core.Models
         public string TraceId { get; set; } = string.Empty;
         
         public DateTime ClassifiedAt { get; set; } = DateTime.UtcNow;
+        
+        /// <summary>
+        /// Unique identifier for audit trail (Sprint 1 explainability)
+        /// </summary>
+        public Guid AuditId { get; set; } = Guid.NewGuid();
+        
+        /// <summary>
+        /// Human-readable reason for this classification (Sprint 1 explainability)
+        /// </summary>
+        public string Reason { get; set; } = "Intent classification completed";
     }
 
     /// <summary>
@@ -216,6 +277,8 @@ namespace Emma.Core.Models
     public class ContactContext
     {
         public Guid? ContactId { get; set; }
+        
+        public Guid? OrganizationId { get; set; }
         
         public string? ContactName { get; set; }
         
@@ -246,9 +309,19 @@ namespace Emma.Core.Models
         public DateTime? LastInteraction { get; set; }
         
         /// <summary>
+        /// Alias for LastInteraction to maintain compatibility
+        /// </summary>
+        public DateTime? LastInteractionDate => LastInteraction;
+        
+        /// <summary>
         /// Custom properties for industry-specific data
         /// </summary>
         public Dictionary<string, object> CustomProperties { get; set; } = new();
+        
+        /// <summary>
+        /// Alias for CustomProperties to maintain compatibility
+        /// </summary>
+        public Dictionary<string, object> AdditionalData => CustomProperties;
         
         public DateTime AnalysisTimestamp { get; set; } = DateTime.UtcNow;
         
@@ -534,6 +607,9 @@ namespace Emma.Core.Models
         [Required]
         public string Id { get; set; } = Guid.NewGuid().ToString();
         
+        /// <summary>
+        /// Type of action to be performed (e.g., "email", "sms", "calendar_event")
+        /// </summary>
         [Required]
         public string ActionType { get; set; } = string.Empty;
         
@@ -620,6 +696,30 @@ namespace Emma.Core.Models
         /// Result of the last relevance check
         /// </summary>
         public ActionRelevanceResult? LastRelevanceResult { get; set; }
+
+        /// <summary>
+        /// Scope of this action for validation intensity determination
+        /// Critical for three-tier validation framework performance optimization
+        /// </summary>
+        [Required]
+        public ActionScope Scope { get; set; } = ActionScope.RealWorld; // Default to highest validation for safety
+
+        /// <summary>
+        /// Rationale for the scope assignment for audit traceability
+        /// Helps future audits understand why this action was classified with this scope
+        /// Optional but recommended for compliance and debugging
+        /// </summary>
+        public string? ReasonForScopeAssignment { get; set; }
+        
+        /// <summary>
+        /// Unique identifier for audit trail (Sprint 1 explainability)
+        /// </summary>
+        public Guid AuditId { get; set; } = Guid.NewGuid();
+        
+        /// <summary>
+        /// Human-readable reason for this action (Sprint 1 explainability)
+        /// </summary>
+        public string Reason { get; set; } = "Scheduled action created";
     }
 
     /// <summary>
@@ -656,9 +756,6 @@ namespace Emma.Core.Models
         /// </summary>
         public double ConfidenceScore { get; set; } = 1.0;
         
-        /// <summary>
-        /// Detailed reason for the relevance determination
-        /// </summary>
         public string Reason { get; set; } = string.Empty;
         
         /// <summary>
@@ -695,6 +792,21 @@ namespace Emma.Core.Models
         /// Alternative actions that might be more relevant
         /// </summary>
         public List<string> AlternativeActions { get; set; } = new();
+        
+        /// <summary>
+        /// Unique identifier for audit trail (Sprint 1 explainability)
+        /// </summary>
+        public Guid AuditId { get; set; } = Guid.NewGuid();
+        
+        /// <summary>
+        /// Human-readable reason for this relevance assessment (Sprint 1 explainability)
+        /// </summary>
+        public string ReasonForRelevanceAssessment { get; set; } = "Action relevance assessment completed";
+        
+        /// <summary>
+        /// Method used for validation (LLM, RuleBased, Manual, etc.) for audit trail
+        /// </summary>
+        public string ValidationMethod { get; set; } = "RuleBased";
     }
 
     /// <summary>
@@ -719,6 +831,13 @@ namespace Emma.Core.Models
         /// Additional context for relevance checking
         /// </summary>
         public Dictionary<string, object> AdditionalContext { get; set; } = new();
+        
+        /// <summary>
+        /// User override preferences that influence validation decisions
+        /// MANDATORY for audit trail, explainability, and regulatory compliance
+        /// </summary>
+        [Required]
+        public Dictionary<string, object> UserOverrides { get; set; } = new();
         
         /// <summary>
         /// Trace ID for correlation
@@ -760,5 +879,185 @@ namespace Emma.Core.Models
         /// Default action when relevance cannot be determined
         /// </summary>
         public string DefaultActionOnUncertainty { get; set; } = "suppress";
+
+        /// <summary>
+        /// User override operating mode for approval workflow
+        /// </summary>
+        public UserOverrideMode OverrideMode { get; set; } = UserOverrideMode.LLMDecision;
+
+        /// <summary>
+        /// Confidence threshold below which user approval is always required
+        /// </summary>
+        public double UserApprovalThreshold { get; set; } = 0.6;
+
+        /// <summary>
+        /// Action types that always require user approval regardless of confidence
+        /// </summary>
+        public List<string> AlwaysRequireApprovalActions { get; set; } = new()
+        {
+            "SEND_EMAIL", "MAKE_PHONE_CALL", "SCHEDULE_MEETING", "SEND_CONTRACT"
+        };
+
+        /// <summary>
+        /// Action types that never require user approval (safe automation)
+        /// </summary>
+        public List<string> NeverRequireApprovalActions { get; set; } = new()
+        {
+            "UPDATE_CONTACT_NOTES", "LOG_INTERACTION", "SET_REMINDER"
+        };
+
+        /// <summary>
+        /// Maximum time to wait for user approval (in minutes)
+        /// </summary>
+        public int UserApprovalTimeoutMinutes { get; set; } = 30;
+
+        /// <summary>
+        /// Whether to allow bulk approval for similar actions
+        /// </summary>
+        public bool EnableBulkApproval { get; set; } = true;
+    }
+
+    /// <summary>
+    /// Operating modes for user override and approval workflow
+    /// </summary>
+    public enum UserOverrideMode
+    {
+        /// <summary>
+        /// Always ask for user approval before executing any action
+        /// </summary>
+        AlwaysAsk,
+
+        /// <summary>
+        /// Never ask for approval, execute all relevant actions automatically
+        /// </summary>
+        NeverAsk,
+
+        /// <summary>
+        /// Use LLM reasoning to determine when user approval is needed
+        /// Based on confidence scores, action types, and context sensitivity
+        /// </summary>
+        LLMDecision,
+
+        /// <summary>
+        /// Ask for approval only for high-risk or sensitive actions
+        /// Based on predefined action type lists
+        /// </summary>
+        RiskBased
+    }
+
+    /// <summary>
+    /// User approval request for scheduled actions
+    /// </summary>
+    public class UserApprovalRequest
+    {
+        [Required]
+        public string RequestId { get; set; } = Guid.NewGuid().ToString();
+
+        [Required]
+        public ScheduledAction Action { get; set; } = new();
+
+        [Required]
+        public ActionRelevanceResult RelevanceResult { get; set; } = new();
+
+        /// <summary>
+        /// Reason why approval is needed
+        /// </summary>
+        public string ApprovalReason { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Suggested alternatives if user rejects the action
+        /// </summary>
+        public List<ScheduledAction> AlternativeActions { get; set; } = new();
+
+        /// <summary>
+        /// User ID who needs to provide approval
+        /// </summary>
+        public string UserId { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Original user override preferences that led to this approval request
+        /// MANDATORY for audit trail, explainability, and regulatory compliance
+        /// </summary>
+        public Dictionary<string, object> OriginalUserOverrides { get; set; } = new();
+
+        /// <summary>
+        /// When the approval request was created
+        /// </summary>
+        public DateTime RequestedAt { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// When the approval expires
+        /// </summary>
+        public DateTime ExpiresAt { get; set; }
+
+        /// <summary>
+        /// Current status of the approval request
+        /// </summary>
+        public ApprovalStatus Status { get; set; } = ApprovalStatus.Pending;
+
+        /// <summary>
+        /// Trace ID for correlation
+        /// </summary>
+        public string? TraceId { get; set; }
+    }
+
+    /// <summary>
+    /// User approval response
+    /// </summary>
+    public class UserApprovalResponse
+    {
+        [Required]
+        public string RequestId { get; set; } = string.Empty;
+
+        [Required]
+        public ApprovalDecision Decision { get; set; }
+
+        /// <summary>
+        /// User's reason for the decision
+        /// </summary>
+        public string? Reason { get; set; }
+
+        /// <summary>
+        /// If rejected, user can suggest modifications
+        /// </summary>
+        public Dictionary<string, object>? SuggestedModifications { get; set; }
+
+        /// <summary>
+        /// If user wants to approve similar actions in bulk
+        /// </summary>
+        public bool ApplyToSimilarActions { get; set; } = false;
+
+        /// <summary>
+        /// User ID who provided the response
+        /// </summary>
+        public string UserId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// When the response was provided
+        /// </summary>
+        public DateTime RespondedAt { get; set; } = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Status of an approval request
+    /// </summary>
+    public enum ApprovalStatus
+    {
+        Pending,
+        Approved,
+        Rejected,
+        Expired,
+        Modified
+    }
+
+    /// <summary>
+    /// User's approval decision
+    /// </summary>
+    public enum ApprovalDecision
+    {
+        Approve,
+        Reject,
+        Modify,
+        Defer
     }
 }

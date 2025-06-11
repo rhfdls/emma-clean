@@ -17,7 +17,7 @@ namespace Emma.Core.Services
         private readonly ILogger<AgentRegistryService> _logger;
         private readonly ConcurrentDictionary<string, ISpecializedAgent> _agents;
         private readonly ConcurrentDictionary<string, AgentCapability> _capabilities;
-        private readonly ConcurrentDictionary<string, AgentHealthStatus> _healthStatuses;
+        private readonly ConcurrentDictionary<string, AgentHealthInfo> _healthStatuses;
         private readonly ConcurrentDictionary<string, Models.AgentPerformanceMetrics> _performanceMetrics;
 
         public AgentRegistryService(ILogger<AgentRegistryService> logger)
@@ -25,7 +25,7 @@ namespace Emma.Core.Services
             _logger = logger;
             _agents = new ConcurrentDictionary<string, ISpecializedAgent>();
             _capabilities = new ConcurrentDictionary<string, AgentCapability>();
-            _healthStatuses = new ConcurrentDictionary<string, AgentHealthStatus>();
+            _healthStatuses = new ConcurrentDictionary<string, AgentHealthInfo>();
             _performanceMetrics = new ConcurrentDictionary<string, Models.AgentPerformanceMetrics>();
         }
 
@@ -50,7 +50,7 @@ namespace Emma.Core.Services
                 _capabilities.TryAdd(agentId, capability);
                 
                 // Initialize health status
-                var healthStatus = new AgentHealthStatus
+                var healthStatus = new AgentHealthInfo
                 {
                     AgentId = agentId,
                     IsHealthy = true,
@@ -162,7 +162,7 @@ namespace Emma.Core.Services
             return await Task.FromResult(matchingAgents);
         }
 
-        public async Task<AgentHealthStatus> GetAgentHealthAsync(string agentId)
+        public async Task<AgentHealthInfo> GetAgentHealthAsync(string agentId)
         {
             if (_healthStatuses.TryGetValue(agentId, out var status))
             {
@@ -175,7 +175,7 @@ namespace Emma.Core.Services
             }
             else
             {
-                status = new AgentHealthStatus
+                status = new AgentHealthInfo
                 {
                     AgentId = agentId,
                     IsHealthy = false,
@@ -187,9 +187,9 @@ namespace Emma.Core.Services
             return status!;
         }
 
-        public async Task<Dictionary<string, AgentHealthStatus>> GetAllAgentHealthAsync()
+        public async Task<Dictionary<string, AgentHealthInfo>> GetAllAgentHealthAsync()
         {
-            var result = new Dictionary<string, AgentHealthStatus>();
+            var result = new Dictionary<string, AgentHealthInfo>();
             
             foreach (var kvp in _healthStatuses)
             {
@@ -358,7 +358,7 @@ namespace Emma.Core.Services
             try
             {
                 var agent = await GetAgentAsync(agentId);
-                var healthStatus = new AgentHealthStatus
+                var healthStatus = new AgentHealthInfo
                 {
                     AgentId = agentId,
                     LastChecked = DateTime.UtcNow
@@ -391,7 +391,7 @@ namespace Emma.Core.Services
             {
                 _logger.LogError(ex, "Error updating health status for agent {AgentId}", agentId);
                 
-                var errorStatus = new AgentHealthStatus
+                var errorStatus = new AgentHealthInfo
                 {
                     AgentId = agentId,
                     IsHealthy = false,

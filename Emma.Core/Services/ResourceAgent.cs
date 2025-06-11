@@ -1,492 +1,524 @@
-using Emma.Core.Interfaces;
-using Emma.Core.Extensions;
 using Emma.Core.Models;
+using Emma.Core.Interfaces;
+using Emma.Core.Industry;
 using Emma.Data.Models;
-using Emma.Data.Enums;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
-namespace Emma.Core.Services
+namespace Emma.Core.Services;
+
+/// <summary>
+/// AI-powered agent for intelligent resource recommendations and management.
+/// Resources are contacts with ServiceProvider or Agent relationship states.
+/// </summary>
+public class ResourceAgent : IResourceAgent
 {
-    /// <summary>
-    /// Resource Agent that provides intelligent resource management and recommendations
-    /// Implements the layered agent pattern with ResourceService as the data layer
-    /// </summary>
-    public class ResourceAgent : IResourceAgent
+    private readonly IContactService _contactService;
+    private readonly ITenantContextService _tenantContextService;
+    private readonly IAIFoundryService _aiFoundryService;
+    private readonly IPromptProvider _promptProvider;
+    private readonly ILogger<ResourceAgent> _logger;
+
+    public ResourceAgent(
+        IContactService contactService,
+        ITenantContextService tenantContextService,
+        IAIFoundryService aiFoundryService,
+        IPromptProvider promptProvider,
+        ILogger<ResourceAgent> logger)
     {
-        private readonly IResourceService _resourceService;
-        private readonly ITenantContextService _tenantContext;
-        private readonly ILogger<ResourceAgent> _logger;
+        _contactService = contactService;
+        _tenantContextService = tenantContextService;
+        _aiFoundryService = aiFoundryService;
+        _promptProvider = promptProvider;
+        _logger = logger;
+    }
 
-        public ResourceAgent(
-            IResourceService resourceService,
-            ITenantContextService tenantContext,
-            ILogger<ResourceAgent> logger)
+    public async Task<AgentResponse> ProcessRequestAsync(AgentRequest request, string? traceId = null)
+    {
+        traceId ??= Guid.NewGuid().ToString();
+        
+        try
         {
-            _resourceService = resourceService;
-            _tenantContext = tenantContext;
-            _logger = logger;
-        }
+            _logger.LogInformation("Processing ResourceAgent request, TraceId: {TraceId}", traceId);
 
-        public async Task<AgentResponse> ProcessRequestAsync(AgentRequest request, string? traceId = null)
-        {
-            traceId ??= Guid.NewGuid().ToString();
+            // Extract resource criteria from request
+            var resourceCriteria = ExtractResourceCriteria(request);
             
-            try
-            {
-                _logger.LogInformation("Processing Resource request: Intent={Intent}, TraceId={TraceId}", 
-                    request.Intent, traceId);
-
-                // Handle different types of resource requests
-                return request.Intent switch
-                {
-                    AgentIntent.ResourceManagement => await HandleResourceManagementAsync(request, traceId),
-                    AgentIntent.ServiceProviderRecommendation => await HandleServiceProviderRecommendationAsync(request, traceId),
-                    _ => new AgentResponse
-                    {
-                        Success = false,
-                        Message = $"Resource Agent cannot handle intent: {request.Intent}",
-                        Data = new Dictionary<string, object>(),
-                        RequestId = request.Id,
-                        AgentId = "ResourceAgent",
-                        Timestamp = DateTime.UtcNow
-                    }
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing Resource request: {TraceId}", traceId);
-                return new AgentResponse
-                {
-                    Success = false,
-                    Message = $"Resource processing failed: {ex.Message}",
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
-        }
-
-        public async Task<AgentCapability> GetCapabilityAsync()
-        {
-            try
-            {
-                var industryProfile = await _tenantContext.GetIndustryProfileAsync();
+            // Extract OrganizationId from context
+            var organizationId = request.Context.TryGetValue("OrganizationId", out var orgIdObj) && orgIdObj is Guid orgId 
+                ? orgId 
+                : Guid.Empty;
                 
-                return new AgentCapability
-                {
-                    AgentType = "ResourceAgent",
-                    DisplayName = "Resource Management Agent",
-                    Description = "Provides intelligent resource discovery, recommendations, assignment management, and performance tracking",
-                    SupportedTasks = new List<string>
-                    {
-                        "find_resources",
-                        "recommend_providers",
-                        "match_criteria",
-                        "rank_resources"
-                    },
-                    RequiredIndustries = new List<string> { "RealEstate", "Financial", "Legal" }, // Industries that commonly use service providers
-                    IsAvailable = true,
-                    Version = "1.0.0",
-                    Configuration = new Dictionary<string, object>
-                    {
-                        ["SupportsResourceDiscovery"] = true,
-                        ["SupportsPerformanceTracking"] = true,
-                        ["SupportsComplianceMonitoring"] = true,
-                        ["SupportsRatingManagement"] = true,
-                        ["MaxResourcesPerRecommendation"] = 10,
-                        ["SupportedSpecialties"] = GetSupportedSpecialties(industryProfile.IndustryCode)
-                    }
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting Resource Agent capability");
+            // Extract parameters from context
+            var parameters = request.Context.TryGetValue("Parameters", out var paramsObj) && paramsObj is Dictionary<string, object> paramDict
+                ? paramDict
+                : new Dictionary<string, object>();
                 
-                // Return basic capability even on error
-                return new AgentCapability
-                {
-                    AgentType = "ResourceAgent",
-                    DisplayName = "Resource Management Agent",
-                    Description = "Resource management and recommendations agent",
-                    SupportedTasks = new List<string> { "Resource Management" },
-                    RequiredIndustries = new List<string>(),
-                    IsAvailable = false
-                };
-            }
-        }
-
-        public async Task<AgentResponse> RecommendResourcesAsync(Guid organizationId, Dictionary<string, object> resourceCriteria, int maxResults = 10, string? traceId = null)
-        {
-            traceId ??= Guid.NewGuid().ToString();
-            
-            try
-            {
-                _logger.LogInformation("Recommending resources for Organization={OrganizationId}, TraceId={TraceId}", 
-                    organizationId, traceId);
-
-                // Extract criteria
-                var specialty = resourceCriteria.GetValueOrDefault("specialty")?.ToString();
-                var serviceArea = resourceCriteria.GetValueOrDefault("serviceArea")?.ToString();
-                var minRating = resourceCriteria.GetValueOrDefault("minRating") as decimal?;
-                var preferredOnly = resourceCriteria.GetValueOrDefault("preferredOnly") as bool?;
-
-                if (string.IsNullOrEmpty(specialty))
-                {
-                    return new AgentResponse
-                    {
-                        Success = false,
-                        Message = "Specialty is required for resource recommendations",
-                        RequestId = Guid.NewGuid().ToString(),
-                        AgentId = "ResourceAgent",
-                        Timestamp = DateTime.UtcNow
-                    };
-                }
-
-                // Get top performing resources first
-                var topResources = await _resourceService.GetTopPerformingResourcesAsync(specialty, maxResults);
-                
-                // Get additional resources based on criteria
-                var additionalResources = await _resourceService.DiscoverResourcesAsync(
-                    specialty, serviceArea, minRating, preferredOnly);
-
-                // Combine and deduplicate
-                var allResources = topResources
-                    .Concat(additionalResources)
-                    .GroupBy(r => r.Id)
-                    .Select(g => g.First())
-                    .ToList();
-
-                var recommendedResources = allResources.Select(resource => new
-                {
-                    ContactId = resource.Id,
-                    Name = $"{resource.FirstName} {resource.LastName}",
-                    Email = resource.Email(),
-                    Phone = resource.Phone(),
-                    CompanyName = resource.CompanyName,
-                    Specialties = resource.Specialties,
-                    ServiceAreas = resource.ServiceAreas,
-                    Rating = resource.Rating,
-                    PerformanceScore = resource.GetResourcePerformanceScore()
-                })
-                .OrderByDescending(r => r.PerformanceScore)
-                .Take(10)
-                .ToList();
-
-                _logger.LogInformation("Found {Count} recommended resources for organization {OrganizationId}",
-                    recommendedResources.Count, organizationId);
-
-                return new AgentResponse
-                {
-                    Success = true,
-                    Message = $"Found {recommendedResources.Count} recommended resources",
-                    Data = new Dictionary<string, object>
-                    {
-                        ["RecommendedResources"] = recommendedResources.Select(r => new
-                        {
-                            r.ContactId,
-                            r.Name,
-                            r.Email,
-                            r.Phone,
-                            r.CompanyName,
-                            r.Specialties,
-                            r.ServiceAreas,
-                            r.Rating,
-                            r.PerformanceScore
-                        }).ToList(),
-                        ["Specialty"] = specialty,
-                        ["ServiceArea"] = serviceArea ?? "All Areas",
-                        ["OrganizationId"] = organizationId,
-                        ["TotalFound"] = recommendedResources.Count
-                    },
-                    RequestId = Guid.NewGuid().ToString(),
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error recommending resources, TraceId: {TraceId}", traceId);
-                
-                return new AgentResponse
-                {
-                    Success = false,
-                    Message = $"Resource recommendation failed: {ex.Message}",
-                    RequestId = Guid.NewGuid().ToString(),
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
-        }
-
-        // Overload for backward compatibility
-        public async Task<AgentResponse> RecommendResourcesAsync(string specialty, string? serviceArea = null, int maxResults = 10)
-        {
-            var criteria = new Dictionary<string, object> { ["specialty"] = specialty };
-            if (!string.IsNullOrEmpty(serviceArea))
-                criteria["serviceArea"] = serviceArea;
-                
-            return await RecommendResourcesAsync(Guid.Empty, criteria, maxResults);
-        }
-
-        private async Task<AgentResponse> HandleResourceManagementAsync(AgentRequest request, string traceId)
-        {
-            var action = request.Context.TryGetValue("action", out var actionValue) ? 
-                actionValue.ToString()!.ToLowerInvariant() : "discover";
-
-            return action switch
-            {
-                "discover" => await HandleResourceDiscoveryAsync(request, traceId),
-                "assign" => await HandleResourceAssignmentAsync(request, traceId),
-                "metrics" => await HandleResourceMetricsAsync(request, traceId),
-                "rating" => await HandleResourceRatingAsync(request, traceId),
-                _ => new AgentResponse
-                {
-                    Success = false,
-                    Message = $"Unknown resource management action: {action}",
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                }
-            };
-        }
-
-        private async Task<AgentResponse> HandleServiceProviderRecommendationAsync(AgentRequest request, string traceId)
-        {
-            var organizationId = request.Context.TryGetValue("organizationId", out var orgId) && Guid.TryParse(orgId.ToString(), out var orgGuid) ? orgGuid : Guid.Empty;
-            var resourceCriteria = request.Context.TryGetValue("resourceCriteria", out var criteria) ? (Dictionary<string, object>)criteria : new Dictionary<string, object>();
-            var maxResults = request.Context.TryGetValue("maxResults", out var max) && int.TryParse(max.ToString(), out var maxInt) ? maxInt : 10;
-
-            if (organizationId == Guid.Empty || resourceCriteria == null)
-            {
-                return new AgentResponse
-                {
-                    Success = false,
-                    Message = "OrganizationId and resourceCriteria are required for service provider recommendations",
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
+            var maxResults = parameters.ContainsKey("maxResults") 
+                ? Convert.ToInt32(parameters["maxResults"]) 
+                : 10;
 
             return await RecommendResourcesAsync(organizationId, resourceCriteria, maxResults, traceId);
         }
-
-        private async Task<AgentResponse> HandleResourceDiscoveryAsync(AgentRequest request, string traceId)
+        catch (Exception ex)
         {
-            var specialty = request.Context.TryGetValue("specialty", out var spec) ? spec.ToString() : null;
-            var serviceArea = request.Context.TryGetValue("serviceArea", out var area) ? area.ToString() : null;
-            var minRating = request.Context.TryGetValue("minRating", out var rating) && decimal.TryParse(rating.ToString(), out var ratingDecimal) ? ratingDecimal : (decimal?)null;
-            var isPreferred = request.Context.TryGetValue("isPreferred", out var pref) && bool.TryParse(pref.ToString(), out var prefBool) ? prefBool : (bool?)null;
+            _logger.LogError(ex, "Error processing ResourceAgent request, TraceId: {TraceId}", traceId);
+            return new AgentResponse
+            {
+                Success = false,
+                ErrorMessage = $"Failed to process resource request: {ex.Message}",
+                TraceId = traceId,
+                AgentId = "ResourceAgent"
+            };
+        }
+    }
 
-            var resources = await _resourceService.DiscoverResourcesAsync(specialty, serviceArea, minRating, isPreferred);
+    public async Task<AgentCapability> GetCapabilityAsync()
+    {
+        return new AgentCapability
+        {
+            AgentId = "ResourceAgent",
+            Name = "Resource Recommendation Agent",
+            Description = "AI-powered agent that finds and recommends service provider contacts based on client needs, specialties, location, and performance history.",
+            Version = "2.0.0",
+            SupportedTasks = new[]
+            {
+                "recommend_resources",
+                "find_specialists",
+                "match_service_providers",
+                "analyze_provider_performance"
+            }.ToList(),
+            Configuration = new Dictionary<string, object>
+            {
+                ["RequiredParameters"] = new[] { "organizationId" },
+                ["OptionalParameters"] = new[] { "specialty", "serviceArea", "minRating", "maxResults", "clientLocation" }
+            }
+        };
+    }
+
+    public async Task<AgentResponse> RecommendResourcesAsync(Guid organizationId, Dictionary<string, object> resourceCriteria, int maxResults = 10, string? traceId = null, Dictionary<string, object>? userOverrides = null)
+    {
+        traceId ??= Guid.NewGuid().ToString();
+        
+        try
+        {
+            _logger.LogInformation("Starting AI-powered resource recommendation, OrganizationId: {OrganizationId}, TraceId: {TraceId}, UserOverrides: {HasOverrides}", 
+                organizationId, traceId, userOverrides?.Count > 0);
+
+            // Get tenant context for industry-specific logic
+            var tenantContext = await _tenantContextService.GetCurrentTenantAsync();
+            var industryProfile = tenantContext.IndustryProfile ?? await _tenantContextService.GetIndustryProfileAsync();
+
+            // Find available service provider contacts
+            var serviceProviders = await FindServiceProviderContactsAsync(organizationId, resourceCriteria, maxResults * 2);
+            
+            if (!serviceProviders.Any())
+            {
+                _logger.LogWarning("No service provider contacts found for criteria, OrganizationId: {OrganizationId}, TraceId: {TraceId}", 
+                    organizationId, traceId);
+                
+                return new AgentResponse
+                {
+                    Success = true,
+                    Message = "No service providers found matching the specified criteria",
+                    Data = new Dictionary<string, object>
+                    {
+                        ["ResourceRecommendations"] = new List<object>(),
+                        ["SearchCriteria"] = resourceCriteria,
+                        ["TotalFound"] = 0,
+                        ["AnalysisMethod"] = "Contact-Based Search"
+                    },
+                    TraceId = traceId,
+                    AgentId = "ResourceAgent"
+                };
+            }
+
+            // Generate AI-powered recommendations
+            try
+            {
+                var aiContext = BuildResourceRecommendationContext(resourceCriteria, serviceProviders, industryProfile);
+                var recommendations = await GenerateAIResourceRecommendationsAsync(aiContext, maxResults, industryProfile, traceId);
+                
+                if (recommendations.Any())
+                {
+                    _logger.LogInformation("AI-powered resource recommendations generated: {Count} recommendations, TraceId: {TraceId}", 
+                        recommendations.Count, traceId);
+
+                    return new AgentResponse
+                    {
+                        Success = true,
+                        Message = $"Generated {recommendations.Count} AI-powered resource recommendations",
+                        Data = new Dictionary<string, object>
+                        {
+                            ["ResourceRecommendations"] = recommendations,
+                            ["SearchCriteria"] = resourceCriteria,
+                            ["TotalFound"] = recommendations.Count,
+                            ["AnalysisMethod"] = "AI-Powered",
+                            ["IndustryContext"] = industryProfile.IndustryCode
+                        },
+                        TraceId = traceId,
+                        AgentId = "ResourceAgent"
+                    };
+                }
+            }
+            catch (Exception aiEx)
+            {
+                _logger.LogWarning(aiEx, "AI recommendation failed, falling back to rule-based recommendations, TraceId: {TraceId}", traceId);
+            }
+
+            // Fallback to rule-based recommendations
+            var fallbackRecommendations = GenerateRuleBasedRecommendations(serviceProviders, resourceCriteria, maxResults);
+            
+            _logger.LogInformation("Rule-based resource recommendations generated: {Count} recommendations, TraceId: {TraceId}", 
+                fallbackRecommendations.Count, traceId);
 
             return new AgentResponse
             {
                 Success = true,
-                Message = $"Discovered {resources.Count} resources matching criteria",
+                Message = $"Generated {fallbackRecommendations.Count} rule-based resource recommendations",
                 Data = new Dictionary<string, object>
                 {
-                    ["Resources"] = resources.Select(r => new
-                    {
-                        ResourceId = r.Id,
-                        Name = $"{r.FirstName} {r.LastName}",
-                        CompanyName = r.CompanyName,
-                        Rating = r.Rating,
-                        IsPreferred = r.IsPreferred,
-                        Specialties = r.Specialties?.ToList() ?? new List<string>(),
-                        ServiceAreas = r.ServiceAreas?.ToList() ?? new List<string>()
-                    }).ToList(),
-                    ["SearchCriteria"] = new
-                    {
-                        Specialty = specialty,
-                        ServiceArea = serviceArea,
-                        MinRating = minRating,
-                        IsPreferred = isPreferred
-                    }
+                    ["ResourceRecommendations"] = fallbackRecommendations,
+                    ["SearchCriteria"] = resourceCriteria,
+                    ["TotalFound"] = fallbackRecommendations.Count,
+                    ["AnalysisMethod"] = "Rule-Based Fallback"
                 },
-                RequestId = request.Id,
-                AgentId = "ResourceAgent",
-                Timestamp = DateTime.UtcNow
+                TraceId = traceId,
+                AgentId = "ResourceAgent"
             };
         }
-
-        private async Task<AgentResponse> HandleResourceAssignmentAsync(AgentRequest request, string traceId)
+        catch (Exception ex)
         {
-            // Extract assignment parameters
-            var clientContactId = request.Context.TryGetValue("clientContactId", out var clientId) && Guid.TryParse(clientId.ToString(), out var clientGuid) ? clientGuid : Guid.Empty;
-            var serviceContactId = request.Context.TryGetValue("serviceContactId", out var serviceId) && Guid.TryParse(serviceId.ToString(), out var serviceGuid) ? serviceGuid : Guid.Empty;
-            var assignedByAgentId = request.Context.TryGetValue("assignedByAgentId", out var agentId) && Guid.TryParse(agentId.ToString(), out var agentGuid) ? agentGuid : Guid.Empty;
-            var organizationId = request.Context.TryGetValue("organizationId", out var orgId) && Guid.TryParse(orgId.ToString(), out var orgGuid) ? orgGuid : Guid.Empty;
-            var purpose = request.Context.TryGetValue("purpose", out var purp) ? purp.ToString()! : "";
-
-            if (clientContactId == Guid.Empty || serviceContactId == Guid.Empty || assignedByAgentId == Guid.Empty || organizationId == Guid.Empty || string.IsNullOrEmpty(purpose))
+            _logger.LogError(ex, "Error in RecommendResourcesAsync, TraceId: {TraceId}", traceId);
+            return new AgentResponse
             {
-                return new AgentResponse
-                {
-                    Success = false,
-                    Message = "ClientContactId, ServiceContactId, AssignedByAgentId, OrganizationId, and Purpose are required for resource assignment",
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
+                Success = false,
+                ErrorMessage = $"Failed to generate resource recommendations: {ex.Message}",
+                TraceId = traceId,
+                AgentId = "ResourceAgent"
+            };
+        }
+    }
 
-            try
-            {
-                var assignment = await _resourceService.AssignResourceAsync(
-                    clientContactId, serviceContactId, assignedByAgentId, organizationId, purpose);
+    private async Task<List<Contact>> FindServiceProviderContactsAsync(Guid organizationId, Dictionary<string, object> criteria, int maxResults)
+    {
+        // Get all service provider contacts (ServiceProvider and Agent relationship states)
+        var serviceProviders = await _contactService.GetContactsByRelationshipStateAsync(
+            organizationId, 
+            new[] { RelationshipState.ServiceProvider, RelationshipState.Agent });
 
-                return new AgentResponse
-                {
-                    Success = true,
-                    Message = "Resource successfully assigned",
-                    Data = new Dictionary<string, object>
-                    {
-                        ["AssignmentId"] = assignment.Id,
-                        ["ClientContactId"] = assignment.ClientContactId,
-                        ["ServiceContactId"] = assignment.ServiceContactId,
-                        ["Purpose"] = assignment.Purpose,
-                        ["Status"] = assignment.Status.ToString(),
-                        ["CreatedAt"] = assignment.CreatedAt
-                    },
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
-            catch (Exception ex)
-            {
-                return new AgentResponse
-                {
-                    Success = false,
-                    Message = $"Resource assignment failed: {ex.Message}",
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
+        // Apply filtering based on criteria
+        var filteredProviders = serviceProviders.AsQueryable();
+
+        // Filter by specialty
+        if (criteria.TryGetValue("specialty", out var specialtyObj) && specialtyObj?.ToString() is string specialty && !string.IsNullOrEmpty(specialty))
+        {
+            filteredProviders = filteredProviders.Where(c => 
+                c.Specialties.Any(s => s.Contains(specialty, StringComparison.OrdinalIgnoreCase)));
         }
 
-        private async Task<AgentResponse> HandleResourceMetricsAsync(AgentRequest request, string traceId)
+        // Filter by service area
+        if (criteria.TryGetValue("serviceArea", out var serviceAreaObj) && serviceAreaObj?.ToString() is string serviceArea && !string.IsNullOrEmpty(serviceArea))
         {
-            var resourceId = request.Context.TryGetValue("resourceId", out var resId) && Guid.TryParse(resId.ToString(), out var resGuid) ? resGuid : Guid.Empty;
-
-            if (resourceId == Guid.Empty)
-            {
-                return new AgentResponse
-                {
-                    Success = false,
-                    Message = "ResourceId is required for metrics retrieval",
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
-
-            try
-            {
-                var metrics = await _resourceService.GetResourceMetricsAsync(resourceId);
-
-                return new AgentResponse
-                {
-                    Success = true,
-                    Message = "Resource metrics retrieved successfully",
-                    Data = new Dictionary<string, object>
-                    {
-                        ["Metrics"] = metrics
-                    },
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
-            catch (Exception ex)
-            {
-                return new AgentResponse
-                {
-                    Success = false,
-                    Message = $"Failed to retrieve resource metrics: {ex.Message}",
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
+            filteredProviders = filteredProviders.Where(c => 
+                c.ServiceAreas.Any(sa => sa.Contains(serviceArea, StringComparison.OrdinalIgnoreCase)));
         }
 
-        private async Task<AgentResponse> HandleResourceRatingAsync(AgentRequest request, string traceId)
+        // Filter by minimum rating
+        if (criteria.TryGetValue("minRating", out var minRatingObj) && decimal.TryParse(minRatingObj?.ToString(), out var minRating))
         {
-            var resourceId = request.Context.TryGetValue("resourceId", out var resId) && Guid.TryParse(resId.ToString(), out var resGuid) ? resGuid : Guid.Empty;
-            var rating = request.Context.TryGetValue("rating", out var rat) && decimal.TryParse(rat.ToString(), out var ratingDecimal) ? ratingDecimal : 0m;
-            var feedback = request.Context.TryGetValue("feedback", out var fb) ? fb.ToString() : null;
-
-            if (resourceId == Guid.Empty || rating <= 0)
-            {
-                return new AgentResponse
-                {
-                    Success = false,
-                    Message = "ResourceId and valid rating are required for rating update",
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
-
-            try
-            {
-                await _resourceService.UpdateResourceRatingAsync(resourceId, rating, feedback);
-
-                return new AgentResponse
-                {
-                    Success = true,
-                    Message = "Resource rating updated successfully",
-                    Data = new Dictionary<string, object>
-                    {
-                        ["ResourceId"] = resourceId,
-                        ["Rating"] = rating,
-                        ["Feedback"] = feedback ?? ""
-                    },
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
-            catch (Exception ex)
-            {
-                return new AgentResponse
-                {
-                    Success = false,
-                    Message = $"Failed to update resource rating: {ex.Message}",
-                    RequestId = request.Id,
-                    AgentId = "ResourceAgent",
-                    Timestamp = DateTime.UtcNow
-                };
-            }
+            filteredProviders = filteredProviders.Where(c => c.Rating >= minRating);
         }
 
-        private List<string> GetSupportedSpecialties(string industryCode)
+        // Filter by preferred status
+        if (criteria.TryGetValue("preferredOnly", out var preferredObj) && bool.TryParse(preferredObj?.ToString(), out var preferredOnly) && preferredOnly)
         {
-            return industryCode switch
+            filteredProviders = filteredProviders.Where(c => c.IsPreferred);
+        }
+
+        // Order by rating (descending), then by preferred status, then by review count
+        return filteredProviders
+            .OrderByDescending(c => c.IsPreferred)
+            .ThenByDescending(c => c.Rating ?? 0)
+            .ThenByDescending(c => c.ReviewCount)
+            .Take(maxResults)
+            .ToList();
+    }
+
+    private object BuildResourceRecommendationContext(Dictionary<string, object> criteria, List<Contact> serviceProviders, IIndustryProfile industryProfile)
+    {
+        return new
+        {
+            RequestCriteria = new
             {
-                "RealEstate" => new List<string>
+                Specialty = criteria.GetValueOrDefault("specialty", "")?.ToString(),
+                ServiceArea = criteria.GetValueOrDefault("serviceArea", "")?.ToString(),
+                MinRating = criteria.GetValueOrDefault("minRating"),
+                PreferredOnly = criteria.GetValueOrDefault("preferredOnly"),
+                ClientLocation = criteria.GetValueOrDefault("clientLocation", "")?.ToString(),
+                UrgencyLevel = criteria.GetValueOrDefault("urgencyLevel", "normal")?.ToString()
+            },
+            AvailableServiceProviders = serviceProviders.Select(sp => new
+            {
+                Id = sp.Id,
+                Name = $"{sp.FirstName} {sp.LastName}".Trim(),
+                CompanyName = sp.CompanyName,
+                PrimaryEmail = sp.Emails.FirstOrDefault(e => e.Type == "primary")?.Address ?? sp.Emails.FirstOrDefault()?.Address,
+                PrimaryPhone = sp.Phones.FirstOrDefault(p => p.Type == "mobile")?.Number ?? sp.Phones.FirstOrDefault()?.Number,
+                Specialties = sp.Specialties,
+                ServiceAreas = sp.ServiceAreas,
+                Rating = sp.Rating,
+                ReviewCount = sp.ReviewCount,
+                IsPreferred = sp.IsPreferred,
+                LicenseNumber = sp.LicenseNumber,
+                Website = sp.Website,
+                RelationshipState = sp.RelationshipState.ToString(),
+                Tags = sp.Tags
+            }).ToList(),
+            IndustryContext = new
+            {
+                IndustryCode = industryProfile.IndustryCode,
+                DisplayName = industryProfile.DisplayName,
+                ResourceTypes = industryProfile.ResourceTypes,
+                DefaultResourceCategories = industryProfile.DefaultResourceCategories
+            },
+            RecommendationContext = new
+            {
+                PriorityFactors = new[] { "expertise_match", "rating", "availability", "location_proximity", "cost_effectiveness", "past_performance" },
+                MaxRecommendations = 10,
+                IncludeAlternatives = true,
+                RequireExplanation = true
+            }
+        };
+    }
+
+    private async Task<List<ResourceRecommendationResult>> GenerateAIResourceRecommendationsAsync(object aiContext, int maxResults, IIndustryProfile industryProfile, string traceId)
+    {
+        try
+        {
+            // Get system prompt for resource recommendations
+            var systemPrompt = await _promptProvider.GetSystemPromptAsync("ResourceRecommendation", industryProfile.IndustryCode);
+            
+            // Build user prompt with context
+            var contextJson = JsonSerializer.Serialize(aiContext, new JsonSerializerOptions { WriteIndented = true });
+            var userPrompt = $"Based on the following context, recommend the best service provider contacts for this request:\n\n{contextJson}\n\nProvide recommendations as a JSON array with the following structure:\n[{{\n  \"contactId\": \"guid\",\n  \"recommendationReason\": \"explanation\",\n  \"matchScore\": 0.95,\n  \"strengths\": [\"strength1\", \"strength2\"],\n  \"considerations\": [\"consideration1\"]\n}}]";
+
+            _logger.LogInformation("Invoking AI for resource recommendations, TraceId: {TraceId}", traceId);
+
+            // Call AI service
+            var aiResponse = await _aiFoundryService.ProcessAgentRequestAsync(systemPrompt, userPrompt, traceId);
+
+            _logger.LogInformation("AI response received for resource recommendations, TraceId: {TraceId}", traceId);
+
+            // Parse AI response
+            return ParseAIResourceRecommendations(aiResponse, traceId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating AI resource recommendations, TraceId: {TraceId}", traceId);
+            throw;
+        }
+    }
+
+    private List<ResourceRecommendationResult> ParseAIResourceRecommendations(string aiResponse, string traceId)
+    {
+        try
+        {
+            // Clean and parse JSON response
+            var cleanedResponse = aiResponse.Trim();
+            if (cleanedResponse.StartsWith("```json"))
+            {
+                cleanedResponse = cleanedResponse.Substring(7);
+            }
+            if (cleanedResponse.EndsWith("```"))
+            {
+                cleanedResponse = cleanedResponse.Substring(0, cleanedResponse.Length - 3);
+            }
+
+            var recommendations = JsonSerializer.Deserialize<List<JsonElement>>(cleanedResponse);
+            var results = new List<ResourceRecommendationResult>();
+
+            foreach (var rec in recommendations)
+            {
+                if (rec.TryGetProperty("contactId", out var contactIdProp) && 
+                    Guid.TryParse(contactIdProp.GetString(), out var contactId))
                 {
-                    "Home Inspector", "Mortgage Lender", "Real Estate Attorney", 
-                    "Title Company", "Insurance Agent", "Contractor", "Appraiser"
-                },
-                "Financial" => new List<string>
-                {
-                    "Tax Advisor", "Investment Advisor", "Insurance Agent",
-                    "Estate Planning Attorney", "Accountant", "Financial Planner"
-                },
-                "Legal" => new List<string>
-                {
-                    "Specialist Attorney", "Expert Witness", "Court Reporter",
-                    "Private Investigator", "Process Server", "Paralegal"
-                },
-                _ => new List<string>
-                {
-                    "Consultant", "Specialist", "Service Provider", "Expert"
+                    var result = new ResourceRecommendationResult
+                    {
+                        ContactId = contactId,
+                        RecommendationReason = rec.TryGetProperty("recommendationReason", out var reasonProp) ? reasonProp.GetString() ?? "" : "",
+                        MatchScore = rec.TryGetProperty("matchScore", out var scoreProp) ? (decimal)scoreProp.GetDouble() : 0.5m,
+                        Strengths = rec.TryGetProperty("strengths", out var strengthsProp) ? 
+                            strengthsProp.EnumerateArray().Select(s => s.GetString() ?? "").ToList() : new List<string>(),
+                        Considerations = rec.TryGetProperty("considerations", out var considerationsProp) ? 
+                            considerationsProp.EnumerateArray().Select(c => c.GetString() ?? "").ToList() : new List<string>()
+                    };
+                    
+                    results.Add(result);
                 }
-            };
+            }
+
+            _logger.LogInformation("Parsed {Count} AI resource recommendations, TraceId: {TraceId}", results.Count, traceId);
+            return results;
         }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to parse AI resource recommendations, TraceId: {TraceId}", traceId);
+            return new List<ResourceRecommendationResult>();
+        }
+    }
+
+    private List<ResourceRecommendationResult> GenerateRuleBasedRecommendations(List<Contact> serviceProviders, Dictionary<string, object> criteria, int maxResults)
+    {
+        var recommendations = new List<ResourceRecommendationResult>();
+
+        foreach (var provider in serviceProviders.Take(maxResults))
+        {
+            var matchScore = CalculateMatchScore(provider, criteria);
+            var strengths = IdentifyProviderStrengths(provider);
+            var considerations = IdentifyProviderConsiderations(provider);
+
+            recommendations.Add(new ResourceRecommendationResult
+            {
+                ContactId = provider.Id,
+                RecommendationReason = $"Recommended based on {(provider.IsPreferred ? "preferred status, " : "")}" +
+                                     $"rating of {provider.Rating:F1}/5.0 ({provider.ReviewCount} reviews)" +
+                                     (provider.Specialties.Any() ? $", specializing in {string.Join(", ", provider.Specialties.Take(2))}" : ""),
+                MatchScore = matchScore,
+                Strengths = strengths,
+                Considerations = considerations
+            });
+        }
+
+        return recommendations;
+    }
+
+    private decimal CalculateMatchScore(Contact provider, Dictionary<string, object> criteria)
+    {
+        decimal score = 0.5m; // Base score
+
+        // Rating boost
+        if (provider.Rating.HasValue)
+        {
+            score += (provider.Rating.Value - 3) * 0.1m; // +/- 0.2 for rating above/below 3
+        }
+
+        // Preferred provider boost
+        if (provider.IsPreferred)
+        {
+            score += 0.15m;
+        }
+
+        // Review count boost (more reviews = more reliable)
+        if (provider.ReviewCount > 10)
+        {
+            score += 0.1m;
+        }
+
+        // Specialty match boost
+        if (criteria.TryGetValue("specialty", out var specialtyObj) && specialtyObj?.ToString() is string specialty)
+        {
+            if (provider.Specialties.Any(s => s.Contains(specialty, StringComparison.OrdinalIgnoreCase)))
+            {
+                score += 0.2m;
+            }
+        }
+
+        // Service area match boost
+        if (criteria.TryGetValue("serviceArea", out var serviceAreaObj) && serviceAreaObj?.ToString() is string serviceArea)
+        {
+            if (provider.ServiceAreas.Any(sa => sa.Contains(serviceArea, StringComparison.OrdinalIgnoreCase)))
+            {
+                score += 0.15m;
+            }
+        }
+
+        return Math.Min(1.0m, Math.Max(0.0m, score)); // Clamp between 0 and 1
+    }
+
+    private List<string> IdentifyProviderStrengths(Contact provider)
+    {
+        var strengths = new List<string>();
+
+        if (provider.IsPreferred)
+            strengths.Add("Preferred service provider");
+
+        if (provider.Rating >= 4.5m)
+            strengths.Add("Excellent rating (4.5+ stars)");
+        else if (provider.Rating >= 4.0m)
+            strengths.Add("High rating (4.0+ stars)");
+
+        if (provider.ReviewCount > 20)
+            strengths.Add("Extensive client feedback");
+
+        if (provider.Specialties.Count > 3)
+            strengths.Add("Multiple specialties");
+
+        if (provider.ServiceAreas.Count > 2)
+            strengths.Add("Wide service coverage");
+
+        if (!string.IsNullOrEmpty(provider.LicenseNumber))
+            strengths.Add("Licensed professional");
+
+        return strengths;
+    }
+
+    private List<string> IdentifyProviderConsiderations(Contact provider)
+    {
+        var considerations = new List<string>();
+
+        if (provider.Rating < 3.5m)
+            considerations.Add("Below average rating");
+
+        if (provider.ReviewCount < 5)
+            considerations.Add("Limited client feedback");
+
+        if (!provider.Specialties.Any())
+            considerations.Add("No specified specialties");
+
+        if (!provider.ServiceAreas.Any())
+            considerations.Add("Service area not specified");
+
+        return considerations;
+    }
+
+    private Dictionary<string, object> ExtractResourceCriteria(AgentRequest request)
+    {
+        var criteria = new Dictionary<string, object>();
+
+        if (request.Context.TryGetValue("Parameters", out var paramsObj) && paramsObj is Dictionary<string, object> paramDict)
+        {
+            foreach (var param in paramDict)
+            {
+                criteria[param.Key] = param.Value;
+            }
+        }
+
+        // Extract from message content if available
+        if (request.Context.TryGetValue("Message", out var messageObj) && messageObj?.ToString() is string message)
+        {
+            // Simple keyword extraction - could be enhanced with NLP
+            var messageLower = message.ToLowerInvariant();
+            
+            if (messageLower.Contains("lender") || messageLower.Contains("mortgage"))
+                criteria.TryAdd("specialty", "Mortgage Lending");
+            if (messageLower.Contains("inspector") || messageLower.Contains("inspection"))
+                criteria.TryAdd("specialty", "Property Inspection");
+            if (messageLower.Contains("contractor") || messageLower.Contains("repair"))
+                criteria.TryAdd("specialty", "General Contracting");
+            if (messageLower.Contains("preferred"))
+                criteria.TryAdd("preferredOnly", true);
+        }
+
+        return criteria;
+    }
+
+    public class ResourceRecommendationResult
+    {
+        public Guid ContactId { get; set; }
+        public string RecommendationReason { get; set; } = string.Empty;
+        public decimal MatchScore { get; set; }
+        public List<string> Strengths { get; set; } = new();
+        public List<string> Considerations { get; set; } = new();
     }
 }

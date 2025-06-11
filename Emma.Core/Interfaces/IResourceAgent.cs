@@ -28,7 +28,8 @@ namespace Emma.Core.Interfaces
         /// <param name="resourceCriteria">Criteria for resource matching</param>
         /// <param name="maxResults">Maximum number of results to return</param>
         /// <param name="traceId">Optional trace ID for logging</param>
+        /// <param name="userOverrides">Optional user overrides for validation framework</param>
         /// <returns>Resource recommendations and analysis</returns>
-        Task<AgentResponse> RecommendResourcesAsync(Guid organizationId, Dictionary<string, object> resourceCriteria, int maxResults = 10, string? traceId = null);
+        Task<AgentResponse> RecommendResourcesAsync(Guid organizationId, Dictionary<string, object> resourceCriteria, int maxResults = 10, string? traceId = null, Dictionary<string, object>? userOverrides = null);
     }
 }
