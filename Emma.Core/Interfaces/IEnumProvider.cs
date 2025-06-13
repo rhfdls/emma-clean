@@ -23,7 +23,7 @@ public interface IEnumProvider
     /// <param name="key">Enum value key</param>
     /// <param name="context">Context for industry-specific overrides</param>
     /// <returns>Enum value or null if not found</returns>
-    Task<EnumValue?> GetEnumValueAsync(string enumType, string key, EnumContext? context = null);
+    EnumValue? GetEnumValue(string enumType, string key, EnumContext? context = null);
 
     /// <summary>
     /// Get enum values formatted for UI dropdowns
@@ -31,7 +31,7 @@ public interface IEnumProvider
     /// <param name="enumType">Type of enum</param>
     /// <param name="context">Context for industry-specific overrides</param>
     /// <returns>Dictionary of key-value pairs for UI binding</returns>
-    Task<Dictionary<string, string>> GetEnumDropdownAsync(string enumType, EnumContext? context = null);
+    Dictionary<string, string> GetEnumDropdown(string enumType, EnumContext? context = null);
 
     /// <summary>
     /// Validate that an enum value exists and is valid for the given context
@@ -58,47 +58,6 @@ public interface IEnumProvider
     Task<IEnumerable<string>> GetAvailableEnumTypesAsync(EnumContext? context = null);
 
     /// <summary>
-    /// Reload enum configuration from source (for hot-reload support)
-    /// </summary>
-    Task ReloadConfigurationAsync();
-
-    /// <summary>
-    /// Event fired when enum configuration changes (for hot-reload notifications)
-    /// </summary>
-    event EventHandler<EnumConfigurationChangedEventArgs>? ConfigurationChanged;
-
-    /// <summary>
-    /// Event fired when enum configuration is reloaded
-    /// </summary>
-    event EventHandler<EnumConfigurationChangedEventArgs>? ConfigurationReloaded;
-
-    // Versioning and Audit Methods
-
-    /// <summary>
-    /// Create a backup version of the current configuration
-    /// </summary>
-    /// <param name="description">Description of the version</param>
-    /// <param name="createdBy">User creating the version</param>
-    /// <param name="tags">Optional tags for the version</param>
-    /// <returns>Version identifier</returns>
-    Task<string> CreateVersionAsync(string description, string createdBy, List<string>? tags = null);
-
-    /// <summary>
-    /// Get all available versions
-    /// </summary>
-    /// <returns>List of version history entries</returns>
-    Task<IEnumerable<VersionHistoryEntry>> GetVersionHistoryAsync();
-
-    /// <summary>
-    /// Rollback to a specific version
-    /// </summary>
-    /// <param name="version">Version to rollback to</param>
-    /// <param name="rolledBackBy">User performing the rollback</param>
-    /// <param name="reason">Reason for rollback</param>
-    /// <returns>True if rollback successful</returns>
-    Task<bool> RollbackToVersionAsync(string version, string rolledBackBy, string reason);
-
-    /// <summary>
     /// Get change log entries
     /// </summary>
     /// <param name="enumType">Optional filter by enum type</param>
@@ -116,13 +75,13 @@ public interface IEnumProvider
     /// Log a change to the audit trail
     /// </summary>
     /// <param name="changeEntry">Change log entry to record</param>
-    Task LogChangeAsync(ChangeLogEntry changeEntry);
+    void LogChange(ChangeLogEntry changeEntry);
 
     /// <summary>
     /// Get configuration metadata including version info
     /// </summary>
     /// <returns>Configuration metadata</returns>
-    Task<EnumConfigurationMetadata> GetConfigurationMetadataAsync();
+    EnumConfigurationMetadata GetConfigurationMetadata();
 
     /// <summary>
     /// Compare two versions and get differences
@@ -166,7 +125,49 @@ public interface IEnumProvider
     /// <param name="importedBy">User performing the import</param>
     /// <param name="mergeStrategy">How to handle conflicts</param>
     /// <returns>Import result with details</returns>
-    Task<ImportResult> ImportConfigurationAsync(string filePath, string importedBy, MergeStrategy mergeStrategy = MergeStrategy.Replace);
+    bool ImportConfiguration(string importFilePath, string importedBy, PromptMergeStrategy mergeStrategy = PromptMergeStrategy.Replace);
+
+    /// <summary>
+    /// Reload enum configuration from source (for hot-reload support)
+    /// </summary>
+    Task ReloadConfigurationAsync();
+
+    /// <summary>
+    /// Event fired when enum configuration changes (for hot-reload notifications)
+    /// </summary>
+    event EventHandler<EnumConfigurationChangedEventArgs>? ConfigurationChanged;
+
+    /// <summary>
+    /// Event fired when enum configuration is reloaded
+    /// </summary>
+    event EventHandler<EnumConfigurationChangedEventArgs>? ConfigurationReloaded;
+
+    // Versioning and Audit Methods
+
+    /// <summary>
+    /// Create a backup version of the current configuration
+    /// </summary>
+    /// <param name="description">Description of the version</param>
+    /// <param name="createdBy">User creating the version</param>
+    /// <param name="tags">Optional tags for the version</param>
+    /// <returns>Version identifier</returns>
+    string CreateVersion(string description, string createdBy, List<string>? tags = null);
+
+    /// <summary>
+    /// Get all available versions
+    /// </summary>
+    /// <returns>List of version history entries</returns>
+    IEnumerable<PromptVersionHistoryEntry> GetVersionHistory();
+
+    /// <summary>
+    /// Rollback to a specific version
+    /// </summary>
+    /// <param name="version">Version to rollback to</param>
+    /// <param name="rolledBackBy">User performing the rollback</param>
+    /// <param name="reason">Reason for rollback</param>
+    /// <returns>True if rollback successful</returns>
+    bool RollbackToVersion(string version, string rolledBackBy, string reason);
+
 }
 
 /// <summary>

@@ -223,8 +223,6 @@ public class PromptProvider : IPromptProvider, IDisposable
         await LoadConfigurationAsync();
     }
 
-    // ===== VERSIONING AND AUDIT CAPABILITIES =====
-
     public async Task<string> CreateVersionAsync(string description, string createdBy, List<string>? tags = null)
     {
         try
@@ -298,12 +296,7 @@ public class PromptProvider : IPromptProvider, IDisposable
         }
     }
 
-    public async Task<IEnumerable<PromptChangeLogEntry>> GetChangeLogAsync(
-        DateTime? fromDate = null,
-        DateTime? toDate = null,
-        string? agentType = null,
-        string? changedBy = null,
-        PromptChangeType? changeType = null)
+    public async Task<IEnumerable<PromptChangeLogEntry>> GetChangeLogAsync(DateTime? fromDate = null, DateTime? toDate = null, string? agentType = null, string? changedBy = null, PromptChangeType? changeType = null)
     {
         try
         {
@@ -571,6 +564,48 @@ public class PromptProvider : IPromptProvider, IDisposable
             }
 
             var json = await File.ReadAllTextAsync(_configurationPath);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                ReadCommentHandling = JsonCommentHandling.Skip
+            };
+
+            var newConfiguration = JsonSerializer.Deserialize<PromptConfiguration>(json, options);
+            
+            if (newConfiguration == null)
+            {
+                _logger.LogError("Failed to deserialize prompt configuration from {FilePath}", _configurationPath);
+                return;
+            }
+
+            lock (_lockObject)
+            {
+                _promptConfiguration = newConfiguration;
+                _lastReloadTime = DateTime.UtcNow;
+            }
+
+            _logger.LogInformation("Loaded prompt configuration from {FilePath}, version: {Version}, agents: {AgentCount}",
+                _configurationPath, 
+                newConfiguration.Metadata?.Version ?? "Unknown",
+                newConfiguration.Agents?.Count ?? 0);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading prompt configuration from {FilePath}", _configurationPath);
+        }
+    }
+
+    private void LoadConfiguration()
+    {
+        try
+        {
+            if (!File.Exists(_configurationPath))
+            {
+                _logger.LogWarning("Prompt configuration file not found: {FilePath}", _configurationPath);
+                return;
+            }
+
+            var json = File.ReadAllText(_configurationPath);
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,

@@ -1,3 +1,5 @@
+This file has been superseded by EMMA-Unified-Project-Management-Plan.md. All future updates are tracked there
+
 # Emma AI Platform — Technical Debt & Design Decisions
 
 Document all technical debt, design decisions, and architectural notes here for the Emma AI Platform. Reference related TODOs as needed.

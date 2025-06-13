@@ -230,7 +230,7 @@ namespace Emma.Core.Services
                     Id = request.Id,
                     Type = request.Intent.ToString(),
                     Description = request.OriginalUserInput,
-                    ConversationId = request.ConversationId,
+                    InteractionId = request.InteractionId, // Use InteractionId
                     Context = request.Context,
                     CreatedAt = request.Timestamp,
                     UserId = request.UserId,
@@ -285,7 +285,7 @@ namespace Emma.Core.Services
                 WorkflowVersion = originalRequest.WorkflowVersion,
                 Intent = response.NextIntent ?? AgentIntent.GeneralInquiry,
                 OriginalUserInput = response.Content ?? "",
-                ConversationId = originalRequest.ConversationId,
+                InteractionId = originalRequest.InteractionId, // Use InteractionId
                 Context = response.Data,
                 SourceAgentId = response.AgentId,
                 Urgency = originalRequest.Urgency,

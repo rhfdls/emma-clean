@@ -163,7 +163,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Agent>().HasIndex(a => a.Email).IsUnique();
         modelBuilder.Entity<PasswordResetToken>().HasKey(prt => prt.Id);
         modelBuilder.Entity<ConversationSummary>().HasKey(cs => cs.Id);
-        modelBuilder.Entity<ConversationSummary>().HasIndex(cs => cs.ConversationId).IsUnique();
+        modelBuilder.Entity<ConversationSummary>().HasIndex(cs => cs.InteractionId).IsUnique();
         modelBuilder.Entity<ConversationSummary>().HasIndex(cs => cs.QualityScore);
         modelBuilder.Entity<Subscription>().HasKey(s => s.AgentId);
         modelBuilder.Entity<AgentPhoneNumber>().HasKey(p => p.Id);
@@ -295,14 +295,6 @@ public class AppDbContext : DbContext
             
         // Configure Dictionary properties to use JSON instead of hstore for Azure PostgreSQL compatibility
         
-        // Conversation
-        modelBuilder.Entity<Conversation>()
-            .Property(c => c.ExternalIds)
-            .HasColumnType("jsonb");
-        modelBuilder.Entity<Conversation>()
-            .Property(c => c.CustomFields)
-            .HasColumnType("jsonb");
-            
         // Interaction
         modelBuilder.Entity<Interaction>()
             .Property(i => i.ExternalIds)

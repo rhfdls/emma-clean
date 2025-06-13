@@ -86,9 +86,9 @@ namespace Emma.Api.Controllers
                 if (contactContext != null)
                 {
                     agentRequest.Context["contactContext"] = contactContext;
-                    agentRequest.Context["sentimentScore"] = contactContext.SentimentScore;
-                    agentRequest.Context["buyingSignals"] = contactContext.BuyingSignals;
-                    agentRequest.Context["closeProbability"] = contactContext.CloseProbability;
+                    agentRequest.Context["sentimentScore"] = contactContext.SentimentScore ?? 0;
+                    agentRequest.Context["buyingSignals"] = contactContext.BuyingSignals ?? new List<string>();
+                    agentRequest.Context["closeProbability"] = contactContext.CloseProbability ?? 0.0;
                 }
 
                 // Step 4: Route request through communication bus

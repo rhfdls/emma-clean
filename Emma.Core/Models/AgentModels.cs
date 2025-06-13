@@ -104,6 +104,9 @@ namespace Emma.Core.Models
         [Required]
         public Guid ConversationId { get; set; }
         
+        [Required]
+        public Guid InteractionId { get; set; }
+        
         /// <summary>
         /// Context data for agent processing
         /// Structured for easy serialization and A2A compatibility
@@ -221,6 +224,11 @@ namespace Emma.Core.Models
         /// Human-readable reason for this response (Sprint 1 explainability)
         /// </summary>
         public string Reason { get; set; } = "Agent response generated";
+        
+        /// <summary>
+        /// Intent of the response for routing and processing
+        /// </summary>
+        public string? Intent { get; set; }
     }
 
     /// <summary>
@@ -596,6 +604,8 @@ namespace Emma.Core.Models
         public string? UserId { get; set; }
         
         public string? Industry { get; set; }
+        
+        public Guid? InteractionId { get; set; }
     }
 
     /// <summary>

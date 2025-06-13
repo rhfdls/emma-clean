@@ -66,7 +66,7 @@ public class ActionRelevanceValidator : IActionRelevanceValidator
                 var nbaContext = await _nbaContextService.GetNbaContextAsync(
                     request.Action.ContactId,
                     request.Action.OrganizationId,
-                    Guid.Parse(request.Action.ScheduledByAgentId));
+                    Guid.TryParse(request.Action.ScheduledByAgentId, out var scheduledByAgentId) ? scheduledByAgentId : Guid.Empty);
 
                 // Convert NBA context to ContactContext (simplified mapping)
                 currentContext = new ContactContext
@@ -515,7 +515,7 @@ Respond in JSON format:
                 case UserOverrideMode.LLMDecision:
                     // Get fresh context for LLM decision
                     var nbaContext = await _nbaContextService.GetNbaContextAsync(
-                        action.ContactId, action.OrganizationId, Guid.Parse(action.ScheduledByAgentId));
+                        action.ContactId, action.OrganizationId, Guid.TryParse(action.ScheduledByAgentId, out var scheduledByAgentId) ? scheduledByAgentId : Guid.Empty);
 
                     var contactContext = new ContactContext
                     {
@@ -566,7 +566,7 @@ Respond in JSON format:
 
             // Get alternative actions
             var nbaContext = await _nbaContextService.GetNbaContextAsync(
-                action.ContactId, action.OrganizationId, Guid.Parse(action.ScheduledByAgentId));
+                action.ContactId, action.OrganizationId, Guid.TryParse(action.ScheduledByAgentId, out var scheduledByAgentId) ? scheduledByAgentId : Guid.Empty);
 
             var contactContext = new ContactContext
             {
@@ -793,6 +793,55 @@ Should this action require human approval before execution?";
 
     #region Private Helper Methods
 
+    private bool IsSimilarAction(ScheduledAction action1, ScheduledAction action2)
+    {
+        return action1.ActionType == action2.ActionType &&
+               action1.ContactId == action2.ContactId &&
+               Math.Abs((action1.ExecuteAt - action2.ExecuteAt).TotalHours) < 24; // Within 24 hours
+    }
+
+    private async Task<bool> EvaluateSingleCriterionAsync(string criterionKey, object criterionValue, ContactContext context, string traceId)
+    {
+        try
+        {
+            // Example implementation logic for criterion evaluation
+            switch (criterionKey.ToLowerInvariant())
+            {
+                case "dealstatus":
+                    // Check if deal status matches expected value
+                    var expectedStatus = criterionValue.ToString();
+                    var currentStatus = context.AdditionalData?.GetValueOrDefault("dealStatus")?.ToString();
+                    return string.Equals(expectedStatus, currentStatus, StringComparison.OrdinalIgnoreCase);
+
+                case "contactengagement":
+                    // Check engagement level
+                    var expectedEngagement = criterionValue.ToString();
+                    var currentEngagement = context.AdditionalData?.GetValueOrDefault("engagementLevel")?.ToString();
+                    return string.Equals(expectedEngagement, currentEngagement, StringComparison.OrdinalIgnoreCase);
+
+                case "lastinteractionage":
+                    // Check if last interaction is within specified timeframe
+                    if (int.TryParse(criterionValue.ToString(), out var maxDays))
+                    {
+                        var lastInteraction = context.LastInteractionDate ?? DateTime.MinValue;
+                        return (DateTime.UtcNow - lastInteraction).TotalDays <= maxDays;
+                    }
+                    break;
+
+                default:
+                    _logger.LogWarning("Unknown relevance criterion: {Criterion}, TraceId: {TraceId}", criterionKey, traceId);
+                    return true; // Default to passing for unknown criteria
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error evaluating criterion {Criterion}, TraceId: {TraceId}", criterionKey, traceId);
+            return false; // Fail safe
+        }
+    }
+
     private (bool requiresApproval, string reason) ParseLLMApprovalDecision(string llmResponse, string traceId)
     {
         try
@@ -811,123 +860,28 @@ Should this action require human approval before execution?";
         }
     }
 
-    private ScheduledAction ApplyModifications(ScheduledAction originalAction, Dictionary<string, object> modifications)
-    {
-        var modifiedAction = new ScheduledAction
-        {
-            Id = originalAction.Id,
-            ActionType = originalAction.ActionType,
-            Description = originalAction.Description,
-            ContactId = originalAction.ContactId,
-            OrganizationId = originalAction.OrganizationId,
-            ScheduledByAgentId = originalAction.ScheduledByAgentId,
-            ExecuteAt = originalAction.ExecuteAt,
-            Parameters = new Dictionary<string, object>(originalAction.Parameters),
-            RelevanceCriteria = new Dictionary<string, object>(originalAction.RelevanceCriteria),
-            Priority = originalAction.Priority,
-            TraceId = originalAction.TraceId
-        };
-
-        // Apply modifications
-        foreach (var modification in modifications)
-        {
-            switch (modification.Key.ToLower())
-            {
-                case "description":
-                    modifiedAction.Description = modification.Value.ToString() ?? modifiedAction.Description;
-                    break;
-                case "executeat":
-                    if (DateTime.TryParse(modification.Value.ToString(), out var newExecuteAt))
-                        modifiedAction.ExecuteAt = newExecuteAt;
-                    break;
-                case "priority":
-                    if (int.TryParse(modification.Value.ToString(), out var newPriority) && 
-                        Enum.IsDefined(typeof(UrgencyLevel), newPriority))
-                        modifiedAction.Priority = (UrgencyLevel)newPriority;
-                    break;
-                default:
-                    // Add to parameters
-                    modifiedAction.Parameters[modification.Key] = modification.Value;
-                    break;
-            }
-        }
-
-        return modifiedAction;
-    }
-
-    private bool IsSimilarAction(ScheduledAction action1, ScheduledAction action2)
-    {
-        return action1.ActionType == action2.ActionType &&
-               action1.ContactId == action2.ContactId &&
-               Math.Abs((action1.ExecuteAt - action2.ExecuteAt).TotalHours) < 24; // Within 24 hours
-    }
-
-    private async Task<bool> EvaluateSingleCriterionAsync(
-        string criterionKey, 
-        object criterionValue, 
-        ContactContext context, 
-        string traceId)
-    {
-        try
-        {
-            // This is a simplified implementation - in production, you would have
-            // more sophisticated criterion evaluation logic
-            switch (criterionKey.ToLowerInvariant())
-            {
-                case "dealstatus":
-                    // Example: Check if deal status matches expected value
-                    var expectedStatus = criterionValue.ToString();
-                    var currentStatus = context.AdditionalData?.GetValueOrDefault("dealStatus")?.ToString();
-                    return string.Equals(expectedStatus, currentStatus, StringComparison.OrdinalIgnoreCase);
-
-                case "contactengagement":
-                    // Example: Check engagement level
-                    var expectedEngagement = criterionValue.ToString();
-                    var currentEngagement = context.AdditionalData?.GetValueOrDefault("engagementLevel")?.ToString();
-                    return string.Equals(expectedEngagement, currentEngagement, StringComparison.OrdinalIgnoreCase);
-
-                case "lastinteractionage":
-                    // Example: Check if last interaction is within specified timeframe
-                    if (int.TryParse(criterionValue.ToString(), out var maxDays))
-                    {
-                        var lastInteraction = context.LastInteractionDate ?? DateTime.MinValue;
-                        return (DateTime.UtcNow - lastInteraction).TotalDays <= maxDays;
-                    }
-                    break;
-
-                default:
-                    _logger.LogWarning("Unknown relevance criterion: {Criterion}, TraceId: {TraceId}", 
-                        criterionKey, traceId);
-                    return true; // Default to passing for unknown criteria
-            }
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error evaluating criterion {Criterion}, TraceId: {TraceId}", 
-                criterionKey, traceId);
-            return false; // Fail safe
-        }
-    }
-
     private ActionRelevanceResult ParseLLMValidationResponse(string llmResponse, string actionId, string traceId)
     {
         try
         {
             var jsonResponse = JsonSerializer.Deserialize<JsonElement>(llmResponse);
             
+            bool isRelevant = jsonResponse.TryGetProperty("isRelevant", out var isRelevantElement) && isRelevantElement.GetBoolean();
+            double confidenceScore = jsonResponse.TryGetProperty("confidenceScore", out var confidenceElement) ? confidenceElement.GetDouble() : 0.0;
+            string reason = jsonResponse.TryGetProperty("reason", out var reasonElement) ? reasonElement.GetString() ?? "LLM validation" : "LLM validation";
+            string? recommendedAction = jsonResponse.TryGetProperty("recommendedAction", out var recAction) ? recAction.GetString() : null;
+            var alternativeActions = jsonResponse.TryGetProperty("alternativeActions", out var altActions)
+                ? altActions.EnumerateArray().Select(a => a.GetString() ?? "").Where(s => !string.IsNullOrEmpty(s)).ToList()
+                : new List<string>();
+
             return new ActionRelevanceResult
             {
                 ActionId = actionId,
-                IsRelevant = jsonResponse.GetProperty("isRelevant").GetBoolean(),
-                ConfidenceScore = jsonResponse.GetProperty("confidenceScore").GetDouble(),
-                Reason = jsonResponse.GetProperty("reason").GetString() ?? "LLM validation",
-                RecommendedAction = jsonResponse.TryGetProperty("recommendedAction", out var recAction) 
-                    ? recAction.GetString() : null,
-                AlternativeActions = jsonResponse.TryGetProperty("alternativeActions", out var altActions)
-                    ? altActions.EnumerateArray().Select(a => a.GetString() ?? "").Where(s => !string.IsNullOrEmpty(s)).ToList()
-                    : new List<string>(),
+                IsRelevant = isRelevant,
+                ConfidenceScore = confidenceScore,
+                Reason = reason,
+                RecommendedAction = recommendedAction,
+                AlternativeActions = alternativeActions,
                 CheckedAt = DateTime.UtcNow,
                 CheckedBy = "LLM-" + nameof(ActionRelevanceValidator),
                 TraceId = traceId
@@ -983,6 +937,65 @@ Should this action require human approval before execution?";
                 _auditLog.RemoveRange(0, _auditLog.Count - 10000);
             }
         }
+    }
+
+    private ScheduledAction ApplyModifications(ScheduledAction originalAction, Dictionary<string, object> modifications)
+    {
+        var modifiedAction = new ScheduledAction
+        {
+            Id = originalAction.Id,
+            ActionType = originalAction.ActionType,
+            Description = originalAction.Description,
+            ContactId = originalAction.ContactId,
+            OrganizationId = originalAction.OrganizationId,
+            ScheduledByAgentId = originalAction.ScheduledByAgentId,
+            ExecuteAt = originalAction.ExecuteAt,
+            Parameters = new Dictionary<string, object>(originalAction.Parameters),
+            RelevanceCriteria = new Dictionary<string, object>(originalAction.RelevanceCriteria),
+            Priority = originalAction.Priority,
+            TraceId = originalAction.TraceId
+        };
+
+        // Apply modifications
+        foreach (var modification in modifications)
+        {
+            switch (modification.Key.ToLower())
+            {
+                case "description":
+                    modifiedAction.Description = modification.Value.ToString() ?? modifiedAction.Description;
+                    break;
+                case "executeat":
+                    if (DateTime.TryParse(modification.Value.ToString(), out var newExecuteAt))
+                        modifiedAction.ExecuteAt = newExecuteAt;
+                    break;
+                case "priority":
+                    if (int.TryParse(modification.Value.ToString(), out var newPriority) && 
+                        Enum.IsDefined(typeof(UrgencyLevel), newPriority))
+                        modifiedAction.Priority = (UrgencyLevel)newPriority;
+                    break;
+                default:
+                    // Add to parameters
+                    modifiedAction.Parameters[modification.Key] = modification.Value;
+                    break;
+            }
+        }
+
+        return modifiedAction;
+    }
+
+    private Dictionary<string, object> ConvertGuidToDictionary(Guid guid)
+    {
+        return new Dictionary<string, object>
+        {
+            { "GuidValue", guid }
+        };
+    }
+
+    private async Task ExampleUsageOfConvertGuidToDictionaryAsync()
+    {
+        var inputGuid = Guid.NewGuid();
+        var dictionary = ConvertGuidToDictionary(inputGuid);
+        // Use the dictionary as needed
     }
     #endregion
 }

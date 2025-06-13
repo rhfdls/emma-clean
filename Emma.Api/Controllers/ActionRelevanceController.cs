@@ -187,8 +187,7 @@ public class ActionRelevanceController : ControllerBase
             var currentContext = new ContactContext
             {
                 ContactId = contactId,
-                OrganizationId = organizationId,
-                LastInteractionDate = DateTime.UtcNow
+                OrganizationId = organizationId
             };
 
             var alternatives = await _actionRelevanceValidator.SuggestAlternativeActionsAsync(
@@ -226,17 +225,19 @@ public class ActionRelevanceController : ControllerBase
                 "API: Scheduling action {ActionType} for contact {ContactId} at {ExecuteAt}, TraceId: {TraceId}",
                 request.ActionType, request.ContactId, request.ExecuteAt, traceId);
 
-            var actionId = await _agentOrchestrator.ScheduleActionAsync(
-                request.ActionType,
-                request.Description,
-                request.ContactId,
-                request.OrganizationId,
-                request.AgentId,
-                request.ExecuteAt,
-                request.Parameters,
-                request.RelevanceCriteria,
-                request.Priority,
-                traceId);
+            var scheduledAction = new ScheduledAction
+            {
+                ActionType = request.ActionType,
+                Description = request.Description,
+                ContactId = request.ContactId,
+                OrganizationId = request.OrganizationId,
+                ExecuteAt = request.ExecuteAt,
+                Parameters = request.Parameters,
+                RelevanceCriteria = request.RelevanceCriteria,
+                Priority = request.Priority
+            };
+
+            var actionId = await _agentOrchestrator.ScheduleActionAsync(scheduledAction, traceId);
 
             _logger.LogInformation("API: Action scheduled successfully with ID {ActionId}, TraceId: {TraceId}",
                 actionId, traceId);
@@ -274,7 +275,7 @@ public class ActionRelevanceController : ControllerBase
             _logger.LogInformation("API: Cancelling scheduled action {ActionId}, reason: {Reason}, TraceId: {TraceId}",
                 actionId, reason, traceId);
 
-            var cancelled = await _agentOrchestrator.CancelScheduledActionAsync(actionId, reason, traceId);
+            var cancelled = await _agentOrchestrator.CancelScheduledActionAsync(actionId, traceId);
 
             if (cancelled)
             {

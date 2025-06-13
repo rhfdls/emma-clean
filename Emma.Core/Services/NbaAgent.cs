@@ -67,7 +67,7 @@ public class NbaAgent : INbaAgent
         try
         {
             // Security: Rate limiting check
-            if (!await CheckRateLimitAsync(requestingAgentId.ToString(), traceId))
+            if (!CheckRateLimit(requestingAgentId.ToString(), traceId))
             {
                 return CreateSecurityErrorResponse("Rate limit exceeded", traceId, startTime);
             }
@@ -235,7 +235,7 @@ public class NbaAgent : INbaAgent
     /// <summary>
     /// Security: Rate limiting check
     /// </summary>
-    private async Task<bool> CheckRateLimitAsync(string userId, string traceId)
+    private bool CheckRateLimit(string userId, string traceId)
     {
         var now = DateTime.UtcNow;
         var minuteKey = $"{userId}:{now:yyyy-MM-dd-HH-mm}";
@@ -630,9 +630,9 @@ public class NbaAgent : INbaAgent
             if (isNbaRequest || request.Intent == AgentIntent.DataAnalysis)
             {
                 return await RecommendNextBestActionsAsync(
-                    contactId != null ? Guid.Parse(contactId) : Guid.Empty,
-                    organizationId != null ? Guid.Parse(organizationId) : Guid.Empty,
-                    agentId != null ? Guid.Parse(agentId) : Guid.Empty,
+                    contactId != null && Guid.TryParse(contactId, out var parsedContactId) ? parsedContactId : Guid.Empty,
+                    organizationId != null && Guid.TryParse(organizationId, out var parsedOrganizationId) ? parsedOrganizationId : Guid.Empty,
+                    agentId != null && Guid.TryParse(agentId, out var parsedAgentId) ? parsedAgentId : Guid.Empty,
                     3,
                     traceId,
                     request.Context.ContainsKey("userOverrides") ? (Dictionary<string, object>)request.Context["userOverrides"] : null);
@@ -755,9 +755,6 @@ public class NbaRecommendation : IAgentAction
     }
 }
 
-/// <summary>
-/// Simple validation result for input validation
-/// </summary>
 public class ValidationResult
 {
     public bool IsValid { get; set; }

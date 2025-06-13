@@ -76,7 +76,7 @@ public class EnumsController : ControllerBase
             switch (format.ToLowerInvariant())
             {
                 case "dropdown":
-                    var dropdown = await _enumProvider.GetEnumDropdownAsync(enumType, context);
+                    var dropdown = _enumProvider.GetEnumDropdown(enumType, context);
                     return Ok(dropdown);
                     
                 case "api":
@@ -116,7 +116,7 @@ public class EnumsController : ControllerBase
         try
         {
             var context = EnumExtensions.CreateContext(industryCode, agentType, tenantId);
-            var enumValue = await _enumProvider.GetEnumValueAsync(enumType, key, context);
+            var enumValue = _enumProvider.GetEnumValue(enumType, key, context);
             
             if (enumValue == null)
             {
@@ -174,7 +174,7 @@ public class EnumsController : ControllerBase
     /// <param name="tenantId">Optional tenant ID for context</param>
     /// <returns>Enum metadata including counts and configuration</returns>
     [HttpGet("{enumType}/metadata")]
-    public async Task<ActionResult<EnumMetadata>> GetEnumMetadata(
+    public async Task<ActionResult> GetEnumMetadata(
         string enumType,
         [FromQuery] string? industryCode = null,
         [FromQuery] string? agentType = null,
@@ -184,17 +184,11 @@ public class EnumsController : ControllerBase
         {
             var context = EnumExtensions.CreateContext(industryCode, agentType, tenantId);
             var metadata = await _enumProvider.GetEnumMetadataAsync(enumType, context);
-            
-            if (metadata == null)
-            {
-                return NotFound($"Enum type '{enumType}' not found");
-            }
-            
             return Ok(metadata);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving metadata for {EnumType}", enumType);
+            _logger.LogError(ex, "Error retrieving enum metadata for {EnumType}", enumType);
             return StatusCode(500, "Internal server error");
         }
     }
@@ -283,8 +277,6 @@ public class EnumsController : ControllerBase
         }
     }
 
-    // Versioning and Audit API Endpoints
-
     /// <summary>
     /// Get configuration metadata including version information
     /// </summary>
@@ -295,7 +287,7 @@ public class EnumsController : ControllerBase
         try
         {
             Console.WriteLine($"[IEnumProvider] {typeof(EnumConfigurationMetadata).AssemblyQualifiedName}");
-            var metadata = await _enumProvider.GetConfigurationMetadataAsync();
+            var metadata = _enumProvider.GetConfigurationMetadata();
             return Ok(metadata);
         }
         catch (Exception ex)
@@ -325,7 +317,7 @@ public class EnumsController : ControllerBase
                 return BadRequest("CreatedBy is required");
             }
 
-            var version = await _enumProvider.CreateVersionAsync(request.Description, request.CreatedBy, request.Tags);
+            var version = _enumProvider.CreateVersion(request.Description, request.CreatedBy, request.Tags);
             
             _logger.LogInformation("Created enum configuration version {Version} via API by {User}", 
                 version, request.CreatedBy);
@@ -344,11 +336,11 @@ public class EnumsController : ControllerBase
     /// </summary>
     /// <returns>List of version history entries</returns>
     [HttpGet("versions")]
-    public async Task<ActionResult<IEnumerable<VersionHistoryEntry>>> GetVersionHistory()
+    public ActionResult<IEnumerable<VersionHistoryEntry>> GetVersionHistory()
     {
         try
         {
-            var versions = await _enumProvider.GetVersionHistoryAsync();
+            var versions = _enumProvider.GetVersionHistory();
             return Ok(versions);
         }
         catch (Exception ex)
@@ -379,7 +371,7 @@ public class EnumsController : ControllerBase
                 return BadRequest("Reason is required");
             }
 
-            var success = await _enumProvider.RollbackToVersionAsync(version, request.RolledBackBy, request.Reason);
+            var success = _enumProvider.RollbackToVersion(version, request.RolledBackBy, request.Reason);
             
             if (success)
             {
@@ -449,12 +441,12 @@ public class EnumsController : ControllerBase
     {
         try
         {
-            var changeLog = await _enumProvider.GetChangeLogAsync(enumType, fromDate, toDate, changedBy);
-            return Ok(changeLog);
+            var changeLogs = await _enumProvider.GetChangeLogAsync(enumType, fromDate, toDate, changedBy);
+            return Ok(changeLogs);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving change log");
+            _logger.LogError(ex, "Error retrieving change log entries");
             return StatusCode(500, "Internal server error");
         }
     }
@@ -593,10 +585,10 @@ public class EnumsController : ControllerBase
     /// <param name="mergeStrategy">How to handle conflicts</param>
     /// <returns>Import result</returns>
     [HttpPost("import")]
-    public async Task<ActionResult<ImportResult>> ImportConfiguration(
+    public ActionResult<ImportResult> ImportConfiguration(
         IFormFile file,
         [FromForm] string importedBy,
-        [FromForm] MergeStrategy mergeStrategy = MergeStrategy.Replace)
+        [FromForm] PromptMergeStrategy mergeStrategy = PromptMergeStrategy.Replace)
     {
         try
         {
@@ -621,10 +613,11 @@ public class EnumsController : ControllerBase
             {
                 using (var stream = new FileStream(tempFilePath, FileMode.Create))
                 {
-                    await file.CopyToAsync(stream);
+                    file.CopyTo(stream);
                 }
 
-                var result = await _enumProvider.ImportConfigurationAsync(tempFilePath, importedBy, mergeStrategy);
+                var result = new ImportResult();
+                result.Success = _enumProvider.ImportConfiguration(tempFilePath, importedBy, mergeStrategy);
                 
                 _logger.LogInformation("Imported enum configuration via API by {User}: {FileName} (Success: {Success})", 
                     importedBy, file.FileName, result.Success);

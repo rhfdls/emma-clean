@@ -1,3 +1,5 @@
+This file has been superseded by EMMA-Unified-Project-Management-Plan.md. All future updates are tracked there
+
 # EMMA Enhancement Backlog - "Later" Priority Items
 
 This document tracks enhancement recommendations that are marked as "Later" priority - items that provide value but are not immediately critical for the core userOverrides implementation.

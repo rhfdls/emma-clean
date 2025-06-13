@@ -2,6 +2,7 @@ using Emma.Core.Models;
 using Emma.Core.Interfaces;
 using Emma.Core.Industry;
 using Emma.Data.Models;
+using Emma.Core.Exceptions;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
@@ -37,6 +38,18 @@ public class ResourceAgent : IResourceAgent
     {
         traceId ??= Guid.NewGuid().ToString();
         
+        if (request == null)
+        {
+            _logger.LogWarning("ProcessRequestAsync: request is null. traceId={TraceId}", traceId);
+            return new AgentResponse
+            {
+                Success = false,
+                ErrorMessage = "Request is null",
+                TraceId = traceId,
+                AgentId = "ResourceAgent"
+            };
+        }
+
         try
         {
             _logger.LogInformation("Processing ResourceAgent request, TraceId: {TraceId}", traceId);
@@ -49,6 +62,12 @@ public class ResourceAgent : IResourceAgent
                 ? orgId 
                 : Guid.Empty;
                 
+            // Validate extracted organization ID
+            if (organizationId == Guid.Empty)
+            {
+                _logger.LogWarning("OrganizationId not provided or invalid, TraceId: {TraceId}", traceId);
+            }
+
             // Extract parameters from context
             var parameters = request.Context.TryGetValue("Parameters", out var paramsObj) && paramsObj is Dictionary<string, object> paramDict
                 ? paramDict
@@ -58,24 +77,52 @@ public class ResourceAgent : IResourceAgent
                 ? Convert.ToInt32(parameters["maxResults"]) 
                 : 10;
 
+            // Validate maxResults
+            if (maxResults <= 0)
+            {
+                _logger.LogWarning("Invalid maxResults value: {MaxResults}, defaulting to 10, TraceId: {TraceId}", maxResults, traceId);
+                maxResults = 10;
+            }
+
             return await RecommendResourcesAsync(organizationId, resourceCriteria, maxResults, traceId);
         }
-        catch (Exception ex)
+        catch (ResourceNotFoundException ex)
         {
-            _logger.LogError(ex, "Error processing ResourceAgent request, TraceId: {TraceId}", traceId);
+            _logger.LogWarning(ex, "Resource not found. traceId={TraceId} agent={Agent}", traceId, "ResourceAgent");
             return new AgentResponse
             {
                 Success = false,
-                ErrorMessage = $"Failed to process resource request: {ex.Message}",
+                ErrorMessage = "Resource not found",
+                TraceId = traceId,
+                AgentId = "ResourceAgent"
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error in ProcessRequestAsync. traceId={TraceId} agent={Agent}", traceId, "ResourceAgent");
+            return new AgentResponse
+            {
+                Success = false,
+                ErrorMessage = "Unexpected error occurred",
                 TraceId = traceId,
                 AgentId = "ResourceAgent"
             };
         }
     }
 
+    /// <summary>
+    /// Asynchronously retrieves the capabilities of the ResourceAgent.
+    /// </summary>
+    /// <returns>An AgentCapability object detailing the supported tasks and configuration of the ResourceAgent.</returns>
     public async Task<AgentCapability> GetCapabilityAsync()
     {
-        return new AgentCapability
+        /// <summary>
+        /// Provides the capabilities of the ResourceAgent, including supported tasks and configuration parameters.
+        /// </summary>
+        /// <remarks>
+        /// The ResourceAgent is responsible for recommending service provider contacts based on client needs, specialties, location, and performance history.
+        /// </remarks>
+        var capability = new AgentCapability
         {
             AgentId = "ResourceAgent",
             Name = "Resource Recommendation Agent",
@@ -94,6 +141,33 @@ public class ResourceAgent : IResourceAgent
                 ["OptionalParameters"] = new[] { "specialty", "serviceArea", "minRating", "maxResults", "clientLocation" }
             }
         };
+
+        // Validate capability completeness
+        if (string.IsNullOrWhiteSpace(capability.AgentId) || string.IsNullOrWhiteSpace(capability.Name))
+        {
+            _logger.LogWarning("Agent capability details are incomplete. AgentId or Name is missing.");
+            return new AgentCapability
+            {
+                AgentId = capability.AgentId ?? "Unknown",
+                Name = capability.Name ?? "Unknown",
+                Description = capability.Description,
+                Version = capability.Version,
+                SupportedTasks = capability.SupportedTasks,
+                Configuration = capability.Configuration
+            };
+        }
+
+        if (!capability.SupportedTasks.Any())
+        {
+            _logger.LogWarning("No supported tasks defined for ResourceAgent.");
+        }
+
+        if (!capability.Configuration.ContainsKey("RequiredParameters") || !capability.Configuration.ContainsKey("OptionalParameters"))
+        {
+            _logger.LogWarning("Configuration parameters are not properly defined.");
+        }
+
+        return capability;
     }
 
     public async Task<AgentResponse> RecommendResourcesAsync(Guid organizationId, Dictionary<string, object> resourceCriteria, int maxResults = 10, string? traceId = null, Dictionary<string, object>? userOverrides = null)
@@ -102,14 +176,29 @@ public class ResourceAgent : IResourceAgent
         
         try
         {
-            _logger.LogInformation("Starting AI-powered resource recommendation, OrganizationId: {OrganizationId}, TraceId: {TraceId}, UserOverrides: {HasOverrides}", 
-                organizationId, traceId, userOverrides?.Count > 0);
+            _logger.LogInformation("Recommending resources, TraceId: {TraceId}", traceId);
 
-            // Get tenant context for industry-specific logic
-            var tenantContext = await _tenantContextService.GetCurrentTenantAsync();
-            var industryProfile = tenantContext.IndustryProfile ?? await _tenantContextService.GetIndustryProfileAsync();
+            // Convert Guid to Dictionary if needed
+            var organizationIdDict = ConvertGuidToDictionary(organizationId);
+            // Merge with existing resourceCriteria
+            foreach (var kvp in organizationIdDict)
+            {
+                resourceCriteria[kvp.Key] = kvp.Value;
+            }
+            
+            // Get industry profile
+            var industryProfile = await _tenantContextService.GetIndustryProfileAsync();
 
-            // Find available service provider contacts
+            if (industryProfile == null)
+            {
+                throw new InvalidOperationException("Industry profile is not configured for this tenant.");
+            }
+
+            // Use ResourceTypes and DefaultResourceCategories in recommendations
+            var resourceTypes = industryProfile.ResourceTypes;
+            var defaultCategories = industryProfile.DefaultResourceCategories;
+
+            // Implement logic to use these properties in resource recommendation
             var serviceProviders = await FindServiceProviderContactsAsync(organizationId, resourceCriteria, maxResults * 2);
             
             if (!serviceProviders.Any())
@@ -136,13 +225,13 @@ public class ResourceAgent : IResourceAgent
             // Generate AI-powered recommendations
             try
             {
-                var aiContext = BuildResourceRecommendationContext(resourceCriteria, serviceProviders, industryProfile);
+                var aiContext = BuildResourceRecommendationContext(resourceCriteria, serviceProviders, industryProfile, resourceTypes, defaultCategories);
                 var recommendations = await GenerateAIResourceRecommendationsAsync(aiContext, maxResults, industryProfile, traceId);
                 
                 if (recommendations.Any())
                 {
-                    _logger.LogInformation("AI-powered resource recommendations generated: {Count} recommendations, TraceId: {TraceId}", 
-                        recommendations.Count, traceId);
+                    _logger.LogInformation("AI-powered resource recommendations generated: {Count} recommendations, TraceId: {TraceId}, Context: {Context}", 
+                        recommendations.Count, traceId, aiContext);
 
                     return new AgentResponse
                     {
@@ -167,7 +256,7 @@ public class ResourceAgent : IResourceAgent
             }
 
             // Fallback to rule-based recommendations
-            var fallbackRecommendations = GenerateRuleBasedRecommendations(serviceProviders, resourceCriteria, maxResults);
+            var fallbackRecommendations = GenerateRuleBasedRecommendations(serviceProviders, resourceCriteria, maxResults, resourceTypes, defaultCategories);
             
             _logger.LogInformation("Rule-based resource recommendations generated: {Count} recommendations, TraceId: {TraceId}", 
                 fallbackRecommendations.Count, traceId);
@@ -189,7 +278,7 @@ public class ResourceAgent : IResourceAgent
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in RecommendResourcesAsync, TraceId: {TraceId}", traceId);
+            _logger.LogError(ex, "Error in RecommendResourcesAsync, TraceId: {TraceId}, Exception: {Exception}", traceId, ex);
             return new AgentResponse
             {
                 Success = false,
@@ -202,50 +291,74 @@ public class ResourceAgent : IResourceAgent
 
     private async Task<List<Contact>> FindServiceProviderContactsAsync(Guid organizationId, Dictionary<string, object> criteria, int maxResults)
     {
-        // Get all service provider contacts (ServiceProvider and Agent relationship states)
-        var serviceProviders = await _contactService.GetContactsByRelationshipStateAsync(
-            organizationId, 
-            new[] { RelationshipState.ServiceProvider, RelationshipState.Agent });
-
-        // Apply filtering based on criteria
-        var filteredProviders = serviceProviders.AsQueryable();
-
-        // Filter by specialty
-        if (criteria.TryGetValue("specialty", out var specialtyObj) && specialtyObj?.ToString() is string specialty && !string.IsNullOrEmpty(specialty))
+        try
         {
-            filteredProviders = filteredProviders.Where(c => 
-                c.Specialties.Any(s => s.Contains(specialty, StringComparison.OrdinalIgnoreCase)));
-        }
+            // Convert Guid to Dictionary if needed
+            var organizationIdDict = ConvertGuidToDictionary(organizationId);
+            // Merge with existing criteria
+            foreach (var kvp in organizationIdDict)
+            {
+                criteria[kvp.Key] = kvp.Value;
+            }
+            
+            // Get all service provider contacts (ServiceProvider and Agent relationship states)
+            var serviceProviders = await _contactService.GetContactsByRelationshipStateAsync(
+                organizationId, 
+                new[] { RelationshipState.ServiceProvider, RelationshipState.Agent });
 
-        // Filter by service area
-        if (criteria.TryGetValue("serviceArea", out var serviceAreaObj) && serviceAreaObj?.ToString() is string serviceArea && !string.IsNullOrEmpty(serviceArea))
+            // Apply filtering based on criteria
+            var filteredProviders = serviceProviders.AsQueryable();
+
+            // Filter by specialty
+            if (criteria.TryGetValue("specialty", out var specialtyObj) && specialtyObj?.ToString() is string specialty && !string.IsNullOrEmpty(specialty))
+            {
+                filteredProviders = filteredProviders.Where(c => 
+                    c.Specialties.Any(s => s.Equals(specialty, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            // Filter by service area
+            if (criteria.TryGetValue("serviceArea", out var serviceAreaObj) && serviceAreaObj?.ToString() is string serviceArea && !string.IsNullOrEmpty(serviceArea))
+            {
+                filteredProviders = filteredProviders.Where(c => 
+                    c.ServiceAreas.Any(sa => sa.Equals(serviceArea, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            // Filter by minimum rating
+            if (criteria.TryGetValue("minRating", out var minRatingObj) && decimal.TryParse(minRatingObj?.ToString(), out var minRating))
+            {
+                filteredProviders = filteredProviders.Where(c => c.Rating >= minRating);
+            }
+
+            // Filter by preferred status
+            if (criteria.TryGetValue("preferredOnly", out var preferredObj) && bool.TryParse(preferredObj?.ToString(), out var preferredOnly) && preferredOnly)
+            {
+                filteredProviders = filteredProviders.Where(c => c.IsPreferred);
+            }
+
+            // Order by rating (descending), then by preferred status, then by review count
+            return filteredProviders
+                .OrderByDescending(c => c.IsPreferred)
+                .ThenByDescending(c => c.Rating ?? 0)
+                .ThenByDescending(c => c.ReviewCount)
+                .Take(maxResults)
+                .ToList();
+        }
+        catch (Exception ex)
         {
-            filteredProviders = filteredProviders.Where(c => 
-                c.ServiceAreas.Any(sa => sa.Contains(serviceArea, StringComparison.OrdinalIgnoreCase)));
+            _logger.LogError(ex, "Error finding service provider contacts. OrganizationId={OrganizationId}", organizationId);
+            return new List<Contact>();
         }
-
-        // Filter by minimum rating
-        if (criteria.TryGetValue("minRating", out var minRatingObj) && decimal.TryParse(minRatingObj?.ToString(), out var minRating))
-        {
-            filteredProviders = filteredProviders.Where(c => c.Rating >= minRating);
-        }
-
-        // Filter by preferred status
-        if (criteria.TryGetValue("preferredOnly", out var preferredObj) && bool.TryParse(preferredObj?.ToString(), out var preferredOnly) && preferredOnly)
-        {
-            filteredProviders = filteredProviders.Where(c => c.IsPreferred);
-        }
-
-        // Order by rating (descending), then by preferred status, then by review count
-        return filteredProviders
-            .OrderByDescending(c => c.IsPreferred)
-            .ThenByDescending(c => c.Rating ?? 0)
-            .ThenByDescending(c => c.ReviewCount)
-            .Take(maxResults)
-            .ToList();
     }
 
-    private object BuildResourceRecommendationContext(Dictionary<string, object> criteria, List<Contact> serviceProviders, IIndustryProfile industryProfile)
+    private Dictionary<string, object> ConvertGuidToDictionary(Guid guid)
+    {
+        return new Dictionary<string, object>
+        {
+            { "GuidValue", guid }
+        };
+    }
+
+    private object BuildResourceRecommendationContext(Dictionary<string, object> criteria, List<Contact> serviceProviders, IIndustryProfile industryProfile, List<string> resourceTypes, List<string> defaultCategories)
     {
         return new
         {
@@ -279,8 +392,8 @@ public class ResourceAgent : IResourceAgent
             {
                 IndustryCode = industryProfile.IndustryCode,
                 DisplayName = industryProfile.DisplayName,
-                ResourceTypes = industryProfile.ResourceTypes,
-                DefaultResourceCategories = industryProfile.DefaultResourceCategories
+                ResourceTypes = resourceTypes,
+                DefaultResourceCategories = defaultCategories
             },
             RecommendationContext = new
             {
@@ -296,8 +409,20 @@ public class ResourceAgent : IResourceAgent
     {
         try
         {
+            // Ensure AI service is properly configured
+            if (_aiFoundryService == null)
+            {
+                throw new InvalidOperationException("AI service is not configured.");
+            }
+
+            // Validate context
+            if (aiContext == null)
+            {
+                throw new ArgumentNullException(nameof(aiContext));
+            }
+            
             // Get system prompt for resource recommendations
-            var systemPrompt = await _promptProvider.GetSystemPromptAsync("ResourceRecommendation", industryProfile.IndustryCode);
+            var systemPrompt = await _promptProvider.GetSystemPromptAsync("ResourceRecommendation", industryProfile);
             
             // Build user prompt with context
             var contextJson = JsonSerializer.Serialize(aiContext, new JsonSerializerOptions { WriteIndented = true });
@@ -335,47 +460,36 @@ public class ResourceAgent : IResourceAgent
                 cleanedResponse = cleanedResponse.Substring(0, cleanedResponse.Length - 3);
             }
 
-            var recommendations = JsonSerializer.Deserialize<List<JsonElement>>(cleanedResponse);
-            var results = new List<ResourceRecommendationResult>();
-
-            foreach (var rec in recommendations)
+            // Parse JSON
+            var recommendations = JsonSerializer.Deserialize<List<ResourceRecommendationResult>>(cleanedResponse);
+            if (recommendations == null)
             {
-                if (rec.TryGetProperty("contactId", out var contactIdProp) && 
-                    Guid.TryParse(contactIdProp.GetString(), out var contactId))
-                {
-                    var result = new ResourceRecommendationResult
-                    {
-                        ContactId = contactId,
-                        RecommendationReason = rec.TryGetProperty("recommendationReason", out var reasonProp) ? reasonProp.GetString() ?? "" : "",
-                        MatchScore = rec.TryGetProperty("matchScore", out var scoreProp) ? (decimal)scoreProp.GetDouble() : 0.5m,
-                        Strengths = rec.TryGetProperty("strengths", out var strengthsProp) ? 
-                            strengthsProp.EnumerateArray().Select(s => s.GetString() ?? "").ToList() : new List<string>(),
-                        Considerations = rec.TryGetProperty("considerations", out var considerationsProp) ? 
-                            considerationsProp.EnumerateArray().Select(c => c.GetString() ?? "").ToList() : new List<string>()
-                    };
-                    
-                    results.Add(result);
-                }
+                throw new JsonException("Failed to parse AI recommendations.");
             }
 
-            _logger.LogInformation("Parsed {Count} AI resource recommendations, TraceId: {TraceId}", results.Count, traceId);
-            return results;
+            _logger.LogInformation("Parsed {Count} AI recommendations, TraceId: {TraceId}", recommendations.Count, traceId);
+            return recommendations;
+        }
+        catch (JsonException jsonEx)
+        {
+            _logger.LogError(jsonEx, "JSON parsing error for AI recommendations, TraceId: {TraceId}", traceId);
+            return new List<ResourceRecommendationResult>();
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to parse AI resource recommendations, TraceId: {TraceId}", traceId);
+            _logger.LogError(ex, "Error parsing AI recommendations, TraceId: {TraceId}", traceId);
             return new List<ResourceRecommendationResult>();
         }
     }
 
-    private List<ResourceRecommendationResult> GenerateRuleBasedRecommendations(List<Contact> serviceProviders, Dictionary<string, object> criteria, int maxResults)
+    private List<ResourceRecommendationResult> GenerateRuleBasedRecommendations(List<Contact> serviceProviders, Dictionary<string, object> criteria, int maxResults, List<string> resourceTypes, List<string> defaultCategories)
     {
         var recommendations = new List<ResourceRecommendationResult>();
 
         foreach (var provider in serviceProviders.Take(maxResults))
         {
             var matchScore = CalculateMatchScore(provider, criteria);
-            var strengths = IdentifyProviderStrengths(provider);
+            var strengths = IdentifyProviderStrengths(provider, resourceTypes, defaultCategories);
             var considerations = IdentifyProviderConsiderations(provider);
 
             recommendations.Add(new ResourceRecommendationResult
@@ -418,7 +532,7 @@ public class ResourceAgent : IResourceAgent
         // Specialty match boost
         if (criteria.TryGetValue("specialty", out var specialtyObj) && specialtyObj?.ToString() is string specialty)
         {
-            if (provider.Specialties.Any(s => s.Contains(specialty, StringComparison.OrdinalIgnoreCase)))
+            if (provider.Specialties.Any(s => s.Equals(specialty, StringComparison.OrdinalIgnoreCase)))
             {
                 score += 0.2m;
             }
@@ -427,7 +541,7 @@ public class ResourceAgent : IResourceAgent
         // Service area match boost
         if (criteria.TryGetValue("serviceArea", out var serviceAreaObj) && serviceAreaObj?.ToString() is string serviceArea)
         {
-            if (provider.ServiceAreas.Any(sa => sa.Contains(serviceArea, StringComparison.OrdinalIgnoreCase)))
+            if (provider.ServiceAreas.Any(sa => sa.Equals(serviceArea, StringComparison.OrdinalIgnoreCase)))
             {
                 score += 0.15m;
             }
@@ -436,7 +550,7 @@ public class ResourceAgent : IResourceAgent
         return Math.Min(1.0m, Math.Max(0.0m, score)); // Clamp between 0 and 1
     }
 
-    private List<string> IdentifyProviderStrengths(Contact provider)
+    private List<string> IdentifyProviderStrengths(Contact provider, List<string> resourceTypes, List<string> defaultCategories)
     {
         var strengths = new List<string>();
 
@@ -459,6 +573,12 @@ public class ResourceAgent : IResourceAgent
 
         if (!string.IsNullOrEmpty(provider.LicenseNumber))
             strengths.Add("Licensed professional");
+
+        if (resourceTypes.Any(rt => provider.Specialties.Any(s => s.Equals(rt, StringComparison.OrdinalIgnoreCase))))
+            strengths.Add("Matches industry-specific resource type");
+
+        if (defaultCategories.Any(dc => provider.ServiceAreas.Any(sa => sa.Equals(dc, StringComparison.OrdinalIgnoreCase))))
+            strengths.Add("Matches industry-specific default category");
 
         return strengths;
     }

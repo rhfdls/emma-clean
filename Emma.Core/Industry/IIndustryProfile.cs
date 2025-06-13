@@ -51,6 +51,26 @@ namespace Emma.Core.Industry
         /// Sample queries and use cases for this industry
         /// </summary>
         List<IndustrySampleQuery> SampleQueries { get; }
+
+        /// <summary>
+        /// Initialize the SpecializedAgents collection if not already initialized
+        /// </summary>
+        void InitializeSpecializedAgents();
+
+        /// <summary>
+        /// Initialize the AvailableActions collection if not already initialized
+        /// </summary>
+        void InitializeAvailableActions();
+
+        /// <summary>
+        /// Resource types specific to the industry
+        /// </summary>
+        List<string> ResourceTypes { get; }
+
+        /// <summary>
+        /// Default resource categories for the industry
+        /// </summary>
+        List<string> DefaultResourceCategories { get; }
     }
 
     /// <summary>

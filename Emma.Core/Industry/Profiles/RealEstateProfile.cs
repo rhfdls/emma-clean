@@ -74,28 +74,38 @@ Please provide insights and recommendations.",
             }
         };
 
-        public List<string> AvailableActions => new()
-        {
-            "schedule_showing",
-            "send_market_update",
-            "create_cma",
-            "follow_up_viewing",
-            "update_listing_status",
-            "coordinate_inspection",
-            "send_contract_reminder",
-            "generate_referral_request",
-            "schedule_closing",
-            "create_buyer_consultation"
-        };
+        public List<string> AvailableActions { get; private set; }
 
-        public List<string> SpecializedAgents => new()
+        public void InitializeAvailableActions()
         {
-            "ContractorAgent",
-            "MortgageAgent", 
-            "InspectorAgent",
-            "AttorneyAgent",
-            "NbaAgent"
-        };
+            AvailableActions = AvailableActions ?? new List<string>
+            {
+                "schedule_showing",
+                "send_market_update",
+                "create_cma",
+                "follow_up_viewing",
+                "update_listing_status",
+                "coordinate_inspection",
+                "send_contract_reminder",
+                "generate_referral_request",
+                "schedule_closing",
+                "create_buyer_consultation"
+            };
+        }
+
+        public List<string> SpecializedAgents { get; private set; }
+
+        public void InitializeSpecializedAgents()
+        {
+            SpecializedAgents = SpecializedAgents ?? new List<string>
+            {
+                "ContractorAgent",
+                "MortgageAgent", 
+                "InspectorAgent",
+                "AttorneyAgent",
+                "NbaAgent"
+            };
+        }
 
         public List<string> NbaActionTypes => new()
         {
@@ -214,6 +224,20 @@ Please provide insights and recommendations.",
             new() { Query = "Who needs a follow-up after their showing?", Description = "Identify contacts requiring post-showing follow-up", Category = "Follow-up Management" },
             new() { Query = "Which past clients could provide referrals?", Description = "Find satisfied clients for referral opportunities", Category = "Business Development" },
             new() { Query = "What properties match John's criteria?", Description = "Find listings matching a client's search preferences", Category = "Property Matching" }
+        };
+
+        public List<string> ResourceTypes { get; } = new List<string>
+        {
+            "PropertyListing",
+            "ClientLead",
+            "MarketAnalysis"
+        };
+
+        public List<string> DefaultResourceCategories { get; } = new List<string>
+        {
+            "PropertyManagement",
+            "ClientEngagement",
+            "MarketResearch"
         };
     }
 }

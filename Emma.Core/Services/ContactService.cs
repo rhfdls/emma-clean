@@ -24,6 +24,7 @@ public class ContactService : IContactService
 
     /// <summary>
     /// Gets contacts by their relationship state(s) within an organization
+    /// All contact retrieval should use this method to ensure consistency.
     /// </summary>
     public async Task<IEnumerable<Contact>> GetContactsByRelationshipStateAsync(
         Guid organizationId, 
@@ -44,6 +45,7 @@ public class ContactService : IContactService
 
     /// <summary>
     /// Gets a contact by ID
+    /// Use this method to fetch contact details by ID to ensure centralized access.
     /// </summary>
     public async Task<Contact?> GetContactByIdAsync(Guid contactId)
     {
@@ -58,6 +60,7 @@ public class ContactService : IContactService
 
     /// <summary>
     /// Gets all contacts for an organization
+    /// This method should be used for organization-wide contact retrieval.
     /// </summary>
     public async Task<IEnumerable<Contact>> GetContactsByOrganizationAsync(Guid organizationId)
     {
@@ -73,6 +76,7 @@ public class ContactService : IContactService
 
     /// <summary>
     /// Creates a new contact
+    /// All contact creation should be handled through this method.
     /// </summary>
     public async Task<Contact> CreateContactAsync(Contact contact)
     {
@@ -87,6 +91,7 @@ public class ContactService : IContactService
 
     /// <summary>
     /// Updates an existing contact
+    /// Use this method for updating contact information.
     /// </summary>
     public async Task<Contact> UpdateContactAsync(Contact contact)
     {
@@ -100,6 +105,7 @@ public class ContactService : IContactService
 
     /// <summary>
     /// Deletes a contact
+    /// All contact deletions should be performed using this method.
     /// </summary>
     public async Task DeleteContactAsync(Guid contactId)
     {
@@ -119,6 +125,7 @@ public class ContactService : IContactService
 
     /// <summary>
     /// Searches contacts by various criteria
+    /// This method centralizes all contact search operations.
     /// </summary>
     public async Task<IEnumerable<Contact>> SearchContactsAsync(
         Guid organizationId,
@@ -148,10 +155,10 @@ public class ContactService : IContactService
         {
             var term = searchTerm.ToLowerInvariant();
             query = query.Where(c => 
-                (c.FirstName != null && c.FirstName.ToLowerInvariant().Contains(term)) ||
-                (c.LastName != null && c.LastName.ToLowerInvariant().Contains(term)) ||
-                (c.CompanyName != null && c.CompanyName.ToLowerInvariant().Contains(term)) ||
-                c.Emails.Any(e => e.ToLowerInvariant().Contains(term)));
+                (c.FirstName != null && c.FirstName.Contains(term)) ||
+                (c.LastName != null && c.LastName.Contains(term)) ||
+                (c.CompanyName != null && c.CompanyName.Contains(term)) ||
+                c.Emails.Any(e => e.Address.Contains(term)));
         }
 
         // Filter by specialties

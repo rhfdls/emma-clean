@@ -193,11 +193,11 @@ try
         
         // Configure EnumProvider settings
         var enumConfigPath = Path.Combine(builder.Environment.ContentRootPath, "Configuration", "enums.json");
-        var enableEnumHotReload = builder.Environment.IsDevelopment();
         builder.Services.AddSingleton<IEnumProvider>(serviceProvider =>
         {
             var logger = serviceProvider.GetRequiredService<ILogger<EnumProvider>>();
-            return new EnumProvider(logger, enumConfigPath, enableEnumHotReload);
+            var enumVersioningLogger = serviceProvider.GetRequiredService<ILogger<EnumVersioningService>>();
+            return new EnumProvider(logger, enumConfigPath, new EnumVersioningService(enumVersioningLogger, "versioningConfigPath", null));
         });
         
         Console.WriteLine("✅ Dynamic Prompt Management services registered successfully");

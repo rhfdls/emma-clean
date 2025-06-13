@@ -1,3 +1,5 @@
+This file has been superseded by EMMA-Unified-Project-Management-Plan.md. All future updates are tracked there
+
 # EMMA Agent Factory - Sprint 1 Implementation Summary
 
 ## 🎯 Sprint 1 Objectives Completed

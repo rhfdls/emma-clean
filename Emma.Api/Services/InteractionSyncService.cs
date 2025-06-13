@@ -36,10 +36,10 @@ namespace Emma.Api.Services
                 AgentId = pgInteraction.AgentId,
                 ContactId = pgInteraction.ContactId,
                 OrganizationId = pgInteraction.OrganizationId,
-                Type = pgInteraction.Type,
-                Content = pgInteraction.Content,
+                Type = pgInteraction.Type ?? "Unknown",
+                Content = pgInteraction.Content ?? string.Empty,
                 Timestamp = pgInteraction.Timestamp,
-                CustomFields = pgInteraction.CustomFields
+                CustomFields = pgInteraction.CustomFields?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString() ?? "") ?? new Dictionary<string, string>()
             };
             // Upsert to CosmosDB
             await _cosmosRepo.UpsertItemAsync(doc, pgInteraction.Id.ToString());
@@ -53,10 +53,11 @@ namespace Emma.Api.Services
         public async Task SyncToPostgresAsync(FulltextInteractionDocument doc)
         {
             // Find or create the PostgreSQL entity
-            var pg = await _dbContext.Interactions.FindAsync(Guid.Parse(doc.Id));
+            Guid.TryParse(doc.Id, out var interactionId);
+            var pg = await _dbContext.Interactions.FindAsync(interactionId);
             if (pg == null)
             {
-                pg = new Interaction { Id = Guid.Parse(doc.Id) };
+                pg = new Interaction { Id = interactionId };
                 _dbContext.Interactions.Add(pg);
             }
             // Map shared fields

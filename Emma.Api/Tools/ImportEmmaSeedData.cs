@@ -20,22 +20,28 @@ namespace Emma.SeedImport
 
                 var configPath = "Emma.Api/Tools/appsettings.json";
                 Console.WriteLine($"[DEBUG] Reading config from: {configPath}");
-                var config = JsonNode.Parse(File.ReadAllText(configPath)).AsObject();
+                var config = JsonNode.Parse(File.ReadAllText(configPath))?.AsObject();
+                if (config == null) throw new InvalidOperationException("Configuration could not be loaded.");
                 Console.WriteLine("[DEBUG] Loaded config");
 
-                var seedPath = config["SeedFilePath"]!.GetValue<string>();
+                var seedPath = config["SeedFilePath"]?.GetValue<string>();
+                if (string.IsNullOrEmpty(seedPath)) throw new InvalidOperationException("Seed file path is missing or invalid.");
                 Console.WriteLine($"[DEBUG] Seed file path: {seedPath}");
-                var seedData = JsonNode.Parse(File.ReadAllText(seedPath)).AsObject();
+                var seedData = JsonNode.Parse(File.ReadAllText(seedPath))?.AsObject();
+                if (seedData == null) throw new InvalidOperationException("Seed data could not be loaded.");
                 Console.WriteLine("[DEBUG] Loaded seed data");
 
-                var pgConn = config["Postgres"]!["ConnectionString"]!.GetValue<string>();
+                var pgConn = config["Postgres"]?["ConnectionString"]?.GetValue<string>();
+                if (string.IsNullOrEmpty(pgConn)) throw new InvalidOperationException("Postgres connection string is missing or invalid.");
                 Console.WriteLine($"[DEBUG] Postgres connection string: {pgConn}");
                 Console.WriteLine("[DEBUG] Calling ImportToPostgres...");
                 await ImportToPostgres(seedData, pgConn);
                 Console.WriteLine("[DEBUG] Imported to Postgres");
 
                 Console.WriteLine("[DEBUG] Calling ImportToCosmosDb...");
-                await ImportToCosmosDb(seedData, config["CosmosDb"]!.AsObject());
+                var cosmosConfig = config["CosmosDb"]?.AsObject();
+                if (cosmosConfig == null) throw new InvalidOperationException("CosmosDb configuration is missing or invalid.");
+                await ImportToCosmosDb(seedData, cosmosConfig);
                 Console.WriteLine("[DEBUG] Imported to CosmosDB");
 
                 Console.WriteLine("Seed data imported to Postgres and CosmosDB.");

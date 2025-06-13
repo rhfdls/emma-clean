@@ -256,11 +256,17 @@ export const getErrorMessage = (error) => {
 };
 
 export const logError = (error, context = '') => {
-  console.error(`Error${context ? ` in ${context}` : ''}:`, error);
+  // Structured logging with context information
+  const traceId = context.traceId || 'N/A';
+  const tenantId = context.tenantId || 'N/A';
+  const agentName = context.agentName || 'N/A';
+  const methodName = context.method || 'N/A';
+
+  console.error(`Error in ${methodName} | traceId=${traceId} | tenantId=${tenantId} | agent=${agentName}:`, error);
   
   // In production, you might want to send this to an error tracking service
   if (process.env.NODE_ENV === 'production') {
-    // Example: Sentry.captureException(error, { extra: { context } });
+    // Example: Sentry.captureException(error, { extra: { traceId, tenantId, agentName, methodName } });
   }
 };
 

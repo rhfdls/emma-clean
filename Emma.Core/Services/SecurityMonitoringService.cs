@@ -31,7 +31,7 @@ public class SecurityMonitoringService : ISecurityMonitoringService
         _cleanupTimer = new Timer(CleanupExpiredEntries, null, TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(5));
     }
 
-    public async Task<bool> CheckRateLimitAsync(string userId, string agentType, string traceId)
+    public bool CheckRateLimit(string userId, string agentType, string traceId)
     {
         var now = DateTime.UtcNow;
         var key = $"{userId}:{agentType}";
@@ -66,7 +66,7 @@ public class SecurityMonitoringService : ISecurityMonitoringService
         }
     }
 
-    public async Task<SecurityValidationResult> ValidateInputAsync(string input, string inputType, string traceId)
+    public SecurityValidationResult ValidateInput(string input, string inputType, string traceId)
     {
         if (string.IsNullOrEmpty(input))
         {

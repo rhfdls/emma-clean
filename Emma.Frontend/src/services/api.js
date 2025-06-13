@@ -117,8 +117,8 @@ export const askEmmaApi = {
   askSimple: (question) => api.post('/ask-emma/ask-simple', {
     question
   }),
-  getConversationHistory: (sessionId) => api.get(`/ask-emma/conversations/${sessionId}`),
-  clearConversation: (sessionId) => api.delete(`/ask-emma/conversations/${sessionId}`)
+  getInteractionHistory: (sessionId) => api.get(`/ask-emma/interactions/${sessionId}`),
+  clearInteraction: (sessionId) => api.delete(`/ask-emma/interactions/${sessionId}`)
 };
 
 // Utility functions

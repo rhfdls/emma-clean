@@ -18,7 +18,7 @@ public class Organization
     public string? IndustryCode { get; set; }
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public List<Conversation> Conversations { get; set; } = new();
+    public List<Interaction> Interactions { get; set; } = new();
     public List<Agent> Agents { get; set; } = new();
     public List<OrganizationSubscription> Subscriptions { get; set; } = new();
 }

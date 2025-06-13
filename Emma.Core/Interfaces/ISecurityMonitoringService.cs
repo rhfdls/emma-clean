@@ -10,12 +10,12 @@ public interface ISecurityMonitoringService : IDisposable
     /// <summary>
     /// Check if a user/agent combination is within rate limits
     /// </summary>
-    Task<bool> CheckRateLimitAsync(string userId, string agentType, string traceId);
+    bool CheckRateLimit(string userId, string agentType, string traceId);
 
     /// <summary>
     /// Validate and sanitize input for security threats
     /// </summary>
-    Task<SecurityValidationResult> ValidateInputAsync(string input, string inputType, string traceId);
+    SecurityValidationResult ValidateInput(string input, string inputType, string traceId);
 
     /// <summary>
     /// Log an audit event for compliance and monitoring

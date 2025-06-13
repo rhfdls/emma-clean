@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Linq; // Add this namespace
 
 namespace Emma.Core.Services;
 
@@ -72,7 +73,7 @@ public class PromptVersioningService : IDisposable
                 BackupFilePath = backupFilePath,
                 ConfigurationHash = configHash,
                 FileSizeBytes = fileInfo.Length,
-                Tags = tags ?? new List<string>(),
+                Tags = tags?.ToList() ?? new List<string>(), // Correct misuse of ?? operator
                 ChangeSummary = await CalculateChangeSummaryAsync(config)
             };
 
@@ -103,7 +104,7 @@ public class PromptVersioningService : IDisposable
                 {
                     ["version"] = version,
                     ["backupPath"] = backupFilePath,
-                    ["tags"] = tags ?? new List<string>()
+                    ["tags"] = tags?.ToList() ?? new List<string>() // Correct misuse of ?? operator
                 }
             });
 
@@ -519,8 +520,8 @@ public class PromptVersioningService : IDisposable
         var differences = new List<string>();
 
         // Compare agents
-        var agents1 = config1.Agents?.Keys ?? new List<string>();
-        var agents2 = config2.Agents?.Keys ?? new List<string>();
+        var agents1 = config1.Agents?.Keys.ToList(); // Correct misuse of ?? operator
+        var agents2 = config2.Agents?.Keys.ToList(); // Correct misuse of ?? operator
 
         var addedAgents = agents2.Except(agents1);
         var removedAgents = agents1.Except(agents2);
@@ -538,16 +539,16 @@ public class PromptVersioningService : IDisposable
                 differences.Add($"Modified system prompt for agent: {agent}");
 
             // Compare templates
-            var templates1 = agent1.ContextTemplates?.Keys ?? new List<string>();
-            var templates2 = agent2.ContextTemplates?.Keys ?? new List<string>();
+            var templates1 = agent1.ContextTemplates?.Keys.ToList(); // Correct misuse of ?? operator
+            var templates2 = agent2.ContextTemplates?.Keys.ToList(); // Correct misuse of ?? operator
 
             differences.AddRange(templates2.Except(templates1).Select(t => $"Added context template '{t}' to agent {agent}"));
             differences.AddRange(templates1.Except(templates2).Select(t => $"Removed context template '{t}' from agent {agent}"));
         }
 
         // Compare industries
-        var industries1 = config1.Industries?.Keys ?? new List<string>();
-        var industries2 = config2.Industries?.Keys ?? new List<string>();
+        var industries1 = config1.Industries?.Keys.ToList(); // Correct misuse of ?? operator
+        var industries2 = config2.Industries?.Keys.ToList(); // Correct misuse of ?? operator
 
         differences.AddRange(industries2.Except(industries1).Select(i => $"Added industry: {i}"));
         differences.AddRange(industries1.Except(industries2).Select(i => $"Removed industry: {i}"));

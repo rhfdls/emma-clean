@@ -25,7 +25,7 @@ public class AgentOrchestrator : IAgentOrchestrator
     private readonly IAgentRegistry _agentRegistry;
     private readonly IFeatureFlagService _featureFlagService;
     private readonly ILogger<AgentOrchestrator> _logger;
-    private readonly Dictionary<Guid, ScheduledAction> _scheduledActions = new();
+    private readonly Dictionary<string, ScheduledAction> _scheduledActions = new();
     private readonly Timer _actionExecutionTimer;
 
     public AgentOrchestrator(
@@ -59,10 +59,23 @@ public class AgentOrchestrator : IAgentOrchestrator
         _ = Task.Run(RegisterFirstClassAgentsAsync);
     }
 
-    public async Task<AgentResponse> ProcessRequestAsync(string userInput, Guid conversationId, string? traceId = null)
+    public async Task<AgentResponse> ProcessRequestAsync(string userInput, Guid interactionId, string? traceId = null)
     {
         traceId ??= Guid.NewGuid().ToString();
         var auditId = Guid.NewGuid();
+
+        if (string.IsNullOrWhiteSpace(userInput))
+        {
+            _logger.LogWarning("ProcessRequestAsync: userInput is null or empty. traceId={TraceId}", traceId);
+            return new AgentResponse
+            {
+                Success = false,
+                Message = "User input is null or empty",
+                AgentType = "AgentOrchestrator",
+                TraceId = traceId,
+                AuditId = auditId
+            };
+        }
 
         try
         {
@@ -74,20 +87,21 @@ public class AgentOrchestrator : IAgentOrchestrator
             
             if (isDynamicRoutingEnabled)
             {
-                return await ProcessRequestWithDynamicRoutingAsync(userInput, conversationId, traceId, auditId);
+                return await ProcessRequestWithDynamicRoutingAsync(userInput, interactionId, traceId, auditId);
             }
 
             // Fallback to legacy routing
             var parameters = new Dictionary<string, object>
             {
-                { "ConversationId", conversationId },
+                { "InteractionId", interactionId },
                 { "AuditId", auditId }
             };
+
             return await ProcessRequestWithLegacyRoutingAsync(userInput, parameters, traceId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing request via orchestrator, TraceId: {TraceId}, AuditId: {AuditId}", traceId, auditId);
+            _logger.LogError(ex, "Error processing request via orchestrator, TraceId: {TraceId}", traceId);
             return new AgentResponse
             {
                 Success = false,
@@ -107,6 +121,10 @@ public class AgentOrchestrator : IAgentOrchestrator
         try
         {
             _logger.LogInformation("Executing workflow {WorkflowId}, TraceId: {TraceId}", workflowId, traceId);
+
+            // Placeholder for multi-step workflow expansion
+            // Log entry and exit of workflow steps
+            _logger.LogInformation("Starting workflow step for {WorkflowId}", workflowId);
 
             // For now, return a basic workflow state - this can be expanded later
             return new WorkflowState
@@ -184,8 +202,8 @@ public class AgentOrchestrator : IAgentOrchestrator
             }
 
             // Add industry-specific specialized agents from Azure AI Foundry
-            industryProfile.SpecializedAgents = industryProfile.SpecializedAgents ?? new List<string>();
-            industryProfile.AvailableActions = industryProfile.AvailableActions ?? new List<string>();
+            industryProfile.InitializeSpecializedAgents();
+            industryProfile.InitializeAvailableActions();
 
             var industryAgents = industryProfile.SpecializedAgents.Select(agentType => new AgentCapability
             {
@@ -229,11 +247,27 @@ public class AgentOrchestrator : IAgentOrchestrator
             var systemPrompt = await BuildAgentSystemPromptAsync(agentType, task);
             var taskPrompt = BuildTaskPromptAsync(task);
 
+            // Log the prompts before sending
+            _logger.LogInformation("System Prompt: {SystemPrompt}", systemPrompt);
+            _logger.LogInformation("Task Prompt: {TaskPrompt}", taskPrompt);
+
             // Call Azure AI Foundry with agent-specific context
             var aiResponse = await _aiFoundryService.ProcessAgentRequestAsync(
                 systemPrompt,
                 taskPrompt,
                 task.ContactId.ToString());
+
+            // Validate AI response
+            if (string.IsNullOrEmpty(aiResponse))
+            {
+                _logger.LogWarning("Invalid AI response received from Azure AI Foundry for agent {AgentType}", agentType);
+                return new AgentResponse
+                {
+                    Success = false,
+                    Message = "Invalid AI response",
+                    AgentType = agentType
+                };
+            }
 
             // Execute any resource-related actions based on AI response
             return await ExecuteResourceActionsAsync(aiResponse, task.ContactId ?? Guid.Empty);
@@ -250,18 +284,18 @@ public class AgentOrchestrator : IAgentOrchestrator
         }
     }
 
-    public async Task<AgentResponse> RouteToNbaAgentAsync(string userInput, Guid conversationId, string? traceId = null)
+    public async Task<AgentResponse> RouteToNbaAgentAsync(string userInput, Guid interactionId, string? traceId = null)
     {
         try
         {
             var request = new AgentRequest
             {
-                Intent = AgentIntent.DataAnalysis, // NBA recommendations are data analysis
+                Intent = AgentIntent.DataAnalysis, // NBA-Agent is data analysis
                 OriginalUserInput = userInput,
-                ConversationId = conversationId,
+                InteractionId = interactionId,
                 Context = new Dictionary<string, object>
                 {
-                    ["conversationId"] = conversationId
+                    ["interactionId"] = interactionId
                 }
             };
 
@@ -346,6 +380,7 @@ public class AgentOrchestrator : IAgentOrchestrator
 
             // Add intent classification specific context
             request.Context["requestType"] = "intent_classification";
+            request.Context["interactionId"] = request.InteractionId;
 
             var response = await _intentClassificationAgent.ProcessRequestAsync(request, traceId);
 
@@ -501,11 +536,11 @@ Please process this task and provide specific recommendations for resource manag
 
             var scheduledAction = new ScheduledAction
             {
+                Id = Guid.NewGuid().ToString(),
                 ActionType = "resource_management",
                 Description = aiResponse,
                 ContactId = contactId,
-                OrganizationId = Guid.NewGuid(), // TODO: Get from context
-                ScheduledByAgentId = "ResourceAgent",
+                OrganizationId = Guid.NewGuid(),
                 ExecuteAt = DateTime.UtcNow,
                 Parameters = new Dictionary<string, object>
                 {
@@ -514,7 +549,7 @@ Please process this task and provide specific recommendations for resource manag
                 }
             };
 
-            var currentContext = await GetCurrentContactContextAsync(contactId, scheduledAction.OrganizationId, Guid.NewGuid().ToString());
+            var currentContext = await GetCurrentContactContextAsync(contactId, scheduledAction.OrganizationId, Guid.NewGuid());
             
             var actionRelevanceRequest = new ActionRelevanceRequest
             {
@@ -690,7 +725,7 @@ Please process this task and provide specific recommendations for resource manag
                     Intent = AgentIntent.IntentClassification,
                     OriginalUserInput = request.OriginalUserInput,
                     Context = request.Context,
-                    ConversationId = request.ConversationId
+                    InteractionId = request.InteractionId
                 };
 
                 var classificationResponse = await RouteToIntentClassificationAgentAsync(classificationRequest, traceId);
@@ -791,96 +826,65 @@ Please process this task and provide specific recommendations for resource manag
     {
         try
         {
-            _logger.LogDebug("Processing scheduled action {ActionId}, type {ActionType}, TraceId: {TraceId}",
+            _logger.LogDebug("Processing scheduled action {Id}, type {ActionType}, TraceId: {TraceId}",
                 action.Id, action.ActionType, traceId);
 
-            // MISSION-CRITICAL: Pre-execution relevance validation
-            var isRelevant = await _actionRelevanceValidator.IsActionStillRelevantAsync(
-                action,
-                action.ContactId,
-                action.OrganizationId,
-                traceId);
-
-            if (!isRelevant)
+            // Defensive: ensure ContactId and OrganizationId are valid
+            if (Guid.TryParse(action.ContactId.ToString(), out Guid contactId) && Guid.TryParse(action.OrganizationId.ToString(), out Guid organizationId))
             {
-                // Action is no longer relevant - suppress execution
-                action.Status = ScheduledActionStatus.Suppressed;
-                action.SuppressionReason = "Action no longer relevant based on current context";
-
-                _logger.LogWarning(
-                    "AUTOMATION FAILURE PREVENTED: Action {ActionId} ({ActionType}) suppressed due to relevance check failure, TraceId: {TraceId}",
-                    action.Id, action.ActionType, traceId);
-
-                // Optionally suggest alternative actions
-                try
+                // Route action to appropriate execution handler based on action type
+                switch (action.ActionType.ToLowerInvariant())
                 {
-                    var currentContext = await GetCurrentContactContextAsync(action.ContactId, action.OrganizationId, traceId);
-                    var alternatives = await _actionRelevanceValidator.SuggestAlternativeActionsAsync(action, currentContext, traceId);
+                    case "email":
+                    case "congrats_email":
+                    case "follow_up_email":
+                        await ExecuteEmailActionAsync(action, traceId);
+                        break;
 
-                    if (alternatives.Any())
-                    {
-                        _logger.LogInformation(
-                            "Suggested {Count} alternative actions for suppressed action {ActionId}, TraceId: {TraceId}",
-                            alternatives.Count, action.Id, traceId);
+                    case "sms":
+                    case "text_message":
+                        await ExecuteSmsActionAsync(action, traceId);
+                        break;
 
-                        // Schedule alternative actions
-                        foreach (var alternative in alternatives)
-                        {
-                            if (Guid.TryParse(alternative.Id, out Guid alternativeId))
-                            {
-                                _scheduledActions.TryAdd(alternativeId, alternative);
-                            }
-                            else
-                            {
-                                _logger.LogError("Invalid GUID format for alternative ID: {AlternativeId}", alternative.Id);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error generating alternative actions for {ActionId}, TraceId: {TraceId}",
-                        action.Id, traceId);
+                    case "appointment_reminder":
+                    case "calendar_event":
+                        await ExecuteCalendarActionAsync(action, traceId);
+                        break;
+
+                    case "property_recommendation":
+                    case "listing_alert":
+                        await ExecutePropertyActionAsync(action, traceId);
+                        break;
+
+                    case "task_creation":
+                    case "follow_up_task":
+                        await ExecuteTaskActionAsync(action, traceId);
+                        break;
+
+                    default:
+                        await ExecuteGenericActionAsync(action, traceId);
+                        break;
                 }
 
-                return;
-            }
-
-            // Action is still relevant - proceed with execution
-            action.Status = ScheduledActionStatus.RelevanceCheckPassed;
-            action.LastRelevanceCheck = DateTime.UtcNow;
-
-            _logger.LogInformation(
-                "Relevance check PASSED for action {ActionId} ({ActionType}), proceeding with execution, TraceId: {TraceId}",
-                action.Id, action.ActionType, traceId);
-
-            // Execute the action
-            await ExecuteValidatedActionAsync(action, traceId);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error processing scheduled action {ActionId}, TraceId: {TraceId}",
-                action.Id, traceId);
-
-            action.Status = ScheduledActionStatus.Failed;
-            action.RetryAttempts++;
-
-            // Retry logic for failed actions
-            if (action.RetryAttempts < action.MaxRetryAttempts)
-            {
-                action.Status = ScheduledActionStatus.Pending;
-                action.ExecuteAt = DateTime.UtcNow.AddMinutes(Math.Pow(2, action.RetryAttempts)); // Exponential backoff
+                action.Status = ScheduledActionStatus.Completed;
 
                 _logger.LogInformation(
-                    "Scheduling retry {Attempt}/{MaxAttempts} for action {ActionId} at {NextAttempt}, TraceId: {TraceId}",
-                    action.RetryAttempts, action.MaxRetryAttempts, action.Id, action.ExecuteAt, traceId);
+                    "Action {Id} ({ActionType}) executed successfully, TraceId: {TraceId}",
+                    action.Id, action.ActionType, traceId);
             }
             else
             {
-                _logger.LogError(
-                    "Action {ActionId} failed after {MaxAttempts} attempts, marking as failed, TraceId: {TraceId}",
-                    action.Id, action.MaxRetryAttempts, traceId);
+                _logger.LogError("Invalid GUID format for ContactId or OrganizationId. ActionId: {Id}", action.Id);
+                action.Status = ScheduledActionStatus.Failed;
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing action {Id} ({ActionType}), TraceId: {TraceId}",
+                action.Id, action.ActionType, traceId);
+
+            action.Status = ScheduledActionStatus.Failed;
+            throw;
         }
     }
 
@@ -890,67 +894,61 @@ Please process this task and provide specific recommendations for resource manag
         {
             action.Status = ScheduledActionStatus.Executing;
 
-            _logger.LogInformation(
-                "Executing validated action {ActionId} ({ActionType}) for contact {ContactId}, TraceId: {TraceId}",
-                action.Id, action.ActionType, action.ContactId, traceId);
+            _logger.LogDebug("Executing validated action {Id}, type {ActionType}, TraceId: {TraceId}",
+                action.Id, action.ActionType, traceId);
 
             // Defensive: ensure ContactId and OrganizationId are valid
-            if (action.ContactId == Guid.Empty)
+            if (Guid.TryParse(action.ContactId.ToString(), out Guid contactId) && Guid.TryParse(action.OrganizationId.ToString(), out Guid organizationId))
             {
-                _logger.LogError("Scheduled action missing ContactId. ActionId: {ActionId}", action.Id);
+                // Route action to appropriate execution handler based on action type
+                switch (action.ActionType.ToLowerInvariant())
+                {
+                    case "email":
+                    case "congrats_email":
+                    case "follow_up_email":
+                        await ExecuteEmailActionAsync(action, traceId);
+                        break;
+
+                    case "sms":
+                    case "text_message":
+                        await ExecuteSmsActionAsync(action, traceId);
+                        break;
+
+                    case "appointment_reminder":
+                    case "calendar_event":
+                        await ExecuteCalendarActionAsync(action, traceId);
+                        break;
+
+                    case "property_recommendation":
+                    case "listing_alert":
+                        await ExecutePropertyActionAsync(action, traceId);
+                        break;
+
+                    case "task_creation":
+                    case "follow_up_task":
+                        await ExecuteTaskActionAsync(action, traceId);
+                        break;
+
+                    default:
+                        await ExecuteGenericActionAsync(action, traceId);
+                        break;
+                }
+
+                action.Status = ScheduledActionStatus.Completed;
+
+                _logger.LogInformation(
+                    "Action {Id} ({ActionType}) executed successfully, TraceId: {TraceId}",
+                    action.Id, action.ActionType, traceId);
+            }
+            else
+            {
+                _logger.LogError("Invalid GUID format for ContactId or OrganizationId. ActionId: {Id}", action.Id);
                 action.Status = ScheduledActionStatus.Failed;
-                return;
             }
-            if (action.OrganizationId == Guid.Empty)
-            {
-                _logger.LogError("Scheduled action missing OrganizationId. ActionId: {ActionId}", action.Id);
-                action.Status = ScheduledActionStatus.Failed;
-                return;
-            }
-
-            // Route action to appropriate execution handler based on action type
-            switch (action.ActionType.ToLowerInvariant())
-            {
-                case "email":
-                case "congrats_email":
-                case "follow_up_email":
-                    await ExecuteEmailActionAsync(action, traceId);
-                    break;
-
-                case "sms":
-                case "text_message":
-                    await ExecuteSmsActionAsync(action, traceId);
-                    break;
-
-                case "appointment_reminder":
-                case "calendar_event":
-                    await ExecuteCalendarActionAsync(action, traceId);
-                    break;
-
-                case "property_recommendation":
-                case "listing_alert":
-                    await ExecutePropertyActionAsync(action, traceId);
-                    break;
-
-                case "task_creation":
-                case "follow_up_task":
-                    await ExecuteTaskActionAsync(action, traceId);
-                    break;
-
-                default:
-                    await ExecuteGenericActionAsync(action, traceId);
-                    break;
-            }
-
-            action.Status = ScheduledActionStatus.Completed;
-
-            _logger.LogInformation(
-                "Action {ActionId} ({ActionType}) executed successfully, TraceId: {TraceId}",
-                action.Id, action.ActionType, traceId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error executing action {ActionId} ({ActionType}), TraceId: {TraceId}",
+            _logger.LogError(ex, "Error executing action {Id} ({ActionType}), TraceId: {TraceId}",
                 action.Id, action.ActionType, traceId);
 
             action.Status = ScheduledActionStatus.Failed;
@@ -958,7 +956,7 @@ Please process this task and provide specific recommendations for resource manag
         }
     }
 
-    private async Task<ContactContext> GetCurrentContactContextAsync(Guid contactId, Guid organizationId, string traceId)
+    private async Task<ContactContext> GetCurrentContactContextAsync(Guid contactId, Guid organizationId, Guid agentId)
     {
         try
         {
@@ -966,7 +964,7 @@ Please process this task and provide specific recommendations for resource manag
             var nbaContext = await _nbaContextService.GetNbaContextAsync(
                 contactId,
                 organizationId,
-                Guid.NewGuid()); // Use a generic agent ID for context retrieval
+                agentId);
 
             // Convert to ContactContext (simplified mapping - expand as needed)
             return new ContactContext
@@ -983,8 +981,7 @@ Please process this task and provide specific recommendations for resource manag
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving current contact context for {ContactId}, TraceId: {TraceId}",
-                contactId, traceId);
+            _logger.LogError(ex, "Error retrieving current contact context for {ContactId}", contactId);
 
             // Return minimal context to allow processing to continue
             return new ContactContext
@@ -1000,69 +997,69 @@ Please process this task and provide specific recommendations for resource manag
 
     private async Task ExecuteEmailActionAsync(ScheduledAction action, string traceId)
     {
-        _logger.LogDebug("Executing email action {ActionId}, TraceId: {TraceId}", action.Id, traceId);
+        _logger.LogDebug("Executing email action {Id}, TraceId: {TraceId}", action.Id, traceId);
 
         // Implementation would integrate with email service
         // For now, this is a placeholder
         await Task.Delay(100); // Simulate email sending
 
-        _logger.LogInformation("Email action {ActionId} executed successfully, TraceId: {TraceId}",
+        _logger.LogInformation("Email action {Id} executed successfully, TraceId: {TraceId}",
             action.Id, traceId);
     }
 
     private async Task ExecuteSmsActionAsync(ScheduledAction action, string traceId)
     {
-        _logger.LogDebug("Executing SMS action {ActionId}, TraceId: {TraceId}", action.Id, traceId);
+        _logger.LogDebug("Executing SMS action {Id}, TraceId: {TraceId}", action.Id, traceId);
 
         // Implementation would integrate with SMS service
         await Task.Delay(100); // Simulate SMS sending
 
-        _logger.LogInformation("SMS action {ActionId} executed successfully, TraceId: {TraceId}",
+        _logger.LogInformation("SMS action {Id} executed successfully, TraceId: {TraceId}",
             action.Id, traceId);
     }
 
     private async Task ExecuteCalendarActionAsync(ScheduledAction action, string traceId)
     {
-        _logger.LogDebug("Executing calendar action {ActionId}, TraceId: {TraceId}", action.Id, traceId);
+        _logger.LogDebug("Executing calendar action {Id}, TraceId: {TraceId}", action.Id, traceId);
 
         // Implementation would integrate with calendar service
         await Task.Delay(100); // Simulate calendar operation
 
-        _logger.LogInformation("Calendar action {ActionId} executed successfully, TraceId: {TraceId}",
+        _logger.LogInformation("Calendar action {Id} executed successfully, TraceId: {TraceId}",
             action.Id, traceId);
     }
 
     private async Task ExecutePropertyActionAsync(ScheduledAction action, string traceId)
     {
-        _logger.LogDebug("Executing property action {ActionId}, TraceId: {TraceId}", action.Id, traceId);
+        _logger.LogDebug("Executing property action {Id}, TraceId: {TraceId}", action.Id, traceId);
 
         // Implementation would integrate with property/listing service
         await Task.Delay(100); // Simulate property operation
 
-        _logger.LogInformation("Property action {ActionId} executed successfully, TraceId: {TraceId}",
+        _logger.LogInformation("Property action {Id} executed successfully, TraceId: {TraceId}",
             action.Id, traceId);
     }
 
     private async Task ExecuteTaskActionAsync(ScheduledAction action, string traceId)
     {
-        _logger.LogDebug("Executing task action {ActionId}, TraceId: {TraceId}", action.Id, traceId);
+        _logger.LogDebug("Executing task action {Id}, TraceId: {TraceId}", action.Id, traceId);
 
         // Implementation would integrate with task management service
         await Task.Delay(100); // Simulate task creation
 
-        _logger.LogInformation("Task action {ActionId} executed successfully, TraceId: {TraceId}",
+        _logger.LogInformation("Task action {Id} executed successfully, TraceId: {TraceId}",
             action.Id, traceId);
     }
 
     private async Task ExecuteGenericActionAsync(ScheduledAction action, string traceId)
     {
-        _logger.LogDebug("Executing generic action {ActionId} ({ActionType}), TraceId: {TraceId}",
+        _logger.LogDebug("Executing generic action {Id} ({ActionType}), TraceId: {TraceId}",
             action.Id, action.ActionType, traceId);
 
         // Generic action handler for unknown action types
         await Task.Delay(100); // Simulate generic operation
 
-        _logger.LogInformation("Generic action {ActionId} executed successfully, TraceId: {TraceId}",
+        _logger.LogInformation("Generic action {Id} executed successfully, TraceId: {TraceId}",
             action.Id, traceId);
     }
 
@@ -1145,26 +1142,25 @@ Please process this task and provide specific recommendations for resource manag
     /// <summary>
     /// Process request using dynamic agent routing via registry.
     /// </summary>
-    private async Task<AgentResponse> ProcessRequestWithDynamicRoutingAsync(string userInput, Guid conversationId, string traceId, Guid auditId)
+    private async Task<AgentResponse> ProcessRequestWithDynamicRoutingAsync(string userInput, Guid interactionId, string traceId, Guid auditId)
     {
         _logger.LogDebug("Processing request with dynamic routing, TraceId: {TraceId}", traceId);
 
         // First, classify the intent to determine which agent to route to
-        var classificationResult = await _intentClassificationAgent.ClassifyIntentAsync(userInput, conversationId, traceId);
-        
-        // Route based on intent using dynamic registry
         var parameters = new Dictionary<string, object>
         {
-            { "ConversationId", conversationId },
+            { "InteractionId", interactionId },
             { "AuditId", auditId }
         };
-
-        return classificationResult.Intent switch
+        var classificationResult = await _intentClassificationAgent.ClassifyIntentAsync(userInput, ConvertGuidToDictionary(interactionId), traceId);
+        
+        // Route based on intent using dynamic registry
+        return classificationResult.Intent.ToString() switch
         {
-            AgentIntent.ContactManagement => await RouteToAgentAsync("nba", userInput, parameters, traceId),
-            AgentIntent.InteractionAnalysis => await RouteToAgentAsync("context-intelligence", userInput, parameters, traceId),
-            AgentIntent.ResourceManagement => await RouteToAgentAsync("resource", userInput, parameters, traceId),
-            AgentIntent.IntentClassification => await RouteToAgentAsync("intent-classification", userInput, parameters, traceId),
+            "ContactManagement" => await RouteToAgentAsync("nba", userInput, (Dictionary<string, object>)parameters, traceId),
+            "InteractionAnalysis" => await RouteToAgentAsync("context-intelligence", userInput, (Dictionary<string, object>)parameters, traceId),
+            "ResourceManagement" => await RouteToAgentAsync("resource", userInput, (Dictionary<string, object>)parameters, traceId),
+            "IntentClassification" => await RouteToAgentAsync("intent-classification", userInput, (Dictionary<string, object>)parameters, traceId),
             _ => throw new InvalidOperationException($"Unsupported intent: {classificationResult.Intent}")
         };
     }
@@ -1208,10 +1204,7 @@ Please process this task and provide specific recommendations for resource manag
         }
     }
 
-    /// <summary>
-    /// Process request using legacy hardcoded routing (fallback).
-    /// </summary>
-    private async Task<AgentResponse> ProcessRequestWithLegacyRoutingAsync(string userInput, Dictionary<string, object> parameters, string traceId)
+    public async Task<AgentResponse> ProcessRequestWithLegacyRoutingAsync(string userInput, Dictionary<string, object> parameters, string traceId)
     {
         _logger.LogDebug("Processing request with legacy routing, TraceId: {TraceId}", traceId);
 
@@ -1231,148 +1224,135 @@ Please process this task and provide specific recommendations for resource manag
         }
 
         // Ensure collections are initialized
-        industryProfile.SpecializedAgents = industryProfile.SpecializedAgents ?? new List<string>();
-        industryProfile.AvailableActions = industryProfile.AvailableActions ?? new List<string>();
-
-        // Validate agent registration
-        foreach (var agent in industryProfile.SpecializedAgents)
-        {
-            if (!IsAgentRegistered(agent))
-            {
-                _logger.LogWarning("Agent {Agent} is not registered.", agent);
-            }
-        }
+        industryProfile.InitializeSpecializedAgents();
+        industryProfile.InitializeAvailableActions();
 
         // Create context-aware prompt for Azure AI Foundry
-        var systemPrompt = await BuildSystemPromptAsync(industryProfile, (Guid)parameters["ConversationId"]);
-        var userPrompt = await BuildUserPromptAsync(userInput, (Guid)parameters["ConversationId"], tenant);
+        var systemPrompt = await BuildSystemPromptAsync(industryProfile, (Guid)parameters["InteractionId"]);
+        var userPrompt = await BuildUserPromptAsync(userInput, (Guid)parameters["InteractionId"], tenant);
 
         // Call Azure AI Foundry for natural language processing and task routing
         var aiResponse = await _aiFoundryService.ProcessAgentRequestAsync(
             systemPrompt,
             userPrompt,
-            traceId);
+            parameters["InteractionId"].ToString());
 
         // Parse AI response and execute any resource-related actions
-        return await ExecuteResourceActionsAsync(aiResponse, (Guid)parameters["ConversationId"]);
+        return await ExecuteResourceActionsAsync(aiResponse, (Guid)parameters["InteractionId"]);
     }
 
-    /// <summary>
-    /// Route request to Context Intelligence Agent.
-    /// </summary>
-    private async Task<AgentResponse> RouteToContextIntelligenceAgentAsync(string userInput, Dictionary<string, object> parameters, string traceId)
+    public async Task<AgentResponse> RouteToNbaAgentAsync(string userInput, Dictionary<string, object> parameters, string traceId)
     {
-        _logger.LogDebug("Routing to Context Intelligence Agent, TraceId: {TraceId}", traceId);
-        
         try
         {
-            // For now, delegate to the context intelligence agent
-            // This can be enhanced to call specific methods based on the request
-            var response = new AgentResponse
+            var request = new AgentRequest
             {
-                Success = true,
-                Message = "Context Intelligence Agent processing completed",
-                AgentType = "ContextIntelligenceAgent",
-                TraceId = traceId,
-                AuditId = (Guid)parameters["AuditId"],
-                Reason = "Request routed to Context Intelligence Agent for analysis"
+                Intent = AgentIntent.DataAnalysis, // NBA-Agent is data analysis
+                OriginalUserInput = userInput,
+                InteractionId = (Guid)parameters["InteractionId"],
+                Context = new Dictionary<string, object>
+                {
+                    ["interactionId"] = parameters["InteractionId"]
+                }
             };
 
-            _logger.LogInformation("Context Intelligence Agent processing completed, TraceId: {TraceId}", traceId);
-            return response;
+            return await RouteToNbaAgentAsync(request);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in Context Intelligence Agent routing, TraceId: {TraceId}", traceId);
+            _logger.LogError(ex, "Error routing to NBA-Agent, TraceId: {TraceId}", traceId);
             return new AgentResponse
             {
                 Success = false,
-                Message = "Error in Context Intelligence Agent processing",
-                AgentType = "ContextIntelligenceAgent",
-                TraceId = traceId,
-                AuditId = (Guid)parameters["AuditId"],
-                Reason = $"Exception occurred in Context Intelligence Agent: {ex.Message}"
+                Message = $"Error routing to NBA-Agent: {ex.Message}",
+                AgentType = "NbaAgent"
             };
         }
     }
 
-    /// <summary>
-    /// Route request to Resource Agent.
-    /// </summary>
-    private async Task<AgentResponse> RouteToResourceAgentAsync(string userInput, Dictionary<string, object> parameters, string traceId)
+    public async Task<AgentResponse> RouteToContextIntelligenceAgentAsync(string userInput, Dictionary<string, object> parameters, string traceId)
     {
-        _logger.LogDebug("Routing to Resource Agent, TraceId: {TraceId}", traceId);
-        
         try
         {
-            // For now, delegate to the resource agent
-            // This can be enhanced to call specific methods based on the request
-            var response = new AgentResponse
+            var request = new AgentRequest
             {
-                Success = true,
-                Message = "Resource Agent processing completed",
-                AgentType = "ResourceAgent",
-                TraceId = traceId,
-                AuditId = (Guid)parameters["AuditId"],
-                Reason = "Request routed to Resource Agent for resource management operations"
+                Intent = AgentIntent.InteractionAnalysis, // Context Intelligence Agent handles interaction analysis
+                OriginalUserInput = userInput,
+                InteractionId = (Guid)parameters["InteractionId"],
+                Context = new Dictionary<string, object>
+                {
+                    ["interactionId"] = parameters["InteractionId"]
+                }
             };
 
-            _logger.LogInformation("Resource Agent processing completed, TraceId: {TraceId}", traceId);
-            return response;
+            return await RouteToContextIntelligenceAgentAsync(request, traceId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in Resource Agent routing, TraceId: {TraceId}", traceId);
+            _logger.LogError(ex, "Error routing to Context Intelligence Agent, TraceId: {TraceId}", traceId);
             return new AgentResponse
             {
                 Success = false,
-                Message = "Error in Resource Agent processing",
-                AgentType = "ResourceAgent",
-                TraceId = traceId,
-                AuditId = (Guid)parameters["AuditId"],
-                Reason = $"Exception occurred in Resource Agent: {ex.Message}"
+                Message = $"Error routing to Context Intelligence Agent: {ex.Message}",
+                AgentType = "ContextIntelligenceAgent"
             };
         }
     }
 
-    /// <summary>
-    /// Route request to Intent Classification Agent.
-    /// </summary>
-    private async Task<AgentResponse> RouteToIntentClassificationAgentAsync(string userInput, Dictionary<string, object> parameters, string traceId)
+    public async Task<AgentResponse> RouteToResourceAgentAsync(string userInput, Dictionary<string, object> parameters, string traceId)
     {
-        _logger.LogDebug("Routing to Intent Classification Agent, TraceId: {TraceId}", traceId);
-        
         try
         {
-            // Classify the intent and return the result
-            var classificationResult = await _intentClassificationAgent.ClassifyIntentAsync(userInput, (Guid)parameters["ConversationId"], traceId);
-            
-            var response = new AgentResponse
+            var request = new AgentRequest
             {
-                Success = true,
-                Message = $"Intent classified as: {classificationResult.Intent} (Confidence: {classificationResult.Confidence:P})",
-                AgentType = "IntentClassificationAgent",
-                TraceId = traceId,
-                AuditId = (Guid)parameters["AuditId"],
-                Reason = classificationResult.Reason,
-                Data = classificationResult
+                Intent = AgentIntent.ResourceManagement, // Resource Agent handles resource management
+                OriginalUserInput = userInput,
+                InteractionId = (Guid)parameters["InteractionId"],
+                Context = new Dictionary<string, object>
+                {
+                    ["interactionId"] = parameters["InteractionId"]
+                }
             };
 
-            _logger.LogInformation("Intent Classification completed: {Intent} with confidence {Confidence}, TraceId: {TraceId}", 
-                classificationResult.Intent, classificationResult.Confidence, traceId);
-            return response;
+            return await RouteToResourceAgentAsync(request, traceId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in Intent Classification Agent routing, TraceId: {TraceId}", traceId);
+            _logger.LogError(ex, "Error routing to Resource Agent, TraceId: {TraceId}", traceId);
             return new AgentResponse
             {
                 Success = false,
-                Message = "Error in Intent Classification Agent processing",
-                AgentType = "IntentClassificationAgent",
-                TraceId = traceId,
-                AuditId = (Guid)parameters["AuditId"],
-                Reason = $"Exception occurred in Intent Classification Agent: {ex.Message}"
+                Message = $"Error routing to Resource Agent: {ex.Message}",
+                AgentType = "ResourceAgent"
+            };
+        }
+    }
+
+    public async Task<AgentResponse> RouteToIntentClassificationAgentAsync(string userInput, Dictionary<string, object> parameters, string traceId)
+    {
+        try
+        {
+            var request = new AgentRequest
+            {
+                Intent = AgentIntent.IntentClassification, // Intent Classification Agent handles intent classification
+                OriginalUserInput = userInput,
+                InteractionId = (Guid)parameters["InteractionId"], // Use InteractionId directly
+                Context = new Dictionary<string, object>
+                {
+                    ["interactionId"] = (Guid)parameters["InteractionId"] // Ensure consistent usage
+                }
+            };
+
+            return await RouteToIntentClassificationAgentAsync(request, traceId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error routing to Intent Classification Agent, TraceId: {TraceId}", traceId);
+            return new AgentResponse
+            {
+                Success = false,
+                Message = $"Error routing to Intent Classification Agent: {ex.Message}",
+                AgentType = "IntentClassificationAgent"
             };
         }
     }
@@ -1396,5 +1376,66 @@ Please process this task and provide specific recommendations for resource manag
     private bool IsAgentRegistered(string agentType)
     {
         return _agentRegistry.IsAgentRegisteredAsync(agentType).Result;
+    }
+
+    private Dictionary<string, object> ConvertGuidToDictionary(Guid guid)
+    {
+        return new Dictionary<string, object>
+        {
+            ["guid"] = guid
+        };
+    }
+
+    public async Task<List<ScheduledAction>> GetScheduledActionsAsync(Guid contactId, ScheduledActionStatus? status = null, string? traceId = null)
+    {
+        _logger.LogInformation("Retrieving scheduled actions for contact {ContactId}", contactId);
+        // Placeholder implementation
+        var actions = _scheduledActions.Values
+            .Where(a => a.ContactId == contactId && (status == null || a.Status == status))
+            .ToList();
+        return await Task.FromResult(actions);
+    }
+
+    public async Task<bool> ScheduleActionAsync(ScheduledAction action, string? traceId = null)
+    {
+        _logger.LogInformation("Scheduling action {Id}", action.Id);
+        // Placeholder implementation
+        if (Guid.TryParse(action.Id.ToString(), out Guid actionId))
+        {
+            _scheduledActions[action.Id.ToString()] = action;
+        }
+        else
+        {
+            _logger.LogError("Invalid GUID format for action ID: {ActionId}", action.Id);
+        }
+        return await Task.FromResult(true);
+    }
+
+    public async Task<bool> CancelScheduledActionAsync(string actionId, string? traceId = null)
+    {
+        _logger.LogInformation("Cancelling scheduled action {Id}", actionId);
+        // Placeholder implementation
+        if (!Guid.TryParse(actionId, out Guid parsedActionId))
+        {
+            _logger.LogError("Invalid GUID format for action ID: {ActionId}", actionId);
+            return await Task.FromResult(false);
+        }
+        return await Task.FromResult(_scheduledActions.Remove(actionId));
+    }
+}
+
+public class IndustryProfile
+{
+    public List<string> SpecializedAgents { get; private set; }
+    public List<string> AvailableActions { get; private set; }
+
+    public void InitializeSpecializedAgents()
+    {
+        SpecializedAgents = SpecializedAgents ?? new List<string>();
+    }
+
+    public void InitializeAvailableActions()
+    {
+        AvailableActions = AvailableActions ?? new List<string>();
     }
 }

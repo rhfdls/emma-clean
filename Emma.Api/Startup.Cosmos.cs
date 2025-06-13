@@ -21,6 +21,11 @@ namespace Emma.Api
             var databaseName = Environment.GetEnvironmentVariable("COSMOSDB__DATABASENAME");
             var containerName = Environment.GetEnvironmentVariable("COSMOSDB__CONTAINERNAME");
 
+            if (string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(key) || string.IsNullOrEmpty(databaseName) || string.IsNullOrEmpty(containerName))
+            {
+                throw new InvalidOperationException("CosmosDB configuration is incomplete.");
+            }
+
             services.AddSingleton(s => new CosmosClient(endpoint, key));
             services.AddSingleton(s =>
             {

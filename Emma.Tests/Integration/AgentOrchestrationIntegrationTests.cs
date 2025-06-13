@@ -74,7 +74,7 @@ namespace Emma.Tests.Integration
                 WorkflowVersion = "1.0.0",
                 Intent = intentResult.Intent,
                 OriginalUserInput = userInput,
-                ConversationId = Guid.NewGuid(),
+                InteractionId = Guid.NewGuid(),
                 Context = context,
                 Urgency = intentResult.Urgency,
                 OrchestrationMethod = "custom",
@@ -145,7 +145,7 @@ namespace Emma.Tests.Integration
                 WorkflowVersion = "1.0.0",
                 Intent = AgentIntent.PropertySearch,
                 OriginalUserInput = "Find properties for Emily Johnson - 3 bedroom house, budget $500K, downtown area",
-                ConversationId = Guid.NewGuid(),
+                InteractionId = Guid.NewGuid(), // Use InteractionId
                 Context = new Dictionary<string, object>
                 {
                     ["contactId"] = "550e8400-e29b-41d4-a716-446655440001",

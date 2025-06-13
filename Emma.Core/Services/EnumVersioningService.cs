@@ -34,7 +34,7 @@ public class EnumVersioningService
     /// <summary>
     /// Create a versioned backup of the current configuration
     /// </summary>
-    public async Task<string> CreateVersionAsync(string description, string createdBy, List<string>? tags = null)
+    public string CreateVersion(string description, string createdBy, List<string>? tags = null)
     {
         try
         {
@@ -42,7 +42,7 @@ public class EnumVersioningService
             var timestamp = DateTime.UtcNow;
             
             // Read current configuration
-            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var configContent = File.ReadAllText(_configurationPath);
             var config = JsonSerializer.Deserialize<EnumConfiguration>(configContent);
             
             if (config?.Metadata == null)
@@ -54,7 +54,7 @@ public class EnumVersioningService
             // Create backup file
             var backupFileName = $"enums-v{version}-{timestamp:yyyyMMdd-HHmmss}.json";
             var backupFilePath = Path.Combine(_backupDirectory, backupFileName);
-            await File.WriteAllTextAsync(backupFilePath, configContent);
+            File.WriteAllText(backupFilePath, configContent);
 
             // Calculate file hash for integrity
             var configHash = CalculateFileHash(configContent);
@@ -71,7 +71,7 @@ public class EnumVersioningService
                 ConfigurationHash = configHash,
                 FileSizeBytes = fileInfo.Length,
                 Tags = tags ?? new List<string>(),
-                ChangeSummary = await CalculateChangeSummaryAsync(config)
+                ChangeSummary = CalculateChangeSummary(config)
             };
 
             // Add to version history
@@ -86,10 +86,10 @@ public class EnumVersioningService
                 WriteIndented = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
-            await File.WriteAllTextAsync(_configurationPath, updatedContent);
+            File.WriteAllText(_configurationPath, updatedContent);
 
             // Log the version creation
-            await LogChangeAsync(new ChangeLogEntry
+            LogChange(new ChangeLogEntry
             {
                 ChangeType = ChangeType.Create,
                 ChangedBy = createdBy,
@@ -117,12 +117,12 @@ public class EnumVersioningService
     /// <summary>
     /// Rollback to a specific version
     /// </summary>
-    public async Task<bool> RollbackToVersionAsync(string version, string rolledBackBy, string reason)
+    public bool RollbackToVersion(string version, string rolledBackBy, string reason)
     {
         try
         {
             // Read current configuration to get version history
-            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var configContent = File.ReadAllText(_configurationPath);
             var config = JsonSerializer.Deserialize<EnumConfiguration>(configContent);
             
             if (config?.Metadata?.VersionHistory == null)
@@ -148,13 +148,13 @@ public class EnumVersioningService
             }
 
             // Create a backup of current state before rollback
-            var currentBackupVersion = await CreateVersionAsync(
+            var currentBackupVersion = CreateVersion(
                 $"Pre-rollback backup before reverting to {version}", 
                 rolledBackBy, 
                 new List<string> { "pre-rollback", "auto-backup" });
 
             // Read the target version configuration
-            var targetContent = await File.ReadAllTextAsync(targetVersion.BackupFilePath);
+            var targetContent = File.ReadAllText(targetVersion.BackupFilePath);
             
             // Verify integrity
             var targetHash = CalculateFileHash(targetContent);
@@ -197,10 +197,10 @@ public class EnumVersioningService
                 WriteIndented = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
-            await File.WriteAllTextAsync(_configurationPath, rolledBackContent);
+            File.WriteAllText(_configurationPath, rolledBackContent);
 
             // Log the rollback
-            await LogChangeAsync(new ChangeLogEntry
+            LogChange(new ChangeLogEntry
             {
                 ChangeType = ChangeType.Rollback,
                 ChangedBy = rolledBackBy,
@@ -230,7 +230,7 @@ public class EnumVersioningService
     /// <summary>
     /// Log a change to the audit trail
     /// </summary>
-    public async Task LogChangeAsync(ChangeLogEntry changeEntry)
+    private void LogChange(ChangeLogEntry changeEntry)
     {
         try
         {
@@ -251,7 +251,7 @@ public class EnumVersioningService
             };
 
             var logLine = JsonSerializer.Serialize(logEntry) + Environment.NewLine;
-            await File.AppendAllTextAsync(_auditLogPath, logLine);
+            File.AppendAllText(_auditLogPath, logLine);
 
             _logger.LogDebug("Logged change {ChangeId} of type {ChangeType} by {User}", 
                 changeEntry.ChangeId, changeEntry.ChangeType, changeEntry.ChangedBy);
@@ -266,7 +266,7 @@ public class EnumVersioningService
     /// <summary>
     /// Get change log entries with filtering
     /// </summary>
-    public async Task<IEnumerable<ChangeLogEntry>> GetChangeLogAsync(
+    public IEnumerable<ChangeLogEntry> GetChangeLog(
         string? enumType = null,
         DateTime? fromDate = null,
         DateTime? toDate = null,
@@ -279,7 +279,7 @@ public class EnumVersioningService
                 return Enumerable.Empty<ChangeLogEntry>();
             }
 
-            var lines = await File.ReadAllLinesAsync(_auditLogPath);
+            var lines = File.ReadAllLines(_auditLogPath);
             var entries = new List<ChangeLogEntry>();
 
             foreach (var line in lines)
@@ -318,12 +318,12 @@ public class EnumVersioningService
     /// <summary>
     /// Compare two versions and get differences
     /// </summary>
-    public async Task<VersionComparisonResult> CompareVersionsAsync(string fromVersion, string toVersion)
+    public VersionComparisonResult CompareVersions(string fromVersion, string toVersion)
     {
         try
         {
             // Read current configuration to get version history
-            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var configContent = File.ReadAllText(_configurationPath);
             var config = JsonSerializer.Deserialize<EnumConfiguration>(configContent);
             
             if (config?.Metadata?.VersionHistory == null)
@@ -344,9 +344,9 @@ public class EnumVersioningService
 
             // Read both configurations
             var fromConfig = JsonSerializer.Deserialize<EnumConfiguration>(
-                await File.ReadAllTextAsync(fromVersionEntry.BackupFilePath));
+                File.ReadAllText(fromVersionEntry.BackupFilePath));
             var toConfig = JsonSerializer.Deserialize<EnumConfiguration>(
-                await File.ReadAllTextAsync(toVersionEntry.BackupFilePath));
+                File.ReadAllText(toVersionEntry.BackupFilePath));
 
             // Compare configurations
             var differences = CompareConfigurations(fromConfig!, toConfig!);
@@ -370,11 +370,11 @@ public class EnumVersioningService
     /// <summary>
     /// Export configuration with optional version history
     /// </summary>
-    public async Task<bool> ExportConfigurationAsync(string filePath, bool includeHistory = false)
+    public bool ExportConfiguration(string filePath, bool includeHistory = false)
     {
         try
         {
-            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var configContent = File.ReadAllText(_configurationPath);
             
             if (!includeHistory)
             {
@@ -393,7 +393,7 @@ public class EnumVersioningService
                 });
             }
 
-            await File.WriteAllTextAsync(filePath, configContent);
+            File.WriteAllText(filePath, configContent);
             
             _logger.LogInformation("Exported enum configuration to {FilePath} (includeHistory: {IncludeHistory})", 
                 filePath, includeHistory);
@@ -410,11 +410,11 @@ public class EnumVersioningService
     /// <summary>
     /// Get the current version information
     /// </summary>
-    public async Task<EnumVersion> GetCurrentVersionAsync()
+    public EnumVersion GetCurrentVersion()
     {
         try
         {
-            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var configContent = File.ReadAllText(_configurationPath);
             var config = JsonSerializer.Deserialize<EnumConfiguration>(configContent);
             
             if (config?.Metadata == null)
@@ -458,11 +458,11 @@ public class EnumVersioningService
     /// <summary>
     /// Get a specific version by ID
     /// </summary>
-    public async Task<EnumVersion> GetVersionAsync(string versionId)
+    public EnumVersion GetVersion(string versionId)
     {
         try
         {
-            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var configContent = File.ReadAllText(_configurationPath);
             var config = JsonSerializer.Deserialize<EnumConfiguration>(configContent);
             
             var versionEntry = config?.Metadata?.VersionHistory
@@ -491,11 +491,11 @@ public class EnumVersioningService
     /// <summary>
     /// Get all available versions
     /// </summary>
-    public async Task<IEnumerable<EnumVersion>> GetVersionsAsync()
+    public IEnumerable<EnumVersion> GetVersions()
     {
         try
         {
-            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var configContent = File.ReadAllText(_configurationPath);
             var config = JsonSerializer.Deserialize<EnumConfiguration>(configContent);
             
             if (config?.Metadata?.VersionHistory == null)
@@ -521,9 +521,9 @@ public class EnumVersioningService
     /// <summary>
     /// Create a new version (overload for EnumVersion parameter)
     /// </summary>
-    public async Task<EnumVersion> CreateVersionAsync(EnumVersion version)
+    public EnumVersion CreateVersion(EnumVersion version)
     {
-        var versionId = await CreateVersionAsync(version.Description, version.CreatedBy);
+        var versionId = CreateVersion(version.Description, version.CreatedBy);
         return new EnumVersion
         {
             Version = versionId,
@@ -536,22 +536,22 @@ public class EnumVersioningService
     /// <summary>
     /// Update an existing version (placeholder implementation)
     /// </summary>
-    public async Task<EnumVersion> UpdateVersionAsync(EnumVersion version)
+    public EnumVersion UpdateVersion(EnumVersion version)
     {
         // For now, just return the version as-is since version history is typically immutable
         // In a real implementation, you might update metadata or description
-        _logger.LogWarning("UpdateVersionAsync called - version history is typically immutable");
+        _logger.LogWarning("UpdateVersion called - version history is typically immutable");
         return version;
     }
 
     /// <summary>
     /// Delete a version (placeholder implementation)
     /// </summary>
-    public async Task DeleteVersionAsync(string versionId)
+    public void DeleteVersion(string versionId)
     {
         try
         {
-            var configContent = await File.ReadAllTextAsync(_configurationPath);
+            var configContent = File.ReadAllText(_configurationPath);
             var config = JsonSerializer.Deserialize<EnumConfiguration>(configContent);
             
             if (config?.Metadata?.VersionHistory != null)
@@ -568,7 +568,7 @@ public class EnumVersioningService
                         WriteIndented = true,
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                     });
-                    await File.WriteAllTextAsync(_configurationPath, updatedContent);
+                    File.WriteAllText(_configurationPath, updatedContent);
                     
                     _logger.LogInformation("Deleted version {VersionId}", versionId);
                 }
@@ -596,7 +596,7 @@ public class EnumVersioningService
         return Convert.ToHexString(hashBytes);
     }
 
-    private async Task<VersionChangeSummary> CalculateChangeSummaryAsync(EnumConfiguration config)
+    private VersionChangeSummary CalculateChangeSummary(EnumConfiguration config)
     {
         // This is a simplified implementation - in practice, you'd compare with the previous version
         var summary = new VersionChangeSummary();

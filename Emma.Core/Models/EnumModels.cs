@@ -31,6 +31,12 @@ public class EnumConfiguration
     /// </summary>
     [JsonPropertyName("metadata")]
     public EnumConfigurationMetadata Metadata { get; set; } = new();
+
+    /// <summary>
+    /// Change log entries for configuration changes
+    /// </summary>
+    [JsonPropertyName("changeLogs")]
+    public List<ChangeLogEntry> ChangeLogs { get; set; } = new();
 }
 
 /// <summary>
@@ -390,6 +396,11 @@ public class EnumMetadata
     /// Categories used by enum values
     /// </summary>
     public List<string> Categories { get; set; } = new();
+
+    /// <summary>
+    /// Description of the enum
+    /// </summary>
+    public string Description { get; set; } = string.Empty;
 }
 
 /// <summary>

@@ -194,7 +194,7 @@ public class NbaContextService : INbaContextService
                 LatestInteraction = interaction.Timestamp,
                 KeyMilestones = new List<string>(),
                 ImportantPreferences = new Dictionary<string, object>(),
-                CustomFields = new Dictionary<string, object>()
+                CustomFields = interaction.CustomFields?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) ?? new Dictionary<string, object>()
             };
         }
         else
@@ -207,6 +207,7 @@ public class NbaContextService : INbaContextService
             existingSummary.InteractionCount++;
             existingSummary.LatestInteraction = interaction.Timestamp;
             existingSummary.LastUpdated = DateTime.UtcNow;
+            existingSummary.CustomFields = interaction.CustomFields?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) ?? new Dictionary<string, object>();
         }
 
         _context.ContactSummaries.Update(existingSummary);
@@ -241,7 +242,7 @@ public class NbaContextService : INbaContextService
                 ImportantDates = new Dictionary<string, DateTime>(),
                 PropertyInfo = new Dictionary<string, object>(),
                 FinancialInfo = new Dictionary<string, object>(),
-                CustomFields = new Dictionary<string, object>()
+                CustomFields = newInteraction.CustomFields?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) ?? new Dictionary<string, object>()
             };
         }
         else
@@ -276,6 +277,7 @@ public class NbaContextService : INbaContextService
                 
                 existingState.CustomFields["stateTransitions"] = transitions;
             }
+            existingState.CustomFields = newInteraction.CustomFields?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) ?? new Dictionary<string, object>();
         }
 
         _context.ContactStates.Update(existingState);
@@ -318,7 +320,7 @@ public class NbaContextService : INbaContextService
                 ? (List<string>)extractedEntities["topics"] 
                 : new List<string>(),
             SentimentScore = sentimentScore,
-            CustomFields = new Dictionary<string, object>()
+            CustomFields = interaction.CustomFields?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) ?? new Dictionary<string, object>()
         };
 
         _context.InteractionEmbeddings.Add(embedding);

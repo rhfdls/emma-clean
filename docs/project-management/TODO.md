@@ -1,3 +1,5 @@
+This file has been superseded by EMMA-Unified-Project-Management-Plan.md. All future updates are tracked there
+
 # EMMA AI-First CRM - Development TODO
 
 ## 🚀 **MASTER IMPLEMENTATION BACKLOG**

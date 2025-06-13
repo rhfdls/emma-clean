@@ -41,9 +41,9 @@ namespace Emma.Core.Services
 
                 // Extract parameters from request context
                 var contactId = request.Context.TryGetValue("contactId", out var cId) ? 
-                    Guid.Parse(cId.ToString()!) : Guid.Empty;
+                    Guid.TryParse(cId.ToString(), out var parsedContactId) ? parsedContactId : Guid.Empty : Guid.Empty;
                 var organizationId = request.Context.TryGetValue("organizationId", out var oId) ? 
-                    Guid.Parse(oId.ToString()!) : Guid.Empty;
+                    Guid.TryParse(oId.ToString(), out var parsedOrganizationId) ? parsedOrganizationId : Guid.Empty : Guid.Empty;
                 var analysisType = request.Context.TryGetValue("analysisType", out var aType) ? 
                     aType.ToString()! : "interaction";
 

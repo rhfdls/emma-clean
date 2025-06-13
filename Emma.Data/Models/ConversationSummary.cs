@@ -2,7 +2,8 @@ namespace Emma.Data.Models;
 
 public class ConversationSummary
 {
-    public Guid ConversationId { get; set; }
+    // Removed ConversationId as part of refactor
+    // public Guid ConversationId { get; set; }
 
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid InteractionId { get; set; }

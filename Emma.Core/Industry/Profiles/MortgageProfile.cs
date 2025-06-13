@@ -75,19 +75,38 @@ Please provide insights and recommendations.",
             }
         };
 
-        public List<string> AvailableActions => new()
+        public List<string> AvailableActions { get; private set; }
+
+        public void InitializeAvailableActions()
         {
-            "send_rate_quote",
-            "request_documents",
-            "schedule_appraisal",
-            "order_title_work",
-            "coordinate_closing",
-            "send_pre_approval_letter",
-            "rate_lock_notification",
-            "underwriting_update",
-            "closing_disclosure_review",
-            "post_closing_follow_up"
-        };
+            AvailableActions = AvailableActions ?? new List<string>
+            {
+                "send_rate_quote",
+                "request_documents",
+                "schedule_appraisal",
+                "order_title_work",
+                "coordinate_closing",
+                "send_pre_approval_letter",
+                "rate_lock_notification",
+                "underwriting_update",
+                "closing_disclosure_review",
+                "post_closing_follow_up"
+            };
+        }
+
+        public List<string> SpecializedAgents { get; private set; }
+
+        public void InitializeSpecializedAgents()
+        {
+            SpecializedAgents = SpecializedAgents ?? new List<string>
+            {
+                "LoanProcessingAgent",
+                "UnderwritingAgent",
+                "RateLockAgent",
+                "DocumentCollectionAgent",
+                "NbaAgent"
+            };
+        }
 
         public ContactWorkflowDefinitions WorkflowDefinitions => new()
         {
@@ -190,15 +209,6 @@ Please provide insights and recommendations.",
             new() { Query = "Who should I contact about refinancing?", Description = "Find past clients who could benefit from current rates", Category = "Business Development" }
         };
 
-        public List<string> SpecializedAgents => new()
-        {
-            "LoanProcessingAgent",
-            "UnderwritingAgent",
-            "RateLockAgent",
-            "DocumentCollectionAgent",
-            "NbaAgent"
-        };
-
         public List<string> NbaActionTypes => new()
         {
             "collect_documents",
@@ -215,6 +225,20 @@ Please provide insights and recommendations.",
             "coordinate_closing",
             "post_closing_follow_up",
             "refinance_opportunity"
+        };
+
+        public List<string> ResourceTypes { get; } = new List<string>
+        {
+            "LoanApplication",
+            "CreditReport",
+            "AppraisalDocument"
+        };
+
+        public List<string> DefaultResourceCategories { get; } = new List<string>
+        {
+            "LoanProcessing",
+            "Underwriting",
+            "ClosingCoordination"
         };
     }
 }

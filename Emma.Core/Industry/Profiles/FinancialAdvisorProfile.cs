@@ -75,19 +75,38 @@ Please provide insights and recommendations.",
             }
         };
 
-        public List<string> AvailableActions => new()
+        public List<string> AvailableActions { get; private set; }
+
+        public void InitializeAvailableActions()
         {
-            "schedule_review",
-            "rebalance_portfolio",
-            "update_financial_plan",
-            "tax_loss_harvesting",
-            "insurance_review",
-            "estate_planning_update",
-            "retirement_projection",
-            "goal_progress_report",
-            "market_commentary",
-            "referral_request"
-        };
+            AvailableActions = AvailableActions ?? new List<string>
+            {
+                "schedule_review",
+                "rebalance_portfolio",
+                "update_financial_plan",
+                "tax_loss_harvesting",
+                "insurance_review",
+                "estate_planning_update",
+                "retirement_projection",
+                "goal_progress_report",
+                "market_commentary",
+                "referral_request"
+            };
+        }
+
+        public List<string> SpecializedAgents { get; private set; }
+
+        public void InitializeSpecializedAgents()
+        {
+            SpecializedAgents = SpecializedAgents ?? new List<string>
+            {
+                "FinancialPlanningAgent",
+                "PortfolioManagementAgent", 
+                "TaxPlanningAgent",
+                "RetirementPlanningAgent",
+                "NbaAgent"
+            };
+        }
 
         public ContactWorkflowDefinitions WorkflowDefinitions => new()
         {
@@ -190,15 +209,6 @@ Please provide insights and recommendations.",
             new() { Query = "What's my AUM growth this quarter?", Description = "Analyze assets under management and business growth", Category = "Business Analytics" }
         };
 
-        public List<string> SpecializedAgents => new()
-        {
-            "FinancialPlanningAgent",
-            "PortfolioManagementAgent", 
-            "TaxPlanningAgent",
-            "RetirementPlanningAgent",
-            "NbaAgent"
-        };
-
         public List<string> NbaActionTypes => new()
         {
             "schedule_review",
@@ -215,6 +225,20 @@ Please provide insights and recommendations.",
             "portfolio_analysis",
             "client_check_in",
             "compliance_review"
+        };
+
+        public List<string> ResourceTypes { get; } = new List<string>
+        {
+            "InvestmentPortfolio",
+            "RetirementPlan",
+            "InsurancePolicy"
+        };
+
+        public List<string> DefaultResourceCategories { get; } = new List<string>
+        {
+            "FinancialPlanning",
+            "PortfolioManagement",
+            "TaxStrategy"
         };
     }
 }

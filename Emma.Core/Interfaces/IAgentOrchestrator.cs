@@ -51,5 +51,20 @@ namespace Emma.Core.Interfaces
         /// Set the orchestration method
         /// </summary>
         void SetOrchestrationMethod(string method);
+
+        /// <summary>
+        /// Get scheduled actions for a contact
+        /// </summary>
+        Task<List<ScheduledAction>> GetScheduledActionsAsync(Guid contactId, ScheduledActionStatus? status = null, string? traceId = null);
+
+        /// <summary>
+        /// Schedule a new action for an agent
+        /// </summary>
+        Task<bool> ScheduleActionAsync(ScheduledAction action, string? traceId = null);
+
+        /// <summary>
+        /// Cancel a scheduled action
+        /// </summary>
+        Task<bool> CancelScheduledActionAsync(string actionId, string? traceId = null);
     }
 }

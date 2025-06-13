@@ -41,10 +41,11 @@ namespace Emma.Core.Services
 
         public async Task<IIndustryProfile> GetIndustryProfileAsync()
         {
-            // For demo purposes, get the real estate profile
-            // In a real multi-tenant scenario, this would be based on the current tenant's industry
-            var profile = await _industryProfileService.GetProfileAsync("RealEstate");
-            return profile ?? throw new InvalidOperationException("RealEstate profile not found");
+            // Dynamically determine the industry based on the current tenant's configuration
+            var tenantContext = await GetCurrentTenantAsync();
+            var industryCode = tenantContext.IndustryCode; 
+            var profile = await _industryProfileService.GetProfileAsync(industryCode);
+            return profile ?? throw new InvalidOperationException($"{industryCode} profile not found");
         }
 
         public Task<bool> ValidateTenantAccessAsync(Guid tenantId)
