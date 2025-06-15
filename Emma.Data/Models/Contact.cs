@@ -123,9 +123,9 @@ public class Contact
     public Dictionary<string, string>? CustomFields { get; set; }
     
     // Navigation properties
-    public Agent? Owner { get; set; }
+    public Agent? OwnerAgent { get; set; }
     public Organization? Organization { get; set; }
-    public Agent? Agent { get; set; }  // For agent contacts
+    public Agent? AssignedAgent { get; set; }  // For agent contacts
     public List<Interaction> Interactions { get; set; } = new();
     public List<ContactAssignment> AssignedResources { get; set; } = new();  // Resources assigned to this contact
     public List<ContactAssignment> ResourceAssignments { get; set; } = new();  // When this contact is assigned as a resource

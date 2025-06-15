@@ -35,7 +35,7 @@ public class ContactAccessService : IContactAccessService
 
         // Get contacts the agent owns
         var ownedContacts = _context.Contacts
-            .Where(c => c.OwnerId == requestingAgentId);
+            .Where(c => c.OwnerAgent.Id == requestingAgentId);
 
         // Get contacts the agent has collaboration access to
         var collaboratedContacts = _context.Contacts
@@ -50,8 +50,7 @@ public class ContactAccessService : IContactAccessService
             .Include(c => c.Collaborators)
             .ToListAsync();
 
-        _logger.LogInformation("Agent {AgentId} has access to {ContactCount} contacts", 
-            requestingAgentId, authorizedContacts.Count);
+        _logger.LogInformation("Agent {AgentId} has access to {ContactCount} contacts", requestingAgentId.ToString(), authorizedContacts.Count().ToString());
 
         return authorizedContacts;
     }
@@ -76,15 +75,15 @@ public class ContactAccessService : IContactAccessService
         {
             // Organization owners can access business contacts in their org
             var contact = await _context.Contacts
-                .Include(c => c.Owner)
+                .Include(c => c.OwnerAgent)
                 .FirstOrDefaultAsync(c => c.Id == contactId);
 
-            if (contact?.Owner?.OrganizationId != null)
+            if (contact?.OwnerAgent?.OrganizationId != null)
             {
                 var requestingAgent = await _context.Agents
                     .FirstOrDefaultAsync(a => a.Id == requestingAgentId);
                 
-                return contact.Owner.OrganizationId == requestingAgent?.OrganizationId;
+                return contact.OwnerAgent.OrganizationId == requestingAgent?.OrganizationId;
             }
         }
 
@@ -102,7 +101,7 @@ public class ContactAccessService : IContactAccessService
     public async Task<bool> IsContactOwnerAsync(Guid contactId, Guid requestingAgentId)
     {
         return await _context.Contacts
-            .AnyAsync(c => c.Id == contactId && c.OwnerId == requestingAgentId);
+            .AnyAsync(c => c.Id == contactId && c.OwnerAgent.Id == requestingAgentId);
     }
 
     public async Task<bool> IsOrganizationOwnerAsync(Guid requestingAgentId)
@@ -122,8 +121,8 @@ public class ContactAccessService : IContactAccessService
         }
 
         var query = _context.Contacts
-            .Include(c => c.Owner)
-            .Where(c => c.Owner.OrganizationId == requestingAgent.OrganizationId);
+            .Include(c => c.OwnerAgent)
+            .Where(c => c.OwnerAgent.OrganizationId == requestingAgent.OrganizationId);
 
         // If business only, we would filter out personal contacts
         // This would require additional logic based on contact relationship state

@@ -120,12 +120,23 @@ public class AppDbContext : DbContext
             .Property(c => c.CustomFields)
             .HasColumnType("jsonb");
         
-        // Contact -> Agent (Owner) relationship
         modelBuilder.Entity<Contact>()
-            .HasOne(c => c.Owner)
-            .WithMany()
+            .HasMany(c => c.Interactions)
+            .WithOne(i => i.Contact)
+            .HasForeignKey(i => i.ContactId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Agent>()
+            .HasMany(a => a.Contacts)
+            .WithOne(c => c.OwnerAgent)
             .HasForeignKey(c => c.OwnerId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Agent>()
+            .HasMany(a => a.Interactions)
+            .WithOne(i => i.Agent)
+            .HasForeignKey(i => i.AgentId)
+            .OnDelete(DeleteBehavior.Restrict);
             
         modelBuilder.Entity<Message>().HasKey(m => m.Id);
         // Unique index for Message on OccurredAt and Type
@@ -403,5 +414,21 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AccessAuditLog>()
             .Property(aal => aal.PrivacyTags)
             .HasColumnType("jsonb");
+        
+        modelBuilder.Entity<Contact>()
+            .HasMany(c => c.AssignedResources)
+            .WithOne(ca => ca.ClientContact)
+            .HasForeignKey(ca => ca.ClientContactId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Contact>()
+            .HasMany(c => c.CollaboratingOn)
+            .WithOne(cc => cc.Contact)
+            .HasForeignKey(cc => cc.ContactId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Interaction>()
+            .Property(i => i.Timestamp)
+            .IsRequired();
     }
 }

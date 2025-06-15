@@ -6,12 +6,16 @@ using Emma.Api.Configuration;
 using Emma.Api.Models;
 using Emma.Core.Interfaces;
 using Emma.Core.Services;
+using Emma.Core.Compliance;
 using Azure;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Cosmos;
+using Emma.Core.Extensions;
 
 try
 {
+    Console.WriteLine("Loaded correct Program.cs!");
     Console.WriteLine("🚀 Starting MINIMAL Emma AI Platform...");
     
     // Load environment variables from .env
@@ -42,6 +46,9 @@ try
         });
     });
     
+    // Add IHttpContextAccessor for DI
+    builder.Services.AddHttpContextAccessor();
+    
     // Add Database Context with timeout configuration
     Console.WriteLine("🗄️ Adding PostgreSQL database context...");
     var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__PostgreSql");
@@ -67,6 +74,9 @@ try
     var azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AzureOpenAI__Endpoint");
     var azureOpenAIApiKey = Environment.GetEnvironmentVariable("AzureOpenAI__ApiKey");
     
+    Console.WriteLine($"🔍 Azure OpenAI Endpoint: {azureOpenAIEndpoint}");
+    Console.WriteLine($"🔍 Azure OpenAI API Key: {azureOpenAIApiKey?.Substring(0, 5)}***");
+
     if (string.IsNullOrEmpty(azureOpenAIEndpoint) || string.IsNullOrEmpty(azureOpenAIApiKey))
     {
         Console.WriteLine("⚠️ WARNING: Azure OpenAI configuration incomplete. AI features will be disabled.");
@@ -127,7 +137,29 @@ try
         Console.WriteLine("🌌 Adding Cosmos DB services...");
         try
         {
-            Emma.Api.CosmosStartupExtensions.AddCosmosDb(builder.Services, builder.Configuration);
+            // Log environment variables for Cosmos DB
+            var accountEndpoint = Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTENDPOINT");
+            var accountKey = Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTKEY");
+            Console.WriteLine($"🔍 Cosmos DB Account Endpoint: {accountEndpoint}");
+            Console.WriteLine($"🔍 Cosmos DB Account Key: {accountKey.Substring(0, 5)}***");
+
+            // Ensure CosmosClient registration using environment variables
+            builder.Services.AddSingleton<CosmosClient>(sp =>
+                new CosmosClient(
+                    Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTENDPOINT"),
+                    Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTKEY")
+                )
+            );
+
+            // Ensure CosmosAgentRepository registration using environment variables
+            builder.Services.AddScoped<CosmosAgentRepository>(sp =>
+            {
+                var cosmosClient = sp.GetRequiredService<CosmosClient>();
+                var databaseName = Environment.GetEnvironmentVariable("COSMOSDB__DATABASENAME");
+                var containerName = Environment.GetEnvironmentVariable("COSMOSDB__CONTAINERNAME");
+                var logger = sp.GetRequiredService<ILogger<CosmosAgentRepository>>();
+                return new CosmosAgentRepository(cosmosClient, databaseName, containerName, logger);
+            });
             Console.WriteLine("✅ Cosmos DB services registered successfully");
             Console.WriteLine("   📊 Database: emma-agent");
             Console.WriteLine("   📦 Container: messages");
@@ -135,6 +167,13 @@ try
         catch (Exception ex)
         {
             Console.WriteLine($"⚠️ Cosmos DB registration failed: {ex.Message}");
+            Console.WriteLine($"📍 Exception Type: {ex.GetType().Name}");
+            Console.WriteLine($"📝 Stack Trace: {ex.StackTrace}");
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"🔗 Inner Exception: {ex.InnerException.Message}");
+                Console.WriteLine($"📝 Inner Stack Trace: {ex.InnerException.StackTrace}");
+            }
             Console.WriteLine("   ℹ️ Continuing without Cosmos DB - basic AI functionality available");
         }
         
@@ -211,6 +250,19 @@ try
         Console.WriteLine("   🔄 Continuing without dynamic prompts - agents will use fallback prompts...");
     }
 
+    // Register Emma Core AI agent services
+    builder.Services.AddEmmaAgentServices();
+
+    // Register IAgentCommunicationBus service
+    builder.Services.AddScoped<IAgentCommunicationBus, AgentCommunicationBus>();
+
+    // Register IEmmaAgentService
+    builder.Services.AddScoped<IEmmaAgentService, EmmaAgentService>();
+    Console.WriteLine("🔗 Registered IEmmaAgentService in DI");
+
+    // Register IAgentRegistryService service
+    builder.Services.AddScoped<IAgentRegistryService, AgentRegistryService>();
+
     // Add AI Agent Services (Step 6)
     Console.WriteLine("🤖 Adding AI Agent services...");
     try
@@ -226,6 +278,15 @@ try
         
         // Register Agent Orchestrator
         builder.Services.AddScoped<IAgentOrchestrator, Emma.Core.Services.AgentOrchestrator>();
+        
+        // Register IActionRelevanceValidator
+        builder.Services.AddScoped<IActionRelevanceValidator, ActionRelevanceValidator>();
+        
+        // Register IAgentActionValidator
+        builder.Services.AddScoped<IAgentActionValidator, AgentActionValidator>();
+        
+        // Register IAgentComplianceChecker
+        builder.Services.AddScoped<IAgentComplianceChecker, AgentComplianceChecker>();
         
         Console.WriteLine("✅ AI Agent services registered successfully");
         Console.WriteLine("   🎯 NBA Agent: Intelligent next best action recommendations");
@@ -314,33 +375,17 @@ try
         }
     });
     
-    // Add database health check endpoint
+    // Add health check endpoint for database
     app.MapGet("/health/db", async (AppDbContext dbContext) =>
     {
         try
         {
-            Console.WriteLine("🔍 Testing database connection...");
             var canConnect = await dbContext.Database.CanConnectAsync();
-            if (canConnect)
-            {
-                Console.WriteLine("✅ Database connection successful");
-                return Results.Ok(new { 
-                    status = "healthy", 
-                    message = "Database connection successful", 
-                    timestamp = DateTime.UtcNow,
-                    database = "PostgreSQL"
-                });
-            }
-            else
-            {
-                Console.WriteLine("❌ Database connection failed");
-                return Results.Problem("Database connection failed", statusCode: 503);
-            }
+            return canConnect ? Results.Ok("Database connection successful") : Results.Problem("Database connection failed");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Database connection error: {ex.Message}");
-            return Results.Problem($"Database connection error: {ex.Message}", statusCode: 503);
+            return Results.Problem($"Database connection error: {ex.Message}");
         }
     });
     

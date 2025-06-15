@@ -1,0 +1,206 @@
+# EMMA Platform Database Schema
+
+**Version**: 1.0
+**Last Updated**: 2025-06-14
+**Status**: ACTIVE - Core Development Document
+
+---
+
+## Purpose
+
+This document provides a comprehensive overview of the EMMA platform's database schema, including entity relationships, field definitions, and data access patterns. It serves as the single source of truth for all database-related information.
+
+## Database Context
+
+### AppDbContext
+
+Main database context for the EMMA platform, containing all entity sets and configuration.
+
+## Entity Reference
+
+### 1. Contact
+
+Core entity representing individuals or businesses in the system.
+
+#### Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| Id | Guid | Yes | Primary key |
+| OrganizationId | Guid | Yes | Owning organization |
+| FirstName | string | Yes | Contact's first name |
+| LastName | string | Yes | Contact's last name |
+| RelationshipState | RelationshipState | Yes | Current relationship state |
+| IsActiveClient | bool | Yes | Indicates if contact is an active client |
+| ClientSince | DateTime? | No | When contact became a client |
+| CompanyName | string? | No | For service providers |
+| LicenseNumber | string? | No | Professional license number |
+| Specialties | List\<string> | No | Service provider specialties |
+| ServiceAreas | List\<string> | No | Geographic service areas |
+| Rating | decimal? | No | Professional rating (1-5) |
+| ReviewCount | int | No | Number of reviews |
+| IsPreferred | bool | No | Preferred service provider |
+| Website | string? | No | Website URL |
+| AgentId | Guid? | No | Reference to Agent if applicable |
+| Tags | List\<string> | No | Segmentation tags (no privacy/business logic) |
+| LeadSource | string? | No | Source of the lead |
+| OwnerId | Guid? | No | Owning agent ID |
+| CreatedAt | DateTime | Yes | Record creation timestamp |
+| UpdatedAt | DateTime | Yes | Record last update timestamp |
+| CustomFields | Dictionary\<string, string>? | No | Extended properties |
+
+#### Navigation Properties
+
+- **OwnerAgent**: Reference to the agent who owns this contact
+- **Organization**: Reference to the organization
+- **AssignedAgent**: Reference to the assigned agent (if any)
+- **Interactions**: Collection of all interactions with this contact
+- **AssignedResources**: Resources assigned to this contact
+- **ResourceAssignments**: Resources this contact is assigned to
+- **StateHistory**: History of relationship state changes
+- **Collaborators**: Agents with access to this contact
+- **CollaboratingOn**: Contacts this contact collaborates on
+
+---
+
+### 2. Interaction
+
+Records all communications and events related to contacts.
+
+#### Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| Id | Guid | Yes | Primary key |
+| ContactId | Guid | Yes | Related contact |
+| OrganizationId | Guid | Yes | Owning organization |
+| ContactFirstName | string | Yes | Contact's first name (denormalized) |
+| ContactLastName | string | Yes | Contact's last name (denormalized) |
+| CreatedAt | DateTime | Yes | Record creation timestamp |
+| ExternalIds | Dictionary\<string, string>? | No | External system references |
+| Type | string | Yes | Type of interaction (call\|email\|sms\|meeting\|note\|task\|other) |
+| Direction | string | Yes | Direction (inbound\|outbound\|system) |
+| Timestamp | DateTime | Yes | When the interaction occurred |
+| AgentId | Guid | Yes | Agent involved |
+| Content | string? | No | Message body or notes |
+| Channel | string | Yes | Source channel (twilio\|email\|gog\|crm\|other) |
+| Status | string | Yes | Current status (completed\|pending\|failed\|scheduled) |
+| RelatedEntities | List\<RelatedEntity>? | No | Related business entities |
+| Tags | List\<string> | No | Privacy/business logic tags |
+| CustomFields | Dictionary\<string, string>? | No | Extended properties |
+
+#### Navigation Properties
+
+- **Contact**: Reference to the related contact
+- **Agent**: Reference to the agent involved
+- **Organization**: Reference to the organization
+- **Messages**: Collection of messages in this interaction
+
+---
+
+## Entity Relationships
+
+### Contact Relationships
+
+```mermaid
+erDiagram
+    CONTACT ||--o{ INTERACTION : has
+    CONTACT ||--o{ CONTACT_ASSIGNMENT : "assigned resources"
+    CONTACT ||--o{ CONTACT_COLLABORATOR : "collaborators"
+    CONTACT ||--o{ CONTACT_STATE_HISTORY : "state changes"
+    CONTACT }|--|| AGENT : "owner"
+    CONTACT }|--o| AGENT : "assigned agent"
+    CONTACT }|--|| ORGANIZATION : "organization"
+```
+
+### Interaction Relationships
+
+```mermaid
+erDiagram
+    INTERACTION ||--o{ MESSAGE : contains
+    INTERACTION }|--|| CONTACT : "related to"
+    INTERACTION }|--|| AGENT : "involves"
+    INTERACTION }|--|| ORGANIZATION : "belongs to"
+```
+
+## Indexes
+
+### Contact Indexes
+
+- **IX_Contacts_OrganizationId**: Non-clustered index on OrganizationId
+- **IX_Contacts_OwnerId**: Non-clustered index on OwnerId
+- **IX_Contacts_AgentId**: Non-clustered index on AgentId
+- **IX_Contacts_RelationshipState**: Non-clustered index on RelationshipState
+- **IX_Contacts_IsActiveClient**: Non-clustered index on IsActiveClient
+
+### Interaction Indexes
+
+- **IX_Interactions_ContactId**: Non-clustered index on ContactId
+- **IX_Interactions_AgentId**: Non-clustered index on AgentId
+- **IX_Interactions_OrganizationId**: Non-clustered index on OrganizationId
+- **IX_Interactions_Timestamp**: Non-clustered index on Timestamp
+- **IX_Interactions_Type_Status**: Composite index on Type and Status
+
+## Common Queries
+
+### Get Contact with Recent Interactions
+
+```csharp
+var contact = await _context.Contacts
+    .Include(c => c.Interactions.OrderByDescending(i => i.Timestamp).Take(10))
+    .Include(c => c.OwnerAgent)
+    .FirstOrDefaultAsync(c => c.Id == contactId);
+```
+
+### Get Interactions for Time Period
+
+```csharp
+var interactions = await _context.Interactions
+    .Where(i => i.OrganizationId == organizationId && 
+               i.Timestamp >= startDate && 
+               i.Timestamp <= endDate)
+    .OrderByDescending(i => i.Timestamp)
+    .ToListAsync();
+```
+
+### Get Active Clients
+
+```csharp
+var activeClients = await _context.Contacts
+    .Where(c => c.OrganizationId == organizationId && 
+               c.IsActiveClient &&
+               c.RelationshipState == RelationshipState.Client)
+    .OrderBy(c => c.LastName)
+    .ThenBy(c => c.FirstName)
+    .ToListAsync();
+```
+
+## Data Retention Policies
+
+### Contacts
+
+- Retained indefinitely unless deleted by user
+- Soft delete implemented with IsDeleted flag
+- Hard delete after 1 year in deleted state
+
+### Interactions
+
+- Retained for 7 years for compliance
+- Archived after 1 year
+- Permanently deleted after retention period
+
+## Schema Change Management
+
+### Versioning
+
+- Major version changes for breaking changes
+- Minor version for additive changes
+- Patch version for documentation updates
+
+### Change Log
+
+#### 1.0.0 (2025-06-14)
+
+- Initial schema documentation
+- Added Contact and Interaction entities
+- Documented relationships and indexes

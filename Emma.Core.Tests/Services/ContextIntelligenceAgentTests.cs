@@ -4,6 +4,7 @@ using Emma.Core.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Emma.Core.Interfaces.Services;
 
 namespace Emma.Core.Tests.Services
 {
@@ -11,6 +12,8 @@ namespace Emma.Core.Tests.Services
     {
         private readonly Mock<IContextIntelligenceService> _mockContextService;
         private readonly Mock<ITenantContextService> _mockTenantContext;
+        private readonly Mock<IPromptProvider> _mockPromptProvider;
+        private readonly Mock<IAIFoundryService> _mockAiFoundryService;
         private readonly Mock<ILogger<ContextIntelligenceAgent>> _mockLogger;
         private readonly ContextIntelligenceAgent _agent;
 
@@ -18,11 +21,15 @@ namespace Emma.Core.Tests.Services
         {
             _mockContextService = new Mock<IContextIntelligenceService>();
             _mockTenantContext = new Mock<ITenantContextService>();
+            _mockPromptProvider = new Mock<IPromptProvider>();
+            _mockAiFoundryService = new Mock<IAIFoundryService>();
             _mockLogger = new Mock<ILogger<ContextIntelligenceAgent>>();
             
             _agent = new ContextIntelligenceAgent(
                 _mockContextService.Object,
                 _mockTenantContext.Object,
+                _mockPromptProvider.Object,
+                _mockAiFoundryService.Object,
                 _mockLogger.Object);
         }
 

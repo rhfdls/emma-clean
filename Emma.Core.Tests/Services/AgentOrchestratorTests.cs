@@ -1,6 +1,7 @@
 using Emma.Core.Interfaces;
 using Emma.Core.Models;
 using Emma.Core.Services;
+using Emma.Data.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -13,7 +14,12 @@ namespace Emma.Core.Tests.Services
         private readonly Mock<IContextIntelligenceAgent> _mockContextAgent;
         private readonly Mock<IIntentClassificationAgent> _mockIntentAgent;
         private readonly Mock<IResourceAgent> _mockResourceAgent;
-        private readonly Mock<IAiFoundryService> _mockAiFoundry;
+        private readonly Mock<IAIFoundryService> _mockAiFoundry;
+        private readonly Mock<ITenantContextService> _mockTenantContext;
+        private readonly Mock<IActionRelevanceValidator> _mockActionRelevanceValidator;
+        private readonly Mock<INbaContextService> _mockNbaContextService;
+        private readonly Mock<IAgentRegistry> _mockAgentRegistry;
+        private readonly Mock<IFeatureFlagService> _mockFeatureFlagService;
         private readonly Mock<ILogger<AgentOrchestrator>> _mockLogger;
         private readonly AgentOrchestrator _orchestrator;
 
@@ -23,15 +29,25 @@ namespace Emma.Core.Tests.Services
             _mockContextAgent = new Mock<IContextIntelligenceAgent>();
             _mockIntentAgent = new Mock<IIntentClassificationAgent>();
             _mockResourceAgent = new Mock<IResourceAgent>();
-            _mockAiFoundry = new Mock<IAiFoundryService>();
+            _mockAiFoundry = new Mock<IAIFoundryService>();
+            _mockTenantContext = new Mock<ITenantContextService>();
+            _mockActionRelevanceValidator = new Mock<IActionRelevanceValidator>();
+            _mockNbaContextService = new Mock<INbaContextService>();
+            _mockAgentRegistry = new Mock<IAgentRegistry>();
+            _mockFeatureFlagService = new Mock<IFeatureFlagService>();
             _mockLogger = new Mock<ILogger<AgentOrchestrator>>();
 
             _orchestrator = new AgentOrchestrator(
+                _mockAiFoundry.Object,
+                _mockTenantContext.Object,
                 _mockNbaAgent.Object,
                 _mockContextAgent.Object,
                 _mockIntentAgent.Object,
                 _mockResourceAgent.Object,
-                _mockAiFoundry.Object,
+                _mockActionRelevanceValidator.Object,
+                _mockNbaContextService.Object,
+                _mockAgentRegistry.Object,
+                _mockFeatureFlagService.Object,
                 _mockLogger.Object);
         }
 

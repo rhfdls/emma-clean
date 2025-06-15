@@ -10261,11 +10261,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\Emma.Api.csproj",
+      "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\emma.api\\Emma.Api.csproj",
       "projectName": "Emma.Api",
-      "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\Emma.Api.csproj",
+      "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\emma.api\\Emma.Api.csproj",
       "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\obj\\",
+      "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\emma.api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"

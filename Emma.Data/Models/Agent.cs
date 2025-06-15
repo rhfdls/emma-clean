@@ -17,4 +17,6 @@ public class Agent
     public Subscription? Subscription { get; set; }
     public AgentPhoneNumber? PhoneNumber { get; init; }
     public List<AgentSubscriptionAssignment> SubscriptionAssignments { get; set; } = new();
+    public ICollection<Contact> Contacts { get; set; } = new List<Contact>();
+    public ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();
 }
