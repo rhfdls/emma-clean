@@ -1,5 +1,5 @@
 using Emma.Core.Models;
-using Emma.Data.Models;
+using Emma.Models.Models;
 
 namespace Emma.Core.Interfaces;
 

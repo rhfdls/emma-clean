@@ -25,6 +25,8 @@ User/Agent (agentId) →
 
 | Field            | Type           | Required | PostgreSQL | CosmosDB | Description / Notes                  | Example |
 |------------------|----------------|:--------:|:----------:|:--------:|--------------------------------------|---------|
+| Field            | Type           | Required | PostgreSQL | CosmosDB | Description / Notes                  | Example |
+|------------------|----------------|:--------:|:----------:|:--------:|--------------------------------------|---------|
 | id               | string / uuid  |   Yes    |     ✔      |    ✔     | Unique interaction/document ID       | "int001" |
 | agentId          | string / uuid  |   Yes    |     ✔      |    ✔     | Agent GUID                          | "agent123" |
 | contactId        | string / uuid  |   Yes    |     ✔      |    ✔     | Contact GUID                        | "contact456" |
@@ -33,10 +35,26 @@ User/Agent (agentId) →
 | content          | string         |   Yes    |     ✔      |    ✔     | Full text content                   | "Left voicemail" |
 | timestamp        | datetime       |   Yes    |     ✔      |    ✔     | UTC timestamp                       | "2024-05-28T10:20:30Z" |
 | metadata         | json/dict      |   No     |     ✔      |    ✔     | Flexible metadata                   | {"source":"AI"} |
-| embedding        | float[]        |   No     |            |    ✔     | AI-generated embedding vector        | [0.123, 0.456] |
-| embeddingModel   | string         |   No     |            |    ✔     | Embedding model name                | "openai-ada-002" |
-| embeddingDate    | datetime       |   No     |            |    ✔     | When the embedding was generated     | "2024-05-28T10:20:30Z" |
-| tags             | string[]       |   No     |            |    ✔     | Tags for AI/RAG/lead classification | ["AI","RAG"] |
+| 
+### AI-Specific Fields
+| aiConfidenceScore | float         |   No     |     ✔      |    ✔     | Confidence score (0-1) of AI analysis | 0.87 |
+| modelVersion      | string        |   No     |     ✔      |    ✔     | Version of AI model used             | "gpt-4-0613" |
+| promptTemplateId  | string        |   No     |     ✔      |    ✔     | ID of prompt template used           | "property-recommendation-v2" |
+| aiMetadata        | json/dict     |   No     |     ✔      |    ✔     | AI-specific metadata                 | {"tokens_used": 123, "model": "gpt-4"} |
+| 
+### Vector Embeddings
+| embedding         | float[]       |   No     |            |    ✔     | AI-generated embedding vector        | [0.123, 0.456] |
+| embeddingModel    | string        |   No     |            |    ✔     | Embedding model name                | "text-embedding-ada-002" |
+| embeddingDate     | datetime      |   No     |            |    ✔     | When the embedding was generated     | "2024-05-28T10:20:30Z" |
+| 
+### RAG & Context
+| contextWindow     | string[]      |   No     |            |    ✔     | Document IDs used for RAG context   | ["doc123", "doc456"] |
+| citations        | json/dict     |   No     |            |    ✔     | Source citations for AI responses    | {"sources": ["doc123#p2"]} |
+| 
+### Classification & Tags
+| tags              | string[]      |   No     |     ✔      |    ✔     | Tags for AI/RAG/lead classification | ["AI","RAG"] |
+| aiCategories     | string[]      |   No     |     ✔      |    ✔     | AI-generated categories             | ["sales", "follow_up"] |
+| sentiment        | string        |   No     |     ✔      |    ✔     | AI-detected sentiment              | "positive" |
 
 - **Required**: Must be present in every valid interaction object.
 - ✔ = Field exists in that DB

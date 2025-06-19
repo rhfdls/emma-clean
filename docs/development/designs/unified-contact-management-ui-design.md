@@ -9,6 +9,8 @@ The Unified Contact Management UI is a comprehensive interface for managing all 
 - **Progressive Disclosure**: Show complexity only when needed based on relationship type
 - **Adaptive UI**: Components adjust based on `RelationshipState` and context
 - **Unified Data Model**: Single Contact entity with contextual panels
+- **Multi-tenant Architecture**: Full tenant isolation with shared templates
+- **User Override Support**: Built-in support for approval workflows and override modes
 - **Industry Agnostic**: Configurable for different verticals (Real Estate, Insurance, etc.)
 - **Scalable Architecture**: Support for future contact types and workflows
 
@@ -20,11 +22,13 @@ The Unified Contact Management UI is a comprehensive interface for managing all 
 
 **Features**:
 
-- Adaptive filtering by RelationshipState
-- Universal search across all contact types
-- Bulk operations (export, import, delete, tag)
-- Customizable columns based on relationship type
-- Performance optimized for large contact lists
+- Adaptive filtering by RelationshipState and Tenant
+- Universal search across all contact types with tenant isolation
+- Bulk operations (export, import, delete, tag) with permission checks
+- Customizable columns based on relationship type and tenant settings
+- Performance optimized for large contact lists with lazy loading
+- Visual indicators for pending approvals
+- Quick action buttons for common override actions
 
 ### ContactDetail Component
 

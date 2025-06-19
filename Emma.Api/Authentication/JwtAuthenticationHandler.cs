@@ -6,7 +6,7 @@ using System.Text.Json;
 // using Microsoft.IdentityModel.Tokens;
 // using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using Emma.Data;
+using Emma.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Authentication;
@@ -19,7 +19,7 @@ namespace Emma.Api.Authentication;
 /*
 public class JwtAuthenticationHandler : AuthenticationHandler<JwtAuthenticationOptions>
 {
-    private readonly AppDbContext _context;
+    private readonly IAppDbContext _context;
     private readonly ILogger<JwtAuthenticationHandler> _logger;
 
     public JwtAuthenticationHandler(
@@ -27,7 +27,7 @@ public class JwtAuthenticationHandler : AuthenticationHandler<JwtAuthenticationO
         ILoggerFactory logger,
         UrlEncoder encoder,
         ISystemClock clock,
-        AppDbContext context)
+        IAppDbContext context)
         : base(options, logger, encoder, clock)
     {
         _context = context;

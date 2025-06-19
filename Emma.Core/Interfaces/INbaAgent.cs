@@ -6,7 +6,7 @@ namespace Emma.Core.Interfaces;
 /// NBA (Next Best Action) Agent interface - provides intelligent recommendations
 /// based on contact context and business rules
 /// </summary>
-public interface INbaAgent
+public interface INbaAgent : IAgent
 {
     /// <summary>
     /// Analyzes contact context and recommends next best actions

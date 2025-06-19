@@ -1,6 +1,6 @@
-using Emma.Data.Models;
+using Emma.Models.Models;
 using Microsoft.Extensions.Logging;
-using Emma.Core.Interfaces;
+using Emma.Models.Interfaces;
 using Emma.Core.Models;
 using Emma.Core.Configuration;
 

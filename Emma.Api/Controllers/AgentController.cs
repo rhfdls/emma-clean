@@ -1,7 +1,7 @@
 using Emma.Core.Interfaces;
 using Emma.Core.Models;
 using Emma.Core.Services;
-using Emma.Data.Models;
+using Emma.Models.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Emma.Api.Controllers;

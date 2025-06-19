@@ -50,6 +50,9 @@
 - Hot-reload infrastructure (live update, zero downtime)
 - Advanced monitoring & alerting
 - Security hardening (RBAC, input validation, audit logs)
+- Organization subscription management
+- User subscription assignments
+- Seat management and enforcement
 
 ---
 
@@ -64,6 +67,11 @@ Deliver a vertically-integrated, minimal EMMA workflow—demonstrating real-worl
 - **Contact CRUD & Ownership:**
   - Create, update, and delete a contact (agent as owner, with basic relationship fields).
   - Enforce ownership/assignment rules; real (not stubbed) access control.
+- **Subscription Management:**
+  - Basic subscription plan creation and management
+  - User assignment to organization subscriptions
+  - Seat limit enforcement and validation
+  - Subscription status tracking and validation
 - **Agent-Orchestrated Workflow:**
   - Trigger and execute a core workflow (e.g., contact follow-up, action recommendation).
   - Use dynamic agent registry and orchestrator (no hardcoded logic).
@@ -71,11 +79,11 @@ Deliver a vertically-integrated, minimal EMMA workflow—demonstrating real-worl
 - **Validation & Audit:**
   - Three-tier validation pipeline (with action scope classification).
   - Universal explainability: `Reason` and `AuditId` fields present and populated.
-  - End-to-end audit trail for all major events (action, validation, override).
+  - End-to-end audit trail for all major events (action, validation, override, subscription changes).
 - **API Versioning & Feature Flags:**
   - All APIs versioned (`/api/v1/`), feature flags protecting all new functionality.
 - **Minimal UI (Optional):**
-  - A web form or API client to exercise core flows (add contact, trigger workflow, view audit).
+  - A web form or API client to exercise core flows (add contact, manage subscriptions, trigger workflow, view audit).
 
 ### **Validation/Acceptance Checklist**
 
@@ -86,8 +94,11 @@ Deliver a vertically-integrated, minimal EMMA workflow—demonstrating real-worl
 - [ ] Every workflow step generates an audit event
 - [ ] Feature flags can enable/disable MVP features without breaking base system
 - [ ] All APIs are accessed via `/api/v1/`
+- [ ] Subscription management endpoints are secured and validated
+- [ ] Seat limits are enforced across all relevant operations
+- [ ] Subscription changes are properly audited
 - [ ] Code passes unit/integration tests; minimal regression from prior releases
-- [ ] Deployment guide and onboarding doc updated
+- [ ] Deployment guide and onboarding doc updated with subscription management
 
 ---
 
@@ -96,6 +107,11 @@ Deliver a vertically-integrated, minimal EMMA workflow—demonstrating real-worl
 **All high/medium-priority open technical debt items, deduplicated from historical docs, for ongoing tracking and sprint prioritization.**
 
 ### **Security & Access Control (Highest Priority)**
+
+- [ ] Implement subscription validation in all API endpoints
+- [ ] Add subscription status checks to critical workflows
+- [ ] Ensure proper audit logging for subscription changes
+- [ ] Implement role-based access control for subscription management
 
 - [ ] Replace all hardcoded contact access logic (`ValidateContactAccessAsync` must enforce real ownership/collaboration).
 - [ ] Implement real tenant validation and access checks (remove `IsActive=true`, hardcoded tenant IDs).
@@ -128,9 +144,25 @@ Deliver a vertically-integrated, minimal EMMA workflow—demonstrating real-worl
 
 ### **Tech Debt Prioritization Approach**
 
-- Security and data integrity come first—must resolve all "stub-to-prod" issues for access control and data handling before first release.
-- Logging/audit and interface mismatches are next, as they impact debugging, support, and compliance.
-- Legacy/deprecated code and migration plans must be cleaned up before feature freeze for first production release.
+1. **Security and Data Integrity**
+   - Resolve all "stub-to-prod" issues for access control and data handling
+   - Implement subscription validation and enforcement
+   - Ensure proper audit logging for all subscription changes
+
+2. **Subscription Management**
+   - Complete subscription model implementation
+   - Implement seat management and enforcement
+   - Add subscription status checks to critical workflows
+
+3. **Logging, Audit & Monitoring**
+   - Address interface mismatches
+   - Enhance subscription-related metrics and monitoring
+   - Improve debugging and support capabilities
+
+4. **Legacy Code & Migrations**
+   - Clean up deprecated code
+   - Complete data migration plans
+   - Update documentation and onboarding materials
 
 ---
 
@@ -140,7 +172,62 @@ Deliver a vertically-integrated, minimal EMMA workflow—demonstrating real-worl
 
 ---
 
-### 2.2 Enhancement & Tech Debt Backlog
+### 2.2 Agent Capability System
+
+#### Current Status (as of 2025-06-19)
+
+- [x] YAML schema design and validation
+- [x] Core capability registry implementation
+- [x] Integration with EnhancedAgentOrchestrator
+- [x] Basic hot-reload infrastructure
+- [ ] Complete hot-reload implementation
+- [ ] Comprehensive test coverage
+- [ ] Documentation and examples
+
+#### Phase 1: Core Capability Registry (Current)
+
+- [x] YAML-based capability definitions
+- [x] Schema validation and type safety
+- [x] Capability metadata (name, description, version)
+- [x] Capability enable/disable flags
+- [x] Validation rules and constraints
+- [ ] Rate limiting configuration
+- [ ] Capability dependencies
+
+#### Phase 2: Runtime Management (In Progress)
+
+- [x] Hot-reload infrastructure
+- [ ] File system watcher for YAML changes
+- [ ] Debounce for rapid file changes
+- [ ] Health checks for YAML loading
+- [ ] Capability conflict detection
+- [ ] Runtime capability enable/disable
+- [ ] Capability usage metrics
+
+#### Phase 3: Advanced Features (Backlog)
+
+- [ ] Capability versioning
+- [ ] A/B testing support
+- [ ] Multi-tenant capability isolation
+- [ ] Capability marketplace
+- [ ] Automated capability testing
+- [ ] Performance optimization
+- [ ] Subscription-based capability access control
+- [ ] Usage-based capability metering
+- [ ] Capability deprecation workflows
+
+### 2.3 Enhancement & Tech Debt Backlog
+
+#### Subscription Management (Next Phase)
+
+- [ ] Implement subscription plan templates
+- [ ] Add support for trial periods
+- [ ] Implement usage-based billing
+- [ ] Add subscription analytics dashboard
+- [ ] Support for add-ons and custom features
+- [ ] Multi-currency support
+- [ ] Automated billing and invoicing
+- [ ] Subscription lifecycle management
 
 #### Later Priority Items
 
@@ -277,5 +364,6 @@ Deliver a vertically-integrated, minimal EMMA workflow—demonstrating real-worl
 
 ---
 
-_Last Updated: 2025-06-10_  
+_Last Updated: 2025-06-19_  
+_Next Review: 2025-07-19_  
 _Maintained By: EMMA Platform Engineering Team_

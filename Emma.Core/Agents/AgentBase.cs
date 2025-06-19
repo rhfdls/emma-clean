@@ -1,0 +1,479 @@
+using System.Collections.Concurrent;
+using Emma.Core.Enums;
+using Emma.Core.Interfaces;
+using Emma.Core.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+namespace Emma.Core.Agents;
+
+/// <summary>
+/// Base class for all agents in the EMMA platform.
+/// Provides common functionality and default implementations.
+/// </summary>
+public abstract class AgentBase : IAgent, IDisposable
+{
+    private readonly ILogger _logger;
+    private bool _isInitialized;
+    private bool _isDisposed;
+    private readonly ConcurrentDictionary<string, object> _configuration = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AgentBase"/> class.
+    /// </summary>
+    /// <param name="agentType">The type identifier for this agent (e.g., "NBA", "ContextIntelligence").</param>
+    /// <param name="displayName">The display name of the agent.</param>
+    /// <param name="description">A description of what this agent does.</param>
+    /// <param name="version">The version of the agent implementation.</param>
+    /// <param name="logger">The logger instance for this agent.</param>
+    /// <param name="options">Optional configuration options for the agent.</param>
+    /// <exception cref="ArgumentException">Thrown when agentType, displayName, or version is null or whitespace.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when logger is null.</exception>
+    protected AgentBase(
+        string agentType,
+        string displayName,
+        string description,
+        string version,
+        ILogger logger,
+        IOptions<AgentOptions>? options = null)
+    {
+        if (string.IsNullOrWhiteSpace(agentType))
+            throw new ArgumentException("Agent type cannot be null or whitespace.", nameof(agentType));
+            
+        if (string.IsNullOrWhiteSpace(displayName))
+            throw new ArgumentException("Display name cannot be null or whitespace.", nameof(displayName));
+            
+        if (string.IsNullOrWhiteSpace(version))
+            throw new ArgumentException("Version cannot be null or whitespace.", nameof(version));
+            
+        AgentId = $"{agentType}-{Guid.NewGuid():N}";
+        AgentType = agentType;
+        DisplayName = displayName;
+        Description = description;
+        Version = version;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        
+        // Initialize with default capability that can be overridden by derived classes
+        Capability = new AgentCapability
+        {
+            AgentId = AgentId,
+            AgentName = displayName,
+            Description = description,
+            Version = version,
+            SupportedTasks = new List<string>(),
+            RequiredPermissions = new List<string>(),
+            Configuration = new Dictionary<string, object>()
+        };
+    }
+
+    /// <inheritdoc />
+    public string AgentId { get; }
+    
+    /// <inheritdoc />
+    public string AgentType { get; }
+    
+    /// <inheritdoc />
+    public string DisplayName { get; protected set; }
+    
+    /// <inheritdoc />
+    public string Description { get; protected set; }
+    
+    /// <inheritdoc />
+    public string Version { get; protected set; }
+    
+    /// <inheritdoc />
+    public AgentCapability Capability { get; protected set; }
+    
+    /// <summary>
+    /// Gets the logger instance for this agent.
+    /// </summary>
+    protected ILogger Logger => _logger;
+    
+    /// <summary>
+    /// Gets a value indicating whether the agent has been initialized.
+    /// </summary>
+    protected bool IsInitialized => _isInitialized;
+    
+    /// <summary>
+    /// Gets a value indicating whether the agent has been disposed.
+    /// </summary>
+    protected bool IsDisposed => _isDisposed;
+    
+    /// <inheritdoc />
+    public virtual async Task<AgentResponse> ProcessRequestAsync(AgentRequest request, AgentContext context)
+    {
+        if (request == null)
+            throw new ArgumentNullException(nameof(request));
+            
+        if (context == null)
+            throw new ArgumentNullException(nameof(context));
+            
+        if (!_isInitialized)
+            throw new InvalidOperationException($"Agent {GetType().Name} has not been initialized. Call InitializeAsync() first.");
+            
+        _logger.LogInformation("[{TraceId}] Processing request for agent {AgentId} ({AgentType})", 
+            context.TraceId, AgentId, GetType().Name);
+            
+        try
+        {
+            // Validate the request before processing
+            await ValidateRequestAsync(request, context);
+            
+            // Default implementation just returns a not implemented response
+            return new AgentResponse
+            {
+                Success = false,
+                Message = $"Agent {GetType().Name} does not implement ProcessRequestAsync.",
+                StatusCode = 501, // Not Implemented
+                AgentType = AgentType,
+                TraceId = context.TraceId,
+                Timestamp = DateTime.UtcNow
+            };
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "[{}] Unauthorized access in agent {}: {}", 
+                context.TraceId, AgentId, ex.Message);
+                
+            return new AgentResponse
+            {
+                Success = false,
+                Message = "Access denied: " + ex.Message,
+                StatusCode = 403, // Forbidden
+                AgentType = AgentType,
+                TraceId = context.TraceId,
+                Timestamp = DateTime.UtcNow,
+                ErrorDetails = ex.ToString()
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[{}] Error processing request for agent {}: {}", 
+                context.TraceId, AgentId, ex.Message);
+                
+            return new AgentResponse
+            {
+                Success = false,
+                Message = $"Error processing request: {ex.Message}",
+                StatusCode = 500,
+                AgentType = AgentType,
+                TraceId = context.TraceId,
+                Timestamp = DateTime.UtcNow,
+                ErrorDetails = ex.ToString()
+            };
+        }
+    }
+    
+    /// <inheritdoc />
+    public virtual async Task ValidateRequestAsync(AgentRequest request, AgentContext context)
+    {
+        if (request == null)
+            throw new ArgumentNullException(nameof(request));
+            
+        if (context == null)
+            throw new ArgumentNullException(nameof(context));
+            
+        // Default implementation checks if the agent is initialized
+        if (!_isInitialized)
+            throw new InvalidOperationException($"Agent {GetType().Name} has not been initialized.");
+            
+        // Derived classes should add their own validation logic
+        await Task.CompletedTask;
+    }
+    
+    /// <inheritdoc />
+    public virtual async Task<AgentHealthStatus> GetHealthStatusAsync()
+    {
+        var status = new AgentHealthStatus
+        {
+            AgentId = AgentId,
+            AgentType = AgentType,
+            Status = _isInitialized ? "Healthy" : "Not Initialized",
+            Timestamp = DateTime.UtcNow,
+            Metrics = new Dictionary<string, object>
+            {
+                { "IsInitialized", _isInitialized },
+                { "IsDisposed", _isDisposed },
+                { "ConfigurationCount", _configuration.Count }
+            },
+            Details = _isInitialized 
+                ? "Agent is running and healthy" 
+                : "Agent has not been initialized"
+        };
+        
+        // Add capability information if available
+        if (Capability != null)
+        {
+            status.Metrics["CapabilityVersion"] = Capability.Version;
+            status.Metrics["SupportedTasks"] = Capability.SupportedTasks?.Count ?? 0;
+            status.Metrics["RequiredPermissions"] = Capability.RequiredPermissions?.Count ?? 0;
+        }
+        
+        return status;
+    }
+    
+    /// <inheritdoc />
+    public virtual async Task InitializeAsync()
+    {
+        if (_isInitialized)
+            return;
+            
+        if (_isDisposed)
+            throw new ObjectDisposedException(GetType().Name, "Cannot initialize a disposed agent");
+            
+        _logger.LogInformation("Initializing agent {AgentId} ({AgentType})", AgentId, GetType().Name);
+        
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
+        try
+        {
+            // Load any configuration if available
+            if (_configuration.Count == 0 && this is IConfigurableAgent configurableAgent)
+            {
+                var config = await configurableAgent.LoadConfigurationAsync();
+                if (config != null)
+                {
+                    foreach (var kvp in config)
+                    {
+                        _configuration[kvp.Key] = kvp.Value;
+                    }
+                }
+            }
+            
+            // Perform any initialization needed by the derived class
+            await OnInitializeAsync();
+            
+            _isInitialized = true;
+            stopwatch.Stop();
+            
+            _logger.LogInformation("Agent {AgentId} initialized successfully in {ElapsedMs}ms", 
+                AgentId, stopwatch.ElapsedMilliseconds);
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+            _logger.LogError(ex, "Failed to initialize agent {AgentId} after {ElapsedMs}ms: {ErrorMessage}", 
+                AgentId, stopwatch.ElapsedMilliseconds, ex.Message);
+            throw;
+        }
+    }
+    
+    /// <inheritdoc />
+    public virtual async Task ShutdownAsync()
+    {
+        if (!_isInitialized || _isDisposed)
+            return;
+            
+        _logger.LogInformation("Shutting down agent {AgentId} ({AgentType})", AgentId, GetType().Name);
+        
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
+        try
+        {
+            // Save any configuration if this is a configurable agent
+            if (this is IConfigurableAgent configurableAgent && _configuration.Count > 0)
+            {
+                await configurableAgent.SaveConfigurationAsync(_configuration);
+            }
+            
+            // Perform any cleanup needed by the derived class
+            await OnShutdownAsync();
+            
+            _isInitialized = false;
+            stopwatch.Stop();
+            
+            _logger.LogInformation("Agent {AgentId} shut down successfully in {ElapsedMs}ms", 
+                AgentId, stopwatch.ElapsedMilliseconds);
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+            _logger.LogError(ex, "Error shutting down agent {AgentId} after {ElapsedMs}ms: {ErrorMessage}", 
+                AgentId, stopwatch.ElapsedMilliseconds, ex.Message);
+            throw;
+        }
+        _logger.LogInformation("Shutting down agent {AgentId} ({AgentType})", AgentId, GetType().Name);
+        
+        try
+        {
+            // Perform any cleanup needed by the derived class
+            await OnShutdownAsync();
+            
+            _isInitialized = false;
+            _isDisposed = true;
+            _logger.LogInformation("Agent {AgentId} shut down successfully", AgentId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error shutting down agent {AgentId}: {ErrorMessage}", AgentId, ex.Message);
+            throw;
+        }
+    }
+    
+    /// <summary>
+    /// Performs any initialization needed by the derived agent.
+    /// </summary>
+    /// <returns>A task that completes when initialization is done</returns>
+    protected virtual Task OnInitializeAsync()
+    {
+        return Task.CompletedTask;
+    }
+    
+    /// <summary>
+    /// Performs any cleanup needed by the derived agent.
+    /// </summary>
+    /// <returns>A task that completes when cleanup is done</returns>
+    protected virtual Task OnShutdownAsync()
+    {
+        return Task.CompletedTask;
+    }
+    
+    /// <summary>
+    /// Disposes the agent and releases any resources.
+    /// </summary>
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore().ConfigureAwait(false);
+        GC.SuppressFinalize(this);
+    }
+    
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+        if (!_isDisposed)
+        {
+            await ShutdownAsync().ConfigureAwait(false);
+            _isDisposed = true;
+        }
+    }
+}
+
+/// <inheritdoc />
+public virtual IReadOnlyDictionary<string, object> GetConfiguration()
+{
+    return new Dictionary<string, object>(_configuration, StringComparer.OrdinalIgnoreCase);
+}
+
+/// <inheritdoc />
+public virtual async Task UpdateConfigurationAsync(IReadOnlyDictionary<string, object> configuration)
+{
+    if (configuration == null)
+        throw new ArgumentNullException(nameof(configuration));
+        
+    foreach (var kvp in configuration)
+    {
+        _configuration[kvp.Key] = kvp.Value;
+    }
+    
+    // If this is a configurable agent, save the updated configuration
+    if (this is IConfigurableAgent configurableAgent)
+    {
+        await configurableAgent.SaveConfigurationAsync(_configuration);
+    }
+}
+
+/// <summary>
+/// Performs any initialization needed by the derived agent.
+/// </summary>
+/// <returns>A task that completes when initialization is done.</returns>
+/// <remarks>
+/// Override this method in derived classes to perform agent-specific initialization.
+/// The base implementation does nothing.
+/// </remarks>
+protected virtual Task OnInitializeAsync() => Task.CompletedTask;
+
+/// <summary>
+/// Performs any cleanup needed by the derived agent.
+/// </summary>
+/// <returns>A task that completes when cleanup is done.</returns>
+/// <remarks>
+/// Override this method in derived classes to perform agent-specific cleanup.
+/// The base implementation does nothing.
+/// </remarks>
+protected virtual Task OnShutdownAsync() => Task.CompletedTask;
+
+/// <summary>
+/// Gets a configuration value by key, returning a default value if not found.
+/// </summary>
+/// <typeparam name="T">The type of the configuration value.</typeparam>
+/// <param name="key">The configuration key.</param>
+/// <param name="defaultValue">The default value to return if the key is not found.</param>
+/// <returns>The configuration value, or the default value if not found.</returns>
+protected T GetConfigValue<T>(string key, T defaultValue = default)
+{
+    if (_configuration.TryGetValue(key, out var value) && value is T typedValue)
+    {
+        return typedValue;
+    }
+    return defaultValue;
+}
+
+/// <summary>
+/// Sets a configuration value.
+/// </summary>
+/// <typeparam name="T">The type of the configuration value.</typeparam>
+/// <param name="key">The configuration key.</param>
+/// <param name="value">The value to set.</param>
+protected void SetConfigValue<T>(string key, T value)
+{
+    _configuration[key] = value!;
+}
+
+/// <summary>
+/// Disposes the agent and releases any resources.
+/// </summary>
+public async ValueTask DisposeAsync()
+{
+    await DisposeAsyncCore().ConfigureAwait(false);
+    GC.SuppressFinalize(this);
+}
+
+/// <inheritdoc />
+public void Dispose()
+{
+    DisposeAsync().AsTask().GetAwaiter().GetResult();
+}
+
+/// <summary>
+/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+/// </summary>
+protected virtual async ValueTask DisposeAsyncCore()
+{
+    if (!_isDisposed)
+    {
+        try
+        {
+            if (_isInitialized)
+            {
+                await ShutdownAsync().ConfigureAwait(false);
+            }
+            
+            // Clear configuration
+            _configuration.Clear();
+            
+            // Additional cleanup for derived classes
+            await OnDisposeAsync().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error disposing agent {AgentId}: {ErrorMessage}", AgentId, ex.Message);
+            throw;
+        }
+        finally
+        {
+            _isDisposed = true;
+        }
+    }
+}
+
+/// <summary>
+/// Performs additional cleanup when the agent is being disposed.
+/// </summary>
+/// <returns>A task that represents the asynchronous cleanup operation.</returns>
+/// <remarks>
+/// Override this method in derived classes to perform additional cleanup.
+/// The base implementation does nothing.
+/// </remarks>
+protected virtual Task OnDisposeAsync() => Task.CompletedTask;

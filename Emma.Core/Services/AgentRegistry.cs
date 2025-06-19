@@ -1,4 +1,4 @@
-using Emma.Core.Interfaces;
+using Emma.Models.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 

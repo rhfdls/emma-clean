@@ -1,20 +1,341 @@
 # EMMA AI Architecture Guide for Developers
 
-**Version**: 1.0  
-**Last Updated**: 2025-06-08  
+**Version**: 1.1  
+**Last Updated**: 2025-06-15  
 **Status**: ACTIVE - Developer Reference Document  
 
 ---
 
 ## Overview
 
-EMMA is an **AI-centric platform** built on three fundamental design principles that all developers must follow:
+EMMA is an **AI-centric platform** built on fundamental design principles that all developers must follow:
 
 1. **Micro-service Independence**: Agent logic lives externally, not in our codebase
 2. **Azure AI Foundry Integration**: All AI capabilities delegate to Microsoft's AI platform
 3. **Contact-Centric Data Model**: Unified Contact entity with flexible relationship states
+4. **User-Centric Control**: Configurable approval workflows with intelligent override capabilities
+5. **Action Validation**: Multi-layered verification of AI-generated actions
+6. **Dynamic Configuration**: Runtime-adjustable parameters and behaviors
 
 This guide provides the architectural patterns, integration points, and development standards for building on the EMMA platform.
+
+## Action Relevance Verification System
+
+EMMA implements a comprehensive validation system to ensure all AI-generated actions remain relevant and appropriate before execution. This system acts as a safety net, preventing automation failures and ensuring actions align with current context and user expectations.
+
+### Key Components
+
+1. **Rule-Based Validation**
+   - Fast, deterministic checks for action relevance
+   - Validates against current system state and business rules
+   - Handles common scenarios without LLM overhead
+
+2. **LLM-Based Validation**
+   - Fallback for complex relevance decisions
+   - Considers semantic meaning and context
+   - Provides detailed reasoning for validation outcomes
+
+3. **Alternative Action Generation**
+   - Suggests relevant alternatives when actions are suppressed
+   - Maintains workflow continuity
+   - Learns from user preferences over time
+
+4. **Audit Logging**
+   - Complete trail of all validation decisions
+   - Supports compliance and debugging
+   - Enables continuous improvement of validation rules
+
+### Implementation
+
+```mermaid
+graph TD
+    A[Action Scheduled] --> B[Pre-Execution Validation]
+    B --> C{Relevant?}
+    C -->|Yes| D[Execute Action]
+    C -->|No| E[Generate Alternatives]
+    E --> F{User Approval Required?}
+    F -->|Yes| G[Request User Approval]
+    F -->|No| H[Suppress Action]
+    G --> I{Approved?}
+    I -->|Yes| D
+    I -->|No| H
+    H --> J[Log for Analysis]
+```
+
+### Interface Definition
+
+```csharp
+public interface IActionRelevanceValidator
+{
+    Task<ValidationResult> ValidateAsync(ScheduledAction action, CancellationToken ct = default);
+    Task<IReadOnlyList<ActionAlternative>> GenerateAlternativesAsync(ScheduledAction action, CancellationToken ct = default);
+    Task<bool> RequiresApprovalAsync(ScheduledAction action, CancellationToken ct = default);
+    Task<ValidationResult> ValidateWithContextAsync(ScheduledAction action, string context, CancellationToken ct = default);
+    Task<IReadOnlyList<AuditLogEntry>> GetAuditLogsAsync(DateTimeOffset? from = null, DateTimeOffset? to = null, string? actionType = null);
+}
+
+public record ValidationResult
+{
+    public bool IsValid { get; init; }
+    public string? Reason { get; init; }
+    public IReadOnlyList<ActionAlternative>? Alternatives { get; init; }
+    public bool RequiresApproval { get; init; }
+    public string? ApprovalReason { get; init; }
+}
+
+public record ActionAlternative
+{
+    public string ActionType { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+    public object? Parameters { get; init; }
+    public double ConfidenceScore { get; init; }
+}
+```
+
+### Example Usage
+
+```csharp
+public class ActionOrchestrator
+{
+    private readonly IActionRelevanceValidator _validator;
+    
+    public async Task ProcessActionAsync(ScheduledAction action)
+    {
+        // 1. Validate action relevance
+        var validation = await _validator.ValidateAsync(action);
+        
+        if (!validation.IsValid)
+        {
+            if (validation.RequiresApproval)
+            {
+                // Request user approval with alternatives
+                await RequestApprovalAsync(action, validation.Alternatives);
+                return;
+            }
+            
+            // Log and suppress invalid action
+            await LogSuppressedActionAsync(action, validation.Reason);
+            return;
+        }
+        
+        // 2. Execute the action if valid
+        await ExecuteActionAsync(action);
+    }
+}
+```
+
+### Best Practices
+
+1. **Fail Safe**
+   - Always validate actions immediately before execution
+   - Default to requiring approval when in doubt
+   - Log all validation decisions for audit purposes
+
+2. **Performance**
+   - Cache validation results when possible
+   - Use rule-based validation for common cases
+   - Limit LLM validation to complex scenarios
+
+3. **User Experience**
+   - Provide clear explanations for validation failures
+   - Suggest meaningful alternatives when available
+   - Respect user preferences for approval workflows
+
+4. **Monitoring**
+   - Track validation metrics and outcomes
+   - Alert on unexpected validation patterns
+   - Continuously refine validation rules based on feedback
+
+---
+
+## User Override Logic Architecture
+
+EMMA's User Override system provides flexible control over AI actions through configurable operating modes, allowing users to balance automation with human oversight.
+
+### Operating Modes
+
+1. **AlwaysAsk**
+   - Every action requires explicit user approval
+   - Maximum control, minimum automation
+   - Ideal for high-stakes scenarios or new implementations
+
+2. **NeverAsk**
+   - Fully automated execution without approval
+   - Maximum efficiency, minimal friction
+   - Best for trusted, well-tested workflows
+
+3. **LLMDecision**
+   - AI determines if approval is needed
+   - Balances automation with risk management
+   - Uses confidence thresholds and context awareness
+
+4. **RiskBased**
+   - Approval required based on action type and confidence
+   - Configurable rules for different risk levels
+
+```json
+{
+  "HighRiskActions": ["SendEmail", "ScheduleMeeting", "UpdateRecord"],
+  "MediumRiskActions": ["CreateTask", "SetReminder"],
+  "LowRiskActions": ["LogInteraction", "UpdateStatus"],
+  "ConfidenceThresholds": {
+    "High": 0.9,
+    "Medium": 0.8,
+    "Low": 0.7
+  }
+}
+```
+
+### Implementation
+
+### Configuration Model
+
+```csharp
+public class UserOverrideSettings
+{
+    public UserOverrideMode Mode { get; set; } = UserOverrideMode.RiskBased;
+    public TimeSpan ApprovalTimeout { get; set; } = TimeSpan.FromHours(1);
+    public bool AllowBulkApproval { get; set; } = true;
+    public RiskBasedSettings? RiskBasedSettings { get; set; }
+    public Dictionary<string, object>? CustomRules { get; set; }
+}
+
+public class RiskBasedSettings
+{
+    public Dictionary<string, double> ActionRiskLevels { get; set; } = new();
+    public Dictionary<string, double> ConfidenceThresholds { get; set; } = new();
+    public Dictionary<string, string[]> ActionTypeMappings { get; set; } = new();
+}
+
+public enum UserOverrideMode
+{
+    AlwaysAsk,
+    NeverAsk,
+    LLMDecision,
+    RiskBased
+}
+```
+
+### Service Implementation
+
+```csharp
+public class UserOverrideService : IUserOverrideService
+{
+    private readonly IAIFoundryService _aiService;
+    private readonly ILogger<UserOverrideService> _logger;
+
+    public async Task<bool> RequiresApprovalAsync(
+        string actionType, 
+        double confidenceScore,
+        string userId,
+        string? context = null)
+    {
+        var settings = await GetUserSettingsAsync(userId);
+        
+        return settings.Mode switch
+        {
+            UserOverrideMode.AlwaysAsk => true,
+            UserOverrideMode.NeverAsk => false,
+            UserOverrideMode.LLMDecision => 
+                await GetLLMRecommendationAsync(actionType, confidenceScore, context, settings),
+            UserOverrideMode.RiskBased => 
+                EvaluateRiskBasedApproval(actionType, confidenceScore, settings),
+            _ => true // Default to requiring approval for safety
+        };
+    }
+
+    private bool EvaluateRiskBasedApproval(
+        string actionType, 
+        double confidenceScore,
+        UserOverrideSettings settings)
+    {
+        if (settings.RiskBasedSettings?.ActionRiskLevels.TryGetValue(actionType, out var riskLevel) == true)
+        {
+            var threshold = riskLevel switch
+            {
+                >= 0.9 => settings.RiskBasedSettings.ConfidenceThresholds.GetValueOrDefault("High", 0.9),
+                >= 0.7 => settings.RiskBasedSettings.ConfidenceThresholds.GetValueOrDefault("Medium", 0.8),
+                _ => settings.RiskBasedSettings.ConfidenceThresholds.GetValueOrDefault("Low", 0.7)
+            };
+            
+            return confidenceScore < threshold;
+        }
+        
+        // Default to requiring approval for unknown action types
+        return true;
+    }
+}
+```
+
+### Integration Points
+
+### Action Orchestrator
+
+```csharp
+public class ActionOrchestrator
+{
+       private readonly IUserOverrideService _overrideService;
+       private readonly IActionRelevanceValidator _relevanceValidator;
+       
+       public async Task ProcessActionAsync(ScheduledAction action)
+       {
+           // 1. Check relevance first
+           var validation = await _relevanceValidator.ValidateAsync(action);
+           if (!validation.IsValid) { /* Handle validation failure */ }
+           
+           // 2. Check if approval is required
+           var requiresApproval = await _overrideService.RequiresApprovalAsync(
+               action.Type, 
+               action.ConfidenceScore,
+               action.UserId,
+               action.Context);
+               
+           if (requiresApproval)
+           {
+               await RequestApprovalAsync(action);
+               return;
+           }
+           
+           // 3. Execute the action
+           await ExecuteActionAsync(action);
+       }
+   }
+```
+
+### Approval Workflow
+
+- Pending approvals stored in database
+- Timeout handling for unapproved actions
+- Bulk approval for similar actions
+- User notification system integration
+
+## Best Practices
+
+### Configuration Management
+
+- Provide sensible defaults for all settings
+- Validate configuration on save
+- Support tenant-specific overrides
+- Enable configuration versioning for audits
+
+### Performance
+
+- Cache user settings
+- Batch approval checks when possible
+- Use efficient data structures for rule evaluation
+
+### Security
+
+- Enforce role-based access to override settings
+- Log all override decisions
+- Support audit trails for configuration changes
+
+### User Experience
+
+- Clear indicators of current override mode
+- Intuitive UI for managing settings
+- Explanations of why approval is required
+- Preview of actions before approval
 
 ---
 

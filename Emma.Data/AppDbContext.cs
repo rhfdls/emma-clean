@@ -1,9 +1,10 @@
-using Emma.Data.Models;
+using Emma.Models.Interfaces;
+using Emma.Models.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : DbContext, IAppDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
@@ -32,16 +33,24 @@ public class AppDbContext : DbContext
     public DbSet<Resource> Resources { get; set; }
     public DbSet<ResourceAssignment> ResourceAssignments { get; set; }
     public DbSet<ResourceRecommendation> ResourceRecommendations { get; set; }
-
-    // Contact Assignment System (NEW - Contact-centric approach)
-    public DbSet<ContactAssignment> ContactAssignments { get; set; }
+    
+    // Contact Management
     public DbSet<ContactCollaborator> ContactCollaborators { get; set; }
+    public DbSet<ContactAssignment> ContactAssignments { get; set; }
     public DbSet<AccessAuditLog> AccessAuditLogs { get; set; }
-
+    
     // NBA Context Management System
     public DbSet<ContactSummary> ContactSummaries { get; set; }
     public DbSet<ContactState> ContactStates { get; set; }
     public DbSet<InteractionEmbedding> InteractionEmbeddings { get; set; }
+    
+    // Subscription Management
+    public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
+    public DbSet<SubscriptionPlanFeature> SubscriptionPlanFeatures { get; set; }
+    public DbSet<Feature> Features { get; set; }
+    
+    // Task Management
+    public DbSet<TaskItem> TaskItems { get; set; }
 
     // Privacy and Access Control System
     // TODO: Implement AccessAuditLog entity for privacy enforcement
@@ -95,6 +104,17 @@ public class AppDbContext : DbContext
         // Contact entity configuration
         modelBuilder.Entity<Contact>().HasKey(c => c.Id);
         modelBuilder.Entity<Contact>().HasIndex(c => c.OwnerId);
+        
+        // Configure TaskItem entity
+        modelBuilder.Entity<TaskItem>(entity =>
+        {
+            entity.HasKey(e => e.TaskId);
+            entity.HasIndex(e => e.ContactId);
+            entity.HasIndex(e => e.DueDate);
+            entity.HasIndex(e => e.Status);
+            entity.Property(e => e.Priority).HasDefaultValue("Medium");
+            entity.Property(e => e.Status).HasDefaultValue("Pending");
+        });
         
         // EmailAddress entity configuration with unique constraint
         modelBuilder.Entity<EmailAddress>().HasKey(e => e.Id);
@@ -418,7 +438,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Contact>()
             .HasMany(c => c.AssignedResources)
             .WithOne(ca => ca.ClientContact)
-            .HasForeignKey(ca => ca.ClientContactId)
+            .HasForeignKey(ca => ca.ContactId)
             .OnDelete(DeleteBehavior.Restrict);
         
         modelBuilder.Entity<Contact>()

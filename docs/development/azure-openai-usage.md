@@ -1,107 +1,361 @@
-# Azure OpenAI Integration Guide
+# Azure OpenAI Usage Guide
 
-This document provides guidance on how to configure and use the Azure OpenAI service in the Emma application.
+This document provides comprehensive guidance on integrating and using Azure OpenAI services within the EMMA platform, including configuration, implementation patterns, and best practices.
+
+## Table of Contents
+
+- [Configuration](#configuration)
+  - [Environment Variables](#environment-variables)
+  - [Configuration Options](#configuration-options)
+  - [Multi-tenant Configuration](#multi-tenant-configuration)
+- [Service Registration](#service-registration)
+- [Basic Usage](#basic-usage)
+- [Advanced Scenarios](#advanced-scenarios)
+- [Error Handling](#error-handling)
+- [Best Practices](#best-practices)
+- [Troubleshooting](#troubleshooting)
+- [Monitoring and Logging](#monitoring-and-logging)
 
 ## Configuration
 
-The Azure OpenAI service is configured using the following environment variables:
+### Environment Variables
 
-- `AzureOpenAI__ApiKey`: The API key for authenticating with Azure OpenAI.
-- `AzureOpenAI__Endpoint`: The endpoint URL for the Azure OpenAI service.
-- `AzureOpenAI__DeploymentName`: The name of the deployment to use (e.g., `gpt-4.1`).
-- `AzureOpenAI__ApiVersion`: The API version to use (e.g., `2023-05-15`).
+The Azure OpenAI service can be configured using the following environment variables:
 
-### Example Configuration
+| Variable | Description | Required |
+|----------|-------------|:--------:|
+| `AzureOpenAI__ApiKey` | API key for Azure OpenAI authentication | Yes* |
+| `AzureOpenAI__Endpoint` | Endpoint URL for the Azure OpenAI service | Yes |
+| `AzureOpenAI__DeploymentName` | Name of the model deployment | Yes |
+| `AzureOpenAI__ApiVersion` | API version (e.g., `2024-02-15`) | No |
+| `AzureOpenAI__MaxTokens` | Maximum tokens to generate | No |
+| `AzureOpenAI__Temperature` | Controls response randomness (0-2) | No |
+| `AZURE_TENANT_ID` | Azure AD tenant ID for managed identity | No |
+| `AZURE_CLIENT_ID` | Client ID for managed identity | No |
+| `AZURE_CLIENT_SECRET` | Client secret for managed identity | No |
+
+> *Required when not using managed identity authentication
+
+### Configuration Options
+
+Configuration can be provided through `appsettings.json`, environment variables, or Azure Key Vault:
 
 ```json
 {
   "AzureOpenAI": {
-    "ApiKey": "your-api-key-here",
     "Endpoint": "https://your-resource-name.openai.azure.com/",
-    "DeploymentName": "gpt-4.1",
-    "ApiVersion": "2023-05-15"
+    "ApiKey": "your-api-key-here",
+    "DeploymentName": "gpt-4-turbo",
+    "ApiVersion": "2024-02-15",
+    "MaxTokens": 1000,
+    "Temperature": 0.7,
+    "OverrideSettings": {
+      "RequiresApproval": true,
+      "ApprovalWorkflow": "default",
+      "AuditLogging": true
+    }
   }
 }
 ```
 
-## Code Usage
+### Multi-tenant Configuration
 
-The Azure OpenAI client is registered as a singleton in the dependency injection container. You can inject it into your services as follows:
+For multi-tenant applications, use tenant-specific configuration:
 
 ```csharp
-public class YourService
+// In Program.cs
+builder.Services.AddScoped<IOpenAIService>(sp => 
+{
+    var tenantContext = sp.GetRequiredService<ITenantContext>();
+    var config = sp.GetRequiredService<IOptionsMonitor<OpenAIConfig>>()
+        .Get(tenantContext.TenantId);
+    return new OpenAIService(config);
+});
+```
+
+## Service Registration
+
+Register the Azure OpenAI client in `Program.cs`:
+
+```csharp
+// Basic registration
+builder.Services.AddAzureOpenAIClient(builder.Configuration);
+
+// With custom configuration
+builder.Services.AddAzureOpenAIClient(options =>
+{
+    options.Endpoint = new Uri(builder.Configuration["AzureOpenAI:Endpoint"]);
+    options.Credential = new DefaultAzureCredential(); // or new AzureKeyCredential(apiKey)
+    options.DeploymentName = builder.Configuration["AzureOpenAI:DeploymentName"];
+    options.MaxRetries = 3;
+});
+```
+
+## Basic Usage
+
+### Dependency Injection
+
+Inject the `OpenAIClient` into your services:
+
+```csharp
+public class AIService
 {
     private readonly OpenAIClient _openAIClient;
-    private readonly AzureOpenAIConfig _config;
+    private readonly ILogger<AIService> _logger;
+    private readonly string _deploymentName;
 
-    public YourService(OpenAIClient openAIClient, IOptions<AzureOpenAIConfig> config)
+    public AIService(
+        OpenAIClient openAIClient,
+        IOptions<AzureOpenAIConfig> config,
+        ILogger<AIService> logger)
     {
         _openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
-        _config = config?.Value ?? throw new ArgumentNullException(nameof(config));
-    }
-
-    public async Task<string> GetCompletionAsync(string prompt)
-    {
-        var chatCompletionsOptions = new ChatCompletionsOptions
-        {
-            DeploymentName = _config.DeploymentName,
-            Messages =
-            {
-                new ChatRequestSystemMessage("You are a helpful assistant."),
-                new ChatRequestUserMessage(prompt)
-            },
-            Temperature = 0.3f,
-            MaxTokens = 500,
-            ResponseFormat = new ChatCompletionsJsonResponseFormat()
-        };
-
-        var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
-        return response.Value.Choices[0].Message.Content;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _deploymentName = config?.Value?.DeploymentName ?? 
+            throw new ArgumentNullException(nameof(config));
     }
 }
 ```
 
+### Basic Completion
+
+```csharp
+public async Task<string> GetCompletionAsync(string systemPrompt, string userPrompt)
+{
+    var options = new ChatCompletionsOptions
+    {
+        DeploymentName = _deploymentName,
+        Messages =
+        {
+            new ChatRequestSystemMessage(systemPrompt),
+            new ChatRequestUserMessage(userPrompt)
+        },
+        Temperature = 0.7f,
+        MaxTokens = 1000,
+        NucleusSamplingFactor = 0.95f,
+        PresencePenalty = 0,
+        FrequencyPenalty = 0,
+        ResponseFormat = ChatCompletionsResponseFormat.Text
+    };
+
+    try
+    {
+        var response = await _openAIClient.GetChatCompletionsAsync(options);
+        return response.Value.Choices[0].Message.Content;
+    }
+    catch (RequestFailedException ex) when (ex.Status == 429)
+    {
+        _logger.LogWarning("Rate limit exceeded. Consider implementing backoff.");
+        throw;
+    }
+}
+```
+
+## Advanced Scenarios
+
+### Streaming Responses
+
+```csharp
+public async IAsyncEnumerable<string> StreamCompletionAsync(string prompt)
+{
+    var options = new ChatCompletionsOptions
+    {
+        DeploymentName = _deploymentName,
+        Messages = { new ChatRequestUserMessage(prompt) },
+        Temperature = 0.7f
+    };
+
+    var response = await _openAIClient.GetChatCompletionsStreamingAsync(options);
+    await foreach (var message in response.EnumerateValues())
+    {
+        if (message.ContentUpdate != null)
+        {
+            yield return message.ContentUpdate;
+        }
+    }
+}
+```
+
+### Function Calling
+
+```csharp
+var function = new ChatCompletionsFunctionToolDefinition
+{
+    Name = "get_weather",
+    Description = "Get the current weather for a location",
+    Parameters = BinaryData.FromObjectAsJson(new
+    {
+        type = "object",
+        properties = new
+        {
+            location = new { type = "string", description = "The city and state, e.g. San Francisco, CA" },
+            unit = new { type = "string", enum = new[] { "celsius", "fahrenheit" } }
+        },
+        required = new[] { "location" }
+    })
+};
+
+var options = new ChatCompletionsOptions
+{
+    DeploymentName = _deploymentName,
+    Messages = { new ChatRequestUserMessage("What's the weather like in Boston?") },
+    Tools = { function }
+};
+
+var response = await _openAIClient.GetChatCompletionsAsync(options);
+```
+
 ## Error Handling
 
-The following are common errors and how to resolve them:
+### Common Exceptions
 
-- **401 Unauthorized**: The API key is invalid or has expired. Verify the API key in your configuration.
-- **404 Not Found**: The deployment name is incorrect or the deployment does not exist. Verify the deployment name in the Azure portal.
-- **429 Too Many Requests**: You have exceeded the rate limit for your Azure OpenAI service. Consider implementing rate limiting or upgrading your service tier.
+Handle specific exceptions appropriately:
+
+```csharp
+try
+{
+    // Your OpenAI API call
+}
+catch (RequestFailedException ex) when (ex.Status == 401)
+{
+    _logger.LogError("Authentication failed. Check your API key or managed identity configuration.");
+    throw new UnauthorizedAccessException("Failed to authenticate with Azure OpenAI", ex);
+}
+catch (RequestFailedException ex) when (ex.Status == 404)
+{
+    _logger.LogError("Deployment not found: {DeploymentName}", _deploymentName);
+    throw new InvalidOperationException("The specified deployment was not found", ex);
+}
+catch (RequestFailedException ex) when (ex.Status == 429)
+{
+    _logger.LogWarning("Rate limit exceeded. Consider implementing backoff.");
+    throw new RateLimitExceededException("Too many requests to Azure OpenAI", ex);
+}
+catch (RequestFailedException ex) when (ex.Status >= 500)
+{
+    _logger.LogError(ex, "Azure OpenAI service error");
+    throw new ServiceUnavailableException("Azure OpenAI service is currently unavailable", ex);
+}
+catch (Exception ex)
+{
+    _logger.LogError(ex, "Unexpected error calling Azure OpenAI API");
+    throw;
+}
+```
+
+### Retry Policies
+
+Implement retry policies for transient failures:
+
+```csharp
+var retryOptions = new RetryOptions
+{
+    MaxRetries = 3,
+    Mode = RetryMode.Exponential,
+    Delay = TimeSpan.FromSeconds(1)
+};
+
+var pipeline = HttpPipelineBuilder.Build(new AzureOpenAIClientOptions()
+{
+    Retry = retryOptions
+});
+```
 
 ## Best Practices
 
-1. **Secure Your API Key**:
-   - Never commit your API key to version control.
-   - Use environment variables or a secure secret management service to store your API key.
+### Security
 
-2. **Handle Rate Limits**:
-   - Implement retry logic with exponential backoff to handle rate limits.
-   - Monitor your usage to avoid hitting rate limits.
+- **Authentication**
+  - Prefer managed identities over API keys in production
+  - Use Azure Key Vault for secret management
+  - Implement proper RBAC for Azure OpenAI resources
+  - Rotate API keys and secrets regularly
 
-3. **Logging and Monitoring**:
-   - Log all API calls and responses for debugging and monitoring purposes.
-   - Monitor usage and performance to identify and address issues early.
+### Performance
 
-4. **Error Handling**:
-   - Implement comprehensive error handling to gracefully handle API failures.
-   - Provide meaningful error messages to users when something goes wrong.
+- **Optimization**
+  - Reuse `OpenAIClient` instance (registered as singleton)
+  - Implement response caching for deterministic requests
+  - Use streaming for long-running completions
+  - Batch similar requests when possible
+  - Set appropriate timeouts
+
+### Reliability
+
+- **Resilience**
+  - Implement retry policies with exponential backoff
+  - Use circuit breakers for cascading failures
+  - Implement fallback mechanisms for critical paths
+  - Monitor and alert on error rates
+
+### Cost Management
+
+- **Optimization**
+  - Monitor token usage and costs
+  - Set up budget alerts in Azure
+  - Use appropriate model sizes for the task
+  - Implement usage quotas for different environments
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Incorrect Deployment Name**:
-   - Ensure the deployment name matches exactly what is shown in the Azure portal.
-   - The deployment name is case-sensitive.
+| Issue | Possible Cause | Resolution |
+|-------|---------------|------------|
+| 401 Unauthorized | Invalid API key or token | Verify API key or managed identity configuration |
+| 404 Not Found | Incorrect deployment name | Check deployment name in Azure portal |
+| 429 Too Many Requests | Rate limit exceeded | Implement backoff or increase quota |
+| 503 Service Unavailable | Service outage | Check Azure status page |
+| Timeout | Network or service issue | Increase timeout or implement retry |
+| Invalid Request | Malformed input | Validate input parameters |
 
-2. **Incorrect API Version**:
-   - Use the correct API version as specified in the Azure OpenAI documentation.
+### Diagnostic Logging
 
-3. **Network Issues**:
-   - Ensure your application can reach the Azure OpenAI endpoint.
-   - Check for any firewall or network restrictions that might be blocking the connection.
+Enable detailed logging in `appsettings.json`:
 
-### Getting Help
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Azure": "Warning",
+      "Azure.AI.OpenAI": "Debug"
+    }
+  }
+}
+```
 
-If you encounter any issues, please refer to the [Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/) or contact your system administrator.
+## Monitoring and Logging
+
+### Azure Monitor Integration
+
+1. **Metrics**
+   - Track token usage
+   - Monitor latency and response times
+   - Set up alerts for error rates
+
+2. **Application Insights**
+   - Log custom events and metrics
+   - Track request/response payloads
+   - Set up dashboards for key metrics
+
+3. **Audit Logging**
+   - Log all API calls with user context
+   - Track model usage by tenant/user
+   - Monitor for unusual activity patterns
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 2.0.0 | 2024-03-15 | Added support for latest models and features |
+| 1.1.0 | 2024-01-10 | Added multi-tenant support |
+| 1.0.0 | 2023-11-01 | Initial release |
+
+## Getting Help
+
+For additional support:
+
+- [Azure OpenAI Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
+- [Azure Support](https://azure.microsoft.com/en-us/support/)
+- [EMMA Support Portal](https://support.emma.example.com)

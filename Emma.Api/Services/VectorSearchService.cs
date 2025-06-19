@@ -1,5 +1,5 @@
-using Emma.Data;
-using Emma.Data.Models;
+using Emma.Models.Interfaces;
+using Emma.Models.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Services;
@@ -9,12 +9,12 @@ namespace Emma.Api.Services;
 /// </summary>
 public class VectorSearchService : IVectorSearchService
 {
-    private readonly AppDbContext _context;
+    private readonly IAppDbContext _context;
     private readonly IAzureOpenAIService _azureOpenAIService;
     private readonly ILogger<VectorSearchService> _logger;
 
     public VectorSearchService(
-        AppDbContext context,
+        IAppDbContext context,
         IAzureOpenAIService azureOpenAIService,
         ILogger<VectorSearchService> logger)
     {

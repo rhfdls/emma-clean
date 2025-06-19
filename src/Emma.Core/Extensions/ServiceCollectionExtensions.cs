@@ -1,6 +1,11 @@
 using Emma.Core.Services.Validation;
+using Emma.Core.Services;
+using Emma.Core.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Caching.Memory;
+using Emma.Core.Interfaces;
 
 namespace Emma.Core.Extensions
 {
@@ -23,6 +28,31 @@ namespace Emma.Core.Extensions
             services.TryAddScoped<IMessageValidator, MessageValidator>();
             
             // Register any additional validation services here
+            
+            return services;
+        }
+
+        /// <summary>
+        /// Adds the interaction context services to the service collection.
+        /// </summary>
+        public static IServiceCollection AddInteractionContextServices(
+            this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            if (services == null)
+                throw new ArgumentNullException(nameof(services));
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            // Register options
+            services.Configure<InteractionContextOptions>(
+                configuration.GetSection(InteractionContextOptions.SectionName));
+
+            // Register core services
+            services.AddMemoryCache();
+            
+            // Register the context provider
+            services.AddScoped<IInteractionContextProvider, InteractionContextProvider>();
             
             return services;
         }

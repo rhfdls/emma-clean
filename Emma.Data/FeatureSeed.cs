@@ -1,4 +1,4 @@
-using Emma.Data.Models;
+using Emma.Models.Models;
 
 namespace Emma.Data;
 
@@ -17,7 +17,7 @@ public static class FeatureSeed
         {
             Id = Guid.NewGuid(),
             Name = "Standard",
-            SubscriptionPlanFeatures = new List<SubscriptionPlanFeature>
+            Features = new List<SubscriptionPlanFeature>
             {
                 new SubscriptionPlanFeature { FeatureId = Guid.NewGuid() }, // ASK_EMMA
                 new SubscriptionPlanFeature { FeatureId = Guid.NewGuid() }  // SMS_CHATBOT
@@ -27,7 +27,7 @@ public static class FeatureSeed
         {
             Id = Guid.NewGuid(),
             Name = "Pro",
-            SubscriptionPlanFeatures = new List<SubscriptionPlanFeature>
+            Features = new List<SubscriptionPlanFeature>
             {
                 new SubscriptionPlanFeature { FeatureId = Guid.NewGuid() }, // ASK_EMMA
                 new SubscriptionPlanFeature { FeatureId = Guid.NewGuid() }, // SMS_CHATBOT

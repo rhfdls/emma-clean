@@ -1,4 +1,4 @@
-using Emma.Core.Interfaces;
+using Emma.Models.Interfaces;
 using Emma.Core.Models;
 using Emma.Core.Industry;
 using Microsoft.Extensions.Logging;

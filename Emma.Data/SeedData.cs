@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Emma.Data.Models;
+using Emma.Models.Models;
 
 namespace Emma.Data
 {
@@ -66,7 +66,7 @@ namespace Emma.Data
             }
             // Seed Message for the Agent
             var messageOccurredAt = DateTime.UtcNow.Date.AddHours(9); // 9am today
-            var messageType = Emma.Data.Enums.MessageType.Text;
+            var messageType = Emma.Models.Enums.MessageType.Text;
             var existingMessage = context.Messages.FirstOrDefault(m => m.AgentId == agent.Id && m.OccurredAt == messageOccurredAt && m.Type == messageType);
             if (existingMessage == null)
             {

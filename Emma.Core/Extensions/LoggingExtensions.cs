@@ -1,6 +1,6 @@
 using Emma.Core.Interfaces;
 using Emma.Core.Services;
-using Emma.Data.Models;
+using Emma.Models.Models;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 

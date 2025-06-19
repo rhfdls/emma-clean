@@ -1,0 +1,1 @@
+namespace Emma.Models.Enums;public enum CallStatus{    Completed,    Missed,    Voicemail,    Failed}

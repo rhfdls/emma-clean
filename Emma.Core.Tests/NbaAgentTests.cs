@@ -7,7 +7,7 @@ using Emma.Core.Interfaces;
 using Emma.Core.Services;
 using Emma.Core.Models;
 using Emma.Api.Services;
-using Emma.Data.Models;
+using Emma.Models.Models;
 
 namespace Emma.Core.Tests;
 

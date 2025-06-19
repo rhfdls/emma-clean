@@ -1,8 +1,8 @@
-using Emma.Core.Models;
 using Emma.Core.Industry;
-using Emma.Core.Interfaces;
 using Emma.Core.Compliance;
-using Emma.Data.Models;
+using Emma.Models.Interfaces;
+using Emma.Models.Models;
+using Emma.Core.Models;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Security.Cryptography;
@@ -500,7 +500,7 @@ public class NbaAgent : INbaAgent
     /// <summary>
     /// Format recent interactions for LLM context
     /// </summary>
-    private string FormatInteractions(List<Emma.Data.Models.Interaction>? interactions)
+    private string FormatInteractions(List<Emma.Models.Models.Interaction>? interactions)
     {
         if (interactions == null || !interactions.Any())
             return "No recent interactions available";
@@ -514,7 +514,7 @@ public class NbaAgent : INbaAgent
     /// <summary>
     /// Format engagement metrics for LLM context
     /// </summary>
-    private string FormatEngagementMetrics(Emma.Data.Models.NbaContext nbaContext)
+    private string FormatEngagementMetrics(Emma.Models.Models.NbaContext nbaContext)
     {
         var lastActivityDate = nbaContext.RecentInteractions?.FirstOrDefault()?.Timestamp.ToString("yyyy-MM-dd") ?? "Unknown";
         return $@"

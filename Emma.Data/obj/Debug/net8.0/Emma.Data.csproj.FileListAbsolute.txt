@@ -1,13 +1,4 @@
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\bin\Debug\net8.0\Emma.Data.deps.json
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\bin\Debug\net8.0\Emma.Data.runtimeconfig.json
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\bin\Debug\net8.0\Emma.Data.dll
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\bin\Debug\net8.0\Emma.Data.pdb
 C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\Emma.Data.csproj.AssemblyReference.cache
 C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\Emma.Data.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\Emma.Data.csproj.CoreCompileInputs.cache
 C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\Emma.Data.sourcelink.json
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\Emma.Data.dll
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\refint\Emma.Data.dll
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\Emma.Data.pdb
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\Emma.Data.genruntimeconfig.cache
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\ref\Emma.Data.dll

@@ -1,8 +1,8 @@
 using System;
 using Emma.Api.Models;
-using Emma.Data;
+using Emma.Models.Interfaces;
 using System.Threading.Tasks;
-using Emma.Data.Models; 
+using Emma.Models.Models; 
 using Microsoft.Extensions.Logging;
 
 namespace Emma.Api.Services
@@ -13,10 +13,10 @@ namespace Emma.Api.Services
     public class InteractionSyncService
     {
         private readonly CosmosAgentRepository _cosmosRepo;
-        private readonly AppDbContext _dbContext;
+        private readonly IAppDbContext _dbContext;
         private readonly ILogger<InteractionSyncService> _logger;
 
-        public InteractionSyncService(CosmosAgentRepository cosmosRepo, AppDbContext dbContext, ILogger<InteractionSyncService> logger)
+        public InteractionSyncService(CosmosAgentRepository cosmosRepo, IAppDbContext dbContext, ILogger<InteractionSyncService> logger)
         {
             _cosmosRepo = cosmosRepo;
             _dbContext = dbContext;

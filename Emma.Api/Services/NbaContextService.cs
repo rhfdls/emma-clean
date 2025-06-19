@@ -1,8 +1,8 @@
 using Emma.Core.Interfaces;
 using Emma.Core.Models;
-using Emma.Data;
-using Emma.Data.Enums;
-using Emma.Data.Models;
+using Emma.Models.Interfaces;
+using Emma.Models.Enums;
+using Emma.Models.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
@@ -16,14 +16,14 @@ namespace Emma.Api.Services;
 /// </summary>
 public class NbaContextService : INbaContextService
 {
-    private readonly AppDbContext _context;
+    private readonly IAppDbContext _context;
     private readonly IAzureOpenAIService _azureOpenAIService;
     private readonly IVectorSearchService _vectorSearchService;
     private readonly ISqlContextExtractor _sqlContextExtractor;
     private readonly ILogger<NbaContextService> _logger;
 
     public NbaContextService(
-        AppDbContext context, 
+        IAppDbContext context, 
         IAzureOpenAIService azureOpenAIService,
         IVectorSearchService vectorSearchService,
         ISqlContextExtractor sqlContextExtractor,
@@ -479,9 +479,9 @@ public class NbaContextService : INbaContextService
         Guid organizationId)
     {
         return await _context.ContactAssignments
-            .Where(ca => ca.ClientContactId == contactId && 
-                        ca.OrganizationId == organizationId &&
-                        ca.Status == ResourceAssignmentStatus.Active)
+            .Where(ca => ca.ContactId == contactId && 
+                       ca.OrganizationId == organizationId &&
+                       ca.Status == ResourceAssignmentStatus.Active)
             .ToListAsync();
     }
 }

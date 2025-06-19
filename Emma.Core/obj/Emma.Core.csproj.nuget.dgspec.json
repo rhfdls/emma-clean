@@ -26,8 +26,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj": {
-                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj"
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj"
               }
             }
           }
@@ -91,14 +91,14 @@
         }
       }
     },
-    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj": {
+    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj",
-        "projectName": "Emma.Data",
-        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj",
+        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj",
+        "projectName": "Emma.Models",
+        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj",
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\obj\\",
+        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -130,35 +130,17 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "DotNetEnv": {
-              "target": "Package",
-              "version": "[3.0.0, )"
-            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[8.0.5, )"
-            },
-            "Microsoft.EntityFrameworkCore.Design": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[8.0.5, )"
-            },
-            "Microsoft.EntityFrameworkCore.Relational": {
-              "target": "Package",
-              "version": "[8.0.5, )"
-            },
-            "Microsoft.Extensions.Configuration": {
-              "target": "Package",
               "version": "[8.0.0, )"
             },
-            "Microsoft.Extensions.Configuration.Json": {
+            "Newtonsoft.Json": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[13.0.3, )"
             },
-            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+            "System.ComponentModel.Annotations": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[5.0.0, )"
             }
           },
           "imports": [

@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Emma.Data\Emma.Data.csproj" />
+    <ProjectReference Include="..\src\Emma.Models\Emma.Models.csproj" />
   </ItemGroup>
 
 </Project>

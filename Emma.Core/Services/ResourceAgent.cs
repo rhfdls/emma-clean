@@ -1,7 +1,7 @@
 using Emma.Core.Models;
-using Emma.Core.Interfaces;
+using Emma.Models.Interfaces;
 using Emma.Core.Industry;
-using Emma.Data.Models;
+using Emma.Models.Models;
 using Emma.Core.Exceptions;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;

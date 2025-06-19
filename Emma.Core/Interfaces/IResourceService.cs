@@ -1,5 +1,5 @@
-using Emma.Data.Models;
-using Emma.Data.Enums;
+using Emma.Models.Models;
+using Emma.Models.Enums;
 
 namespace Emma.Core.Interfaces
 {

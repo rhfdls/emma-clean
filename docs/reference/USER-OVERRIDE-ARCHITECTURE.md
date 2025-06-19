@@ -85,10 +85,44 @@ public class AgentActionConfig
 
 public enum UserOverrideMode
 {
-    AlwaysAsk,    // Every action requires human approval
-    NeverAsk,     // Full automation (high-trust environments)
-    LLMDecision,  // AI decides when to ask for approval
-    RiskBased     // Approval based on action type and confidence
+    AlwaysAsk,        // Every action requires human approval
+    NeverAsk,         // Full automation (high-trust environments)
+    LLMDecision,      // AI decides when to ask for approval
+    RiskBased,        // Approval based on action type and confidence
+    ConfidenceBased,  // Uses AI confidence thresholds for decisions
+    Hybrid            // Combines multiple strategies with fallbacks
+}
+
+/// <summary>
+/// Defines the reason for an override, providing better context and analytics
+/// </summary>
+public enum OverrideReason
+{
+    None,
+    LowConfidence,          // AI confidence below threshold
+    HighRiskAction,         // Action flagged as high risk
+    PolicyRestriction,      // Violates organizational policy
+    UserPreference,         // Based on user's historical preferences
+    DataAnomaly,           // Unusual data patterns detected
+    ModelUncertainty,      // Model indicates high uncertainty
+    LegalOrCompliance,     // Legal or compliance requirement
+    BusinessRule,          // Violates business rules
+    PerformanceConcern,    // Potential performance impact
+    AlternativeSuggestion, // User prefers different approach
+    Other                  // Catch-all for other reasons
+}
+
+/// <summary>
+/// Represents the source of an override decision
+/// </summary>
+public enum OverrideSource
+{
+    System,     // Automated system decision
+    User,       // Direct user override
+    AI,         // AI-suggested override
+    Policy,     // Policy-based override
+    Admin,      // Administrative override
+    Workflow    // Part of a workflow process
 }
 
 public class FutureScheduledAction
@@ -101,6 +135,23 @@ public class FutureScheduledAction
     public string ApprovalRequestId { get; set; }
     public string ValidationReason { get; set; }
     public Dictionary<string, object> UserOverrides { get; set; }  // CRITICAL: User context
+    public string TraceId { get; set; }
+}
+
+public class ActionValidationResult
+{
+    public IAgentAction Action { get; set; }
+    public string CurrentContext { get; set; }
+    public bool UseLLMValidation { get; set; }
+    public Dictionary<string, object> AdditionalContext { get; set; }
+    
+    // AI-Specific Properties
+    public double AIConfidenceScore { get; set; }
+    public string ModelVersion { get; set; }
+    public string[] InfluencingFactors { get; set; }
+    public Dictionary<string, double> FeatureImportance { get; set; }
+    public string Explanation { get; set; }
+    public Dictionary<string, object> UserOverrides { get; set; }  
     public string TraceId { get; set; }
 }
 ```
@@ -226,10 +277,35 @@ public class UserApprovalRequest
 
 ---
 
+## 🤖 **AI-Enhanced Override Capabilities**
+
+### **AI-Powered Decision Support**
+- **Confidence-Based Overrides**: Automatic suggestions when AI confidence is low
+- **Explainable AI**: Clear explanations for why an override is suggested
+- **Pattern Recognition**: Identifies when users consistently override certain AI decisions
+- **Feedback Loop**: Captures user overrides to improve future AI decisions
+
+### **Smart Defaults**
+- **Adaptive Thresholds**: Auto-adjusts confidence thresholds based on user behavior
+- **Context-Aware**: Considers user role, time of day, and task complexity
+- **Temporary vs. Permanent**: Allows users to specify override duration
+- **Bulk Overrides**: Apply overrides to similar future actions
+
+### **Enhanced User Experience**
+- **Just-in-Time Overrides**: Minimal interruption workflow
+- **Preview Mode**: See potential impact before confirming override
+- **Collaborative Overrides**: Team-based approval for critical actions
+- **Mobile-Optimized**: Easy override options on all devices
+
 ## 🔍 **Audit and Compliance Requirements**
 
 ### **Mandatory Logging**
 Every validation decision MUST log:
+- **AI Confidence**: Confidence score and model version
+- **Override Reason**: Categorized reason for the override
+- **Decision Context**: Relevant context and influencing factors
+- **User Feedback**: Any additional user-provided feedback
+- **Impact Assessment**: Predicted vs. actual outcome of override
 - **UserOverrides Present**: Boolean flag indicating userOverrides availability
 - **UserOverrides Content**: Serialized userOverrides for audit trail
 - **Override Mode Applied**: Which override mode was used
@@ -359,11 +435,34 @@ Provide your response in JSON format:
 You are an AI action validator for a CRM system. Your role is to assess whether proposed actions 
 are contextually appropriate and determine approval requirements.
 
+## 🛠 **Implementation Best Practices**
+
+### **AI Integration**
+- **Model Monitoring**: Continuously monitor model performance and drift
+- **Feedback Loop**: Implement mechanisms to capture override outcomes
+- **A/B Testing**: Test different override strategies to optimize user experience
+- **Fallback Mechanisms**: Ensure graceful degradation when AI services are unavailable
+
+### **Performance Considerations**
+- **Caching**: Cache common override decisions to reduce latency
+- **Batch Processing**: Process overrides in batches when appropriate
+- **Async Processing**: Use async/await for non-blocking operations
+- **Rate Limiting**: Protect against abuse of override functionality
+
+### **Security & Compliance**
+- **Audit Trail**: Maintain immutable logs of all override actions
+- **Access Control**: Enforce role-based access to override capabilities
+- **Data Privacy**: Ensure PII is properly handled in override data
+- **Compliance Checks**: Automatically verify overrides against regulations
+
 CRITICAL: Always consider userOverrides in your assessment. If a user has specified:
-- High priority: Lower the confidence threshold for approval
-- Custom timing: Respect the user's scheduling preferences
-- Specific instructions: Incorporate into your relevance assessment
-- Approval preferences: Factor into your approval recommendation
+- **High priority**: Lower the confidence threshold for approval
+- **Custom timing**: Respect the user's scheduling preferences
+- **Specific instructions**: Incorporate into your relevance assessment
+- **Approval preferences**: Factor into your approval recommendation
+- **AI confidence**: Consider the model's confidence in its decision
+- **Historical patterns**: Account for the user's past override behavior
+- **Organizational policies**: Ensure compliance with company guidelines
 
 Always provide detailed reasoning that explains how userOverrides influenced your decision.
 ```

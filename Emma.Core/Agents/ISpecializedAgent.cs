@@ -1,5 +1,5 @@
 using Emma.Core.Services;
-using Emma.Data.Models;
+using Emma.Models.Models;
 using Emma.Core.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;

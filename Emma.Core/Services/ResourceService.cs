@@ -1,6 +1,6 @@
-using Emma.Data;
-using Emma.Data.Models;
-using Emma.Data.Enums;
+using Emma.Models.Interfaces;
+using Emma.Models.Models;
+using Emma.Models.Enums;
 using Emma.Core.Interfaces;
 using Emma.Core.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +14,10 @@ namespace Emma.Core.Services;
 /// </summary>
 public class ResourceService : IResourceService
 {
-    private readonly AppDbContext _context;
+    private readonly IAppDbContext _context;
     private readonly ILogger<ResourceService> _logger;
 
-    public ResourceService(AppDbContext context, ILogger<ResourceService> logger)
+    public ResourceService(IAppDbContext context, ILogger<ResourceService> logger)
     {
         _context = context;
         _logger = logger;
@@ -101,7 +101,7 @@ public class ResourceService : IResourceService
 
         var assignment = new ContactAssignment
         {
-            ClientContactId = clientContactId,
+            ContactId = clientContactId,
             ServiceContactId = serviceContactId,
             AssignedByAgentId = assignedByAgentId,
             OrganizationId = organizationId,
@@ -113,7 +113,7 @@ public class ResourceService : IResourceService
         _context.ContactAssignments.Add(assignment);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Resource assigned: ServiceContact {ServiceContactId} to Client {ClientContactId} for {Purpose}",
+        _logger.LogInformation("Resource assigned: ServiceContact {ServiceContactId} to Contact {ContactId} for {Purpose}",
             serviceContactId, clientContactId, purpose);
 
         return assignment;
@@ -142,15 +142,15 @@ public class ResourceService : IResourceService
     /// Get Resource assignments with specific filters.
     /// </summary>
     public async Task<List<ContactAssignment>> GetResourceAssignmentsAsync(
-        Guid? clientContactId = null,
+        Guid? contactId = null,
         Guid? serviceContactId = null,
         ResourceAssignmentStatus? status = null)
     {
         var query = _context.ContactAssignments.AsQueryable();
 
-        if (clientContactId.HasValue)
+        if (contactId.HasValue)
         {
-            query = query.Where(ca => ca.ClientContactId == clientContactId.Value);
+            query = query.Where(ca => ca.ContactId == contactId.Value);
         }
 
         if (serviceContactId.HasValue)
@@ -180,7 +180,7 @@ public class ResourceService : IResourceService
         var query = _context.ContactAssignments
             .Include(ca => ca.ServiceContact)
             .Include(ca => ca.AssignedByAgent)
-            .Where(ca => ca.ClientContactId == contactId);
+            .Where(ca => ca.ContactId == contactId);
 
         if (!includeCompleted)
         {

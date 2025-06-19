@@ -11,10 +11,12 @@ With the refactoring of ResourceAgent to use the unified Contact model, resource
 ## Design Principles
 
 1. **Unified Data Model**: Extend existing Contact management rather than creating separate systems
-2. **Industry Agnostic**: Configurable fields and workflows for different verticals
-3. **Specialized UX**: Resource-specific workflows without duplicating infrastructure
-4. **User Familiarity**: Build on existing contact management patterns
-5. **Maintenance Efficiency**: Single contact management system to maintain
+2. **Multi-tenant First**: Full tenant isolation with shared templates and configurations
+3. **User Override Support**: Built-in support for approval workflows and override modes
+4. **Industry Agnostic**: Configurable fields and workflows for different verticals
+5. **Specialized UX**: Resource-specific workflows without duplicating infrastructure
+6. **User Familiarity**: Build on existing contact management patterns
+7. **Maintenance Efficiency**: Single contact management system to maintain
 
 ## Architecture Overview
 
@@ -23,11 +25,13 @@ With the refactoring of ResourceAgent to use the unified Contact model, resource
 ```typescript
 components/
   contacts/
-    ContactList.tsx           // Enhanced with resource filters
-    ContactDetail.tsx         // Enhanced with resource panels
-    ResourceDirectory.tsx     // New: Resource-focused dashboard
-    ResourceOnboarding.tsx    // New: Resource creation workflow
-    ResourcePerformance.tsx   // New: Performance tracking
+    ContactList.tsx           // Enhanced with resource and tenant filters
+    ContactDetail.tsx         // Enhanced with resource and override panels
+    ResourceDirectory.tsx     // New: Resource-focused dashboard with tenant isolation
+    ResourceOnboarding.tsx    // New: Resource creation workflow with approval
+    ResourcePerformance.tsx   // New: Performance tracking by tenant
+    OverrideApproval.tsx      // New: Manage pending overrides
+    TenantSettings.tsx        // New: Tenant-specific resource configurations
     ResourceSearch.tsx        // New: Advanced resource search
     ResourceAssignments.tsx   // New: Assignment management
 ```
@@ -51,6 +55,7 @@ Contact Entity (with RelationshipState filtering)
 **Purpose**: Central hub for resource management and discovery
 
 **Components**:
+
 - Resource search and filtering
 - Performance metrics overview
 - Recent assignments
@@ -58,6 +63,7 @@ Contact Entity (with RelationshipState filtering)
 - Quick actions (add, import, assign)
 
 **Key Features**:
+
 - Filter by specialty, service area, rating, preferred status
 - Sort by performance metrics
 - Bulk operations (import, export, update)
@@ -68,6 +74,7 @@ Contact Entity (with RelationshipState filtering)
 **Purpose**: Streamlined process for adding new service providers
 
 **Workflow Steps**:
+
 1. **Basic Contact Info**: Name, company, contact details
 2. **Resource Classification**: Specialties, service areas, license info
 3. **Business Details**: Commission structure, referral terms
@@ -75,6 +82,7 @@ Contact Entity (with RelationshipState filtering)
 5. **Performance Baseline**: Initial rating, review setup
 
 **Industry Customization**:
+
 - Real Estate: MLS access, license verification
 - Mortgage: NMLS lookup, compliance documentation
 - Financial: Series licenses, fiduciary status
@@ -84,6 +92,7 @@ Contact Entity (with RelationshipState filtering)
 **Purpose**: Specialized panels for resource contacts
 
 **Resource-Specific Panels**:
+
 - **Professional Info**: Specialties, licenses, certifications
 - **Service Coverage**: Geographic areas, availability
 - **Performance Metrics**: Ratings, reviews, completion rates
@@ -96,6 +105,7 @@ Contact Entity (with RelationshipState filtering)
 **Purpose**: Monitor and optimize resource relationships
 
 **Metrics Dashboard**:
+
 - Conversion rates and completion times
 - Client satisfaction scores
 - Revenue generated through referrals
@@ -103,6 +113,7 @@ Contact Entity (with RelationshipState filtering)
 - Comparative performance analysis
 
 **Reporting Features**:
+
 - Performance trends over time
 - Resource comparison reports
 - ROI analysis on referral relationships
@@ -113,6 +124,7 @@ Contact Entity (with RelationshipState filtering)
 **Purpose**: Advanced search for resource assignment
 
 **Search Capabilities**:
+
 - Multi-criteria filtering (specialty, area, rating, availability)
 - Proximity-based search for service areas
 - Availability calendar integration
@@ -279,16 +291,19 @@ interface ResourceAssignment {
 ## Security and Compliance
 
 ### Access Control
+
 - Role-based permissions for resource management
 - Organization-level resource visibility
 - Audit logging for all resource operations
 
 ### Data Privacy
+
 - GDPR/CCPA compliance for resource contact data
 - Secure handling of license and certification information
 - Encrypted storage of sensitive business terms
 
 ### Regulatory Compliance
+
 - Industry-specific compliance tracking
 - Automated renewal reminders
 - Documentation requirements enforcement
@@ -296,17 +311,20 @@ interface ResourceAssignment {
 ## Success Metrics
 
 ### User Adoption
+
 - Resource creation and maintenance activity
 - User engagement with resource features
 - Time savings in resource discovery and assignment
 
 ### Business Impact
+
 - Improved resource utilization rates
 - Faster client service delivery
 - Enhanced compliance tracking
 - Increased referral revenue
 
 ### System Performance
+
 - Search response times
 - Data accuracy and completeness
 - Integration reliability with existing systems
@@ -314,17 +332,20 @@ interface ResourceAssignment {
 ## Future Enhancements
 
 ### Phase 4: Advanced Features
+
 - AI-powered resource matching and recommendations
 - Automated performance scoring and ranking
 - Integration with external vendor databases
-- Mobile app for resource management
+- Mobile app for field resource management
 - Advanced analytics and reporting dashboard
 
 ### Phase 5: Ecosystem Integration
+
 - Third-party service provider integrations
 - Marketplace features for resource discovery
 - Automated onboarding workflows
-- Real-time availability and scheduling
+- Cross-organization resource sharing
+- Blockchain-based credential verification
 
 ## Implementation Timeline
 

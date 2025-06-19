@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Emma.Models;
+using Emma.Models.Models;
 
 namespace Emma.Core.Models
 {
@@ -31,7 +33,7 @@ namespace Emma.Core.Models
     {
         public List<AssignedContact> Contacts { get; set; } = new();
         public List<RecentInteraction> RecentInteractions { get; set; } = new();
-        public List<TaskItem> Tasks { get; set; } = new();
+        public List<Emma.Models.Models.TaskItem> Tasks { get; set; } = new();
         public AgentPerformance? Performance { get; set; }
         public List<ActivityTimelineItem> Timeline { get; set; } = new();
     }
@@ -71,18 +73,7 @@ namespace Emma.Core.Models
         public List<string> KeyTopics { get; set; } = new();
     }
 
-    public class TaskItem
-    {
-        public Guid TaskId { get; set; }
-        public Guid? ContactId { get; set; }
-        public string ContactName { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public DateTime DueDate { get; set; }
-        public string Priority { get; set; } = "Medium"; // Low, Medium, High, Urgent
-        public string Status { get; set; } = "Pending"; // Pending, InProgress, Completed, Overdue
-        public string TaskType { get; set; } = string.Empty; // FollowUp, Showing, Paperwork, etc.
-    }
+    // TaskItem moved to Emma.Models namespace
 
     public class AgentPerformance
     {

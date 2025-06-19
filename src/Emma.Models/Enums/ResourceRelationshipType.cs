@@ -1,0 +1,1 @@
+namespace Emma.Models.Enums;public enum ResourceRelationshipType{    Preferred,    Partner,    Referral,    TeamMember,    Vendor,    Contractor}

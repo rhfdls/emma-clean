@@ -1,6 +1,6 @@
 using Emma.Core.Services;
 using Emma.Core.Extensions;
-using Emma.Core.Interfaces;
+using Emma.Models.Interfaces;
 using Emma.Core.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -43,6 +43,26 @@ public static class ServiceCollectionExtensions
         
         // Register data masking service for privacy-aware debugging
         services.AddScoped<IDataMaskingService, DataMaskingService>();
+        
+        return services;
+    }
+    
+    /// <summary>
+    /// Registers interaction-related services and their dependencies.
+    /// </summary>
+    public static IServiceCollection AddInteractionServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Register options
+        services.Configure<InteractionOptions>(configuration.GetSection("Interaction"));
+        services.Configure<AiOptions>(configuration.GetSection("AI"));
+        
+        // Register core services
+        services.AddScoped<IInteractionService, InteractionService>();
+        
+        // Register repositories
+        services.AddScoped<IInteractionRepository, InteractionRepository>();
+        services.AddScoped<IContactRepository, ContactRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         
         return services;
     }

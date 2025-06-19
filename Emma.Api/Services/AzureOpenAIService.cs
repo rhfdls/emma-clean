@@ -1,5 +1,5 @@
 using Azure.AI.OpenAI;
-using Emma.Data.Models;
+using Emma.Models.Models;
 using Microsoft.Extensions.Options;
 using Emma.Core.Config;
 using System.Text.Json;

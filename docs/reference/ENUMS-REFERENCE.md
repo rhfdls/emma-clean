@@ -4,30 +4,170 @@ This document provides a comprehensive reference for all enums used throughout t
 
 ## Table of Contents
 
-1. [Contact Management](#contact-management)
+1. [AI & Machine Learning](#ai--machine-learning)
+   - [AIModelType](#aimodeltype)
+   - [AIConfidenceLevel](#aiconfidencelevel)
+   - [AIValidationStatus](#aivalidationstatus)
+   - [AIAgentType](#aiagenttype)
+   - [RAGOperationType](#ragoperationtype)
+   - [AIActionType](#aiactiontype)
+   - [AIMonitoringCategory](#aimonitoringcategory)
+   - [AIAlertSeverity](#aialertseverity)
+
+2. [Contact Management](#contact-management)
    - [RelationshipState](#relationshipstate)
    - [CollaboratorRole](#collaboratorrole)
    - [ResourceRelationshipType](#resourcerelationshiptype)
 
-2. [Communication](#communication)
+3. [Communication](#communication)
    - [CallDirection](#calldirection)
    - [CallStatus](#callstatus)
    - [MessageType](#messagetype)
    - [TranscriptionType](#transcriptiontype)
 
-3. [Workflow & Tasks](#workflow--tasks)
+4. [Workflow & Tasks](#workflow--tasks)
    - [Priority](#priority)
    - [ResourceAssignmentStatus](#resourceassignmentstatus)
 
-4. [Subscriptions](#subscriptions)
+5. [Subscriptions](#subscriptions)
    - [SubscriptionStatus](#subscriptionstatus)
 
-5. [System & Workflow](#system--workflow)
+6. [System & Workflow](#system--workflow)
    - [ChangeType](#changetype)
    - [ApprovalState](#approvalstate)
    - [DifferenceType](#differencetype)
    - [ChangeSeverity](#changeseverity)
    - [ConflictResolution](#conflictresolution)
+
+## AI & Machine Learning
+
+### AIModelType
+
+Defines the types of AI models used in the system.
+
+**Location**: `Emma.AI.Models.AIModelType`
+
+| Value | Description |
+|-------|-------------|
+| `Unknown` | Unknown or unspecified model type |
+| `OpenAI_GPT4` | OpenAI's GPT-4 model |
+| `OpenAI_GPT35Turbo` | OpenAI's GPT-3.5 Turbo model |
+| `OpenAI_Embedding_Ada002` | OpenAI's text-embedding-ada-002 model |
+| `OpenAI_Embedding_3_Small` | OpenAI's text-embedding-3-small model |
+| `OpenAI_Embedding_3_Large` | OpenAI's text-embedding-3-large model |
+| `Azure_OpenAI` | Azure OpenAI service model |
+| `Azure_Embedding` | Azure OpenAI embedding model |
+| `Custom_FineTuned` | Custom fine-tuned model |
+
+### AIConfidenceLevel
+
+Indicates the confidence level of AI predictions and decisions.
+
+**Location**: `Emma.AI.Models.AIConfidenceLevel`
+
+| Value | Description |
+|-------|-------------|
+| `VeryLow` | 0-25% confidence |
+| `Low` | 26-50% confidence |
+| `Medium` | 51-75% confidence |
+| `High` | 76-90% confidence |
+| `VeryHigh` | 91-100% confidence |
+
+### AIValidationStatus
+
+Tracks the status of AI validation workflows.
+
+**Location**: `Emma.AI.Workflows.AIValidationStatus`
+
+| Value | Description |
+|-------|-------------|
+| `Pending` | Waiting for validation |
+| `Validated` | Successfully validated |
+| `RequiresReview` | Needs human review |
+| `Rejected` | Validation failed |
+| `Overridden` | Manually overridden |
+
+### AIAgentType
+
+Defines the types of AI agents in the multi-agent system.
+
+**Location**: `Emma.AI.Agents.AIAgentType`
+
+| Value | Description |
+|-------|-------------|
+| `Unknown` | Unknown agent type |
+| `NBA` | Next Best Action agent |
+| `Context` | Context Manager agent |
+| `Workflow` | Workflow Orchestrator agent |
+| `Data` | Data Processing agent |
+| `Governance` | Compliance & Ethics agent |
+| `Validation` | Action Validation agent |
+| `Enrichment` | Data Enrichment agent |
+
+### RAGOperationType
+
+Defines the types of RAG (Retrieval Augmented Generation) operations.
+
+**Location**: `Emma.AI.RAG.RAGOperationType`
+
+| Value | Description |
+|-------|-------------|
+| `Unknown` | Unknown operation |
+| `DocumentIngest` | Adding documents to knowledge base |
+| `VectorSearch` | Semantic search operation |
+| `ContextRetrieval` | Retrieving context for LLM |
+| `DocumentUpdate` | Updating existing documents |
+| `DocumentDelete` | Removing documents |
+
+### AIActionType
+
+Defines the types of AI actions that can be taken.
+
+**Location**: `Emma.AI.Actions.AIActionType`
+
+| Value | Description |
+|-------|-------------|
+| `None` | No action |
+| `DataRetrieval` | Retrieve data |
+| `DataUpdate` | Update data |
+| `Analysis` | Perform analysis |
+| `Recommendation` | Make recommendations |
+| `ContentGeneration` | Generate content |
+| `TaskCreation` | Create tasks |
+| `Notification` | Send notifications |
+| `ApprovalRequest` | Request approvals |
+| `SystemAction` | Perform system actions |
+
+### AIMonitoringCategory
+
+Categories for AI-related telemetry and monitoring.
+
+**Location**: `Emma.AI.Monitoring.AIMonitoringCategory`
+
+| Value | Description |
+|-------|-------------|
+| `Performance` | Performance metrics |
+| `Accuracy` | Model accuracy metrics |
+| `Drift` | Data/model drift detection |
+| `DataQuality` | Data quality metrics |
+| `ModelBias` | Bias detection metrics |
+| `Security` | Security-related metrics |
+| `Cost` | Cost tracking |
+| `Latency` | Response time metrics |
+
+### AIAlertSeverity
+
+Severity levels for AI-related alerts.
+
+**Location**: `Emma.AI.Monitoring.AIAlertSeverity`
+
+| Value | Description |
+|-------|-------------|
+| `Info` | Informational message |
+| `Low` | Low severity issue |
+| `Medium` | Medium severity issue |
+| `High` | High severity issue |
+| `Critical` | Critical issue requiring immediate attention |
 
 ## Contact Management
 

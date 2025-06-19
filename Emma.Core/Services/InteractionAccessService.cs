@@ -1,8 +1,11 @@
 using Emma.Core.Interfaces;
-using Emma.Data;
-using Emma.Data.Models;
+using Emma.Core.Models;
+using Emma.Models.Enums;
+using Emma.Models.Interfaces;
+using Emma.Models.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace Emma.Core.Services;
 
@@ -10,25 +13,30 @@ namespace Emma.Core.Services;
 /// Implementation of interaction access control service.
 /// Enforces privacy tag filtering and collaboration permissions.
 /// </summary>
+/// <summary>
+/// Implementation of interaction access control service with proper User/Agent separation.
+/// Enforces privacy tag filtering and collaboration permissions.
+/// </summary>
 public class InteractionAccessService : IInteractionAccessService
 {
-    private readonly AppDbContext _context;
+    private readonly IAppDbContext _context;
     private readonly IContactAccessService _contactAccessService;
     private readonly ILogger<InteractionAccessService> _logger;
 
     public InteractionAccessService(
-        AppDbContext context, 
+        IAppDbContext context, 
         IContactAccessService contactAccessService,
         ILogger<InteractionAccessService> logger)
     {
-        _context = context;
-        _contactAccessService = contactAccessService;
-        _logger = logger;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _contactAccessService = contactAccessService ?? throw new ArgumentNullException(nameof(contactAccessService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<Interaction>> GetAuthorizedInteractionsAsync(Guid contactId, Guid requestingAgentId)
     {
-        // First check if agent can access the contact at all
+        // First check if the requesting entity can access the contact at all
         var canAccessContact = await _contactAccessService.CanAccessContactAsync(contactId, requestingAgentId);
         if (!canAccessContact)
         {
@@ -36,19 +44,40 @@ public class InteractionAccessService : IInteractionAccessService
             return Enumerable.Empty<Interaction>();
         }
 
-        // Get collaboration permissions to determine what interactions are allowed
+        // Check if this is a user or an agent
+        var isUser = await _context.Users.AnyAsync(u => u.Id == requestingAgentId);
+        var isAgent = await _context.Agents.AnyAsync(a => a.Id == requestingAgentId);
+
+        if (!isUser && !isAgent)
+        {
+            _logger.LogWarning("User/Agent {Id} not found", requestingAgentId);
+            return Enumerable.Empty<Interaction>();
+        }
+
+        // Get collaboration permissions and ownership status
         var collaboration = await _contactAccessService.GetCollaborationPermissionsAsync(contactId, requestingAgentId);
         var isOwner = await _contactAccessService.IsContactOwnerAsync(contactId, requestingAgentId);
+        var isAdmin = isUser && await _contactAccessService.IsOrganizationOwnerAsync(requestingAgentId);
 
+        // Get all interactions for the contact
         var interactions = await _context.Interactions
             .Where(i => i.ContactId == contactId)
+            .OrderByDescending(i => i.Timestamp)
             .ToListAsync();
 
         var authorizedInteractions = new List<Interaction>();
 
         foreach (var interaction in interactions)
         {
-            var canAccess = await CanAccessInteractionInternalAsync(interaction, requestingAgentId, collaboration, isOwner);
+            var canAccess = await CanAccessInteractionInternalAsync(
+                interaction, 
+                requestingAgentId, 
+                isUser, 
+                isAgent, 
+                isOwner, 
+                isAdmin, 
+                collaboration);
+                
             if (canAccess)
             {
                 authorizedInteractions.Add(interaction);
@@ -56,28 +85,35 @@ public class InteractionAccessService : IInteractionAccessService
             }
             else
             {
-                await LogInteractionAccessAsync(interaction.Id, requestingAgentId, false, "Privacy tag restriction");
+                await LogInteractionAccessAsync(interaction.Id, requestingAgentId, false, "Access restricted by privacy settings");
             }
         }
 
-        _logger.LogInformation("Agent {AgentId} accessed {AuthorizedCount}/{TotalCount} interactions for contact {ContactId}",
-            requestingAgentId, authorizedInteractions.Count, interactions.Count, contactId);
+        _logger.LogInformation("{EntityType} {EntityId} accessed {AuthorizedCount}/{TotalCount} interactions for contact {ContactId}",
+            isUser ? "User" : "Agent", 
+            requestingAgentId, 
+            authorizedInteractions.Count, 
+            interactions.Count, 
+            contactId);
 
         return authorizedInteractions;
     }
 
+    /// <inheritdoc/>
     public async Task<bool> CanAccessInteractionAsync(Guid interactionId, Guid requestingAgentId)
     {
+        // First check if the interaction exists
         var interaction = await _context.Interactions
             .FirstOrDefaultAsync(i => i.Id == interactionId);
 
         if (interaction == null)
         {
+            _logger.LogWarning("Interaction {InteractionId} not found", interactionId);
             await LogInteractionAccessAsync(interactionId, requestingAgentId, false, "Interaction not found");
             return false;
         }
 
-        // Check contact access first
+        // Check if the requesting entity can access the contact
         var canAccessContact = await _contactAccessService.CanAccessContactAsync(interaction.ContactId, requestingAgentId);
         if (!canAccessContact)
         {
@@ -85,21 +121,48 @@ public class InteractionAccessService : IInteractionAccessService
             return false;
         }
 
-        // Get permissions
+        // Check if this is a user or an agent
+        var isUser = await _context.Users.AnyAsync(u => u.Id == requestingAgentId);
+        var isAgent = await _context.Agents.AnyAsync(a => a.Id == requestingAgentId);
+
+        if (!isUser && !isAgent)
+        {
+            _logger.LogWarning("User/Agent {Id} not found", requestingAgentId);
+            await LogInteractionAccessAsync(interactionId, requestingAgentId, false, "Requesting entity not found");
+            return false;
+        }
+
+        // Get permissions and ownership
         var collaboration = await _contactAccessService.GetCollaborationPermissionsAsync(interaction.ContactId, requestingAgentId);
         var isOwner = await _contactAccessService.IsContactOwnerAsync(interaction.ContactId, requestingAgentId);
+        var isAdmin = isUser && await _contactAccessService.IsOrganizationOwnerAsync(requestingAgentId);
 
-        var canAccess = await CanAccessInteractionInternalAsync(interaction, requestingAgentId, collaboration, isOwner);
+        // Check access based on interaction type and permissions
+        var canAccess = await CanAccessInteractionInternalAsync(
+            interaction, 
+            requestingAgentId,
+            isUser,
+            isAgent,
+            isOwner,
+            isAdmin,
+            collaboration);
         
-        var reason = canAccess ? "Access granted" : "Privacy tag restriction";
+        var reason = canAccess ? "Access granted" : "Access restricted by privacy settings";
         await LogInteractionAccessAsync(interactionId, requestingAgentId, canAccess, reason);
+
+        _logger.LogDebug("Access {AccessStatus} for {EntityType} {EntityId} to interaction {InteractionId}: {Reason}",
+            canAccess ? "granted" : "denied",
+            isUser ? "User" : "Agent",
+            requestingAgentId,
+            interactionId,
+            reason);
 
         return canAccess;
     }
 
     public async Task<IEnumerable<Interaction>> GetBusinessInteractionsAsync(Guid contactId, Guid requestingAgentId)
     {
-        // First check if agent can access the contact at all
+        // First check if the requesting entity can access the contact at all
         var canAccessContact = await _contactAccessService.CanAccessContactAsync(contactId, requestingAgentId);
         if (!canAccessContact)
         {
@@ -107,24 +170,53 @@ public class InteractionAccessService : IInteractionAccessService
             return Enumerable.Empty<Interaction>();
         }
 
-        // Get only business interactions (CRM tagged or untagged, but NOT personal/private)
-        var businessInteractions = await _context.Interactions
-            .Where(i => i.ContactId == contactId)
-            .Where(i => !i.Tags.Any(tag => 
-                tag.Equals("PERSONAL", StringComparison.OrdinalIgnoreCase) ||
-                tag.Equals("PRIVATE", StringComparison.OrdinalIgnoreCase)))
-            .ToListAsync();
+        // Check if this is a user or an agent
+        var isUser = await _context.Users.AnyAsync(u => u.Id == requestingAgentId);
+        var isAgent = await _context.Agents.AnyAsync(a => a.Id == requestingAgentId);
 
-        // Log access for each interaction
-        foreach (var interaction in businessInteractions)
+        if (!isUser && !isAgent)
         {
-            await LogInteractionAccessAsync(interaction.Id, requestingAgentId, true, "Business interaction access");
+            _logger.LogWarning("User/Agent {Id} not found", requestingAgentId);
+            return Enumerable.Empty<Interaction>();
         }
 
-        _logger.LogInformation("Agent {AgentId} accessed {Count} business interactions for contact {ContactId}",
-            requestingAgentId, businessInteractions.Count, contactId);
+        // Get all business interactions (explicitly tagged as business or untagged)
+        var businessInteractions = await _context.Interactions
+            .Where(i => i.ContactId == contactId && 
+                      (i.Tags == null || !i.Tags.Contains("PERSONAL") && !i.Tags.Contains("PRIVATE")))
+            .OrderByDescending(i => i.Timestamp)
+            .ToListAsync();
 
-        return businessInteractions;
+        // Filter based on user/agent permissions
+        var filteredInteractions = new List<Interaction>();
+        var collaboration = await _contactAccessService.GetCollaborationPermissionsAsync(contactId, requestingAgentId);
+        var isOwner = await _contactAccessService.IsContactOwnerAsync(contactId, requestingAgentId);
+        var isAdmin = isUser && await _contactAccessService.IsOrganizationOwnerAsync(requestingAgentId);
+
+        foreach (var interaction in businessInteractions)
+        {
+            var canAccess = await CanAccessInteractionInternalAsync(
+                interaction, 
+                requestingAgentId,
+                isUser,
+                isAgent,
+                isOwner,
+                isAdmin,
+                collaboration);
+                
+            if (canAccess)
+            {
+                filteredInteractions.Add(interaction);
+            }
+        }
+
+        _logger.LogInformation("{EntityType} {EntityId} accessed {Count} business interactions for contact {ContactId}",
+            isUser ? "User" : "Agent",
+            requestingAgentId,
+            filteredInteractions.Count,
+            contactId);
+
+        return filteredInteractions;
     }
 
     public async Task<IEnumerable<Interaction>> FilterByPrivacyPermissionsAsync(IEnumerable<Interaction> interactions, Guid requestingAgentId)
@@ -145,31 +237,48 @@ public class InteractionAccessService : IInteractionAccessService
 
     public async Task LogInteractionAccessAsync(Guid interactionId, Guid requestingAgentId, bool accessGranted, string reason)
     {
+        if (requestingAgentId == Guid.Empty)
+        {
+            _logger.LogWarning("Attempted to log interaction access with empty requester ID");
+            return;
+        }
+
         try
         {
-            var agent = await _context.Agents.FirstOrDefaultAsync(a => a.Id == requestingAgentId);
-            var organizationId = agent?.OrganizationId ?? Guid.Empty;
-
-            Interaction? interaction = null;
-            Guid? contactId = null;
-            List<string> privacyTags = new();
-
-            if (interactionId != Guid.Empty)
+            // Determine if the requester is a user or an agent
+            var isUser = await _context.Users.AnyAsync(u => u.Id == requestingAgentId);
+            var isAgent = !isUser && await _context.Agents.AnyAsync(a => a.Id == requestingAgentId);
+            
+            // If neither user nor agent found, log a warning but still record the access attempt
+            if (!isUser && !isAgent)
             {
-                interaction = await _context.Interactions
-                    .FirstOrDefaultAsync(i => i.Id == interactionId);
-                
-                if (interaction != null)
-                {
-                    contactId = interaction.ContactId;
-                    privacyTags = interaction.Tags.Where(tag => 
-                        tag.Equals("PERSONAL", StringComparison.OrdinalIgnoreCase) ||
-                        tag.Equals("PRIVATE", StringComparison.OrdinalIgnoreCase) ||
-                        tag.Equals("CRM", StringComparison.OrdinalIgnoreCase))
-                        .ToList();
-                }
+                _logger.LogWarning("Access attempt by unknown entity {EntityId} (Interaction: {InteractionId})", 
+                    requestingAgentId, interactionId);
             }
 
+            var logEntry = new InteractionAccessLog
+            {
+                Id = Guid.NewGuid(),
+                InteractionId = interactionId != Guid.Empty ? interactionId : (Guid?)null,
+                RequestingEntityId = requestingAgentId,
+                EntityType = isUser ? AccessEntityType.User : 
+                                 isAgent ? AccessEntityType.Agent : 
+                                 AccessEntityType.Unknown,
+                AccessGranted = accessGranted,
+                AccessTimestamp = DateTime.UtcNow,
+                Reason = reason?.Truncate(500) ?? "No reason provided",
+                IpAddress = null, // Would be populated from HTTP context in a real implementation
+                UserAgent = null,  // Would be populated from HTTP context in a real implementation
+                Metadata = new Dictionary<string, object>
+                {
+                    ["IsUser"] = isUser,
+                    ["IsAgent"] = isAgent,
+                    ["EntityType"] = isUser ? "User" : isAgent ? "Agent" : "Unknown"
+                },
+                IpAddress = null, // Would be populated from HTTP context in a real implementation
+                UserAgent = null  // Would be populated from HTTP context in a real implementation
+            };
+            
             var auditLog = new AccessAuditLog
             {
                 RequestingAgentId = requestingAgentId,

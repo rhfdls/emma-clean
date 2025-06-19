@@ -1,0 +1,1711 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Emma.Models</name>
+    </assembly>
+    <members>
+        <member name="T:Emma.Models.Enums.TaskPriority">
+            <summary>
+            Represents the priority levels that can be assigned to a task.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskPriority.Low">
+            <summary>
+            Low priority task (can be deferred if necessary).
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskPriority.Medium">
+            <summary>
+            Normal priority task (default).
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskPriority.High">
+            <summary>
+            High priority task (should be addressed soon).
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskPriority.Urgent">
+            <summary>
+            Critical priority task (requires immediate attention).
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskPriority.Blocked">
+            <summary>
+            The task is blocked by another task or dependency.
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Enums.TaskStatus">
+            <summary>
+            Represents the possible statuses of a task.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskStatus.Pending">
+            <summary>
+            The task has been created but not yet started.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskStatus.InProgress">
+            <summary>
+            The task is currently being worked on.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskStatus.Completed">
+            <summary>
+            The task has been completed.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskStatus.Overdue">
+            <summary>
+            The task is past its due date and not completed.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskStatus.Canceled">
+            <summary>
+            The task has been canceled and will not be completed.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskStatus.OnHold">
+            <summary>
+            The task is on hold and not currently being worked on.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Enums.TaskStatus.PendingApproval">
+            <summary>
+            The task is waiting for approval before proceeding.
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Interfaces.IAgentAction">
+            <summary>
+            Interface that all agent actions must implement for standardized validation
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Interfaces.IAgentActionValidator">
+            <summary>
+            Standardized interface for validating agent actions across all agents
+            Ensures consistent action relevance validation, approval workflows, and explainability
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Interfaces.IAgentActionValidator.ValidateAgentActionsAsync``1(System.Collections.Generic.List{``0},Emma.Models.Interfaces.AgentActionValidationContext,System.Collections.Generic.Dictionary{System.String,System.Object},System.String)">
+            <summary>
+            Validates a collection of agent actions using the standardized validation pipeline
+            </summary>
+            <typeparam name="T">Type of agent action (NbaRecommendation, ResourceAction, etc.)</typeparam>
+            <param name="actions">Actions to validate</param>
+            <param name="context">Validation context including contact, organization, and user info</param>
+            <param name="userOverrides">User override preferences that influence validation decisions</param>
+            <param name="traceId">Trace ID for correlation</param>
+            <returns>Validated actions with approval metadata</returns>
+        </member>
+        <member name="M:Emma.Models.Interfaces.IAgentActionValidator.ValidateSingleActionAsync``1(``0,Emma.Models.Interfaces.AgentActionValidationContext,System.Collections.Generic.Dictionary{System.String,System.Object},System.String)">
+            <summary>
+            Validates a single agent action
+            </summary>
+            <typeparam name="T">Type of agent action</typeparam>
+            <param name="action">Action to validate</param>
+            <param name="context">Validation context</param>
+            <param name="userOverrides">User override preferences that influence validation decisions</param>
+            <param name="traceId">Trace ID for correlation</param>
+            <returns>Validated action with approval metadata</returns>
+        </member>
+        <member name="T:Emma.Models.Interfaces.AgentActionValidationContext">
+            <summary>
+            Context information for agent action validation
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Interfaces.AgentActionValidationContext.UserOverrides">
+            <summary>
+            User override preferences that must flow through the entire validation pipeline
+            MANDATORY for audit trail, explainability, and regulatory compliance
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.AccessAuditLog">
+            <summary>
+            Audit log for tracking access to protected resources.
+            Provides comprehensive forensic trail for privacy compliance.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.RequestingUserId">
+            <summary>
+            The user who requested access to the resource.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.OrganizationId">
+            <summary>
+            The organization the requesting agent belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.ResourceType">
+            <summary>
+            Type of resource being accessed (Contact, Interaction, etc.).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.ResourceId">
+            <summary>
+            Unique identifier of the resource being accessed.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.ContactId">
+            <summary>
+            Contact ID if the resource is related to a specific contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.AccessGranted">
+            <summary>
+            Whether access was granted or denied.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.Reason">
+            <summary>
+            Reason for the access decision (e.g., "Owner", "Collaborator", "Denied - No Permission").
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.PrivacyTags">
+            <summary>
+            Privacy tags associated with the accessed resource.
+            JSON array of tags like ["PERSONAL", "PRIVATE", "CRM"].
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.IpAddress">
+            <summary>
+            IP address of the requesting client.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.UserAgent">
+            <summary>
+            User agent string of the requesting client.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.Metadata">
+            <summary>
+            Additional metadata about the access request.
+            JSON object with request details.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.AccessedAt">
+            <summary>
+            Timestamp when the access was attempted.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.RequestingUser">
+            <summary>
+            Navigation property to the requesting user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.Organization">
+            <summary>
+            Navigation property to the organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.Contact">
+            <summary>
+            Navigation property to the contact (if applicable).
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.ClientState">
+            <summary>
+            Current state and stage of client in the sales/service process
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientState.CurrentStage">
+            <summary>
+            Current stage in the client journey
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientState.NextMilestone">
+            <summary>
+            Next milestone or goal
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientState.Priority">
+            <summary>
+            Priority level (High, Medium, Low)
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientState.AssignedUserId">
+            <summary>
+            User assigned to this client
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientState.AssignedUser">
+            <summary>
+            Navigation property for the assigned user
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientState.PendingTasks">
+            <summary>
+            Pending tasks or follow-ups
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientState.OpenObjections">
+            <summary>
+            Open objections or concerns
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientState.ImportantDates">
+            <summary>
+            Important dates and deadlines
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientState.PropertyInfo">
+            <summary>
+            Property-related information
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientState.FinancialInfo">
+            <summary>
+            Financial information and constraints
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientState.CustomFields">
+            <summary>
+            Custom fields for additional state information
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.ClientSummary">
+            <summary>
+            Rolling summary of client interactions and context
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientSummary.SummaryType">
+            <summary>
+            Type of summary (e.g., "rolling", "milestone", "periodic")
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientSummary.SummaryText">
+            <summary>
+            AI-generated summary text
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientSummary.InteractionCount">
+            <summary>
+            Number of interactions included in this summary
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientSummary.EarliestInteraction">
+            <summary>
+            Timestamp of earliest interaction in summary
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientSummary.LatestInteraction">
+            <summary>
+            Timestamp of latest interaction in summary
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientSummary.KeyMilestones">
+            <summary>
+            Key milestones or events
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientSummary.ImportantPreferences">
+            <summary>
+            Important client preferences extracted from interactions
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ClientSummary.CustomFields">
+            <summary>
+            Custom fields for additional context
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.RelationshipState">
+            <summary>
+            Represents the relationship state of a contact in the GoG system.
+            Contacts can transition between states as relationships evolve.
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.ContactStateHistory">
+            <summary>
+            Tracks state transition history for analytics and audit purposes.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.OrganizationId">
+            <summary>
+            Organization that owns this contact (for multi-tenant support).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.RelationshipState">
+            <summary>
+            Current relationship state - can evolve over time as relationships change.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.IsActiveClient">
+            <summary>
+            Boolean flag for compliance and legal triggers when someone becomes an active client.
+            Set to true when client signs representation agreement or enters active transaction.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.ClientSince">
+            <summary>
+            Timestamp when contact first became a client (for analytics and compliance).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.CompanyName">
+            <summary>
+            Company name for service providers (e.g., "ABC Lending", "XYZ Inspections").
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.LicenseNumber">
+            <summary>
+            Professional license number for licensed service providers.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Specialties">
+            <summary>
+            Service specialties (e.g., "FHA Loans", "Commercial Properties", "New Construction").
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.ServiceAreas">
+            <summary>
+            Geographic service areas (e.g., "Downtown", "North County", "San Diego County").
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Rating">
+            <summary>
+            Professional rating (1-5 stars) based on client feedback.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.ReviewCount">
+            <summary>
+            Number of reviews/ratings received.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.IsPreferred">
+            <summary>
+            Indicates if this is a preferred service provider.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Website">
+            <summary>
+            Website URL for service providers.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.OwnerId">
+            <summary>
+            For agent contacts - links to their User record if they're part of the organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Tags">
+            <summary>
+            Segmentation tags only (e.g., VIP, Buyer, Region). DO NOT use for privacy/business logic (CRM, PERSONAL, PRIVATE, etc.).
+            All privacy/business logic must be enforced via Interaction.Tags.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Owner">
+            <summary>
+            The user who owns/manages this contact (for agent contacts, this is the human agent managing the AI)
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Organization">
+            <summary>
+            The organization this contact belongs to
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.AssignedTo">
+            <summary>
+            The user currently assigned to manage this contact
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Interactions">
+            <summary>
+            All interactions with this contact
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.AssignedResources">
+            <summary>
+            Resources (service providers) assigned to this contact
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.ResourceAssignments">
+            <summary>
+            Assignments where this contact is the resource (service provider)
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.StateHistory">
+            <summary>
+            History of state transitions for this contact
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Collaborators">
+            <summary>
+            Users who have been granted access to collaborate on this contact
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.CollaboratingOn">
+            <summary>
+            Contacts that this user is collaborating on
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.Contact.TransitionToState(Emma.Models.Models.RelationshipState,System.String,System.Nullable{System.Guid})">
+            <summary>
+            Helper method to transition contact to a new relationship state.
+            Automatically tracks history and updates relevant flags.
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.Contact.IsServiceProvider">
+            <summary>
+            Checks if this contact is a service provider (ServiceProvider or Agent).
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.Contact.IsBusinessLead">
+            <summary>
+            Checks if the contact is a potential business lead (Lead or Prospect).
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.Contact.IsClient">
+            <summary>
+            Checks if the contact is currently in any client state (active or past).
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.Contact.CanBeAssignedAsResource">
+            <summary>
+            Checks if this contact can be assigned as a resource to clients.
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.Contact.AssignToClient(Emma.Models.Models.Contact,Emma.Models.Models.User,System.String,System.String)">
+            <summary>
+            Assigns this contact as a service provider to a client contact.
+            </summary>
+            <param name="clientContact">The contact that will receive this service provider</param>
+            <param name="assigningUser">The user making the assignment</param>
+            <param name="purpose">The purpose of this assignment</param>
+            <param name="clientRequest">Optional client request or notes</param>
+            <returns>The created ContactAssignment</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if the contact cannot be assigned as a resource</exception>
+        </member>
+        <member name="M:Emma.Models.Models.Contact.GrantCollaborationAccess(Emma.Models.Models.User,Emma.Models.Models.User,Emma.Models.Models.CollaboratorRole,System.String)">
+            <summary>
+            Grants collaboration access to another user for this contact.
+            </summary>
+            <param name="collaboratorUser">The user being granted access</param>
+            <param name="grantingUser">The user granting the access</param>
+            <param name="role">The role to assign to the collaborator</param>
+            <param name="reason">Optional reason for granting access</param>
+            <returns>The created ContactCollaborator</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if the contact is not in a valid state for collaboration</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown if required parameters are null</exception>
+        </member>
+        <member name="M:Emma.Models.Models.Contact.UpdateRating(System.Decimal,System.String)">
+            <summary>
+            Updates service provider rating based on client feedback.
+            </summary>
+            <summary>
+            Updates the rating for this contact if it's a service provider.
+            </summary>
+            <param name="newRating">The new rating (1-5)</param>
+            <param name="feedback">Optional feedback about the rating</param>
+            <exception cref="T:System.InvalidOperationException">Thrown if the contact is not a service provider</exception>
+            <exception cref="T:System.ArgumentException">Thrown if the rating is not between 1 and 5</exception>
+        </member>
+        <member name="M:Emma.Models.Models.Contact.CanBeViewedBy(Emma.Models.Models.User)">
+            <summary>
+            Checks if a user has permission to view this contact.
+            </summary>
+            <param name="user">The user to check permissions for</param>
+            <returns>True if the user has permission to view this contact</returns>
+        </member>
+        <member name="M:Emma.Models.Models.Contact.CanBeEditedBy(Emma.Models.Models.User)">
+            <summary>
+            Checks if a user has permission to edit this contact.
+            </summary>
+            <param name="user">The user to check permissions for</param>
+            <returns>True if the user has permission to edit this contact</returns>
+        </member>
+        <member name="M:Emma.Models.Models.Contact.TransferOwnership(Emma.Models.Models.User,Emma.Models.Models.User)">
+            <summary>
+            Transfers ownership of this contact to another user.
+            </summary>
+            <param name="newOwner">The new owner user</param>
+            <param name="transferredBy">The user initiating the transfer</param>
+            <exception cref="T:System.InvalidOperationException">Thrown if the transfer is not allowed</exception>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.Address">
+            <summary>
+            The email address - must be unique across all contacts in the system
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.ContactId">
+            <summary>
+            Foreign key to the Contact that owns this email address
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.Contact">
+            <summary>
+            Navigation property to the Contact
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.ContactAssignment">
+            <summary>
+            Represents the assignment of a service provider contact to a client contact.
+            This model enables tracking of service provider assignments while maintaining
+            proper User/Agent separation and audit trails.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.Id">
+            <summary>
+            Unique identifier for this assignment.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.ContactId">
+            <summary>
+            The contact receiving the service (the client).
+            This is a required field and represents the contact being served.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.ClientContact">
+            <summary>
+            Navigation property to the client contact receiving the service.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.ServiceContactId">
+            <summary>
+            The service provider contact being assigned.
+            This is a required field and represents the contact providing the service.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.ServiceContact">
+            <summary>
+            Navigation property to the service provider contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.AssignedByUserId">
+            <summary>
+            The user who made this assignment.
+            This is a required field and represents the human user who created the assignment.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.AssignedByUser">
+            <summary>
+            Navigation property to the user who made the assignment.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.OrganizationId">
+            <summary>
+            The organization that owns this assignment.
+            This is a required field and ensures proper multi-tenant isolation.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.Organization">
+            <summary>
+            Navigation property to the organization that owns this assignment.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.Purpose">
+            <summary>
+            Purpose of the assignment (e.g., "Home inspection", "Loan pre-approval").
+            This is a required field that describes why this assignment was created.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.Status">
+            <summary>
+            The current status of this assignment.
+            Defaults to Active when a new assignment is created.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.Priority">
+            <summary>
+            The priority level of this assignment.
+            Helps in sorting and prioritizing work.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.InteractionId">
+            <summary>
+            Optional reference to the interaction that triggered this assignment.
+            Useful for tracking the source of the assignment.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.Interaction">
+            <summary>
+            Navigation property to the interaction that triggered this assignment.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.ClientRequest">
+            <summary>
+            Client's specific request or requirements for this assignment.
+            Limited to 1000 characters to keep the database efficient.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.AssignedAt">
+            <summary>
+            Date and time when the assignment was made.
+            Automatically set to the current UTC time when the assignment is created.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.CompletedAt">
+            <summary>
+            Date and time when the assignment was marked as completed.
+            Null until the assignment is completed.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.FollowUpAt">
+            <summary>
+            Date and time for a follow-up on this assignment.
+            Optional and can be set based on business rules or user input.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.WasUsed">
+            <summary>
+            Indicates whether the client actually used the service provider.
+            This is typically updated after the service is delivered.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.ClientRating">
+            <summary>
+            Client's rating of the service provider on a scale of 1-5 stars.
+            Null until the client provides a rating.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.ClientFeedback">
+            <summary>
+            Client's feedback about the service provider.
+            Limited to 1000 characters to maintain database efficiency.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.OutcomeNotes">
+            <summary>
+            Notes about the outcome of the assignment.
+            Used for internal tracking and reporting.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.InternalNotes">
+            <summary>
+            Internal notes for the agent/team.
+            Not visible to the client or service provider.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.ReferralDisclosureProvided">
+            <summary>
+            Whether referral disclosure has been provided to the client.
+            Required for compliance in many jurisdictions.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.ReferralDisclosureDate">
+            <summary>
+            Date when referral disclosure was provided to the client.
+            Automatically set when ReferralDisclosureProvided is set to true.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.LiabilityDisclaimerAcknowledged">
+            <summary>
+            Whether liability disclaimer has been acknowledged by the client.
+            Important for legal protection.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.LiabilityDisclaimerDate">
+            <summary>
+            Date when liability disclaimer was acknowledged by the client.
+            Automatically set when LiabilityDisclaimerAcknowledged is set to true.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.CreatedAt">
+            <summary>
+            Date and time when this record was created.
+            Automatically set to the current UTC time when the record is created.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.UpdatedAt">
+            <summary>
+            Date and time when this record was last updated.
+            Automatically updated whenever the record is modified.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactAssignment.CustomFields">
+            <summary>
+            Custom fields for storing additional data.
+            Useful for extensibility without schema changes.
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.ContactAssignment.MarkAsCompleted(System.Boolean,System.Nullable{System.Decimal},System.String,System.String)">
+            <summary>
+            Marks the assignment as completed with optional notes and rating.
+            </summary>
+            <param name="wasUsed">Whether the client used the service provider</param>
+            <param name="rating">Optional client rating (1-5)</param>
+            <param name="feedback">Optional client feedback</param>
+            <param name="outcomeNotes">Optional outcome notes</param>
+        </member>
+        <member name="M:Emma.Models.Models.ContactAssignment.RecordDisclosureProvided">
+            <summary>
+            Records that referral disclosure was provided to the client.
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.ContactAssignment.RecordLiabilityAcknowledgment">
+            <summary>
+            Records that the liability disclaimer was acknowledged by the client.
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.ContactAssignment.Validate">
+            <summary>
+            Validates that the assignment is properly configured.
+            </summary>
+            <returns>A tuple indicating validity and any error message.</returns>
+        </member>
+        <member name="M:Emma.Models.Models.ContactAssignment.CreateFollowUpAssignment(Emma.Models.Models.User,System.String)">
+            <summary>
+            Creates a new assignment based on this one, useful for recurring services.
+            </summary>
+            <param name="assignedBy">The user creating the new assignment</param>
+            <param name="newPurpose">Optional new purpose, uses current purpose if not specified</param>
+            <returns>A new ContactAssignment with similar settings</returns>
+        </member>
+        <member name="T:Emma.Models.Models.CollaboratorRole">
+            <summary>
+            Defines the level of access and permissions for a user collaborating on a contact.
+            This enables team-based contact management while maintaining appropriate access controls.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Models.CollaboratorRole.BackupUser">
+            <summary>
+            Can handle all business interactions in primary user's absence.
+            Has full access to business-related data but respects personal data privacy.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Models.CollaboratorRole.Specialist">
+            <summary>
+            Has expertise in specific areas (e.g., luxury, commercial properties).
+            Can interact with relevant contacts and update information.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Models.CollaboratorRole.Mentor">
+            <summary>
+            Senior user providing guidance to junior team members.
+            Can view and edit interactions they're involved in.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Models.CollaboratorRole.Assistant">
+            <summary>
+            Administrative support with limited access.
+            Can perform assigned tasks but cannot access sensitive information.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Models.CollaboratorRole.TeamLead">
+            <summary>
+            Team leader with oversight access.
+            Can view all team interactions and manage team resources.
+            </summary>
+        </member>
+        <member name="F:Emma.Models.Models.CollaboratorRole.Observer">
+            <summary>
+            Read-only access for training or oversight purposes.
+            Cannot make any changes to contact data.
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.ContactCollaborator">
+            <summary>
+            Represents a collaboration relationship between a user and a contact they have access to.
+            Defines the scope of access and permissions for the collaboration.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.Id">
+            <summary>
+            Unique identifier for this collaboration record.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CreatedAt">
+            <summary>
+            Date and time when this collaboration record was created.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.UpdatedAt">
+            <summary>
+            Date and time when this collaboration record was last updated.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.ContactId">
+            <summary>
+            The client contact that the collaborator has access to.
+            This is a required field and cannot be null.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.Contact">
+            <summary>
+            Navigation property to the contact being collaborated on.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CollaboratorUserId">
+            <summary>
+            The user who is collaborating on this contact.
+            This must be a valid user ID within the organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CollaboratorUser">
+            <summary>
+            Navigation property to the user who is collaborating.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.GrantedByUserId">
+            <summary>
+            The user who granted this collaboration access.
+            This is typically an admin or the contact owner.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.GrantedByUser">
+            <summary>
+            Navigation property to the user who granted access.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.OrganizationId">
+            <summary>
+            The organization that this collaboration belongs to.
+            This ensures proper multi-tenant isolation.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.Organization">
+            <summary>
+            Navigation property to the organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.Role">
+            <summary>
+            Role defining the type and scope of collaboration.
+            This determines the default permissions for the collaborator.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CanAccessBusinessInteractions">
+            <summary>
+            Can access business interactions (CRM tagged interactions).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CanAccessPersonalInteractions">
+            <summary>
+            Can access personal interactions (PERSONAL tagged interactions).
+            Usually false to respect privacy.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CanCreateInteractions">
+            <summary>
+            Can create new interactions on behalf of the primary agent.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CanEditInteractions">
+            <summary>
+            Can modify existing interactions.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CanAssignResources">
+            <summary>
+            Can assign resources to this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CanAccessFinancialData">
+            <summary>
+            Can view contact's financial/transaction details.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CanEditContactDetails">
+            <summary>
+            Can edit contact details and properties.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CanManageCollaborators">
+            <summary>
+            Can manage other collaborators for this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.CanViewAuditLogs">
+            <summary>
+            Can view audit logs for this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.Reason">
+            <summary>
+            Optional reason for granting collaboration access.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.ExpiresAt">
+            <summary>
+            When collaboration access expires (optional).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.IsActive">
+            <summary>
+            Whether this collaboration is currently active.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactCollaborator.IsValid">
+            <summary>
+            Determines if this collaboration is currently active and not expired.
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.ContactCollaborator.Validate">
+            <summary>
+            Validates that this collaboration record is properly configured.
+            </summary>
+            <returns>A tuple indicating validity and any error message.</returns>
+        </member>
+        <member name="M:Emma.Models.Models.ContactCollaborator.CanAccessInteraction(Emma.Models.Models.Interaction)">
+            <summary>
+            Checks if the collaborator can access a specific interaction based on their permissions.
+            </summary>
+            <param name="interaction">The interaction to check access for</param>
+            <returns>True if access is allowed, false otherwise</returns>
+        </member>
+        <member name="M:Emma.Models.Models.ContactCollaborator.HasPermission(System.Func{Emma.Models.Models.ContactCollaborator,System.Boolean})">
+            <summary>
+            Checks if the collaborator has a specific permission.
+            </summary>
+            <param name="permission">The permission to check</param>
+            <returns>True if the permission is granted</returns>
+        </member>
+        <member name="M:Emma.Models.Models.ContactCollaborator.UpdatePermissionsFromRole">
+            <summary>
+            Updates the permissions based on the current role.
+            This can be overridden by setting individual permission flags.
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.ContactCollaborator.CloneForUser(Emma.Models.Models.User,Emma.Models.Models.User)">
+            <summary>
+            Creates a copy of this collaboration with the same permissions but for a different user.
+            </summary>
+            <param name="newCollaborator">The user to grant the same access to</param>
+            <param name="grantedBy">The user who is granting this access</param>
+            <returns>A new ContactCollaborator instance</returns>
+        </member>
+        <member name="T:Emma.Models.Models.ContactState">
+            <summary>
+            Current state and stage of contact in the relationship/service process
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactState.CurrentStage">
+            <summary>
+            Current stage in the contact journey
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactState.NextMilestone">
+            <summary>
+            Next milestone or goal
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactState.Priority">
+            <summary>
+            Priority level (High, Medium, Low)
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactState.AssignedUserId">
+            <summary>
+            User assigned to this contact
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactState.AssignedUser">
+            <summary>
+            Navigation property for the assigned user
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactState.PendingTasks">
+            <summary>
+            Pending tasks or follow-ups
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactState.OpenObjections">
+            <summary>
+            Open objections or concerns
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactState.ImportantDates">
+            <summary>
+            Important dates and deadlines
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactState.PropertyInfo">
+            <summary>
+            Property-related information
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactState.FinancialInfo">
+            <summary>
+            Financial information and constraints
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactState.CustomFields">
+            <summary>
+            Custom fields for additional state information
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.ContactSummary">
+            <summary>
+            Rolling summary of contact interactions and context
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactSummary.SummaryType">
+            <summary>
+            Type of summary (e.g., "rolling", "milestone", "periodic")
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactSummary.SummaryText">
+            <summary>
+            AI-generated summary text
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactSummary.InteractionCount">
+            <summary>
+            Number of interactions included in this summary
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactSummary.EarliestInteraction">
+            <summary>
+            Timestamp of earliest interaction in summary
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactSummary.LatestInteraction">
+            <summary>
+            Timestamp of latest interaction in summary
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactSummary.KeyMilestones">
+            <summary>
+            Key milestones or events
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactSummary.ImportantPreferences">
+            <summary>
+            Important contact preferences extracted from interactions
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactSummary.CustomFields">
+            <summary>
+            Custom fields for additional context
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.Feature">
+            <summary>
+            Represents a feature that can be included in subscription plans.
+            Features control access to specific functionality in the application.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Feature.Id">
+            <summary>
+            Unique identifier for the feature
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Feature.Code">
+            <summary>
+            Unique code for the feature (e.g., "ASK_EMMA", "CUSTOM_DOMAINS")
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Feature.DisplayName">
+            <summary>
+            User-friendly display name for the feature
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Feature.Description">
+            <summary>
+            Detailed description of the feature
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Feature.Category">
+            <summary>
+            Category for grouping related features (e.g., "AI Features", "Security")
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Feature.IsActive">
+            <summary>
+            Whether this feature is currently active and available
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Feature.CreatedAt">
+            <summary>
+            When this feature was first introduced
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Feature.UpdatedAt">
+            <summary>
+            When this feature was last modified
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Feature.SubscriptionPlanFeatures">
+            <summary>
+            Navigation property for the many-to-many relationship with SubscriptionPlan
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.IndustryProfile">
+            <summary>
+            Industry-specific configuration for AI agents and workflows
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.IndustryProfile.NbaActionTypes">
+            <summary>
+            Industry-specific NBA action types
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.IndustryProfile.DefaultResourceCategories">
+            <summary>
+            Default resource categories for this industry
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.IndustryResourceCategory">
+            <summary>
+            Resource category specific to an industry
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.Interaction">
+            <summary>
+            Represents an interaction between users, contacts, and systems in the EMMA platform.
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.Participant">
+            <summary>
+            Represents a participant in an interaction
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.Attachment">
+            <summary>
+            Represents an attachment in an interaction
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.ActionItem">
+            <summary>
+            Represents an action item extracted from an interaction
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.InteractionEmbedding">
+            <summary>
+            Vector embedding and metadata for an interaction
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.InteractionEmbedding.Summary">
+            <summary>
+            Brief summary of the interaction content
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.InteractionEmbedding.RawContent">
+            <summary>
+            Original interaction content (may be truncated)
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.InteractionEmbedding.Embedding">
+            <summary>
+            Vector embedding as float array
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.InteractionEmbedding.EmbeddingModel">
+            <summary>
+            Model used to generate embedding
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.InteractionEmbedding.ModelVersion">
+            <summary>
+            Model version for tracking changes
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.InteractionEmbedding.PrivacyTags">
+            <summary>
+            Privacy tags inherited from interaction
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.InteractionEmbedding.ExtractedEntities">
+            <summary>
+            Extracted entities from the interaction
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.InteractionEmbedding.Topics">
+            <summary>
+            Key topics identified in the interaction
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.InteractionEmbedding.SentimentScore">
+            <summary>
+            Sentiment score (-1.0 to 1.0)
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.InteractionEmbedding.CustomFields">
+            <summary>
+            Custom fields for additional metadata
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.NbaContext">
+            <summary>
+            Curated context for Next Best Action (NBA) recommendations
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.NbaContextMetadata">
+            <summary>
+            Metadata about NBA context generation
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.Organization">
+            <summary>
+            Represents an organization in the EMMA platform, which can have multiple users and AI agents.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Id">
+            <summary>
+            Unique identifier for the organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Name">
+            <summary>
+            The name of the organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Email">
+            <summary>
+            The primary contact email for the organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.OwnerUserId">
+            <summary>
+            The ID of the user who owns this organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.OwnerUser">
+            <summary>
+            Navigation property for the user who owns this organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.IndustryCode">
+            <summary>
+            Industry code for this organization (e.g., "RealEstate", "Mortgage", "Financial").
+            Determines which industry-specific EMMA profile to use.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.CreatedAt">
+            <summary>
+            The date and time when the organization was created.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.UpdatedAt">
+            <summary>
+            The date and time when the organization was last updated.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.IsActive">
+            <summary>
+            Indicates whether the organization is currently active.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.FubApiKey">
+            <summary>
+            API key for Follow Up Boss integration.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.FubSystem">
+            <summary>
+            Follow Up Boss system identifier.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.FubSystemKey">
+            <summary>
+            Follow Up Boss system key.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.FubId">
+            <summary>
+            Follow Up Boss organization ID.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Users">
+            <summary>
+            Collection of users belonging to this organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Agents">
+            <summary>
+            Collection of AI agents configured for this organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Subscriptions">
+            <summary>
+            Collection of subscriptions associated with this organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Interactions">
+            <summary>
+            Collection of interactions associated with this organization.
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.Organization.IsOwner(System.Guid)">
+            <summary>
+            Checks if a user is the owner of this organization.
+            </summary>
+            <param name="userId">The ID of the user to check</param>
+            <returns>True if the user is the owner, otherwise false</returns>
+        </member>
+        <member name="M:Emma.Models.Models.Organization.AddUser(Emma.Models.Models.User,System.String)">
+            <summary>
+            Adds a user to the organization with the specified role.
+            </summary>
+            <param name="user">The user to add</param>
+            <param name="role">The role to assign to the user</param>
+        </member>
+        <member name="M:Emma.Models.Models.Organization.RemoveUser(System.Guid)">
+            <summary>
+            Removes a user from the organization.
+            </summary>
+            <param name="userId">The ID of the user to remove</param>
+            <returns>True if the user was removed, false if not found</returns>
+        </member>
+        <member name="M:Emma.Models.Models.Organization.AddAgent(Emma.Models.Models.Agent)">
+            <summary>
+            Adds an AI agent to the organization.
+            </summary>
+            <param name="agent">The agent to add</param>
+        </member>
+        <member name="M:Emma.Models.Models.Organization.Validate">
+            <summary>
+            Validates the organization data.
+            </summary>
+            <returns>A tuple indicating whether the organization is valid and any error message.</returns>
+        </member>
+        <member name="T:Emma.Models.Models.RelevantInteraction">
+            <summary>
+            Represents a relevant interaction with similarity score and relevance context
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.RelevantInteraction.Interaction">
+            <summary>
+            The interaction that was found to be relevant
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.RelevantInteraction.Embedding">
+            <summary>
+            The embedding data associated with this interaction
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.RelevantInteraction.SimilarityScore">
+            <summary>
+            Similarity score between 0.0 and 1.0 indicating how relevant this interaction is
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.RelevantInteraction.RelevanceReason">
+            <summary>
+            Human-readable explanation of why this interaction is considered relevant
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.Resource">
+            <summary>
+            OBSOLETE: This entity is being phased out in favor of Contact-centric approach.
+            Service providers are now represented as Contact entities with RelationshipState.ServiceProvider.
+            Use ContactAssignment instead of ResourceAssignment for service provider assignments.
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.ResourceAssignment">
+            <summary>
+            OBSOLETE: This entity is being phased out in favor of Contact-centric approach.
+            Use ContactAssignment instead, which links ClientContact to ServiceContact (both are Contact entities).
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.ResourceRecommendation">
+            <summary>
+            Represents a recommendation of a service provider (Contact) to a client (Contact).
+            This replaces the older Resource/ResourceAssignment model with a Contact-centric approach.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ResourceRecommendation.ContactId">
+            <summary>
+            The client contact receiving the recommendation.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ResourceRecommendation.ServiceContactId">
+            <summary>
+            The service provider contact being recommended.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ResourceRecommendation.RecommendedByUserId">
+            <summary>
+            The user who made the recommendation.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ResourceRecommendation.InteractionId">
+            <summary>
+            The interaction that triggered this recommendation, if any.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ResourceRecommendation.RecommendationOrder">
+            <summary>
+            The order of this recommendation in the list (1st, 2nd, 3rd choice).
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.SubscriptionPlan">
+            <summary>
+            Represents a subscription plan that can be assigned to organizations.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.Name">
+            <summary>
+            The name of the subscription plan (e.g., "Starter", "Professional", "Enterprise")
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.Features">
+            <summary>
+            The features included in this subscription plan
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.CreatedAt">
+            <summary>
+            When this plan was created
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.UpdatedAt">
+            <summary>
+            When this plan was last updated
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.IsActive">
+            <summary>
+            Whether this plan is currently active and available for new subscriptions
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.Description">
+            <summary>
+            Optional description of the plan
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.MonthlyPrice">
+            <summary>
+            The monthly price of the plan in the smallest currency unit (e.g., cents for USD)
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.AnnualPrice">
+            <summary>
+            The annual price of the plan in the smallest currency unit (if different from monthly)
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.MaxUsers">
+            <summary>
+            The maximum number of users allowed on this plan (null for unlimited)
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.MaxContacts">
+            <summary>
+            The maximum number of contacts allowed on this plan (null for unlimited)
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.MaxStorageMb">
+            <summary>
+            The maximum storage in MB allowed on this plan (null for unlimited)
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.SubscriptionPlanFeature">
+            <summary>
+            Represents a many-to-many relationship between SubscriptionPlan and Feature
+            to define which features are included in each subscription plan.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlanFeature.SubscriptionPlanId">
+            <summary>
+            Foreign key to the associated SubscriptionPlan
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlanFeature.SubscriptionPlan">
+            <summary>
+            Navigation property to the associated SubscriptionPlan
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlanFeature.FeatureId">
+            <summary>
+            Foreign key to the associated Feature
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlanFeature.Feature">
+            <summary>
+            Navigation property to the associated Feature
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlanFeature.AddedAt">
+            <summary>
+            When this feature was added to the plan
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlanFeature.IsEnabled">
+            <summary>
+            Whether this feature is enabled for this plan
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlanFeature.Limit">
+            <summary>
+            Optional limit for this feature on this plan (if applicable)
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlanFeature.Notes">
+            <summary>
+            Optional notes about this feature for this plan
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.IsAdmin">
+            <summary>
+            Indicates whether this user has administrative privileges.
+            Admins have elevated permissions across the system.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.Role">
+            <summary>
+            The role of the user within their organization (e.g., Admin, Member, etc.)
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.NbaRecommendation">
+            <summary>
+            Represents a Next Best Action (NBA) recommendation for a contact
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.TaskItem">
+            <summary>
+            Represents a task item in the system, which can be assigned to users
+            and associated with contacts and organizations.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Id">
+            <summary>
+            Unique identifier for the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.TaskId">
+            <summary>
+            For backward compatibility with legacy systems.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.ContactId">
+            <summary>
+            The contact associated with this task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Contact">
+            <summary>
+            Navigation property for the associated contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.OrganizationId">
+            <summary>
+            The organization that owns this task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Organization">
+            <summary>
+            Navigation property for the organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.ContactName">
+            <summary>
+            Cached contact name for display purposes.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Title">
+            <summary>
+            The title of the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Description">
+            <summary>
+            Detailed description of the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.DueDate">
+            <summary>
+            The due date and time for the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Priority">
+            <summary>
+            The priority level of the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Status">
+            <summary>
+            The current status of the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.TaskType">
+            <summary>
+            The type of task (e.g., FollowUp, Showing, Paperwork).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.AssignedToUserId">
+            <summary>
+            The ID of the user this task is assigned to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.AssignedToUser">
+            <summary>
+            Navigation property for the assigned user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.CreatedAt">
+            <summary>
+            The date and time when the task was created.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.UpdatedAt">
+            <summary>
+            The date and time when the task was last updated.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.CreatedByUserId">
+            <summary>
+            The ID of the user who created the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.CreatedByUser">
+            <summary>
+            Navigation property for the user who created the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.UpdatedByUserId">
+            <summary>
+            The ID of the user who last updated the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.UpdatedByUser">
+            <summary>
+            Navigation property for the user who last updated the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.NbaRecommendationId">
+            <summary>
+            The ID of the NBA recommendation that created this task, if applicable.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.ConfidenceScore">
+            <summary>
+            The confidence score of the NBA recommendation (0-1).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.ValidationReason">
+            <summary>
+            The reason for validation or rejection of the NBA recommendation.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.RequiresApproval">
+            <summary>
+            Indicates whether this task requires approval before being acted upon.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.ApprovalRequestId">
+            <summary>
+            The ID of the approval request, if this task requires approval.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Metadata">
+            <summary>
+            Custom metadata for extensibility.
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.TaskItem.EnsureCompatibility">
+            <summary>
+            Ensures backward compatibility with older versions of the model.
+            </summary>
+        </member>
+        <member name="M:Emma.Models.Models.TaskItem.UpdateStatus(Emma.Models.Enums.TaskStatus,Emma.Models.Models.User,System.String)">
+            <summary>
+            Updates the task status and records the user who made the change.
+            </summary>
+            <param name="newStatus">The new status to set</param>
+            <param name="updatedBy">The user making the change</param>
+            <param name="notes">Optional notes about the status change</param>
+        </member>
+        <member name="M:Emma.Models.Models.TaskItem.AssignTo(Emma.Models.Models.User,Emma.Models.Models.User)">
+            <summary>
+            Assigns the task to a user.
+            </summary>
+            <param name="user">The user to assign the task to</param>
+            <param name="assignedBy">The user making the assignment</param>
+        </member>
+        <member name="M:Emma.Models.Models.TaskItem.Validate">
+            <summary>
+            Validates the task data.
+            </summary>
+            <returns>A tuple indicating whether the task is valid and any error message.</returns>
+        </member>
+        <member name="T:Emma.Models.Validation.NoPrivacyBusinessTagsAttribute">
+            <summary>
+            Validation attribute to ensure Contact.Tags does not contain privacy/business tags (CRM, PERSONAL, PRIVATE).
+            </summary>
+        </member>
+    </members>
+</doc>

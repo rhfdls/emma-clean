@@ -1,7 +1,7 @@
 using Emma.Api.Configuration;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
-using Emma.Data.Models;
+using Emma.Models.Models;
 
 namespace Emma.Api.Services;
 
@@ -76,7 +76,7 @@ public class DemoNbaService : IDemoNbaService
             _logger.LogInformation("Generating NBA recommendation with Azure OpenAI...");
             
             // For demo, create a simple mock context using the real NbaContext class
-            var mockContext = new Emma.Data.Models.NbaContext 
+            var mockContext = new Emma.Models.Models.NbaContext 
             { 
                 ContactId = Guid.NewGuid(),
                 OrganizationId = Guid.NewGuid(),

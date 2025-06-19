@@ -1,4 +1,4 @@
-using Emma.Data.Models;
+using Emma.Models.Models;
 using Emma.Core.Models;
 
 namespace Emma.Core.Interfaces;

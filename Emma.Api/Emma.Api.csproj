@@ -35,8 +35,9 @@
   </ItemGroup>
 
 <ItemGroup>
- <ProjectReference Include="..\Emma.Core\Emma.Core.csproj" />
- <ProjectReference Include="..\Emma.Data\Emma.Data.csproj" /> 
+  <ProjectReference Include="..\Emma.Core\Emma.Core.csproj" />
+  <ProjectReference Include="..\Emma.Data\Emma.Data.csproj" />
+  <ProjectReference Include="..\Emma.Infrastructure\Emma.Infrastructure.csproj" />
 </ItemGroup> 
 
 </Project>

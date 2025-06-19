@@ -1,7 +1,7 @@
 # EMMA Platform Data Dictionary & Lexicon
 
-**Version**: 2.1  
-**Last Updated**: 2025-06-10  
+**Version**: 2.2  
+**Last Updated**: 2025-06-19  
 **Status**: ACTIVE - Core Development Document  
 
 ---
@@ -22,8 +22,14 @@ This document serves as the **authoritative source** for terminology, business r
 |------|------------|---------------------|
 | **EMMA AI** | The central AI orchestrator that conducts agent workflows, processes natural language requests, and manages Contact relationships | Core AI system built on Azure AI Foundry |
 | **Azure AI Foundry** | Microsoft's AI platform providing pre-configured agents, natural language processing, and AI orchestration capabilities | External dependency - all AI logic delegates here |
-| **Agent Orchestrator** | Thin wrapper service that routes requests to Azure AI Foundry with industry-specific prompts | `AgentOrchestrator` class in `Emma.Core.Services` |
+| **Agent Orchestrator** | Service that coordinates AI agents, manages workflows, and enforces business rules | `AgentOrchestrator` class in `Emma.AI.Orchestration` |
 | **AI Foundry Service** | Service layer that handles all communication with Azure AI Foundry APIs | `AIFoundryService` class implementing `IAIFoundryService` |
+| **AI Agent** | Specialized autonomous agent with a specific role (NBA, Context, Workflow, Data, Governance) | Implements `IAgent` interface |
+| **Agent Message Bus** | Event-driven communication channel for inter-agent communication | `AzureServiceBusMessageBus` in `Emma.AI.Messaging` |
+| **Vector Store** | Database for storing and querying vector embeddings | Azure AI Search with vector search capabilities |
+| **Embedding Model** | AI model that converts text/data into vector representations | Azure OpenAI's text-embedding-ada-002 or similar |
+| **RAG Pipeline** | Retrieval Augmented Generation pipeline for grounding AI responses | `RagService` in `Emma.AI.RAG` |
+| **Multi-Agent System** | Collection of specialized agents working together to solve complex tasks | Orchestrated by `MultiAgentOrchestrator` |
 | **Industry Profile** | Configuration that customizes AI prompts and workflows for specific verticals (real estate, mortgage, financial advisory) | Tenant-specific prompt engineering |
 | **Agent Capability** | Specific AI functions available through Azure AI Foundry (scheduling, property curation, emotional analysis, etc.) | Defined in Azure AI Foundry, not in codebase |
 | **Agent Task** | A structured request sent to Azure AI Foundry containing system prompts, user input, and context | Input to AI processing pipeline |
@@ -50,14 +56,14 @@ Core entity representing individuals or businesses in the system.
 | ClientSince | DateTime? | No | When contact became a client |
 | CompanyName | string? | No | For service providers |
 | LicenseNumber | string? | No | Professional license number |
-| Specialties | List\<string\\> | No | Service provider specialties |
-| ServiceAreas | List\<string\\> | No | Geographic service areas |
+| Specialties | List\<string\> | No | Service provider specialties |
+| ServiceAreas | List\<string\> | No | Geographic service areas |
 | Rating | decimal? | No | Professional rating (1-5) |
 | ReviewCount | int | No | Number of reviews |
 | IsPreferred | bool | No | Preferred service provider |
 | Website | string? | No | Website URL |
 | AgentId | Guid? | No | Reference to Agent if applicable |
-| Tags | List\<string\\> | No | Segmentation tags (no privacy/business logic) |
+| Tags | List\<string\> | No | Segmentation tags (no privacy/business logic) |
 | LeadSource | string? | No | Source of the lead |
 | OwnerId | Guid? | No | Owning agent ID |
 | CreatedAt | DateTime | Yes | Record creation timestamp |
@@ -184,22 +190,90 @@ Represents a company, team, or business entity that uses the EMMA platform. An o
    - All organization activities are logged for audit purposes
    - Subscription status affects organization capabilities
 
-### Subscription
+### Subscription Model
 
-Represents a subscription plan assigned to an agent, defining their access to EMMA platform features and resources.
+#### Subscription
 
-#### Properties
+Represents a user's subscription to a specific plan with features and limits. This is the core entity that ties a user to a subscription plan and tracks their subscription status.
+
+##### Properties
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| AgentId | Guid | Yes | Reference to the subscribing agent |
-| StripeSubscriptionId | string? | No | External subscription ID from Stripe |
-| PlanId | Guid? | No | Reference to the subscription plan |
-| StartDate | DateTime | Yes | When the subscription becomes active |
+| Id | Guid | Yes | Primary key |
+| UserId | Guid | Yes | Reference to the user who owns this subscription |
+| PlanId | Guid | Yes | Reference to the subscription plan |
+| OrganizationSubscriptionId | Guid? | No | Reference to the parent organization subscription (if part of an organization) |
+| StripeSubscriptionId | string? | No | External subscription ID from Stripe for billing |
+| StartDate | DateTime | Yes | When the subscription started |
 | EndDate | DateTime? | No | When the subscription expires (if applicable) |
 | Status | SubscriptionStatus | Yes | Current status of the subscription |
 | SeatsLimit | int | Yes | Maximum number of seats/users allowed |
 | IsCallProcessingEnabled | bool | Yes | Whether call processing is enabled |
+| CreatedAt | DateTime | Yes | When the subscription was created |
+| UpdatedAt | DateTime | Yes | When the subscription was last updated |
+
+##### Navigation Properties
+
+- **User**: The user who owns this subscription
+- **Plan**: The subscription plan details
+- **OrganizationSubscription**: The parent organization subscription (if applicable)
+- **UserAssignments**: Collection of user assignments for this subscription
+
+#### OrganizationSubscription
+
+Represents an organization's subscription to a specific plan with seat management. This allows organizations to manage multiple user subscriptions under a single plan.
+
+##### Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| Id | Guid | Yes | Primary key |
+| OrganizationId | Guid | Yes | Reference to the organization |
+| SubscriptionPlanId | Guid | Yes | Reference to the subscription plan |
+| SeatsLimit | int | Yes | Maximum number of seats/users allowed |
+| StripeSubscriptionId | string? | No | External subscription ID from Stripe for billing |
+| StartDate | DateTime | Yes | When the subscription started |
+| EndDate | DateTime? | No | When the subscription expires (if applicable) |
+| Status | SubscriptionStatus | Yes | Current status of the subscription |
+| CreatedAt | DateTime | Yes | When the subscription was created |
+| UpdatedAt | DateTime | Yes | When the subscription was last updated |
+
+##### Navigation Properties
+
+- **Organization**: The organization that owns this subscription
+- **SubscriptionPlan**: The subscription plan details
+- **UserAssignments**: Collection of user assignments for this subscription
+- **UserSubscriptions**: Collection of user subscriptions under this organization subscription
+
+#### UserSubscriptionAssignment
+
+Represents the assignment of a user to an organization subscription, allowing for flexible user management within organizations.
+
+##### Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| Id | Guid | Yes | Primary key |
+| UserId | Guid | Yes | Reference to the user being assigned |
+| OrganizationSubscriptionId | Guid | Yes | Reference to the organization subscription |
+| SubscriptionId | Guid | Yes | Reference to the user's individual subscription |
+| AssignedByUserId | Guid? | No | User who made this assignment |
+| AssignedAt | DateTime | Yes | When the assignment was made |
+| StartDate | DateTime? | No | When the assignment becomes active (optional) |
+| EndDate | DateTime? | No | When the assignment ends (optional) |
+| IsActive | bool | Yes | Whether this assignment is currently active |
+| DeactivatedAt | DateTime? | No | When the assignment was deactivated |
+| DeactivationReason | string? | No | Reason for deactivation |
+| CreatedAt | DateTime | Yes | When the assignment was created |
+| UpdatedAt | DateTime | Yes | When the assignment was last updated |
+
+##### Navigation Properties
+
+- **User**: The user being assigned
+- **OrganizationSubscription**: The organization subscription being assigned
+- **Subscription**: The user's individual subscription
+- **AssignedByUser**: The user who made this assignment
 
 #### Navigation Properties
 
@@ -220,9 +294,9 @@ Represents a subscription plan assigned to an agent, defining their access to EM
 
 ### SubscriptionPlan
 
-Defines a subscription plan with specific features and limits that can be assigned to agents or organizations.
+Defines a subscription plan with features and limits.
 
-#### Properties
+##### Properties
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -1146,6 +1220,15 @@ When this lexicon changes:
 | 1.3 | 2025-06-08 | Added comprehensive Resource business rules and implementation details | Development Team |
 | 2.0 | 2025-06-08 | Updated data dictionary to include AI-centric architecture terminology and Azure AI Foundry integration concepts | Development Team |
 | 2.1 | 2025-06-10 | Added AI Agent Architecture and Terminology Consistency sections to the existing data dictionary, incorporating the lexicon content and addressing the conversation/interaction terminology issue | Development Team |
+| 2.2 | 2025-06-19 | Updated subscription model documentation to reflect the latest code changes, including OrganizationSubscription and UserSubscriptionAssignment entities, and added comprehensive property documentation | Development Team |
+
+---
+
+## Data Dictionary Owner and Review Information
+
+**Data Dictionary Owner**: EMMA Product Team  
+**Last Reviewed**: 2025-06-19  
+**Next Review Due**: 2025-09-19
 
 ---
 

@@ -1,6 +1,6 @@
-using Emma.Core.Interfaces;
-using Emma.Core.Models;
+using Emma.Models.Interfaces;
 using Microsoft.Extensions.Logging;
+using Emma.Core.Models;
 
 namespace Emma.Core.Services;
 

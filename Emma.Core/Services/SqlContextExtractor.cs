@@ -1,8 +1,7 @@
 using Emma.Core.Interfaces;
 using Emma.Core.Models;
-using Emma.Core.Services;
-using Emma.Data;
-using Emma.Data.Models;
+using Emma.Models.Interfaces;
+using Emma.Models.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -11,12 +10,12 @@ namespace Emma.Core.Services
 {
     public class SqlContextExtractor : ISqlContextExtractor
     {
-        private readonly AppDbContext _context;
+        private readonly IAppDbContext _context;
         private readonly ILogger<SqlContextExtractor> _logger;
         private readonly ITenantContextService _tenantService;
 
         public SqlContextExtractor(
-            AppDbContext context,
+            IAppDbContext context,
             ILogger<SqlContextExtractor> logger,
             ITenantContextService tenantService)
         {

@@ -1,0 +1,97 @@
+# Example YAML configuration for agent capabilities
+# Copy this file to agent_capabilities.yaml and customize as needed
+
+# Schema version
+version: "1.0"
+
+# Agent configurations
+agents:
+  # NBA (Next Best Action) Agent
+  NbaAgent:
+    # List of capabilities this agent has
+    capabilities:
+      - name: "suggest:action"
+        description: "Suggest next best actions for a conversation"
+        enabled: true
+        validation_rules:
+          max_suggestions: 5
+          allowed_contexts: ["sales", "support"]
+      
+      - name: "analyze:sentiment"
+        description: "Analyze sentiment of conversation"
+        enabled: true
+      
+      - name: "escalate:human"
+        description: "Escalate conversation to a human agent"
+        enabled: true
+        validation_rules:
+          required_roles: ["supervisor", "manager"]
+    
+    # Rate limiting configuration
+    rate_limits:
+      - window: "1m"
+        max_requests: 100
+        scope: "per_tenant"
+      - window: "1h"
+        max_requests: 1000
+        scope: "global"
+  
+  # Context Intelligence Agent
+  ContextIntelligenceAgent:
+    capabilities:
+      - name: "extract:entities"
+        description: "Extract entities from text"
+        enabled: true
+      
+      - name: "classify:intent"
+        description: "Classify user intent"
+        enabled: true
+      
+      - name: "generate:response"
+        description: "Generate response based on context"
+        enabled: true
+    
+    # Contexts where this agent can operate
+    allowed_contexts: ["conversation", "document"]
+  
+  # Resource Agent
+  ResourceAgent:
+    capabilities:
+      - name: "search:resources"
+        description: "Search for resources"
+        enabled: true
+        validation_rules:
+          max_results: 50
+      
+      - name: "recommend:resources"
+        description: "Recommend resources based on context"
+        enabled: true
+    
+    # Rate limiting
+    rate_limits:
+      - window: "1m"
+        max_requests: 200
+  
+  # Follow-up Agent
+  FollowUpAgent:
+    capabilities:
+      - name: "create:followup"
+        description: "Create a follow-up task"
+        enabled: true
+      
+      - name: "schedule:reminder"
+        description: "Schedule a reminder"
+        enabled: true
+    
+    allowed_contexts: ["sales", "customer_success"]
+
+# Default capabilities for all agents
+_default:
+  capabilities:
+    - name: "health:check"
+      description: "Basic health check"
+      enabled: true
+    
+    - name: "version:info"
+      description: "Get version information"
+      enabled: true

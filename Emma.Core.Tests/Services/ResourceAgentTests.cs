@@ -1,7 +1,7 @@
 using Emma.Core.Interfaces;
 using Emma.Core.Models;
 using Emma.Core.Services;
-using Emma.Data.Models;
+using Emma.Models.Models;
 using Emma.Data.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -194,7 +194,7 @@ namespace Emma.Core.Tests.Services
             var mockAssignment = new ContactAssignment
             {
                 Id = Guid.NewGuid(),
-                ClientContactId = clientContactId,
+                ContactId = clientContactId,
                 ServiceContactId = serviceContactId,
                 Purpose = purpose,
                 Status = ResourceAssignmentStatus.Active,

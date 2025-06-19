@@ -26,7 +26,7 @@ namespace Emma.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Emma.Data.Models.Agent", b =>
+            modelBuilder.Entity("Emma.Models.Models.Agent", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,7 +73,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Agents");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.AgentAssignment", b =>
+            modelBuilder.Entity("Emma.Models.Models.AgentAssignment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -101,7 +101,7 @@ namespace Emma.Data.Migrations
                     b.HasAnnotation("Relational:JsonPropertyName", "agent_assignments");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.AgentPhoneNumber", b =>
+            modelBuilder.Entity("Emma.Models.Models.AgentPhoneNumber", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -125,7 +125,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("AgentPhoneNumbers");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.CallMetadata", b =>
+            modelBuilder.Entity("Emma.Models.Models.CallMetadata", b =>
                 {
                     b.Property<Guid>("MessageId")
                         .HasColumnType("uuid");
@@ -152,7 +152,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("CallMetadata");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Conversation", b =>
+            modelBuilder.Entity("Emma.Models.Models.Conversation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -190,7 +190,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Conversations");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.ConversationSummary", b =>
+            modelBuilder.Entity("Emma.Models.Models.ConversationSummary", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -215,7 +215,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("ConversationSummaries");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.DeviceToken", b =>
+            modelBuilder.Entity("Emma.Models.Models.DeviceToken", b =>
                 {
                     b.Property<Guid>("AgentId")
                         .HasColumnType("uuid");
@@ -232,7 +232,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("DeviceTokens");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.EmmaAnalysis", b =>
+            modelBuilder.Entity("Emma.Models.Models.EmmaAnalysis", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -271,7 +271,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("EmmaAnalyses");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.EmmaTask", b =>
+            modelBuilder.Entity("Emma.Models.Models.EmmaTask", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -302,7 +302,7 @@ namespace Emma.Data.Migrations
                     b.HasAnnotation("Relational:JsonPropertyName", "tasks_list");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Message", b =>
+            modelBuilder.Entity("Emma.Models.Models.Message", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -339,7 +339,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Organization", b =>
+            modelBuilder.Entity("Emma.Models.Models.Organization", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -384,7 +384,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Organizations");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.PasswordResetToken", b =>
+            modelBuilder.Entity("Emma.Models.Models.PasswordResetToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -410,7 +410,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("PasswordResetTokens");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Subscription", b =>
+            modelBuilder.Entity("Emma.Models.Models.Subscription", b =>
                 {
                     b.Property<Guid>("AgentId")
                         .HasColumnType("uuid");
@@ -441,7 +441,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Subscriptions");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Transcription", b =>
+            modelBuilder.Entity("Emma.Models.Models.Transcription", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -468,18 +468,18 @@ namespace Emma.Data.Migrations
                     b.ToTable("Transcriptions");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Agent", b =>
+            modelBuilder.Entity("Emma.Models.Models.Agent", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Organization", "Organization")
+                    b.HasOne("Emma.Models.Models.Organization", "Organization")
                         .WithMany("Agents")
                         .HasForeignKey("OrganizationId");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.AgentAssignment", b =>
+            modelBuilder.Entity("Emma.Models.Models.AgentAssignment", b =>
                 {
-                    b.HasOne("Emma.Data.Models.EmmaAnalysis", "EmmaAnalysis")
+                    b.HasOne("Emma.Models.Models.EmmaAnalysis", "EmmaAnalysis")
                         .WithMany("AgentAssignments")
                         .HasForeignKey("EmmaAnalysisId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -488,31 +488,31 @@ namespace Emma.Data.Migrations
                     b.Navigation("EmmaAnalysis");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.AgentPhoneNumber", b =>
+            modelBuilder.Entity("Emma.Models.Models.AgentPhoneNumber", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Agent", "Agent")
+                    b.HasOne("Emma.Models.Models.Agent", "Agent")
                         .WithOne("PhoneNumber")
-                        .HasForeignKey("Emma.Data.Models.AgentPhoneNumber", "AgentId")
+                        .HasForeignKey("Emma.Models.Models.AgentPhoneNumber", "AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Agent");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.CallMetadata", b =>
+            modelBuilder.Entity("Emma.Models.Models.CallMetadata", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Message", "Message")
+                    b.HasOne("Emma.Models.Models.Message", "Message")
                         .WithOne("CallMetadata")
-                        .HasForeignKey("Emma.Data.Models.CallMetadata", "MessageId")
+                        .HasForeignKey("Emma.Models.Models.CallMetadata", "MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Message");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Conversation", b =>
+            modelBuilder.Entity("Emma.Models.Models.Conversation", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Organization", "Organization")
+                    b.HasOne("Emma.Models.Models.Organization", "Organization")
                         .WithMany("Conversations")
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -521,20 +521,20 @@ namespace Emma.Data.Migrations
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.ConversationSummary", b =>
+            modelBuilder.Entity("Emma.Models.Models.ConversationSummary", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Conversation", "Conversation")
+                    b.HasOne("Emma.Models.Models.Conversation", "Conversation")
                         .WithOne("Summary")
-                        .HasForeignKey("Emma.Data.Models.ConversationSummary", "ConversationId")
+                        .HasForeignKey("Emma.Models.Models.ConversationSummary", "ConversationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Conversation");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.DeviceToken", b =>
+            modelBuilder.Entity("Emma.Models.Models.DeviceToken", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Agent", "Agent")
+                    b.HasOne("Emma.Models.Models.Agent", "Agent")
                         .WithMany()
                         .HasForeignKey("AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -543,9 +543,9 @@ namespace Emma.Data.Migrations
                     b.Navigation("Agent");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.EmmaAnalysis", b =>
+            modelBuilder.Entity("Emma.Models.Models.EmmaAnalysis", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Message", "Message")
+                    b.HasOne("Emma.Models.Models.Message", "Message")
                         .WithMany("EmmaAnalyses")
                         .HasForeignKey("MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -554,16 +554,16 @@ namespace Emma.Data.Migrations
                     b.Navigation("Message");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.EmmaTask", b =>
+            modelBuilder.Entity("Emma.Models.Models.EmmaTask", b =>
                 {
-                    b.HasOne("Emma.Data.Models.EmmaAnalysis", null)
+                    b.HasOne("Emma.Models.Models.EmmaAnalysis", null)
                         .WithMany("TasksList")
                         .HasForeignKey("EmmaAnalysisId");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Message", b =>
+            modelBuilder.Entity("Emma.Models.Models.Message", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Conversation", "Conversation")
+                    b.HasOne("Emma.Models.Models.Conversation", "Conversation")
                         .WithMany("Messages")
                         .HasForeignKey("ConversationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -572,9 +572,9 @@ namespace Emma.Data.Migrations
                     b.Navigation("Conversation");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.PasswordResetToken", b =>
+            modelBuilder.Entity("Emma.Models.Models.PasswordResetToken", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Agent", "Agent")
+                    b.HasOne("Emma.Models.Models.Agent", "Agent")
                         .WithMany()
                         .HasForeignKey("AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -583,50 +583,50 @@ namespace Emma.Data.Migrations
                     b.Navigation("Agent");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Subscription", b =>
+            modelBuilder.Entity("Emma.Models.Models.Subscription", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Agent", "Agent")
+                    b.HasOne("Emma.Models.Models.Agent", "Agent")
                         .WithOne("Subscription")
-                        .HasForeignKey("Emma.Data.Models.Subscription", "AgentId")
+                        .HasForeignKey("Emma.Models.Models.Subscription", "AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Agent");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Transcription", b =>
+            modelBuilder.Entity("Emma.Models.Models.Transcription", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Message", "Message")
+                    b.HasOne("Emma.Models.Models.Message", "Message")
                         .WithOne("Transcription")
-                        .HasForeignKey("Emma.Data.Models.Transcription", "MessageId")
+                        .HasForeignKey("Emma.Models.Models.Transcription", "MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Message");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Agent", b =>
+            modelBuilder.Entity("Emma.Models.Models.Agent", b =>
                 {
                     b.Navigation("PhoneNumber");
 
                     b.Navigation("Subscription");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Conversation", b =>
+            modelBuilder.Entity("Emma.Models.Models.Conversation", b =>
                 {
                     b.Navigation("Messages");
 
                     b.Navigation("Summary");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.EmmaAnalysis", b =>
+            modelBuilder.Entity("Emma.Models.Models.EmmaAnalysis", b =>
                 {
                     b.Navigation("AgentAssignments");
 
                     b.Navigation("TasksList");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Message", b =>
+            modelBuilder.Entity("Emma.Models.Models.Message", b =>
                 {
                     b.Navigation("CallMetadata");
 
@@ -636,7 +636,7 @@ namespace Emma.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Organization", b =>
+            modelBuilder.Entity("Emma.Models.Models.Organization", b =>
                 {
                     b.Navigation("Agents");
 

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Emma.Core.Industry;
 using Emma.Core.Industry.Profiles;
 using Emma.Core.Interfaces;
-using Emma.Data;
+using Emma.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -16,11 +16,11 @@ namespace Emma.Api.Services
     /// </summary>
     public class IndustryProfileService : IIndustryProfileService
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IAppDbContext _dbContext;
         private readonly ILogger<IndustryProfileService> _logger;
         private readonly Dictionary<string, IIndustryProfile> _profiles;
 
-        public IndustryProfileService(AppDbContext dbContext, ILogger<IndustryProfileService> logger)
+        public IndustryProfileService(IAppDbContext dbContext, ILogger<IndustryProfileService> logger)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
