@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using System.IO;
+using DotNetEnv;
 
 namespace Emma.Data
 {
@@ -10,6 +11,9 @@ namespace Emma.Data
     {
         public AppDbContext CreateDbContext(string[] args)
         {
+            // Load environment variables from .env file
+            Env.Load("../.env");
+            
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true)

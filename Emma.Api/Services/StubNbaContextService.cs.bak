@@ -1,0 +1,144 @@
+using Emma.Data.Models;
+
+namespace Emma.Api.Services;
+
+/// <summary>
+/// Stub implementation of INbaContextService for testing without database dependency
+/// </summary>
+public class StubNbaContextService : INbaContextService
+{
+    private readonly ILogger<StubNbaContextService> _logger;
+
+    public StubNbaContextService(ILogger<StubNbaContextService> logger)
+    {
+        _logger = logger;
+    }
+
+    public Task<NbaContext> GetNbaContextAsync(Guid contactId, Guid organizationId)
+    {
+        _logger.LogInformation("StubNbaContextService: GetNbaContextAsync called for contact {ContactId}", contactId);
+        
+        var stubContext = new NbaContext
+        {
+            ContactId = contactId,
+            OrganizationId = organizationId,
+            RollingSummary = new ClientSummary
+            {
+                Id = Guid.NewGuid(),
+                ContactId = contactId,
+                OrganizationId = organizationId,
+                SummaryText = "This is a stub NBA context for testing purposes.",
+                LastUpdated = DateTime.UtcNow,
+                InteractionCount = 0
+            },
+            CurrentState = new ClientState
+            {
+                Id = Guid.NewGuid(),
+                ContactId = contactId,
+                OrganizationId = organizationId,
+                CurrentStage = "Initial Contact",
+                Priority = "Medium",
+                NextMilestone = "Qualification Call",
+                LastUpdated = DateTime.UtcNow
+            },
+            RecentInteractions = new List<Interaction>(),
+            RelevantInteractions = new List<RelevantInteraction>(),
+            ActiveResourceAssignments = new List<ResourceAssignment>(),
+            Metadata = new NbaContextMetadata
+            {
+                TotalInteractionCount = 0,
+                LastContextUpdate = DateTime.UtcNow,
+                ContextVersion = "1.0-stub"
+            }
+        };
+
+        return Task.FromResult(stubContext);
+    }
+
+    public Task<ClientSummary> GetClientSummaryAsync(Guid contactId, Guid organizationId)
+    {
+        _logger.LogInformation("StubNbaContextService: GetClientSummaryAsync called for contact {ContactId}", contactId);
+        
+        var stubSummary = new ClientSummary
+        {
+            Id = Guid.NewGuid(),
+            ContactId = contactId,
+            OrganizationId = organizationId,
+            SummaryText = "Stub client summary for testing purposes.",
+            LastUpdated = DateTime.UtcNow,
+            InteractionCount = 0
+        };
+
+        return Task.FromResult(stubSummary);
+    }
+
+    public Task<ClientState> GetClientStateAsync(Guid contactId, Guid organizationId)
+    {
+        _logger.LogInformation("StubNbaContextService: GetClientStateAsync called for contact {ContactId}", contactId);
+        
+        var stubState = new ClientState
+        {
+            Id = Guid.NewGuid(),
+            ContactId = contactId,
+            OrganizationId = organizationId,
+            CurrentStage = "Initial Contact",
+            Priority = "Medium",
+            NextMilestone = "Qualification Call",
+            LastUpdated = DateTime.UtcNow
+        };
+
+        return Task.FromResult(stubState);
+    }
+
+    public Task<string> GenerateRecommendationsAsync(Guid contactId, Guid organizationId)
+    {
+        _logger.LogInformation("StubNbaContextService: GenerateRecommendationsAsync called for contact {ContactId}", contactId);
+        
+        var stubRecommendations = @"**Next Best Actions (Stub Response):**
+
+1. **Schedule Discovery Call** - Set up initial consultation to understand client needs
+2. **Send Welcome Package** - Provide market overview and service information  
+3. **Property Search Setup** - Configure automated property alerts based on preferences
+4. **Follow-up Timeline** - Schedule check-in within 48 hours
+
+*This is a stub response for testing purposes.*";
+
+        return Task.FromResult(stubRecommendations);
+    }
+
+    public Task ProcessNewInteractionAsync(Interaction interaction)
+    {
+        _logger.LogInformation("StubNbaContextService: ProcessNewInteractionAsync called for interaction {InteractionId}", interaction.Id);
+        return Task.CompletedTask;
+    }
+
+    public Task<float[]> GenerateInteractionEmbeddingAsync(Interaction interaction)
+    {
+        _logger.LogInformation("StubNbaContextService: GenerateInteractionEmbeddingAsync called for interaction {InteractionId}", interaction.Id);
+        // Return a dummy embedding vector
+        var dummyEmbedding = new float[1536];
+        for (int i = 0; i < dummyEmbedding.Length; i++)
+        {
+            dummyEmbedding[i] = (float)(Random.Shared.NextDouble() * 0.1 - 0.05); // Small random values
+        }
+        return Task.FromResult(dummyEmbedding);
+    }
+
+    public Task<List<RelevantInteraction>> GetRelevantInteractionsAsync(Guid contactId, Guid organizationId, string query, int topK = 5)
+    {
+        _logger.LogInformation("StubNbaContextService: GetRelevantInteractionsAsync called for contact {ContactId} with query '{Query}'", contactId, query);
+        return Task.FromResult(new List<RelevantInteraction>());
+    }
+
+    public Task UpdateRollingSummaryAsync(Guid contactId, Guid organizationId, Interaction newInteraction)
+    {
+        _logger.LogInformation("StubNbaContextService: UpdateRollingSummaryAsync called for contact {ContactId}", contactId);
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateClientStateAsync(Guid contactId, Guid organizationId, Interaction interaction)
+    {
+        _logger.LogInformation("StubNbaContextService: UpdateClientStateAsync called for contact {ContactId}", contactId);
+        return Task.CompletedTask;
+    }
+}

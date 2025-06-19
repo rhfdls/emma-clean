@@ -1,7 +1,8 @@
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
+using System;
+using Microsoft.Azure.Cosmos;
 
 namespace Emma.Api
 {
@@ -19,6 +20,11 @@ namespace Emma.Api
             var key = Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTKEY");
             var databaseName = Environment.GetEnvironmentVariable("COSMOSDB__DATABASENAME");
             var containerName = Environment.GetEnvironmentVariable("COSMOSDB__CONTAINERNAME");
+
+            if (string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(key) || string.IsNullOrEmpty(databaseName) || string.IsNullOrEmpty(containerName))
+            {
+                throw new InvalidOperationException("CosmosDB configuration is incomplete.");
+            }
 
             services.AddSingleton(s => new CosmosClient(endpoint, key));
             services.AddSingleton(s =>

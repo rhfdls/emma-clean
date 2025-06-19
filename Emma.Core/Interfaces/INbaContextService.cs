@@ -1,0 +1,96 @@
+using Emma.Core.Models;
+using Emma.Models.Models;
+
+namespace Emma.Core.Interfaces;
+
+/// <summary>
+/// Interface for NBA (Next Best Action) context management service
+/// </summary>
+public interface INbaContextService
+{
+    /// <summary>
+    /// Retrieves complete NBA context for a contact including summary, state, and relevant interactions
+    /// </summary>
+    /// <param name="contactId">Contact ID</param>
+    /// <param name="organizationId">Organization ID</param>
+    /// <param name="requestingAgentId">ID of the agent requesting the context (for security filtering)</param>
+    /// <param name="maxRecentInteractions">Maximum number of recent interactions to include</param>
+    /// <param name="maxRelevantInteractions">Maximum number of relevant interactions to include</param>
+    /// <param name="includeSqlContext">Whether to include comprehensive SQL context data</param>
+    /// <returns>Complete NBA context</returns>
+    Task<NbaContext> GetNbaContextAsync(
+        Guid contactId, 
+        Guid organizationId, 
+        Guid requestingAgentId,
+        int maxRecentInteractions = 5, 
+        int maxRelevantInteractions = 10,
+        bool includeSqlContext = true);
+
+    /// <summary>
+    /// Gets the contact summary for a contact
+    /// </summary>
+    /// <param name="contactId">Contact ID</param>
+    /// <param name="organizationId">Organization ID</param>
+    /// <returns>Contact summary or null if not found</returns>
+    Task<ContactSummary?> GetContactSummaryAsync(Guid contactId, Guid organizationId);
+
+    /// <summary>
+    /// Gets the current contact state for a contact
+    /// </summary>
+    /// <param name="contactId">Contact ID</param>
+    /// <param name="organizationId">Organization ID</param>
+    /// <returns>Contact state or null if not found</returns>
+    Task<ContactState?> GetContactStateAsync(Guid contactId, Guid organizationId);
+
+    /// <summary>
+    /// Updates the rolling summary for a contact after a new interaction
+    /// </summary>
+    /// <param name="contactId">Contact ID</param>
+    /// <param name="organizationId">Organization ID</param>
+    /// <param name="newInteraction">New interaction to incorporate</param>
+    /// <returns>Updated contact summary</returns>
+    Task<ContactSummary> UpdateRollingSummaryAsync(
+        Guid contactId, 
+        Guid organizationId, 
+        Interaction newInteraction);
+
+    /// <summary>
+    /// Updates the contact state after a new interaction
+    /// </summary>
+    /// <param name="contactId">Contact ID</param>
+    /// <param name="organizationId">Organization ID</param>
+    /// <param name="newInteraction">New interaction to process</param>
+    /// <returns>Updated contact state</returns>
+    Task<ContactState> UpdateContactStateAsync(
+        Guid contactId, 
+        Guid organizationId, 
+        Interaction newInteraction);
+
+    /// <summary>
+    /// Generates and stores vector embedding for an interaction
+    /// </summary>
+    /// <param name="interaction">Interaction to generate embedding for</param>
+    /// <returns>Generated interaction embedding</returns>
+    Task<InteractionEmbedding> GenerateInteractionEmbeddingAsync(Interaction interaction);
+
+    /// <summary>
+    /// Performs vector search for relevant interactions
+    /// </summary>
+    /// <param name="queryEmbedding">Query embedding vector</param>
+    /// <param name="contactId">Contact ID to filter results</param>
+    /// <param name="organizationId">Organization ID to filter results</param>
+    /// <param name="maxResults">Maximum number of results to return</param>
+    /// <returns>List of relevant interactions with similarity scores</returns>
+    Task<List<RelevantInteraction>> FindRelevantInteractionsAsync(
+        float[] queryEmbedding, 
+        Guid contactId, 
+        Guid organizationId, 
+        int maxResults = 10);
+
+    /// <summary>
+    /// Processes a new interaction end-to-end (embedding, summary update, state update)
+    /// </summary>
+    /// <param name="interaction">Interaction to process</param>
+    /// <returns>Task representing the async operation</returns>
+    Task ProcessNewInteractionAsync(Interaction interaction);
+}

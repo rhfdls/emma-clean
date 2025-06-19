@@ -1,0 +1,372 @@
+{
+  "databaseName": "emma",
+  "description": "Emma AI Platform main database for real estate professionals",
+  "documentExamples": [
+    {
+      "tableName": "contacts",
+      "description": "Central entity for people and organizations",
+      "sampleRecord": {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "display_name": "John Smith",
+        "organization_name": "Acme Real Estate",
+        "contact_type": "INDIVIDUAL",
+        "email": "john.smith@example.com",
+        "phone": "555-123-4567",
+        "address": "123 Main St, Anytown, CA 94123",
+        "website": "https://johnsmith.example.com",
+        "linkedin_url": "https://linkedin.com/in/johnsmith",
+        "twitter_handle": "@johnsmith",
+        "notes": "Specializes in commercial properties in downtown area",
+        "legacy_privacy_tags": ["BUSINESS", "CRM"],
+        "created_at": "2025-06-01T09:30:45-04:00",
+        "updated_at": "2025-06-02T10:15:22-04:00",
+        "deleted_at": null
+      }
+    },
+    {
+      "tableName": "interactions",
+      "description": "All communication and touchpoints with contacts",
+      "sampleRecord": {
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "contact_id": "550e8400-e29b-41d4-a716-446655440000",
+        "interaction_type": "EMAIL",
+        "title": "Property Listing Updates",
+        "content": "John, I wanted to update you on the new listings we have available in the downtown area...",
+        "summary": "Email about new commercial property listings in downtown",
+        "occurred_at": "2025-06-01T14:25:10-04:00",
+        "privacy_tags": ["BUSINESS", "CRM"],
+        "sentiment_score": 0.75,
+        "is_favorited": false,
+        "created_at": "2025-06-01T14:25:12-04:00",
+        "updated_at": "2025-06-01T14:25:12-04:00",
+        "deleted_at": null
+      }
+    },
+    {
+      "tableName": "email_details",
+      "description": "Extended details for email interactions",
+      "sampleRecord": {
+        "interaction_id": "550e8400-e29b-41d4-a716-446655440001",
+        "subject": "New Commercial Property Listings",
+        "sender": "sarah.johnson@example.com",
+        "recipients": ["john.smith@example.com"],
+        "cc_recipients": ["mark.davis@example.com"],
+        "bcc_recipients": [],
+        "thread_id": "thread_12345",
+        "in_reply_to": null,
+        "has_attachments": true,
+        "importance": "HIGH"
+      }
+    }
+  ],
+  "schemaDetails": {
+    "tables": [
+      {
+        "name": "contacts",
+        "description": "Central entity for people and organizations",
+        "columns": [
+          {"name": "id", "type": "UUID", "constraints": "PRIMARY KEY", "default": "uuid_generate_v4()", "description": "Unique identifier for the contact"},
+          {"name": "display_name", "type": "VARCHAR(100)", "constraints": "NOT NULL", "description": "Full name of the contact or organization"},
+          {"name": "organization_name", "type": "VARCHAR(100)", "description": "Organization name if applicable"},
+          {"name": "contact_type", "type": "contact_type", "constraints": "NOT NULL", "description": "Type of contact: INDIVIDUAL, ORGANIZATION, or LEAD"},
+          {"name": "email", "type": "VARCHAR(255)", "description": "Primary email address"},
+          {"name": "phone", "type": "VARCHAR(50)", "description": "Primary phone number"},
+          {"name": "address", "type": "TEXT", "description": "Physical address"},
+          {"name": "website", "type": "VARCHAR(255)", "description": "Website URL"},
+          {"name": "linkedin_url", "type": "VARCHAR(255)", "description": "LinkedIn profile URL"},
+          {"name": "twitter_handle", "type": "VARCHAR(50)", "description": "Twitter handle"},
+          {"name": "notes", "type": "TEXT", "description": "General notes about the contact"},
+          {"name": "legacy_privacy_tags", "type": "privacy_tag[]", "default": "{}", "description": "Legacy field for privacy tags, being migrated to interaction level"},
+          {"name": "created_at", "type": "TIMESTAMP WITH TIME ZONE", "default": "CURRENT_TIMESTAMP", "description": "Record creation timestamp"},
+          {"name": "updated_at", "type": "TIMESTAMP WITH TIME ZONE", "default": "CURRENT_TIMESTAMP", "description": "Record last update timestamp"},
+          {"name": "deleted_at", "type": "TIMESTAMP WITH TIME ZONE", "description": "Soft delete timestamp, NULL if active"}
+        ],
+        "indexes": [
+          {"name": "idx_contacts_email", "columns": ["email"], "description": "Index for faster lookups by email"}
+        ],
+        "triggers": [
+          {"name": "update_contacts_modtime", "timing": "BEFORE UPDATE", "function": "update_modified_column()", "description": "Automatically updates the updated_at timestamp"}
+        ],
+        "notes": "Central entity that stores all contacts in the Emma AI Platform. Note that privacy_tags are being migrated from this table to the interactions table."
+      },
+      {
+        "name": "interactions",
+        "description": "All communication and touchpoints",
+        "columns": [
+          {"name": "id", "type": "UUID", "constraints": "PRIMARY KEY", "default": "uuid_generate_v4()", "description": "Unique identifier for the interaction"},
+          {"name": "contact_id", "type": "UUID", "constraints": "REFERENCES contacts(id)", "description": "Foreign key to the associated contact"},
+          {"name": "interaction_type", "type": "interaction_type", "constraints": "NOT NULL", "description": "Type of interaction: EMAIL, CALL, MEETING, MESSAGE, NOTE, or DOCUMENT"},
+          {"name": "title", "type": "VARCHAR(255)", "constraints": "NOT NULL", "description": "Short title or subject of the interaction"},
+          {"name": "content", "type": "TEXT", "description": "Main content or body of the interaction"},
+          {"name": "summary", "type": "TEXT", "description": "Brief summary of the interaction, often AI-generated"},
+          {"name": "occurred_at", "type": "TIMESTAMP WITH TIME ZONE", "constraints": "NOT NULL", "description": "When the interaction occurred"},
+          {"name": "privacy_tags", "type": "privacy_tag[]", "constraints": "NOT NULL", "default": "{}", "description": "Array of privacy tags for business logic and access control"},
+          {"name": "sentiment_score", "type": "DECIMAL(3,2)", "description": "AI-generated sentiment score from -1.0 to 1.0"},
+          {"name": "is_favorited", "type": "BOOLEAN", "default": "FALSE", "description": "Whether the user has marked this as a favorite"},
+          {"name": "created_at", "type": "TIMESTAMP WITH TIME ZONE", "default": "CURRENT_TIMESTAMP", "description": "Record creation timestamp"},
+          {"name": "updated_at", "type": "TIMESTAMP WITH TIME ZONE", "default": "CURRENT_TIMESTAMP", "description": "Record last update timestamp"},
+          {"name": "deleted_at", "type": "TIMESTAMP WITH TIME ZONE", "description": "Soft delete timestamp, NULL if active"}
+        ],
+        "indexes": [
+          {"name": "idx_interactions_contact_id", "columns": ["contact_id"], "description": "Index for faster lookups by contact"},
+          {"name": "idx_interactions_occurred_at", "columns": ["occurred_at"], "description": "Index for faster sorting by occurrence time"}
+        ],
+        "triggers": [
+          {"name": "update_interactions_modtime", "timing": "BEFORE UPDATE", "function": "update_modified_column()", "description": "Automatically updates the updated_at timestamp"}
+        ],
+        "notes": "Core table for all communication and interactions. Privacy/business logic tags are stored at this level."
+      },
+      {
+        "name": "email_details",
+        "description": "Email-specific details for interactions",
+        "columns": [
+          {"name": "interaction_id", "type": "UUID", "constraints": "PRIMARY KEY REFERENCES interactions(id) ON DELETE CASCADE", "description": "Foreign key to the associated interaction"},
+          {"name": "subject", "type": "VARCHAR(255)", "constraints": "NOT NULL", "description": "Email subject line"},
+          {"name": "sender", "type": "VARCHAR(255)", "constraints": "NOT NULL", "description": "Email sender address"},
+          {"name": "recipients", "type": "TEXT[]", "constraints": "NOT NULL", "description": "Array of primary recipient addresses"},
+          {"name": "cc_recipients", "type": "TEXT[]", "description": "Array of CC recipient addresses"},
+          {"name": "bcc_recipients", "type": "TEXT[]", "description": "Array of BCC recipient addresses"},
+          {"name": "thread_id", "type": "VARCHAR(255)", "description": "Email thread identifier"},
+          {"name": "in_reply_to", "type": "VARCHAR(255)", "description": "Reference to the email this is replying to"},
+          {"name": "has_attachments", "type": "BOOLEAN", "default": "FALSE", "description": "Whether the email has attachments"},
+          {"name": "importance", "type": "VARCHAR(20)", "description": "Email importance flag (HIGH, NORMAL, LOW)"}
+        ],
+        "notes": "Contains email-specific metadata linked to the main interactions table"
+      },
+      {
+        "name": "call_details",
+        "description": "Call details for interactions",
+        "columns": [
+          {"name": "interaction_id", "type": "UUID", "constraints": "PRIMARY KEY REFERENCES interactions(id) ON DELETE CASCADE", "description": "Foreign key to the associated interaction"},
+          {"name": "duration_seconds", "type": "INTEGER", "description": "Call duration in seconds"},
+          {"name": "direction", "type": "VARCHAR(10)", "constraints": "CHECK (direction IN ('INBOUND', 'OUTBOUND'))", "description": "Whether the call was incoming or outgoing"},
+          {"name": "call_status", "type": "VARCHAR(20)", "constraints": "CHECK (call_status IN ('COMPLETED', 'MISSED', 'VOICEMAIL', 'SCHEDULED'))", "description": "Status of the call"},
+          {"name": "phone_number", "type": "VARCHAR(50)", "description": "Phone number of the other party"},
+          {"name": "recording_url", "type": "VARCHAR(255)", "description": "URL to call recording if available"}
+        ],
+        "notes": "Contains call-specific metadata linked to the main interactions table"
+      },
+      {
+        "name": "meeting_details",
+        "description": "Meeting details for interactions",
+        "columns": [
+          {"name": "interaction_id", "type": "UUID", "constraints": "PRIMARY KEY REFERENCES interactions(id) ON DELETE CASCADE", "description": "Foreign key to the associated interaction"},
+          {"name": "location", "type": "VARCHAR(255)", "description": "Physical or virtual meeting location"},
+          {"name": "start_time", "type": "TIMESTAMP WITH TIME ZONE", "constraints": "NOT NULL", "description": "Meeting start time"},
+          {"name": "end_time", "type": "TIMESTAMP WITH TIME ZONE", "constraints": "NOT NULL", "description": "Meeting end time"},
+          {"name": "attendees", "type": "TEXT[]", "description": "Array of attendee email addresses"},
+          {"name": "meeting_url", "type": "VARCHAR(255)", "description": "URL for virtual meetings"},
+          {"name": "is_recurring", "type": "BOOLEAN", "default": "FALSE", "description": "Whether this is a recurring meeting"},
+          {"name": "recurrence_pattern", "type": "VARCHAR(100)", "description": "Description of recurrence pattern if applicable"}
+        ],
+        "notes": "Contains meeting-specific metadata linked to the main interactions table"
+      },
+      {
+        "name": "document_details",
+        "description": "Document details for interactions",
+        "columns": [
+          {"name": "interaction_id", "type": "UUID", "constraints": "PRIMARY KEY REFERENCES interactions(id) ON DELETE CASCADE", "description": "Foreign key to the associated interaction"},
+          {"name": "document_type", "type": "VARCHAR(50)", "constraints": "NOT NULL", "description": "Type of document (contract, listing, etc.)"},
+          {"name": "filename", "type": "VARCHAR(255)", "constraints": "NOT NULL", "description": "Original filename"},
+          {"name": "file_size_bytes", "type": "BIGINT", "description": "Size of the file in bytes"},
+          {"name": "mime_type", "type": "VARCHAR(100)", "description": "MIME type of the document"},
+          {"name": "storage_url", "type": "VARCHAR(255)", "description": "URL where the document is stored"},
+          {"name": "document_date", "type": "TIMESTAMP WITH TIME ZONE", "description": "Date associated with the document content"}
+        ],
+        "notes": "Contains document-specific metadata linked to the main interactions table"
+      },
+      {
+        "name": "tags",
+        "description": "Tags for categorization",
+        "columns": [
+          {"name": "id", "type": "UUID", "constraints": "PRIMARY KEY", "default": "uuid_generate_v4()", "description": "Unique identifier for the tag"},
+          {"name": "name", "type": "VARCHAR(50)", "constraints": "NOT NULL UNIQUE", "description": "Tag name"},
+          {"name": "color", "type": "VARCHAR(7)", "description": "Hexadecimal color code for UI display"},
+          {"name": "description", "type": "VARCHAR(255)", "description": "Description of the tag's purpose"},
+          {"name": "created_at", "type": "TIMESTAMP WITH TIME ZONE", "default": "CURRENT_TIMESTAMP", "description": "Record creation timestamp"}
+        ],
+        "notes": "Reusable tags for categorizing interactions"
+      },
+      {
+        "name": "interaction_tags",
+        "description": "Many-to-many relationship between interactions and tags",
+        "columns": [
+          {"name": "interaction_id", "type": "UUID", "constraints": "REFERENCES interactions(id) ON DELETE CASCADE", "description": "Foreign key to the interaction"},
+          {"name": "tag_id", "type": "UUID", "constraints": "REFERENCES tags(id) ON DELETE CASCADE", "description": "Foreign key to the tag"},
+          {"name": "created_at", "type": "TIMESTAMP WITH TIME ZONE", "default": "CURRENT_TIMESTAMP", "description": "Record creation timestamp"}
+        ],
+        "constraints": [
+          {"type": "PRIMARY KEY", "columns": ["interaction_id", "tag_id"]}
+        ],
+        "notes": "Junction table implementing many-to-many relationship between interactions and tags"
+      },
+      {
+        "name": "ai_analysis",
+        "description": "AI Analysis results for interactions",
+        "columns": [
+          {"name": "id", "type": "UUID", "constraints": "PRIMARY KEY", "default": "uuid_generate_v4()", "description": "Unique identifier for the analysis record"},
+          {"name": "interaction_id", "type": "UUID", "constraints": "REFERENCES interactions(id) ON DELETE CASCADE", "description": "Foreign key to the analyzed interaction"},
+          {"name": "analysis_type", "type": "VARCHAR(50)", "constraints": "NOT NULL", "description": "Type of AI analysis performed"},
+          {"name": "result", "type": "JSONB", "constraints": "NOT NULL", "description": "JSON result of the analysis"},
+          {"name": "confidence_score", "type": "DECIMAL(5,4)", "description": "Confidence level of the analysis"},
+          {"name": "model_version", "type": "VARCHAR(50)", "description": "Version of the AI model used"},
+          {"name": "created_at", "type": "TIMESTAMP WITH TIME ZONE", "default": "CURRENT_TIMESTAMP", "description": "Record creation timestamp"}
+        ],
+        "notes": "Stores results from various AI analyses performed on interaction content"
+      },
+      {
+        "name": "users",
+        "description": "User table for Emma AI Platform users",
+        "columns": [
+          {"name": "id", "type": "UUID", "constraints": "PRIMARY KEY", "default": "uuid_generate_v4()", "description": "Unique identifier for the user"},
+          {"name": "username", "type": "VARCHAR(50)", "constraints": "UNIQUE NOT NULL", "description": "Username for login"},
+          {"name": "email", "type": "VARCHAR(255)", "constraints": "UNIQUE NOT NULL", "description": "Email address for the user"},
+          {"name": "password_hash", "type": "VARCHAR(255)", "constraints": "NOT NULL", "description": "Hashed password"},
+          {"name": "first_name", "type": "VARCHAR(50)", "description": "User's first name"},
+          {"name": "last_name", "type": "VARCHAR(50)", "description": "User's last name"},
+          {"name": "role", "type": "VARCHAR(20)", "constraints": "NOT NULL", "description": "User role for access control"},
+          {"name": "is_active", "type": "BOOLEAN", "default": "TRUE", "description": "Whether the user account is active"},
+          {"name": "last_login_at", "type": "TIMESTAMP WITH TIME ZONE", "description": "Timestamp of last successful login"},
+          {"name": "created_at", "type": "TIMESTAMP WITH TIME ZONE", "default": "CURRENT_TIMESTAMP", "description": "Record creation timestamp"},
+          {"name": "updated_at", "type": "TIMESTAMP WITH TIME ZONE", "default": "CURRENT_TIMESTAMP", "description": "Record last update timestamp"}
+        ],
+        "triggers": [
+          {"name": "update_users_modtime", "timing": "BEFORE UPDATE", "function": "update_modified_column()", "description": "Automatically updates the updated_at timestamp"}
+        ],
+        "notes": "Stores user accounts for the Emma AI Platform"
+      }
+    ],
+    "views": [
+      {
+        "name": "vw_interaction_details",
+        "description": "View for easy access to interactions with contact details",
+        "query": "SELECT i.id AS interaction_id, i.title, i.interaction_type, i.content, i.summary, i.occurred_at, i.privacy_tags, i.sentiment_score, c.id AS contact_id, c.display_name AS contact_name, c.email AS contact_email, c.organization_name FROM interactions i JOIN contacts c ON i.contact_id = c.id WHERE i.deleted_at IS NULL AND c.deleted_at IS NULL",
+        "notes": "Provides a consolidated view of interactions with contact information for reporting"
+      }
+    ],
+    "functions": [
+      {
+        "name": "update_modified_column",
+        "returnType": "TRIGGER",
+        "language": "plpgsql",
+        "description": "Function to automatically update timestamp columns",
+        "definition": "BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;",
+        "notes": "Used by triggers to maintain updated_at timestamps"
+      },
+      {
+        "name": "get_interactions_by_privacy_tag",
+        "parameters": [
+          {"name": "tag_value", "type": "privacy_tag"}
+        ],
+        "returnType": "TABLE(interaction_id UUID, contact_name VARCHAR(100), interaction_type interaction_type, title VARCHAR(255), occurred_at TIMESTAMP WITH TIME ZONE)",
+        "language": "plpgsql",
+        "description": "Function to retrieve interactions filtered by privacy tag",
+        "notes": "Useful for privacy-aware data access patterns"
+      }
+    ],
+    "enums": [
+      {
+        "name": "contact_type",
+        "values": ["INDIVIDUAL", "ORGANIZATION", "LEAD"],
+        "description": "Types of contacts in the system"
+      },
+      {
+        "name": "interaction_type",
+        "values": ["EMAIL", "CALL", "MEETING", "MESSAGE", "NOTE", "DOCUMENT"],
+        "description": "Types of interactions that can be recorded"
+      },
+      {
+        "name": "privacy_tag",
+        "values": ["CRM", "PERSONAL", "PRIVATE", "BUSINESS", "PUBLIC"],
+        "description": "Privacy classifications for business logic and access control"
+      }
+    ]
+  },
+  "relationships": [
+    {
+      "name": "contacts_to_interactions",
+      "type": "one-to-many",
+      "parent": "contacts",
+      "child": "interactions",
+      "foreignKey": "contact_id",
+      "description": "One contact can have many interactions"
+    },
+    {
+      "name": "interactions_to_email_details",
+      "type": "one-to-one",
+      "parent": "interactions",
+      "child": "email_details",
+      "foreignKey": "interaction_id",
+      "description": "Email interactions have one set of email details"
+    },
+    {
+      "name": "interactions_to_call_details",
+      "type": "one-to-one",
+      "parent": "interactions",
+      "child": "call_details",
+      "foreignKey": "interaction_id",
+      "description": "Call interactions have one set of call details"
+    },
+    {
+      "name": "interactions_to_meeting_details",
+      "type": "one-to-one",
+      "parent": "interactions",
+      "child": "meeting_details",
+      "foreignKey": "interaction_id",
+      "description": "Meeting interactions have one set of meeting details"
+    },
+    {
+      "name": "interactions_to_document_details",
+      "type": "one-to-one",
+      "parent": "interactions",
+      "child": "document_details",
+      "foreignKey": "interaction_id",
+      "description": "Document interactions have one set of document details"
+    },
+    {
+      "name": "interactions_to_tags",
+      "type": "many-to-many",
+      "relationshipTable": "interaction_tags",
+      "description": "Interactions can have multiple tags, and tags can be applied to multiple interactions"
+    },
+    {
+      "name": "interactions_to_ai_analysis",
+      "type": "one-to-many",
+      "parent": "interactions",
+      "child": "ai_analysis",
+      "foreignKey": "interaction_id",
+      "description": "One interaction can have many AI analysis results"
+    }
+  ],
+  "migrationNotes": {
+    "privacyTagsMigration": {
+      "status": "in-progress",
+      "description": "Migration of privacy/business logic tags from Contact to Interaction entities",
+      "backwardCompatibility": true,
+      "legacyFields": ["contacts.legacy_privacy_tags"],
+      "newFields": ["interactions.privacy_tags"],
+      "notes": "For a transition period, backward compatibility is maintained. Legacy logic and data structures will be supported until migration is complete."
+    }
+  },
+  "databaseMaintenance": {
+    "recommendedIndexing": [
+      {
+        "table": "interactions",
+        "columns": ["privacy_tags"],
+        "type": "GIN",
+        "description": "For efficient querying of array values when filtering by privacy tags"
+      },
+      {
+        "table": "ai_analysis",
+        "columns": ["result"],
+        "type": "GIN",
+        "description": "For querying into JSONB data"
+      }
+    ],
+    "performanceTips": [
+      "Consider partitioning the interactions table by date for large datasets",
+      "Regularly analyze the database to update statistics for the query planner",
+      "Monitor and vacuum tables with frequent updates to manage bloat"
+    ]
+  }
+}

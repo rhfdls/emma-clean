@@ -42,11 +42,11 @@ public static class AzureOpenAIServiceExtensions
                     return false;
                 if (string.IsNullOrWhiteSpace(config.ApiKey))
                     return false;
-                if (string.IsNullOrWhiteSpace(config.DeploymentName))
+                if (string.IsNullOrWhiteSpace(config.ChatDeploymentName))
                     return false;
                 
                 return Uri.TryCreate(config.Endpoint.TrimEnd('/'), UriKind.Absolute, out _);
-            }, "Azure OpenAI configuration is invalid. Ensure Endpoint, ApiKey, and DeploymentName are properly set.");
+            }, "Azure OpenAI configuration is invalid. Ensure Endpoint, ApiKey, and ChatDeploymentName are properly set.");
 
         // Register OpenAIClient as a singleton with retry policy
         services.AddSingleton(provider =>
@@ -166,7 +166,7 @@ public class AzureOpenAIHealthCheck : IHealthCheck
             await _openAIClient.GetChatCompletionsAsync(
                 new ChatCompletionsOptions
                 {
-                    DeploymentName = _config.Value.DeploymentName,
+                    DeploymentName = _config.Value.ChatDeploymentName,
                     Messages = { new ChatRequestSystemMessage("Health check") },
                     MaxTokens = 1
                 }, 
@@ -177,7 +177,7 @@ public class AzureOpenAIHealthCheck : IHealthCheck
         catch (RequestFailedException ex) when (ex.Status == 404)
         {
             // Deployment not found - configuration issue
-            _logger.LogError(ex, "Deployment {DeploymentName} not found in Azure OpenAI", _config.Value.DeploymentName);
+            _logger.LogError(ex, "Deployment {DeploymentName} not found in Azure OpenAI", _config.Value.ChatDeploymentName);
             return HealthCheckResult.Unhealthy("Deployment not found in Azure OpenAI");
         }
         catch (RequestFailedException ex) when (ex.Status == 401 || ex.Status == 403)

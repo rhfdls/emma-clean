@@ -16,5 +16,36 @@ public enum EmmaActionType
     None,
     
     [EnumMember(Value = "unknown")]
-    Unknown
+    Unknown,
+    
+    // Agent Orchestration Actions
+    [EnumMember(Value = "classifycontact")]
+    ClassifyContact,
+    
+    [EnumMember(Value = "createcontact")]
+    CreateContact,
+    
+    [EnumMember(Value = "retrievecontext")]
+    RetrieveContext,
+    
+    [EnumMember(Value = "analyzesentiment")]
+    AnalyzeSentiment,
+    
+    [EnumMember(Value = "escalateurgent")]
+    EscalateUrgent,
+    
+    [EnumMember(Value = "synctoCrm")]
+    SyncToCrm,
+    
+    [EnumMember(Value = "excludefrombusiness")]
+    ExcludeFromBusiness,
+    
+    [EnumMember(Value = "promptforinfo")]
+    PromptForInfo,
+    
+    [EnumMember(Value = "triggerworkflow")]
+    TriggerWorkflow,
+    
+    [EnumMember(Value = "updatecontactstate")]
+    UpdateContactState
 }

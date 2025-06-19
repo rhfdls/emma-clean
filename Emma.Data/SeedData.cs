@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Emma.Data.Models;
+using Emma.Models.Models;
 
 namespace Emma.Data
 {
@@ -8,6 +8,9 @@ namespace Emma.Data
     {
         public static void EnsureSeeded(AppDbContext context)
         {
+            // Seed Resource Categories first
+            SeedResourceCategories(context);
+            
             // Seed Organization
             var orgEmail = "regionrealty@example.com";
             var org = context.Organizations.FirstOrDefault(o => o.Email == orgEmail);
@@ -54,8 +57,8 @@ namespace Emma.Data
                     Id = Guid.NewGuid(),
                     AgentId = agent.Id,
                     OrganizationId = org.Id,
-                    ClientFirstName = "TestClient",
-                    ClientLastName = "Example",
+                    ContactFirstName = "TestClient",
+                    ContactLastName = "Example",
                     CreatedAt = DateTime.UtcNow
                 };
                 context.Interactions.Add(conversation);
@@ -63,7 +66,7 @@ namespace Emma.Data
             }
             // Seed Message for the Agent
             var messageOccurredAt = DateTime.UtcNow.Date.AddHours(9); // 9am today
-            var messageType = Emma.Data.Enums.MessageType.Text;
+            var messageType = Emma.Models.Enums.MessageType.Text;
             var existingMessage = context.Messages.FirstOrDefault(m => m.AgentId == agent.Id && m.OccurredAt == messageOccurredAt && m.Type == messageType);
             if (existingMessage == null)
             {
@@ -81,6 +84,22 @@ namespace Emma.Data
                 context.Messages.Add(message);
                 context.SaveChanges();
             }
+        }
+
+        private static void SeedResourceCategories(AppDbContext context)
+        {
+            var categories = ResourceCategorySeed.GetDefaultCategories();
+            
+            foreach (var category in categories)
+            {
+                var existingCategory = context.ResourceCategories.FirstOrDefault(rc => rc.Name == category.Name);
+                if (existingCategory == null)
+                {
+                    context.ResourceCategories.Add(category);
+                }
+            }
+            
+            context.SaveChanges();
         }
     }
 }

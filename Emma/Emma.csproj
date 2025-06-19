@@ -8,7 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.16" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Emma.Core\Emma.Core.csproj" />
+    <ProjectReference Include="..\Emma.Data\Emma.Data.csproj" />
+    <ProjectReference Include="..\Emma.Api\Emma.Api.csproj" />
   </ItemGroup>
 
 </Project>

@@ -18,13 +18,43 @@ namespace Emma.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "8.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "hstore");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Emma.Data.Models.Agent", b =>
+            modelBuilder.Entity("Emma.Models.Models.Address", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Address");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.Agent", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -71,7 +101,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Agents");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.AgentAssignment", b =>
+            modelBuilder.Entity("Emma.Models.Models.AgentAssignment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,7 +129,7 @@ namespace Emma.Data.Migrations
                     b.HasAnnotation("Relational:JsonPropertyName", "agent_assignments");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.AgentPhoneNumber", b =>
+            modelBuilder.Entity("Emma.Models.Models.AgentPhoneNumber", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -123,7 +153,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("AgentPhoneNumbers");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.AgentSubscriptionAssignment", b =>
+            modelBuilder.Entity("Emma.Models.Models.AgentSubscriptionAssignment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -147,7 +177,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("AgentSubscriptionAssignment");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.CallMetadata", b =>
+            modelBuilder.Entity("Emma.Models.Models.CallMetadata", b =>
                 {
                     b.Property<Guid>("MessageId")
                         .HasColumnType("uuid");
@@ -174,7 +204,50 @@ namespace Emma.Data.Migrations
                     b.ToTable("CallMetadata");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Conversation", b =>
+            modelBuilder.Entity("Emma.Models.Models.Contact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Dictionary<string, string>>("CustomFields")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LeadSource")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<List<string>>("Tags")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.ToTable("Contact");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.Conversation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -194,14 +267,14 @@ namespace Emma.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<Dictionary<string, string>>("CustomFields")
-                        .HasColumnType("hstore");
+                        .HasColumnType("jsonb");
 
                     b.Property<string>("Direction")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Dictionary<string, string>>("ExternalIds")
-                        .HasColumnType("hstore");
+                        .HasColumnType("jsonb");
 
                     b.Property<Guid?>("OrganizationId")
                         .HasColumnType("uuid");
@@ -210,7 +283,7 @@ namespace Emma.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.PrimitiveCollection<List<string>>("Tags")
+                    b.Property<List<string>>("Tags")
                         .IsRequired()
                         .HasColumnType("text[]");
 
@@ -228,7 +301,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Conversation");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.ConversationSummary", b =>
+            modelBuilder.Entity("Emma.Models.Models.ConversationSummary", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -258,7 +331,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("ConversationSummaries");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.DeviceToken", b =>
+            modelBuilder.Entity("Emma.Models.Models.DeviceToken", b =>
                 {
                     b.Property<Guid>("AgentId")
                         .HasColumnType("uuid");
@@ -275,13 +348,40 @@ namespace Emma.Data.Migrations
                     b.ToTable("DeviceTokens");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.EmmaAnalysis", b =>
+            modelBuilder.Entity("Emma.Models.Models.EmailAddress", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.PrimitiveCollection<List<string>>("ComplianceFlags")
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ContactId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Verified")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContactId");
+
+                    b.ToTable("EmailAddress");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.EmmaAnalysis", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<List<string>>("ComplianceFlags")
                         .IsRequired()
                         .HasColumnType("text[]")
                         .HasAnnotation("Relational:JsonPropertyName", "compliance_flags");
@@ -314,7 +414,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("EmmaAnalyses");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.EmmaTask", b =>
+            modelBuilder.Entity("Emma.Models.Models.EmmaTask", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -345,7 +445,7 @@ namespace Emma.Data.Migrations
                     b.HasAnnotation("Relational:JsonPropertyName", "tasks_list");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Feature", b =>
+            modelBuilder.Entity("Emma.Models.Models.Feature", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -367,7 +467,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Feature");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Interaction", b =>
+            modelBuilder.Entity("Emma.Models.Models.Interaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -401,14 +501,14 @@ namespace Emma.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Dictionary<string, string>>("CustomFields")
-                        .HasColumnType("hstore");
+                        .HasColumnType("jsonb");
 
                     b.Property<string>("Direction")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Dictionary<string, string>>("ExternalIds")
-                        .HasColumnType("hstore");
+                        .HasColumnType("jsonb");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
@@ -417,7 +517,7 @@ namespace Emma.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.PrimitiveCollection<List<string>>("Tags")
+                    b.Property<List<string>>("Tags")
                         .IsRequired()
                         .HasColumnType("text[]");
 
@@ -438,7 +538,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Interactions");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Message", b =>
+            modelBuilder.Entity("Emma.Models.Models.Message", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -487,7 +587,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Organization", b =>
+            modelBuilder.Entity("Emma.Models.Models.Organization", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -537,7 +637,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Organizations");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.OrganizationSubscription", b =>
+            modelBuilder.Entity("Emma.Models.Models.OrganizationSubscription", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -573,7 +673,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("OrganizationSubscription");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.PasswordResetToken", b =>
+            modelBuilder.Entity("Emma.Models.Models.PasswordResetToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -599,7 +699,34 @@ namespace Emma.Data.Migrations
                     b.ToTable("PasswordResetTokens");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.RelatedEntity", b =>
+            modelBuilder.Entity("Emma.Models.Models.PhoneNumber", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ContactId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Verified")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContactId");
+
+                    b.ToTable("PhoneNumber");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.RelatedEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -624,7 +751,320 @@ namespace Emma.Data.Migrations
                     b.ToTable("RelatedEntity");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Subscription", b =>
+            modelBuilder.Entity("Emma.Models.Models.Resource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AgentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CompanyName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByAgentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Dictionary<string, string>>("CustomFields")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPreferred")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LicenseNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<decimal?>("Rating")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("RelationshipType")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ReviewCount")
+                        .HasColumnType("integer");
+
+                    b.Property<List<string>>("ServiceAreas")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<List<string>>("Specialties")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("AgentId");
+
+                    b.HasIndex("CreatedByAgentId");
+
+                    b.HasIndex("CategoryId", "IsPreferred", "Rating");
+
+                    b.HasIndex("OrganizationId", "Name", "CategoryId");
+
+                    b.ToTable("Resources");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.ResourceAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("AssignedByAgentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ClientFeedback")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<decimal?>("ClientRating")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("ClientRequest")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ContactId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Dictionary<string, string>>("CustomFields")
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime?>("FollowUpAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("InteractionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("InternalNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OutcomeNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("WasUsed")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedByAgentId");
+
+                    b.HasIndex("InteractionId");
+
+                    b.HasIndex("ContactId", "Status");
+
+                    b.HasIndex("OrganizationId", "AssignedAt");
+
+                    b.HasIndex("ResourceId", "Status");
+
+                    b.ToTable("ResourceAssignments");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.ResourceCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("IconName")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("SortOrder");
+
+                    b.ToTable("ResourceCategories");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.ResourceRecommendation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AlternativeResourceContact")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("AlternativeResourceName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ClientFeedback")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid>("ContactId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ContactedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Dictionary<string, string>>("CustomFields")
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid?>("InteractionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("RecommendationNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("RecommendationOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("RecommendedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RecommendedByAgentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("SelectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("WasContacted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("WasSelected")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("WhyAlternativeChosen")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InteractionId");
+
+                    b.HasIndex("RecommendedByAgentId");
+
+                    b.HasIndex("ContactId", "RecommendedAt");
+
+                    b.HasIndex("OrganizationId", "RecommendedAt");
+
+                    b.HasIndex("ResourceId", "WasSelected");
+
+                    b.ToTable("ResourceRecommendations");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.Subscription", b =>
                 {
                     b.Property<Guid>("AgentId")
                         .HasColumnType("uuid");
@@ -657,7 +1097,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("Subscriptions");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.SubscriptionPlan", b =>
+            modelBuilder.Entity("Emma.Models.Models.SubscriptionPlan", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -672,7 +1112,7 @@ namespace Emma.Data.Migrations
                     b.ToTable("SubscriptionPlan");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.SubscriptionPlanFeature", b =>
+            modelBuilder.Entity("Emma.Models.Models.SubscriptionPlanFeature", b =>
                 {
                     b.Property<Guid>("SubscriptionPlanId")
                         .HasColumnType("uuid");
@@ -687,7 +1127,32 @@ namespace Emma.Data.Migrations
                     b.ToTable("SubscriptionPlanFeature");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Transcription", b =>
+            modelBuilder.Entity("Emma.Models.Models.TestEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("test_entities");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.Transcription", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -714,9 +1179,9 @@ namespace Emma.Data.Migrations
                     b.ToTable("Transcriptions");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Agent", b =>
+            modelBuilder.Entity("Emma.Models.Models.Agent", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Organization", "Organization")
+                    b.HasOne("Emma.Models.Models.Organization", "Organization")
                         .WithMany("Agents")
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -724,9 +1189,9 @@ namespace Emma.Data.Migrations
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.AgentAssignment", b =>
+            modelBuilder.Entity("Emma.Models.Models.AgentAssignment", b =>
                 {
-                    b.HasOne("Emma.Data.Models.EmmaAnalysis", "EmmaAnalysis")
+                    b.HasOne("Emma.Models.Models.EmmaAnalysis", "EmmaAnalysis")
                         .WithMany("AgentAssignments")
                         .HasForeignKey("EmmaAnalysisId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -735,26 +1200,26 @@ namespace Emma.Data.Migrations
                     b.Navigation("EmmaAnalysis");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.AgentPhoneNumber", b =>
+            modelBuilder.Entity("Emma.Models.Models.AgentPhoneNumber", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Agent", "Agent")
+                    b.HasOne("Emma.Models.Models.Agent", "Agent")
                         .WithOne("PhoneNumber")
-                        .HasForeignKey("Emma.Data.Models.AgentPhoneNumber", "AgentId")
+                        .HasForeignKey("Emma.Models.Models.AgentPhoneNumber", "AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Agent");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.AgentSubscriptionAssignment", b =>
+            modelBuilder.Entity("Emma.Models.Models.AgentSubscriptionAssignment", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Agent", "Agent")
+                    b.HasOne("Emma.Models.Models.Agent", "Agent")
                         .WithMany("SubscriptionAssignments")
                         .HasForeignKey("AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Emma.Data.Models.OrganizationSubscription", "OrganizationSubscription")
+                    b.HasOne("Emma.Models.Models.OrganizationSubscription", "OrganizationSubscription")
                         .WithMany("AgentAssignments")
                         .HasForeignKey("OrganizationSubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -765,27 +1230,36 @@ namespace Emma.Data.Migrations
                     b.Navigation("OrganizationSubscription");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.CallMetadata", b =>
+            modelBuilder.Entity("Emma.Models.Models.CallMetadata", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Message", "Message")
+                    b.HasOne("Emma.Models.Models.Message", "Message")
                         .WithOne("CallMetadata")
-                        .HasForeignKey("Emma.Data.Models.CallMetadata", "MessageId")
+                        .HasForeignKey("Emma.Models.Models.CallMetadata", "MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Message");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Conversation", b =>
+            modelBuilder.Entity("Emma.Models.Models.Contact", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Organization", null)
+                    b.HasOne("Emma.Models.Models.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId");
+
+                    b.Navigation("Address");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.Conversation", b =>
+                {
+                    b.HasOne("Emma.Models.Models.Organization", null)
                         .WithMany("Conversations")
                         .HasForeignKey("OrganizationId");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.ConversationSummary", b =>
+            modelBuilder.Entity("Emma.Models.Models.ConversationSummary", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Interaction", "Interaction")
+                    b.HasOne("Emma.Models.Models.Interaction", "Interaction")
                         .WithMany()
                         .HasForeignKey("InteractionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -794,9 +1268,9 @@ namespace Emma.Data.Migrations
                     b.Navigation("Interaction");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.DeviceToken", b =>
+            modelBuilder.Entity("Emma.Models.Models.DeviceToken", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Agent", "Agent")
+                    b.HasOne("Emma.Models.Models.Agent", "Agent")
                         .WithMany()
                         .HasForeignKey("AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -805,9 +1279,16 @@ namespace Emma.Data.Migrations
                     b.Navigation("Agent");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.EmmaAnalysis", b =>
+            modelBuilder.Entity("Emma.Models.Models.EmailAddress", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Message", "Message")
+                    b.HasOne("Emma.Models.Models.Contact", null)
+                        .WithMany("Emails")
+                        .HasForeignKey("ContactId");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.EmmaAnalysis", b =>
+                {
+                    b.HasOne("Emma.Models.Models.Message", "Message")
                         .WithMany("EmmaAnalyses")
                         .HasForeignKey("MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -816,26 +1297,26 @@ namespace Emma.Data.Migrations
                     b.Navigation("Message");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.EmmaTask", b =>
+            modelBuilder.Entity("Emma.Models.Models.EmmaTask", b =>
                 {
-                    b.HasOne("Emma.Data.Models.EmmaAnalysis", null)
+                    b.HasOne("Emma.Models.Models.EmmaAnalysis", null)
                         .WithMany("TasksList")
                         .HasForeignKey("EmmaAnalysisId");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Message", b =>
+            modelBuilder.Entity("Emma.Models.Models.Message", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Agent", "Agent")
+                    b.HasOne("Emma.Models.Models.Agent", "Agent")
                         .WithMany("Messages")
                         .HasForeignKey("AgentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Emma.Data.Models.Conversation", null)
+                    b.HasOne("Emma.Models.Models.Conversation", null)
                         .WithMany("Messages")
                         .HasForeignKey("ConversationId");
 
-                    b.HasOne("Emma.Data.Models.Interaction", "Interaction")
+                    b.HasOne("Emma.Models.Models.Interaction", "Interaction")
                         .WithMany("Messages")
                         .HasForeignKey("InteractionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -846,9 +1327,9 @@ namespace Emma.Data.Migrations
                     b.Navigation("Interaction");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Organization", b =>
+            modelBuilder.Entity("Emma.Models.Models.Organization", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Agent", "OwnerAgent")
+                    b.HasOne("Emma.Models.Models.Agent", "OwnerAgent")
                         .WithMany()
                         .HasForeignKey("OwnerAgentId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -857,15 +1338,15 @@ namespace Emma.Data.Migrations
                     b.Navigation("OwnerAgent");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.OrganizationSubscription", b =>
+            modelBuilder.Entity("Emma.Models.Models.OrganizationSubscription", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Organization", "Organization")
+                    b.HasOne("Emma.Models.Models.Organization", "Organization")
                         .WithMany("Subscriptions")
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Emma.Data.Models.SubscriptionPlan", "SubscriptionPlan")
+                    b.HasOne("Emma.Models.Models.SubscriptionPlan", "SubscriptionPlan")
                         .WithMany()
                         .HasForeignKey("SubscriptionPlanId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -876,9 +1357,9 @@ namespace Emma.Data.Migrations
                     b.Navigation("SubscriptionPlan");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.PasswordResetToken", b =>
+            modelBuilder.Entity("Emma.Models.Models.PasswordResetToken", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Agent", "Agent")
+                    b.HasOne("Emma.Models.Models.Agent", "Agent")
                         .WithMany()
                         .HasForeignKey("AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -887,26 +1368,157 @@ namespace Emma.Data.Migrations
                     b.Navigation("Agent");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.RelatedEntity", b =>
+            modelBuilder.Entity("Emma.Models.Models.PhoneNumber", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Conversation", null)
+                    b.HasOne("Emma.Models.Models.Contact", null)
+                        .WithMany("Phones")
+                        .HasForeignKey("ContactId");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.RelatedEntity", b =>
+                {
+                    b.HasOne("Emma.Models.Models.Conversation", null)
                         .WithMany("RelatedEntities")
                         .HasForeignKey("ConversationId");
 
-                    b.HasOne("Emma.Data.Models.Interaction", null)
+                    b.HasOne("Emma.Models.Models.Interaction", null)
                         .WithMany("RelatedEntities")
                         .HasForeignKey("InteractionId");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Subscription", b =>
+            modelBuilder.Entity("Emma.Models.Models.Resource", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Agent", "Agent")
-                        .WithOne("Subscription")
-                        .HasForeignKey("Emma.Data.Models.Subscription", "AgentId")
+                    b.HasOne("Emma.Models.Models.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId");
+
+                    b.HasOne("Emma.Models.Models.Agent", "Agent")
+                        .WithMany()
+                        .HasForeignKey("AgentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Emma.Models.Models.ResourceCategory", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Emma.Data.Models.SubscriptionPlan", "Plan")
+                    b.HasOne("Emma.Models.Models.Agent", "CreatedByAgent")
+                        .WithMany()
+                        .HasForeignKey("CreatedByAgentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Emma.Models.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Agent");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("CreatedByAgent");
+
+                    b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.ResourceAssignment", b =>
+                {
+                    b.HasOne("Emma.Models.Models.Agent", "AssignedByAgent")
+                        .WithMany()
+                        .HasForeignKey("AssignedByAgentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Emma.Models.Models.Contact", "Contact")
+                        .WithMany()
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Emma.Models.Models.Interaction", "Interaction")
+                        .WithMany()
+                        .HasForeignKey("InteractionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Emma.Models.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Emma.Models.Models.Resource", "Resource")
+                        .WithMany()
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssignedByAgent");
+
+                    b.Navigation("Contact");
+
+                    b.Navigation("Interaction");
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.ResourceRecommendation", b =>
+                {
+                    b.HasOne("Emma.Models.Models.Contact", "Contact")
+                        .WithMany()
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Emma.Models.Models.Interaction", "Interaction")
+                        .WithMany()
+                        .HasForeignKey("InteractionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Emma.Models.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Emma.Models.Models.Agent", "RecommendedByAgent")
+                        .WithMany()
+                        .HasForeignKey("RecommendedByAgentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Emma.Models.Models.Resource", "Resource")
+                        .WithMany()
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Contact");
+
+                    b.Navigation("Interaction");
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("RecommendedByAgent");
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.Subscription", b =>
+                {
+                    b.HasOne("Emma.Models.Models.Agent", "Agent")
+                        .WithOne("Subscription")
+                        .HasForeignKey("Emma.Models.Models.Subscription", "AgentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Emma.Models.Models.SubscriptionPlan", "Plan")
                         .WithMany()
                         .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -916,15 +1528,15 @@ namespace Emma.Data.Migrations
                     b.Navigation("Plan");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.SubscriptionPlanFeature", b =>
+            modelBuilder.Entity("Emma.Models.Models.SubscriptionPlanFeature", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Feature", "Feature")
+                    b.HasOne("Emma.Models.Models.Feature", "Feature")
                         .WithMany("SubscriptionPlanFeatures")
                         .HasForeignKey("FeatureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Emma.Data.Models.SubscriptionPlan", "SubscriptionPlan")
+                    b.HasOne("Emma.Models.Models.SubscriptionPlan", "SubscriptionPlan")
                         .WithMany("SubscriptionPlanFeatures")
                         .HasForeignKey("SubscriptionPlanId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -935,18 +1547,18 @@ namespace Emma.Data.Migrations
                     b.Navigation("SubscriptionPlan");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Transcription", b =>
+            modelBuilder.Entity("Emma.Models.Models.Transcription", b =>
                 {
-                    b.HasOne("Emma.Data.Models.Message", "Message")
+                    b.HasOne("Emma.Models.Models.Message", "Message")
                         .WithOne("Transcription")
-                        .HasForeignKey("Emma.Data.Models.Transcription", "MessageId")
+                        .HasForeignKey("Emma.Models.Models.Transcription", "MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Message");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Agent", b =>
+            modelBuilder.Entity("Emma.Models.Models.Agent", b =>
                 {
                     b.Navigation("Messages");
 
@@ -957,33 +1569,40 @@ namespace Emma.Data.Migrations
                     b.Navigation("SubscriptionAssignments");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Conversation", b =>
+            modelBuilder.Entity("Emma.Models.Models.Contact", b =>
+                {
+                    b.Navigation("Emails");
+
+                    b.Navigation("Phones");
+                });
+
+            modelBuilder.Entity("Emma.Models.Models.Conversation", b =>
                 {
                     b.Navigation("Messages");
 
                     b.Navigation("RelatedEntities");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.EmmaAnalysis", b =>
+            modelBuilder.Entity("Emma.Models.Models.EmmaAnalysis", b =>
                 {
                     b.Navigation("AgentAssignments");
 
                     b.Navigation("TasksList");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Feature", b =>
+            modelBuilder.Entity("Emma.Models.Models.Feature", b =>
                 {
                     b.Navigation("SubscriptionPlanFeatures");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Interaction", b =>
+            modelBuilder.Entity("Emma.Models.Models.Interaction", b =>
                 {
                     b.Navigation("Messages");
 
                     b.Navigation("RelatedEntities");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Message", b =>
+            modelBuilder.Entity("Emma.Models.Models.Message", b =>
                 {
                     b.Navigation("CallMetadata");
 
@@ -992,7 +1611,7 @@ namespace Emma.Data.Migrations
                     b.Navigation("Transcription");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.Organization", b =>
+            modelBuilder.Entity("Emma.Models.Models.Organization", b =>
                 {
                     b.Navigation("Agents");
 
@@ -1001,12 +1620,12 @@ namespace Emma.Data.Migrations
                     b.Navigation("Subscriptions");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.OrganizationSubscription", b =>
+            modelBuilder.Entity("Emma.Models.Models.OrganizationSubscription", b =>
                 {
                     b.Navigation("AgentAssignments");
                 });
 
-            modelBuilder.Entity("Emma.Data.Models.SubscriptionPlan", b =>
+            modelBuilder.Entity("Emma.Models.Models.SubscriptionPlan", b =>
                 {
                     b.Navigation("SubscriptionPlanFeatures");
                 });

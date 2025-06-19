@@ -1,0 +1,552 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "lastUpdated": "2024-06-08T21:00:00Z",
+    "updatedBy": "System",
+    "description": "Dynamic enum configuration for Emma CRM platform with industry-specific overrides"
+  },
+  "globalEnums": {
+    "ContactStatus": {
+      "enumType": "ContactStatus",
+      "displayName": "Contact Status",
+      "description": "Current status of contact in the sales pipeline",
+      "category": "Sales",
+      "defaultValue": "New",
+      "allowCustomValues": false,
+      "values": {
+        "New": {
+          "key": "New",
+          "displayName": "New Lead",
+          "description": "Recently acquired contact, not yet qualified",
+          "order": 1,
+          "isActive": true,
+          "color": "#3B82F6",
+          "icon": "user-plus",
+          "metadata": {
+            "stage": "initial",
+            "priority": "medium"
+          }
+        },
+        "Qualified": {
+          "key": "Qualified",
+          "displayName": "Qualified Lead",
+          "description": "Contact has been qualified and shows genuine interest",
+          "order": 2,
+          "isActive": true,
+          "color": "#10B981",
+          "icon": "check-circle",
+          "metadata": {
+            "stage": "qualified",
+            "priority": "high"
+          }
+        },
+        "Nurturing": {
+          "key": "Nurturing",
+          "displayName": "In Nurture",
+          "description": "Contact is being nurtured with regular touchpoints",
+          "order": 3,
+          "isActive": true,
+          "color": "#F59E0B",
+          "icon": "heart",
+          "metadata": {
+            "stage": "nurturing",
+            "priority": "medium"
+          }
+        },
+        "Opportunity": {
+          "key": "Opportunity",
+          "displayName": "Active Opportunity",
+          "description": "Contact has become an active sales opportunity",
+          "order": 4,
+          "isActive": true,
+          "color": "#EF4444",
+          "icon": "trending-up",
+          "metadata": {
+            "stage": "opportunity",
+            "priority": "high"
+          }
+        },
+        "Customer": {
+          "key": "Customer",
+          "displayName": "Customer",
+          "description": "Contact has converted to a paying customer",
+          "order": 5,
+          "isActive": true,
+          "color": "#8B5CF6",
+          "icon": "star",
+          "metadata": {
+            "stage": "customer",
+            "priority": "high"
+          }
+        },
+        "Inactive": {
+          "key": "Inactive",
+          "displayName": "Inactive",
+          "description": "Contact is no longer actively engaged",
+          "order": 6,
+          "isActive": true,
+          "color": "#6B7280",
+          "icon": "pause",
+          "metadata": {
+            "stage": "inactive",
+            "priority": "low"
+          }
+        }
+      },
+      "uiConfig": {
+        "controlType": "dropdown",
+        "showDescriptions": true,
+        "showIcons": true,
+        "searchable": true
+      }
+    },
+    "CommunicationChannel": {
+      "enumType": "CommunicationChannel",
+      "displayName": "Communication Channel",
+      "description": "Methods of communication with contacts",
+      "category": "Communication",
+      "defaultValue": "Email",
+      "allowCustomValues": true,
+      "customValueRules": {
+        "minLength": 2,
+        "maxLength": 50,
+        "pattern": "^[a-zA-Z0-9\\s\\-_]+$",
+        "requiresApproval": true
+      },
+      "values": {
+        "Email": {
+          "key": "Email",
+          "displayName": "Email",
+          "description": "Electronic mail communication",
+          "order": 1,
+          "isActive": true,
+          "color": "#3B82F6",
+          "icon": "mail"
+        },
+        "Phone": {
+          "key": "Phone",
+          "displayName": "Phone Call",
+          "description": "Voice communication via telephone",
+          "order": 2,
+          "isActive": true,
+          "color": "#10B981",
+          "icon": "phone"
+        },
+        "SMS": {
+          "key": "SMS",
+          "displayName": "Text Message",
+          "description": "Short message service communication",
+          "order": 3,
+          "isActive": true,
+          "color": "#F59E0B",
+          "icon": "message-square"
+        },
+        "SocialMedia": {
+          "key": "SocialMedia",
+          "displayName": "Social Media",
+          "description": "Communication via social media platforms",
+          "order": 4,
+          "isActive": true,
+          "color": "#8B5CF6",
+          "icon": "share-2"
+        },
+        "InPerson": {
+          "key": "InPerson",
+          "displayName": "In-Person Meeting",
+          "description": "Face-to-face communication",
+          "order": 5,
+          "isActive": true,
+          "color": "#EF4444",
+          "icon": "users"
+        },
+        "VideoCall": {
+          "key": "VideoCall",
+          "displayName": "Video Call",
+          "description": "Video conference communication",
+          "order": 6,
+          "isActive": true,
+          "color": "#06B6D4",
+          "icon": "video"
+        }
+      },
+      "uiConfig": {
+        "controlType": "dropdown",
+        "showDescriptions": false,
+        "showIcons": true,
+        "searchable": true
+      }
+    },
+    "Priority": {
+      "enumType": "Priority",
+      "displayName": "Priority Level",
+      "description": "Priority levels for tasks and activities",
+      "category": "General",
+      "defaultValue": "Medium",
+      "allowCustomValues": false,
+      "values": {
+        "Low": {
+          "key": "Low",
+          "displayName": "Low Priority",
+          "description": "Can be addressed when time permits",
+          "order": 1,
+          "isActive": true,
+          "color": "#10B981",
+          "icon": "arrow-down"
+        },
+        "Medium": {
+          "key": "Medium",
+          "displayName": "Medium Priority",
+          "description": "Standard priority level",
+          "order": 2,
+          "isActive": true,
+          "color": "#F59E0B",
+          "icon": "minus"
+        },
+        "High": {
+          "key": "High",
+          "displayName": "High Priority",
+          "description": "Requires prompt attention",
+          "order": 3,
+          "isActive": true,
+          "color": "#EF4444",
+          "icon": "arrow-up"
+        },
+        "Urgent": {
+          "key": "Urgent",
+          "displayName": "Urgent",
+          "description": "Requires immediate attention",
+          "order": 4,
+          "isActive": true,
+          "color": "#DC2626",
+          "icon": "alert-triangle"
+        }
+      },
+      "uiConfig": {
+        "controlType": "radio",
+        "showDescriptions": true,
+        "showIcons": true
+      }
+    }
+  },
+  "industries": {
+    "RealEstate": {
+      "industryCode": "RealEstate",
+      "displayName": "Real Estate",
+      "enums": {
+        "PropertyType": {
+          "enumType": "PropertyType",
+          "displayName": "Property Type",
+          "description": "Types of real estate properties",
+          "category": "RealEstate",
+          "defaultValue": "Residential",
+          "allowCustomValues": true,
+          "customValueRules": {
+            "minLength": 3,
+            "maxLength": 30,
+            "requiresApproval": false
+          },
+          "values": {
+            "Residential": {
+              "key": "Residential",
+              "displayName": "Residential",
+              "description": "Single-family homes, condos, townhouses",
+              "order": 1,
+              "isActive": true,
+              "color": "#3B82F6",
+              "icon": "home"
+            },
+            "Commercial": {
+              "key": "Commercial",
+              "displayName": "Commercial",
+              "description": "Office buildings, retail spaces, warehouses",
+              "order": 2,
+              "isActive": true,
+              "color": "#10B981",
+              "icon": "building"
+            },
+            "Luxury": {
+              "key": "Luxury",
+              "displayName": "Luxury",
+              "description": "High-end residential properties",
+              "order": 3,
+              "isActive": true,
+              "color": "#8B5CF6",
+              "icon": "crown",
+              "metadata": {
+                "minPrice": 1000000,
+                "requiresSpecialHandling": true
+              }
+            },
+            "Investment": {
+              "key": "Investment",
+              "displayName": "Investment Property",
+              "description": "Properties for rental or investment purposes",
+              "order": 4,
+              "isActive": true,
+              "color": "#F59E0B",
+              "icon": "trending-up"
+            },
+            "Land": {
+              "key": "Land",
+              "displayName": "Land/Lot",
+              "description": "Undeveloped land or building lots",
+              "order": 5,
+              "isActive": true,
+              "color": "#84CC16",
+              "icon": "map"
+            }
+          },
+          "uiConfig": {
+            "controlType": "dropdown",
+            "showDescriptions": true,
+            "showIcons": true,
+            "searchable": true
+          }
+        },
+        "ListingStatus": {
+          "enumType": "ListingStatus",
+          "displayName": "Listing Status",
+          "description": "Current status of property listings",
+          "category": "RealEstate",
+          "defaultValue": "Active",
+          "allowCustomValues": false,
+          "values": {
+            "Active": {
+              "key": "Active",
+              "displayName": "Active",
+              "description": "Property is actively listed for sale",
+              "order": 1,
+              "isActive": true,
+              "color": "#10B981",
+              "icon": "check-circle"
+            },
+            "Pending": {
+              "key": "Pending",
+              "displayName": "Pending",
+              "description": "Sale is pending, awaiting closing",
+              "order": 2,
+              "isActive": true,
+              "color": "#F59E0B",
+              "icon": "clock"
+            },
+            "Sold": {
+              "key": "Sold",
+              "displayName": "Sold",
+              "description": "Property has been sold",
+              "order": 3,
+              "isActive": true,
+              "color": "#8B5CF6",
+              "icon": "check"
+            },
+            "Withdrawn": {
+              "key": "Withdrawn",
+              "displayName": "Withdrawn",
+              "description": "Listing has been withdrawn from market",
+              "order": 4,
+              "isActive": true,
+              "color": "#EF4444",
+              "icon": "x-circle"
+            },
+            "Expired": {
+              "key": "Expired",
+              "displayName": "Expired",
+              "description": "Listing contract has expired",
+              "order": 5,
+              "isActive": true,
+              "color": "#6B7280",
+              "icon": "calendar-x"
+            }
+          }
+        }
+      },
+      "enumOverrides": {
+        "ContactStatus": {
+          "addOrUpdate": {
+            "PreApproved": {
+              "key": "PreApproved",
+              "displayName": "Pre-Approved Buyer",
+              "description": "Buyer has been pre-approved for financing",
+              "order": 3,
+              "isActive": true,
+              "color": "#059669",
+              "icon": "shield-check",
+              "metadata": {
+                "stage": "qualified",
+                "priority": "high",
+                "requiresFinancialVerification": true
+              }
+            },
+            "ShowingScheduled": {
+              "key": "ShowingScheduled",
+              "displayName": "Showing Scheduled",
+              "description": "Property showing has been scheduled",
+              "order": 4,
+              "isActive": true,
+              "color": "#0EA5E9",
+              "icon": "calendar",
+              "metadata": {
+                "stage": "active",
+                "priority": "high"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Insurance": {
+      "industryCode": "Insurance",
+      "displayName": "Insurance",
+      "enums": {
+        "PolicyType": {
+          "enumType": "PolicyType",
+          "displayName": "Policy Type",
+          "description": "Types of insurance policies",
+          "category": "Insurance",
+          "defaultValue": "Auto",
+          "allowCustomValues": false,
+          "values": {
+            "Auto": {
+              "key": "Auto",
+              "displayName": "Auto Insurance",
+              "description": "Vehicle insurance coverage",
+              "order": 1,
+              "isActive": true,
+              "color": "#3B82F6",
+              "icon": "car"
+            },
+            "Home": {
+              "key": "Home",
+              "displayName": "Homeowners Insurance",
+              "description": "Home and property insurance",
+              "order": 2,
+              "isActive": true,
+              "color": "#10B981",
+              "icon": "home"
+            },
+            "Life": {
+              "key": "Life",
+              "displayName": "Life Insurance",
+              "description": "Life insurance coverage",
+              "order": 3,
+              "isActive": true,
+              "color": "#8B5CF6",
+              "icon": "heart"
+            },
+            "Health": {
+              "key": "Health",
+              "displayName": "Health Insurance",
+              "description": "Medical and health coverage",
+              "order": 4,
+              "isActive": true,
+              "color": "#EF4444",
+              "icon": "activity"
+            },
+            "Business": {
+              "key": "Business",
+              "displayName": "Business Insurance",
+              "description": "Commercial and business coverage",
+              "order": 5,
+              "isActive": true,
+              "color": "#F59E0B",
+              "icon": "briefcase"
+            }
+          }
+        }
+      },
+      "enumOverrides": {
+        "ContactStatus": {
+          "addOrUpdate": {
+            "QuoteRequested": {
+              "key": "QuoteRequested",
+              "displayName": "Quote Requested",
+              "description": "Customer has requested an insurance quote",
+              "order": 3,
+              "isActive": true,
+              "color": "#0EA5E9",
+              "icon": "file-text",
+              "metadata": {
+                "stage": "qualified",
+                "priority": "high"
+              }
+            },
+            "PolicyHolder": {
+              "key": "PolicyHolder",
+              "displayName": "Policy Holder",
+              "description": "Active insurance policy holder",
+              "order": 5,
+              "isActive": true,
+              "color": "#059669",
+              "icon": "shield",
+              "metadata": {
+                "stage": "customer",
+                "priority": "high"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "agents": {
+    "NbaAgent": {
+      "agentType": "NbaAgent",
+      "enums": {
+        "ActionType": {
+          "enumType": "ActionType",
+          "displayName": "Recommended Action Type",
+          "description": "Types of actions that can be recommended",
+          "category": "NBA",
+          "defaultValue": "FollowUp",
+          "allowCustomValues": false,
+          "values": {
+            "FollowUp": {
+              "key": "FollowUp",
+              "displayName": "Follow Up",
+              "description": "Schedule a follow-up contact",
+              "order": 1,
+              "isActive": true,
+              "color": "#3B82F6",
+              "icon": "phone"
+            },
+            "SendEmail": {
+              "key": "SendEmail",
+              "displayName": "Send Email",
+              "description": "Send a targeted email",
+              "order": 2,
+              "isActive": true,
+              "color": "#10B981",
+              "icon": "mail"
+            },
+            "ScheduleMeeting": {
+              "key": "ScheduleMeeting",
+              "displayName": "Schedule Meeting",
+              "description": "Schedule an in-person or virtual meeting",
+              "order": 3,
+              "isActive": true,
+              "color": "#F59E0B",
+              "icon": "calendar"
+            },
+            "SendProposal": {
+              "key": "SendProposal",
+              "displayName": "Send Proposal",
+              "description": "Prepare and send a formal proposal",
+              "order": 4,
+              "isActive": true,
+              "color": "#8B5CF6",
+              "icon": "file-text"
+            },
+            "Nurture": {
+              "key": "Nurture",
+              "displayName": "Add to Nurture",
+              "description": "Add contact to nurture sequence",
+              "order": 5,
+              "isActive": true,
+              "color": "#EF4444",
+              "icon": "heart"
+            }
+          }
+        }
+      }
+    }
+  }
+}

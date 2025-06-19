@@ -1,226 +1,199 @@
-# Local Development Setup Script
+# Emma AI Platform Local Development Setup - No Docker Version
+# This script sets up a local development environment without Docker dependencies
 
-# Install required tools
-Write-Host "Installing required tools..."
-
-# Install Azure CLI
-Write-Host "Installing Azure CLI..."
-if (-not (Get-Command az -ErrorAction SilentlyContinue)) {
-    Invoke-WebRequest -Uri "https://aka.ms/installazurecliwindows" -OutFile "azure-cli.msi"
-    Start-Process msiexec.exe -Wait -ArgumentList "/I azure-cli.msi /quiet"
-    Remove-Item "azure-cli.msi"
-}
-
-# Install Azure Storage Emulator
-Write-Host "Installing Azure Storage Emulator..."
-if (-not (Test-Path "C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator\AzureStorageEmulator.exe")) {
-    Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=868033" -OutFile "azure-storage-emulator.msi"
-    Start-Process msiexec.exe -Wait -ArgumentList "/I azure-storage-emulator.msi /quiet"
-    Remove-Item "azure-storage-emulator.msi"
-}
-
-# Set Error Action Preference
-$ErrorActionPreference = 'Stop'
-
-# Function to write a section header
+# Helper Functions
 function Write-Section {
     param([string]$Title)
-    Write-Host "`n" + ("=" * 80) -ForegroundColor Cyan
+    Write-Host "`n===================================================" -ForegroundColor Cyan
     Write-Host $Title -ForegroundColor Cyan
-    Write-Host ("=" * 80) -ForegroundColor Cyan
+    Write-Host "===================================================" -ForegroundColor Cyan
 }
 
-# Function to check if a command exists
-function Test-CommandExists {
-    param([string]$Command)
-    $exists = $null -ne (Get-Command $Command -ErrorAction SilentlyContinue)
-    Write-Verbose "Command $Command exists: $exists"
-    return $exists
+function Test-DotnetInstalled {
+    $dotnetExists = $null -ne (Get-Command "dotnet" -ErrorAction SilentlyContinue)
+    if (-not $dotnetExists) {
+        Write-Host "⚠️ .NET SDK is not installed. Please install it from https://dotnet.microsoft.com/download" -ForegroundColor Yellow
+        return $false
+    }
+    
+    $dotnetVersion = (dotnet --version)
+    Write-Host "✅ .NET SDK is installed (Version: $dotnetVersion)" -ForegroundColor Green
+    return $true
 }
 
-try {
-    # Check for admin privileges
-    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    if (-not $isAdmin) {
-        Write-Error "This script requires administrator privileges. Please run as administrator."
-        exit 1
-    }
-
-    # Start logging
-    $logFile = "$PSScriptRoot\setup-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
-    Start-Transcript -Path $logFile -Force
-    Write-Host "Logging to $logFile" -ForegroundColor Yellow
-
-    # 1. Check Prerequisites
-    Write-Section -Title "1. CHECKING PREREQUISITES"
-    
-    # Check .NET SDK
-    if (Test-CommandExists "dotnet") {
-        $dotnetVersion = (dotnet --version)
-        Write-Host "✓ .NET SDK is installed (Version: $dotnetVersion)" -ForegroundColor Green
-    } else {
-        Write-Host "Installing .NET SDK..." -ForegroundColor Yellow
-        try {
-            $installerPath = "$env:TEMP\dotnet-sdk.exe"
-            Invoke-WebRequest -Uri "https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-8.0-windows-x64-installer" -OutFile $installerPath
-            Start-Process -FilePath $installerPath -ArgumentList "/install", "/quiet", "/norestart" -Wait -NoNewWindow
-            Remove-Item -Path $installerPath -Force -ErrorAction SilentlyContinue
-            Write-Host "✓ .NET SDK installed successfully" -ForegroundColor Green
-        } catch {
-            Write-Error "Failed to install .NET SDK: $_"
-            throw
-        }
-    }
-
-    # Check Node.js
-    if (Test-CommandExists "node") {
-        $nodeVersion = (node --version)
-        Write-Host "✓ Node.js is installed (Version: $nodeVersion)" -ForegroundColor Green
-    } else {
-        Write-Host "Installing Node.js..." -ForegroundColor Yellow
-        try {
-            $installerPath = "$env:TEMP\node-installer.msi"
-            Invoke-WebRequest -Uri "https://nodejs.org/dist/v20.13.1/node-v20.13.1-x64.msi" -OutFile $installerPath
-            Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", "`"$installerPath`"", "/qn", "/norestart" -Wait -NoNewWindow
-            Remove-Item -Path $installerPath -Force -ErrorAction SilentlyContinue
-            $env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [System.Environment]::GetEnvironmentVariable('Path', 'User')
-            Write-Host '✓ Node.js installed successfully' -ForegroundColor Green
-        } catch {
-            Write-Error "Failed to install Node.js: $_"
-            throw
-        }
-    }
-
-    # 2. Install Required Tools
-    Write-Section -Title "2. INSTALLING REQUIRED TOOLS"
-    
-    # Install Azure CLI if not present
-    if (-not (Test-CommandExists "az")) {
-        Write-Host "Installing Azure CLI..." -ForegroundColor Yellow
-        try {
-            $ProgressPreference = 'SilentlyContinue'
-            Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile AzureCLI.msi
-            Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet /norestart'
-            Remove-Item -Path AzureCLI.msi -Force -ErrorAction SilentlyContinue
-            Write-Host "✓ Azure CLI installed successfully" -ForegroundColor Green
-        } catch {
-            Write-Warning "Failed to install Azure CLI: $_"
-        }
-    } else {
-        Write-Host "✓ Azure CLI is already installed" -ForegroundColor Green
-    }
-
-    # Start Azure Storage Emulator if available
-    $storageEmulatorPath = "C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator\AzureStorageEmulator.exe"
-    if (Test-Path $storageEmulatorPath) {
-        Write-Host "Starting Azure Storage Emulator..." -ForegroundColor Yellow
-        try {
-            Start-Process -FilePath $storageEmulatorPath -ArgumentList "start" -NoNewWindow -Wait
-            Write-Host "✓ Azure Storage Emulator started" -ForegroundColor Green
-        } catch {
-            Write-Warning "Failed to start Azure Storage Emulator: $_"
-        }
-    } else {
-        Write-Host "ℹ Azure Storage Emulator not found. Skipping..." -ForegroundColor Yellow
-    }
-
-    # 3. Install Global Packages
-    Write-Section -Title "3. INSTALLING GLOBAL PACKAGES"
-    
-    # Install npm packages
-    Write-Host "Installing npm packages..." -ForegroundColor Yellow
-    try {
-        npm install -g @azure/storage-blob @azure/identity --loglevel=error
-        Write-Host "✓ npm packages installed successfully" -ForegroundColor Green
-    } catch {
-        Write-Warning "Failed to install npm packages: $_"
-    }
-
-    # Install .NET tools
-    Write-Host "Installing .NET tools..." -ForegroundColor Yellow
-    try {
+function Install-DotnetEfIfNeeded {
+    $dotnetEfInstalled = dotnet tool list -g | Select-String "dotnet-ef"
+    if (-not $dotnetEfInstalled) {
+        Write-Host "Installing dotnet-ef tool..." -ForegroundColor Yellow
         dotnet tool install --global dotnet-ef --version 8.0.0 --ignore-failed-sources
-        Write-Host "✓ .NET tools installed successfully" -ForegroundColor Green
-    } catch {
-        Write-Warning "Failed to install .NET tools: $_"
+        Write-Host "✅ dotnet-ef installed successfully" -ForegroundColor Green
+    } else {
+        Write-Host "✅ dotnet-ef is already installed" -ForegroundColor Green
     }
+}
 
-    # 4. Setup Environment
-    Write-Section -Title "4. SETTING UP ENVIRONMENT"
-    
-    # Restore NuGet packages
-    Write-Host "Restoring NuGet packages..." -ForegroundColor Yellow
+function Test-AzurePostgresConnection {
     try {
-        dotnet restore
-        Write-Host "✓ NuGet packages restored successfully" -ForegroundColor Green
+        # Check if PostgreSQL connection string is set in environment
+        $connStr = [Environment]::GetEnvironmentVariable("ConnectionStrings__PostgreSql")
+        if ([string]::IsNullOrEmpty($connStr)) {
+            Write-Host "⚠️ Azure PostgreSQL connection string not found in environment variables." -ForegroundColor Yellow
+            return $false
+        }
+        
+        # Extract host from connection string for basic connectivity check
+        if ($connStr -match 'Host=([^;]+)') {
+            $pgHost = $matches[1]
+            Write-Host "Verifying connectivity to Azure PostgreSQL at $pgHost..." -ForegroundColor Yellow
+            
+            # Simple TCP connection test to verify host is reachable
+            $tcpClient = New-Object System.Net.Sockets.TcpClient
+            $tcpClient.Connect($pgHost, 5432)
+            $tcpClient.Close()
+            
+            Write-Host "✅ Azure PostgreSQL is accessible" -ForegroundColor Green
+            return $true
+        } else {
+            Write-Host "⚠️ Could not parse Azure PostgreSQL host from connection string." -ForegroundColor Yellow
+            return $false
+        }
     } catch {
-        Write-Warning "Failed to restore NuGet packages: $_"
+        Write-Host "⚠️ Azure PostgreSQL is not accessible: $_" -ForegroundColor Yellow
+        return $false
     }
+}
 
-    # Create .env file if it doesn't exist
-    $envFile = "$PSScriptRoot\.env"
+function Import-EnvVariables {
+    $envFile = "C:\Users\david\GitHub\WindsurfProjects\emma\.env"
+    
+    if (Test-Path $envFile) {
+        Write-Host "Loading environment variables from $envFile" -ForegroundColor Yellow
+        
+        # Use load-env.ps1 script to load variables
+        if (Test-Path ".\load-env.ps1") {
+            & .\load-env.ps1
+        } else {
+            # Fallback if script doesn't exist
+            $envContent = Get-Content $envFile
+            
+            foreach ($line in $envContent) {
+                # Skip comments and empty lines
+                if ($line.Trim().StartsWith("#") -or [string]::IsNullOrWhiteSpace($line)) {
+                    continue
+                }
+                
+                # Parse key=value format
+                $parts = $line.Split('=', 2)
+                if ($parts.Length -eq 2) {
+                    $key = $parts[0].Trim()
+                    $value = $parts[1].Trim()
+                    
+                    # Set the environment variable
+                    [Environment]::SetEnvironmentVariable($key, $value, "Process")
+                    Write-Host "  Set $key" -ForegroundColor Green
+                }
+            }
+        }
+        
+        Write-Host "✅ Environment variables loaded successfully" -ForegroundColor Green
+    } 
+    else {
+        Write-Host "⚠️ .env file not found at $envFile" -ForegroundColor Yellow
+        Write-Host "  Please ensure the .env file exists at the specified path" -ForegroundColor Yellow
+    }
+}
+
+function New-EnvFile {
+    $envFile = ".\.env"
+    
     if (-not (Test-Path $envFile)) {
         Write-Host "Creating .env file..." -ForegroundColor Yellow
-        @"
+        
+        $envContent = @"
+# Emma AI Platform Configuration
+
 # Azure OpenAI Configuration
+# IMPORTANT: Store these securely and never commit them to version control
 AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com/
 AZURE_OPENAI_KEY=your-api-key
 AZURE_OPENAI_DEPLOYMENT=your-deployment-name
 
-# Database Connection
-CONNECTION_STRING="Server=(localdb)\\mssqllocaldb;Database=Emmadev;Trusted_Connection=True;MultipleActiveResultSets=true"
+# Database Connection (PostgreSQL example)
+CONNECTION_STRING=Host=localhost;Port=5432;Database=emma_dev;Username=postgres;Password=postgres
 
 # Application Settings
 ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://localhost:5000;https://localhost:5001
-"@ | Out-File -FilePath $envFile -Encoding utf8
-        Write-Host "Created .env file at $envFile" -ForegroundColor Green
+"@
+        Set-Content -Path $envFile -Value $envContent
+        
+        Write-Host "✅ Created .env file at $envFile" -ForegroundColor Green
         Write-Host "  Please update it with your configuration" -ForegroundColor Yellow
-    } else {
-        Write-Host "✓ .env file already exists at $envFile" -ForegroundColor Green
+        Write-Host "  IMPORTANT: Keep your API keys secure and never commit them to version control" -ForegroundColor Red
+    } 
+    else {
+        Write-Host "✅ .env file already exists at $envFile" -ForegroundColor Green
     }
-
-    # Create test configuration if it doesn't exist
-    $testConfigPath = "$PSScriptRoot\tests\Emma.Api.IntegrationTests\appsettings.Development.json"
-    $testConfigTemplatePath = "$PSScriptRoot\tests\Emma.Api.IntegrationTests\appsettings.Development.template.json"
-    
-    if (-not (Test-Path $testConfigPath) -and (Test-Path $testConfigTemplatePath)) {
-        Write-Host "Creating test configuration..." -ForegroundColor Yellow
-        try {
-            $testConfigDir = Split-Path -Path $testConfigPath -Parent
-            if (-not (Test-Path $testConfigDir)) {
-                New-Item -ItemType Directory -Path $testConfigDir -Force | Out-Null
-            }
-            Copy-Item -Path $testConfigTemplatePath -Destination $testConfigPath -Force
-            Write-Host "✓ Created test configuration at $testConfigPath" -ForegroundColor Green
-            Write-Host "  Please update it with your test settings" -ForegroundColor Yellow
-        } catch {
-            Write-Warning "Failed to create test configuration: $_"
-        }
-    } elseif (Test-Path $testConfigPath) {
-        Write-Host "✓ Test configuration already exists at $testConfigPath" -ForegroundColor Green
-    }
-
-    # 5. Final Steps
-    Write-Section -Title "SETUP COMPLETED SUCCESSFULLY!"
-    
-    Write-Host "`nNEXT STEPS:" -ForegroundColor Cyan -BackgroundColor DarkBlue
-    Write-Host "1. Update the .env file with your Azure OpenAI and database settings"
-    Write-Host "2. Run 'dotnet build' to build the solution"
-    Write-Host "3. Run 'dotnet test' to run all tests"
-    Write-Host "4. To start the application:"
-    Write-Host "   - Set your working directory to the API project"
-    Write-Host "   - Run 'dotnet run'"
-    Write-Host "   - Or press F5 in Visual Studio/VS Code"
-    Write-Host "`nFor Azure OpenAI integration tests, ensure you have set up the required environment variables." -ForegroundColor Yellow
-    Write-Host "`nLog file: $logFile" -ForegroundColor Gray
 }
-catch {
-    Write-Host "`nERROR: $_" -ForegroundColor Red
-    Write-Host "Stack Trace:" -ForegroundColor Red
-    Write-Host $_.ScriptStackTrace -ForegroundColor Red
+
+function Invoke-DotnetRestore {
+    Write-Host "Restoring NuGet packages..." -ForegroundColor Yellow
+    dotnet restore
+    Write-Host "✅ NuGet packages restored successfully" -ForegroundColor Green
+}
+
+function Invoke-EfMigrations {
+    if (Test-AzurePostgresConnection) {
+        Write-Host "Applying EF Core migrations to Azure PostgreSQL..." -ForegroundColor Yellow
+        try {
+            dotnet ef database update --project Emma.Data --startup-project Emma.Api
+            Write-Host "✅ EF Core migrations applied successfully" -ForegroundColor Green
+        } catch {
+            Write-Host "❌ Failed to apply EF Core migrations: $_" -ForegroundColor Red
+            Write-Host "Please check your Azure PostgreSQL connection string and database configuration" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "Skipping migrations as Azure PostgreSQL is not accessible." -ForegroundColor Yellow
+        Write-Host "Please verify your .env file contains the correct Azure PostgreSQL connection string." -ForegroundColor Yellow
+    }
+}
+
+function Show-NextSteps {
+    Write-Section "SETUP COMPLETED"
+    
+    Write-Host "NEXT STEPS:" -ForegroundColor Cyan
+    Write-Host "1. Update the .env file with your Azure OpenAI and PostgreSQL settings"
+    Write-Host "2. Build the solution: dotnet build"
+    Write-Host "3. Run the tests: dotnet test"
+    Write-Host "4. Start the application: dotnet run --project Emma.Api"
+    Write-Host ""
+    Write-Host "For more information, see the Emma AI Platform documentation."
+}
+
+# --- Main Script ---
+Write-Host "Emma AI Platform - Local Development Setup (No Docker)" -ForegroundColor Green
+
+# Check .NET SDK
+Write-Section "CHECKING PREREQUISITES"
+$dotnetInstalled = Test-DotnetInstalled
+if (-not $dotnetInstalled) {
     exit 1
 }
-finally {
-    try { Stop-Transcript } catch {}
-}
+
+# Install dotnet-ef tool if needed
+Install-DotnetEfIfNeeded
+
+# Load environment variables
+Write-Section "SETTING UP ENVIRONMENT"
+Import-EnvVariables
+
+# Restore NuGet packages
+Write-Section "RESTORING PACKAGES"
+Invoke-DotnetRestore
+
+# Apply EF Core migrations
+Write-Section "APPLYING DATABASE MIGRATIONS"
+Invoke-EfMigrations
+
+# Show next steps
+Show-NextSteps

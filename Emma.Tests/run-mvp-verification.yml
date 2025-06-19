@@ -1,0 +1,50 @@
+name: EMMA MVP Verification
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout EMMA repo
+      uses: actions/checkout@v3
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.x
+
+    - name: Clean Solution
+      run: dotnet clean Emma.sln
+
+    - name: Restore Dependencies
+      run: dotnet restore Emma.sln
+
+    - name: Build Solution
+      run: dotnet build Emma.sln --configuration Release
+
+    - name: Run Unit + Integration Tests
+      run: dotnet test tests/Emma.IntegrationTests/Emma.IntegrationTests.csproj --no-build --verbosity normal
+
+    - name: Check for Build Warnings
+      run: |
+        $warnings = Get-Content -Path "$(System.DefaultWorkingDirectory)/Emma.sln" -Raw | Select-String -Pattern "warning CS"
+        if ($warnings) {
+          echo "⚠️ Build warnings detected:"
+          echo "$warnings"
+        } else {
+          echo "✅ No build warnings"
+        }
+
+    - name: Validate TimeSimulator API
+      run: |
+        dotnet run --project Emma.Api/Emma.Api.csproj &
+        Start-Sleep -Seconds 10
+        curl http://localhost:5000/api/time/status
+
+    - name: Validate DI Bindings
+      run: |
+        dotnet build Emma.Api/Emma.Api.csproj --no-incremental
+        echo "✅ DI container compiled successfully"

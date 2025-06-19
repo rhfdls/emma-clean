@@ -1,0 +1,67 @@
+using Microsoft.EntityFrameworkCore;
+using DotNetEnv;
+
+try
+{
+    Console.WriteLine("🚀 Starting MINIMAL Emma AI Platform...");
+    
+    // Load environment variables from .env
+    Console.WriteLine("📁 Loading environment variables from .env file...");
+    Env.Load("../.env");
+    Console.WriteLine("✅ Environment variables loaded successfully");
+
+    Console.WriteLine("🏗️ Creating minimal web application builder...");
+    var builder = WebApplication.CreateBuilder(args);
+    
+    // Explicitly configure URLs
+    builder.WebHost.UseUrls("http://localhost:5262");
+    Console.WriteLine("✅ Web application builder created with URL: http://localhost:5262");
+
+    // Add only essential services
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
+    Console.WriteLine("🎯 Building minimal application...");
+    var app = builder.Build();
+    Console.WriteLine("✅ Minimal application built successfully");
+
+    // Configure the HTTP request pipeline
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+        Console.WriteLine("✅ Swagger configured for development environment");
+    }
+
+    app.UseRouting();
+    app.MapControllers();
+
+    // Add a simple test endpoint
+    app.MapGet("/test", () => "Emma AI Platform is running!");
+    Console.WriteLine("✅ Routes and endpoints configured");
+
+    Console.WriteLine("🌐 Starting minimal web application...");
+    Console.WriteLine("📍 Application should be available at: http://localhost:5262");
+    Console.WriteLine("📍 Swagger UI: http://localhost:5262/swagger");
+    Console.WriteLine("📍 Test endpoint: http://localhost:5262/test");
+    Console.WriteLine("⏳ Starting server... (this should block and keep running)");
+    
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"❌ FATAL ERROR during startup: {ex.Message}");
+    Console.WriteLine($"📍 Exception Type: {ex.GetType().Name}");
+    Console.WriteLine($"📝 Stack Trace: {ex.StackTrace}");
+    
+    if (ex.InnerException != null)
+    {
+        Console.WriteLine($"🔗 Inner Exception: {ex.InnerException.Message}");
+        Console.WriteLine($"📝 Inner Stack Trace: {ex.InnerException.StackTrace}");
+    }
+    
+    Console.WriteLine("\n⏸️ Press any key to exit...");
+    Console.ReadKey();
+    Environment.Exit(1);
+}

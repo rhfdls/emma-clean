@@ -1,0 +1,7 @@
+C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core.Tests\bin\Debug\net8.0\CoverletSourceRootsMapping_Emma.Core.Tests
+C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core.Tests\obj\Debug\net8.0\Emma.Core.Tests.csproj.AssemblyReference.cache
+C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core.Tests\obj\Debug\net8.0\Emma.Core.Tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core.Tests\obj\Debug\net8.0\Emma.Core.Tests.AssemblyInfoInputs.cache
+C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core.Tests\obj\Debug\net8.0\Emma.Core.Tests.AssemblyInfo.cs
+C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core.Tests\obj\Debug\net8.0\Emma.Core.Tests.csproj.CoreCompileInputs.cache
+C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Core.Tests\obj\Debug\net8.0\Emma.Core.Tests.sourcelink.json

@@ -7,8 +7,8 @@ namespace Emma.Api.Models
     /// </summary>
     public class InteractionQueryDto
     {
-        /// <summary>Contact/lead ID (optional)</summary>
-        public Guid? LeadId { get; set; }
+        /// <summary>Contact ID (optional)</summary>
+        public Guid? ContactId { get; set; }
         /// <summary>Agent ID (optional)</summary>
         public Guid? AgentId { get; set; }
         /// <summary>Start of date range (optional)</summary>

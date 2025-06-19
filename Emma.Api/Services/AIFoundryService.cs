@@ -23,22 +23,21 @@ namespace Emma.Api.Services
     public class AIFoundryService : IAIFoundryService
     {
         private readonly ILogger<AIFoundryService> _logger;
-        private readonly IAsyncPolicy _retryPolicy;
         private readonly OpenAIClient _openAIClient;
         private readonly AzureAIFoundryConfig _config;
-        private readonly CosmosAgentRepository _cosmosRepo;
+        private readonly CosmosAgentRepository? _cosmosRepo;
 
         /// <summary>
-        /// Inject CosmosAgentRepository for agent data access
+        /// Inject CosmosAgentRepository for agent data access (optional)
         /// </summary>
         public AIFoundryService(
             IOptions<AzureAIFoundryConfig> config,
             ILogger<AIFoundryService> logger,
-            CosmosAgentRepository cosmosRepo)
+            CosmosAgentRepository? cosmosRepo = null)
         {
             _config = config?.Value ?? throw new ArgumentNullException(nameof(config));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _cosmosRepo = cosmosRepo ?? throw new ArgumentNullException(nameof(cosmosRepo));
+            _cosmosRepo = cosmosRepo; // Allow null for basic functionality
             
             if (string.IsNullOrWhiteSpace(_config.Endpoint))
                 throw new ArgumentException("Azure AI Foundry endpoint is not configured", nameof(_config.Endpoint));
@@ -58,11 +57,11 @@ namespace Emma.Api.Services
             _logger.LogInformation("Azure AI Foundry client initialized for deployment: {DeploymentName}", _config.DeploymentName);
         }
 
-        public async Task<string> ProcessMessageAsync(string message, string? conversationId = null)
+        public async Task<string> ProcessMessageAsync(string message, string? interactionId = null)
         {
             var requestId = Guid.NewGuid();
             _logger.LogDebug("[{RequestId}] Processing message. Interaction ID: {InteractionId}", 
-                requestId, conversationId ?? "(new)");
+                requestId, interactionId ?? "(new)");
             
             if (string.IsNullOrWhiteSpace(message))
                 throw new ArgumentException("Message cannot be empty", nameof(message));
@@ -81,7 +80,7 @@ namespace Emma.Api.Services
                     },
                     MaxTokens = _config.MaxTokens,
                     Temperature = (float?)_config.Temperature,
-                    User = conversationId ?? "default-user"
+                    User = interactionId ?? "default-user"
                 };
                 
                 _logger.LogDebug("[{RequestId}] Sending request to Azure OpenAI. Endpoint: {Endpoint}, Deployment: {Deployment}, Message length: {MessageLength} chars, MaxTokens: {MaxTokens}, Temperature: {Temperature}", 
@@ -93,7 +92,7 @@ namespace Emma.Api.Services
                     _config.Temperature);
 
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                var response = await _retryPolicy.ExecuteAsync(async () => await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions));
+                var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
                 stopwatch.Stop();
                 
                 _logger.LogDebug("[{RequestId}] Received response from Azure OpenAI in {ElapsedMs}ms. Status: {Status}, RequestId: {RequestId}, CompletionTokens: {CompletionTokens}", 
@@ -144,11 +143,11 @@ namespace Emma.Api.Services
             }
         }
 
-        public async Task<string> ProcessMessageWithContextAsync(string message, string context, string? conversationId = null)
+        public async Task<string> ProcessMessageWithContextAsync(string message, string context, string? interactionId = null)
         {
             var requestId = Guid.NewGuid();
             _logger.LogDebug("[{RequestId}] Processing message with context. Interaction ID: {InteractionId}", 
-                requestId, conversationId ?? "(new)");
+                requestId, interactionId ?? "(new)");
                 
             if (string.IsNullOrWhiteSpace(message))
                 throw new ArgumentException("Message cannot be empty", nameof(message));
@@ -163,18 +162,16 @@ namespace Emma.Api.Services
                 var chatCompletionsOptions = new ChatCompletionsOptions()
                 {
                     DeploymentName = _config.DeploymentName,
+                    Messages =
+                    {
+                        new ChatRequestSystemMessage($"Context: {context}"),
+                        new ChatRequestUserMessage(message)
+                    },
                     MaxTokens = _config.MaxTokens,
                     Temperature = (float?)_config.Temperature,
-                    User = conversationId ?? "default-user"
+                    User = interactionId ?? "default-user"
                 };
 
-                // Add system message with context
-                chatCompletionsOptions.Messages.Add(
-                    new ChatRequestSystemMessage($"Context: {context}"));
-
-                // Add the current user message
-                chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(message));
-                
                 _logger.LogDebug("[{RequestId}] Sending request to Azure OpenAI with context. Endpoint: {Endpoint}, Deployment: {Deployment}", 
                     requestId,
                     _config.Endpoint,
@@ -199,7 +196,7 @@ namespace Emma.Api.Services
                 }
 
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                var response = await _retryPolicy.ExecuteAsync(async () => await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions));
+                var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
                 stopwatch.Stop();
                 
                 _logger.LogDebug("[{RequestId}] Received response from Azure OpenAI in {ElapsedMs}ms. Status: {Status}, RequestId: {RequestId}, CompletionTokens: {CompletionTokens}", 
@@ -250,6 +247,72 @@ namespace Emma.Api.Services
             }
         }
 
+        public async Task<string> ProcessAgentRequestAsync(string systemPrompt, string userPrompt, string? interactionId = null)
+        {
+            var requestId = Guid.NewGuid();
+            _logger.LogDebug("[{RequestId}] Processing agent request. Interaction ID: {InteractionId}", 
+                requestId, interactionId ?? "(new)");
+            
+            if (string.IsNullOrWhiteSpace(systemPrompt))
+                throw new ArgumentException("System prompt cannot be empty", nameof(systemPrompt));
+                
+            if (string.IsNullOrWhiteSpace(userPrompt))
+                throw new ArgumentException("User prompt cannot be empty", nameof(userPrompt));
+
+            try
+            {
+                var chatCompletionsOptions = new ChatCompletionsOptions()
+                {
+                    DeploymentName = _config.DeploymentName,
+                    Messages =
+                    {
+                        new ChatRequestSystemMessage(systemPrompt),
+                        new ChatRequestUserMessage(userPrompt)
+                    },
+                    MaxTokens = 1000,
+                    Temperature = 0.7f
+                };
+
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
+                stopwatch.Stop();
+                
+                _logger.LogDebug("[{RequestId}] Received agent response from Azure OpenAI in {ElapsedMs}ms", 
+                    requestId, stopwatch.ElapsedMilliseconds);
+                
+                if (response?.Value?.Choices?.Count > 0)
+                {
+                    var content = response.Value.Choices[0].Message.Content;
+                    _logger.LogDebug("[{RequestId}] Agent response content length: {ResponseLength} chars", 
+                        requestId, content?.Length ?? 0);
+                        
+                    return content ?? string.Empty;
+                }
+                
+                throw new InvalidOperationException("No response content received from Azure OpenAI");
+            }
+            catch (RequestFailedException ex) when (ex.Status == 401)
+            {
+                _logger.LogError("Authentication failed for Azure OpenAI. Please check your API key and endpoint.");
+                throw new UnauthorizedAccessException("Authentication failed for Azure OpenAI. Please check your API key and endpoint.", ex);
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                _logger.LogError("The specified Azure OpenAI deployment was not found. Deployment: {DeploymentName}", _config.DeploymentName);
+                throw new InvalidOperationException($"The specified Azure OpenAI deployment was not found: {_config.DeploymentName}", ex);
+            }
+            catch (RequestFailedException ex)
+            {
+                _logger.LogError(ex, "Azure OpenAI request failed with status code {StatusCode}", ex.Status);
+                throw new HttpRequestException($"Azure OpenAI request failed: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error processing agent request");
+                throw new Exception("An unexpected error occurred while processing your agent request.", ex);
+            }
+        }
+
         public Task<string> StartNewInteractionAsync()
         {
             return Task.FromResult(Guid.NewGuid().ToString());
@@ -258,14 +321,19 @@ namespace Emma.Api.Services
         /// <summary>
         /// CosmosDB-backed skill/tool: Retrieve agent interactions using typed parameters.
         /// </summary>
-        /// <param name="query">Query DTO with optional leadId, agentId, start, end.</param>
+        /// <param name="query">Query DTO with optional contactId, agentId, start, end.</param>
         /// <returns>Enumerable of FulltextInteractionDocument matching the query.</returns>
         public async Task<IEnumerable<FulltextInteractionDocument>> RetrieveAgentInteractionsAsync(Models.InteractionQueryDto query)
         {
+            if (_cosmosRepo == null)
+            {
+                throw new InvalidOperationException("CosmosAgentRepository is not initialized.");
+            }
+
             // Build CosmosDB SQL query from parameters
             var sql = "SELECT * FROM c WHERE 1=1";
-            if (query.LeadId.HasValue)
-                sql += $" AND c.contactId = '{query.LeadId.Value}'";
+            if (query.ContactId.HasValue)
+                sql += $" AND c.contactId = '{query.ContactId.Value}'";
             if (query.AgentId.HasValue)
                 sql += $" AND c.agentId = '{query.AgentId.Value}'";
             if (query.Start.HasValue)
