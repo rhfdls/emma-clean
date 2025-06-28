@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "WoPTocK4cnI=",
+  "dgSpecHash": "Qp06gcOiJH0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\Emma.Api.csproj",
+  "projectFilePath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Api\\Emma.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\david\\.nuget\\packages\\asp.versioning.abstractions\\8.0.0\\asp.versioning.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\david\\.nuget\\packages\\asp.versioning.http\\8.0.0\\asp.versioning.http.8.0.0.nupkg.sha512",

@@ -1,1 +1,1 @@
-namespace Emma.Models.Enums;public enum ResourceAssignmentStatus{    Active,    Completed,    Cancelled,    OnHold,    Expired}
+// OBSOLETE: ResourceAssignmentStatus enum removed. Use ContactAssignmentStatus if needed.

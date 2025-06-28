@@ -26,7 +26,7 @@ namespace Emma.Models.Models
         /// <summary>
         /// Gets or sets the status of the task.
         /// </summary>
-        public Enums.TaskStatus Status { get; set; } = Enums.TaskStatus.NotStarted;
+        public Enums.TaskStatus Status { get; set; } = Enums.TaskStatus.Pending;
 
         /// <summary>
         /// Gets or sets the priority of the task.

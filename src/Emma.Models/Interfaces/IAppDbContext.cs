@@ -44,8 +44,6 @@ namespace Emma.Models.Interfaces
         
         // Resource management (legacy, being migrated)
         DbSet<ResourceCategory> ResourceCategories { get; set; }
-        DbSet<Resource> Resources { get; set; }
-        DbSet<ResourceAssignment> ResourceAssignments { get; set; }
         DbSet<ResourceRecommendation> ResourceRecommendations { get; set; }
         
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Emma.Models.Enums;
+using Emma.Models.Enums; // Only one instance should remain at the top of the file
+using Emma.Models.Enums; // Only one instance should remain at the top of the file
 
 namespace Emma.Models.Models;
 
@@ -87,7 +88,7 @@ public class ContactAssignment
     /// Defaults to Active when a new assignment is created.
     /// </summary>
     [Required]
-    public ResourceAssignmentStatus Status { get; set; } = ResourceAssignmentStatus.Active;
+    public ContactAssignmentStatus Status { get; set; } = ContactAssignmentStatus.Active;
     
     /// <summary>
     /// The priority level of this assignment.
@@ -233,7 +234,7 @@ public class ContactAssignment
     /// <param name="outcomeNotes">Optional outcome notes</param>
     public void MarkAsCompleted(bool wasUsed, decimal? rating = null, string? feedback = null, string? outcomeNotes = null)
     {
-        Status = ResourceAssignmentStatus.Completed;
+        Status = ContactAssignmentStatus.Completed;
         CompletedAt = DateTime.UtcNow;
         WasUsed = wasUsed;
         
@@ -316,7 +317,7 @@ public class ContactAssignment
             OrganizationId = this.OrganizationId,
             Organization = this.Organization,
             Purpose = newPurpose ?? this.Purpose,
-            Status = ResourceAssignmentStatus.Active,
+            Status = ContactAssignmentStatus.Active,
             Priority = this.Priority,
             ClientRequest = this.ClientRequest,
             AssignedAt = DateTime.UtcNow,

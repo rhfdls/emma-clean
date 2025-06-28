@@ -116,12 +116,6 @@ public class User : BaseEntity
     public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
     
     /// <summary>
-    /// Gets or sets the collection of subscription assignments for this user.
-    /// </summary>
-    [InverseProperty(nameof(UserSubscriptionAssignment.User))]
-    public virtual ICollection<UserSubscriptionAssignment> SubscriptionAssignments { get; set; } = new List<UserSubscriptionAssignment>();
-    
-    /// <summary>
     /// Gets or sets the collection of subscriptions assigned by this user to others.
     /// </summary>
     [InverseProperty(nameof(UserSubscriptionAssignment.AssignedByUser))]

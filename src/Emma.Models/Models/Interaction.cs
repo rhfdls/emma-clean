@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Emma.Models.Models;
 
 /// <summary>
@@ -5,6 +8,12 @@ namespace Emma.Models.Models;
 /// </summary>
 public class Interaction : BaseEntity
 {
+    /// <summary>
+    /// Gets or sets the user who created this interaction.
+    /// </summary>
+    [ForeignKey(nameof(CreatedById))]
+    public virtual User? CreatedBy { get; set; }
+
     // Core Identifiers
     public Guid OrganizationId { get; set; }
     public Guid TenantId { get; set; }
@@ -95,12 +104,7 @@ public class Interaction : BaseEntity
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? DeletedAt { get; set; }
     
-    // Navigation properties
-    public virtual Contact? Contact { get; set; }
-    public virtual User? CreatedBy { get; set; }
-    public virtual User? AssignedToUser { get; set; }
-    public virtual Organization? Organization { get; set; }
-    public virtual Interaction? ParentInteraction { get; set; }
+
 }
 
 /// <summary>

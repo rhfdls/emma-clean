@@ -109,18 +109,6 @@ public class AccessAuditLog : BaseEntity
     public string PrivacyTags { get; set; } = "[]";
 
     /// <summary>
-    /// IP address of the requesting client.
-    /// </summary>
-    [MaxLength(45)] // IPv6 max length
-    public string? IpAddress { get; set; }
-
-    /// <summary>
-    /// User agent string of the requesting client.
-    /// </summary>
-    [MaxLength(500)]
-    public string? UserAgent { get; set; }
-
-    /// <summary>
     /// Additional metadata about the access request.
     /// JSON object with request details.
     /// </summary>

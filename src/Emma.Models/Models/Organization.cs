@@ -11,7 +11,13 @@ namespace Emma.Models.Models
     /// </summary>
     [Table("Organizations")]
     public class Organization : BaseEntity
-    {
+{
+    /// <summary>
+    /// Gets or sets the collection of subscriptions for this organization.
+    /// </summary>
+    [InverseProperty(nameof(OrganizationSubscription.Organization))]
+    public virtual ICollection<OrganizationSubscription> Subscriptions { get; set; } = new List<OrganizationSubscription>();
+
         // ===== CORE PROPERTIES =====
         
         /// <summary>
@@ -63,8 +69,7 @@ namespace Emma.Models.Models
         /// <summary>
         /// Gets or sets a value indicating whether the organization is active.
         /// </summary>
-        public bool IsActive { get; set; } = true;
-        
+            
         /// <summary>
         /// The primary contact email for the organization.
         /// </summary>
@@ -92,8 +97,8 @@ namespace Emma.Models.Models
         /// Gets or sets the collection of users belonging to this organization.
         /// </summary>
         [InverseProperty(nameof(User.Organization))]
-        public virtual ICollection<User> Users { get; set; } = new List<User>();
-        
+public virtual ICollection<User> Users { get; set; } = new List<User>();
+            
         /// <summary>
         /// Gets or sets the collection of contacts belonging to this organization.
         /// </summary>
@@ -104,25 +109,19 @@ namespace Emma.Models.Models
         /// Gets or sets the collection of interactions associated with this organization.
         /// </summary>
         [InverseProperty(nameof(Models.Interaction.Organization))]
-        public virtual ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();
-        
+public virtual ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();
+            
         /// <summary>
         /// Gets or sets the collection of agents associated with this organization.
         /// </summary>
         [InverseProperty(nameof(Models.Agent.Organization))]
-        public virtual ICollection<Agent> Agents { get; set; } = new List<Agent>();
-        
+public virtual ICollection<Agent> Agents { get; set; } = new List<Agent>();
+            
         /// <summary>
         /// Gets or sets the collection of subscription plans available to this organization.
         /// </summary>
         [InverseProperty(nameof(SubscriptionPlan.Organization))]
         public virtual ICollection<SubscriptionPlan> SubscriptionPlans { get; set; } = new List<SubscriptionPlan>();
-        
-        /// <summary>
-        /// Gets or sets the collection of subscriptions for this organization.
-        /// </summary>
-        [InverseProperty(nameof(Models.OrganizationSubscription.Organization))]
-        public virtual ICollection<OrganizationSubscription> Subscriptions { get; set; } = new List<OrganizationSubscription>();
         
         /// <summary>
         /// Industry code for this organization (e.g., "RealEstate", "Mortgage", "Financial").
@@ -148,8 +147,7 @@ namespace Emma.Models.Models
         /// <summary>
         /// Indicates whether the organization is currently active.
         /// </summary>
-        public bool IsActive { get; set; } = true;
-        
+            
         // ===== EXTERNAL INTEGRATIONS =====
         
         /// <summary>
@@ -180,23 +178,19 @@ namespace Emma.Models.Models
         /// <summary>
         /// Collection of users belonging to this organization.
         /// </summary>
-        public virtual ICollection<User> Users { get; set; } = new List<User>();
-        
+            
         /// <summary>
         /// Collection of AI agents configured for this organization.
         /// </summary>
-        public virtual ICollection<Agent> Agents { get; set; } = new List<Agent>();
-        
+            
         /// <summary>
         /// Collection of subscriptions associated with this organization.
         /// </summary>
-        public virtual ICollection<OrganizationSubscription> Subscriptions { get; set; } = new List<OrganizationSubscription>();
-        
+            
         /// <summary>
         /// Collection of interactions associated with this organization.
         /// </summary>
-        public virtual ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();
-        
+            
         // ===== HELPER METHODS =====
         
         /// <summary>

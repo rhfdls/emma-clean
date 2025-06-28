@@ -75,6 +75,13 @@ namespace Emma.Core.Models
     public class AgentRequest
     {
         [Required]
+        public Guid OrganizationId { get; set; }
+        
+        /// <summary>
+        /// Optional parameters for agent execution (A2A compatibility)
+        /// </summary>
+        public Dictionary<string, object> Parameters { get; set; } = new();
+        [Required]
         public string Id { get; set; } = Guid.NewGuid().ToString();
         
         /// <summary>
@@ -351,6 +358,13 @@ namespace Emma.Core.Models
     /// </summary>
     public class AgentCapability
     {
+        [Required]
+        public Guid OrganizationId { get; set; }
+        
+        /// <summary>
+        /// Optional parameters for agent configuration and dynamic capabilities
+        /// </summary>
+        public Dictionary<string, object> Parameters { get; set; } = new();
         [Required]
         public string AgentId { get; set; } = string.Empty;
         

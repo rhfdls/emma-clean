@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\Emma.Api.csproj": {}
+    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Api\\Emma.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\Emma.Api.csproj": {
+    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Api\\Emma.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\Emma.Api.csproj",
+        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Api\\Emma.Api.csproj",
         "projectName": "Emma.Api",
-        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\Emma.Api.csproj",
+        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Api\\Emma.Api.csproj",
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\obj\\",
+        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -26,14 +26,14 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Core\\Emma.Core.csproj": {
-                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Core\\Emma.Core.csproj"
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Core\\Emma.Core.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Core\\Emma.Core.csproj"
               },
-              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj": {
-                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj"
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Data\\Emma.Data.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Data\\Emma.Data.csproj"
               },
-              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Infrastructure\\Emma.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Infrastructure\\Emma.Infrastructure.csproj"
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Infrastructure\\Emma.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Infrastructure\\Emma.Infrastructure.csproj"
               }
             }
           }
@@ -147,14 +147,14 @@
         }
       }
     },
-    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Core\\Emma.Core.csproj": {
+    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Core\\Emma.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Core\\Emma.Core.csproj",
+        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Core\\Emma.Core.csproj",
         "projectName": "Emma.Core",
-        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Core\\Emma.Core.csproj",
+        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Core\\Emma.Core.csproj",
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Core\\obj\\",
+        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Core\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -169,8 +169,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj": {
-                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj"
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj"
               }
             }
           }
@@ -234,14 +234,14 @@
         }
       }
     },
-    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj": {
+    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Data\\Emma.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj",
+        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Data\\Emma.Data.csproj",
         "projectName": "Emma.Data",
-        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj",
+        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Data\\Emma.Data.csproj",
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\obj\\",
+        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Data\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -256,8 +256,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj": {
-                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj"
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj"
               }
             }
           }
@@ -328,14 +328,14 @@
         }
       }
     },
-    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Infrastructure\\Emma.Infrastructure.csproj": {
+    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Infrastructure\\Emma.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Infrastructure\\Emma.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Infrastructure\\Emma.Infrastructure.csproj",
         "projectName": "Emma.Infrastructure",
-        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Infrastructure\\Emma.Infrastructure.csproj",
+        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Infrastructure\\Emma.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Infrastructure\\obj\\",
+        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -350,8 +350,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj": {
-                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj"
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj"
               }
             }
           }
@@ -440,14 +440,14 @@
         }
       }
     },
-    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj": {
+    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj",
+        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj",
         "projectName": "Emma.Models",
-        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\Emma.Models.csproj",
+        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj",
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\src\\Emma.Models\\obj\\",
+        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"

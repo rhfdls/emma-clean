@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "RoTWSHrzp5g=",
+  "dgSpecHash": "mjrUZAs/KAs=",
   "success": true,
-  "projectFilePath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj",
+  "projectFilePath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Data\\Emma.Data.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\david\\.nuget\\packages\\dotnetenv\\3.0.0\\dotnetenv.3.0.0.nupkg.sha512",
     "C:\\Users\\david\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

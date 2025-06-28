@@ -10413,11 +10413,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\Emma.Api.csproj",
+      "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Api\\Emma.Api.csproj",
       "projectName": "Emma.Api",
-      "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\Emma.Api.csproj",
+      "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Api\\Emma.Api.csproj",
       "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Api\\obj\\",
+      "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -10432,14 +10432,14 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Core\\Emma.Core.csproj": {
-              "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Core\\Emma.Core.csproj"
+            "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Core\\Emma.Core.csproj": {
+              "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Core\\Emma.Core.csproj"
             },
-            "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj": {
-              "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Data\\Emma.Data.csproj"
+            "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Data\\Emma.Data.csproj": {
+              "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Data\\Emma.Data.csproj"
             },
-            "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Infrastructure\\Emma.Infrastructure.csproj": {
-              "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma\\Emma.Infrastructure\\Emma.Infrastructure.csproj"
+            "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Infrastructure\\Emma.Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\Emma.Infrastructure\\Emma.Infrastructure.csproj"
             }
           }
         }

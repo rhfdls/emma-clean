@@ -193,10 +193,6 @@ public class Contact : BaseEntity
     [Obsolete("Use PhoneNumbers collection instead")]
     public List<PhoneNumber> Phones { get; set; } = new();
     
-    /// <summary>
-    /// Current relationship state - can evolve over time as relationships change.
-    /// </summary>
-    public RelationshipState RelationshipState { get; set; } = RelationshipState.Lead;
     
     /// <summary>
     /// Boolean flag for compliance and legal triggers when someone becomes an active client.
@@ -253,7 +249,7 @@ public class Contact : BaseEntity
     /// <summary>
     /// For agent contacts - links to their User record if they're part of the organization.
     /// </summary>
-    public Guid? OwnerId { get; set; }
+    
     
     /// <summary>
     /// Segmentation tags only (e.g., VIP, Buyer, Region). DO NOT use for privacy/business logic (CRM, PERSONAL, PRIVATE, etc.).
@@ -270,12 +266,10 @@ public class Contact : BaseEntity
     /// <summary>
     /// The user who owns/manages this contact (for agent contacts, this is the human agent managing the AI)
     /// </summary>
-    public User? Owner { get; set; }
     
     /// <summary>
     /// The organization this contact belongs to
     /// </summary>
-    public Organization? Organization { get; set; }
     
     /// <summary>
     /// The user currently assigned to manage this contact
@@ -285,7 +279,6 @@ public class Contact : BaseEntity
     /// <summary>
     /// All interactions with this contact
     /// </summary>
-    public List<Interaction> Interactions { get; set; } = new();
     
     /// <summary>
     /// Resources (service providers) assigned to this contact
@@ -300,7 +293,6 @@ public class Contact : BaseEntity
     /// <summary>
     /// History of state transitions for this contact
     /// </summary>
-    public List<ContactStateHistory> StateHistory { get; set; } = new();
     
     /// <summary>
     /// Users who have been granted access to collaborate on this contact

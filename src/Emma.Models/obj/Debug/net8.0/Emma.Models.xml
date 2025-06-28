@@ -4,6 +4,11 @@
         <name>Emma.Models</name>
     </assembly>
     <members>
+        <member name="T:Emma.Models.Enums.ContactAssignmentStatus">
+            <summary>
+            Represents the status of a contact assignment (service provider assignment).
+            </summary>
+        </member>
         <member name="T:Emma.Models.Enums.TaskPriority">
             <summary>
             Represents the priority levels that can be assigned to a task.
@@ -124,6 +129,11 @@
             Provides comprehensive forensic trail for privacy compliance.
             </summary>
         </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.UserId">
+            <summary>
+            The user who performed the action.
+            </summary>
+        </member>
         <member name="P:Emma.Models.Models.AccessAuditLog.RequestingUserId">
             <summary>
             The user who requested access to the resource.
@@ -132,6 +142,21 @@
         <member name="P:Emma.Models.Models.AccessAuditLog.OrganizationId">
             <summary>
             The organization the requesting agent belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.Action">
+            <summary>
+            The action performed (e.g., Create, Read, Update, Delete).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.EntityType">
+            <summary>
+            Type of entity being accessed (Contact, Interaction, etc.).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.EntityId">
+            <summary>
+            ID of the entity being accessed.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.AccessAuditLog.ResourceType">
@@ -154,6 +179,26 @@
             Whether access was granted or denied.
             </summary>
         </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.Timestamp">
+            <summary>
+            Date and time when the action occurred.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.IpAddress">
+            <summary>
+            IP address of the client that made the request.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.UserAgent">
+            <summary>
+            User agent string of the client that made the request.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.AccessAuditLog.User">
+            <summary>
+            Navigation property for the user who performed the action.
+            </summary>
+        </member>
         <member name="P:Emma.Models.Models.AccessAuditLog.Reason">
             <summary>
             Reason for the access decision (e.g., "Owner", "Collaborator", "Denied - No Permission").
@@ -163,16 +208,6 @@
             <summary>
             Privacy tags associated with the accessed resource.
             JSON array of tags like ["PERSONAL", "PRIVATE", "CRM"].
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.AccessAuditLog.IpAddress">
-            <summary>
-            IP address of the requesting client.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.AccessAuditLog.UserAgent">
-            <summary>
-            User agent string of the requesting client.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.AccessAuditLog.Metadata">
@@ -199,6 +234,127 @@
         <member name="P:Emma.Models.Models.AccessAuditLog.Contact">
             <summary>
             Navigation property to the contact (if applicable).
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.Address">
+            <summary>
+            Represents a physical address associated with a contact or organization in the system.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.Street1">
+            <summary>
+            Gets or sets the first line of the street address.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.Street2">
+            <summary>
+            Gets or sets the second line of the street address (e.g., apartment or suite number).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.City">
+            <summary>
+            Gets or sets the city or locality.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.State">
+            <summary>
+            Gets or sets the state or region (e.g., province, state, or region).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.PostalCode">
+            <summary>
+            Gets or sets the postal code.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.Country">
+            <summary>
+            Gets or sets the country (ISO 3166-1 alpha-2 or alpha-3 code).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.Type">
+            <summary>
+            Gets or sets the type of address (e.g., Home, Work, Billing, Shipping).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.IsPrimary">
+            <summary>
+            Gets or sets a value indicating whether this is the primary address.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.Notes">
+            <summary>
+            Gets or sets any additional notes about this address.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.ContactId">
+            <summary>
+            Gets or sets the ID of the contact this address belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.Contact">
+            <summary>
+            Gets or sets the contact this address belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.OrganizationId">
+            <summary>
+            Gets or sets the ID of the organization this address belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Address.Organization">
+            <summary>
+            Gets or sets the organization this address belongs to.
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.BaseEntity">
+            <summary>
+            Base class for all entity types in the system.
+            Provides common properties and behavior for all entities.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.BaseEntity.Id">
+            <summary>
+            Gets or sets the primary key for this entity.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.BaseEntity.CreatedAt">
+            <summary>
+            Gets or sets the date and time when this entity was created.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.BaseEntity.UpdatedAt">
+            <summary>
+            Gets or sets the date and time when this entity was last updated.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.BaseEntity.CreatedById">
+            <summary>
+            Gets or sets the ID of the user who created this entity.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.BaseEntity.UpdatedById">
+            <summary>
+            Gets or sets the ID of the user who last updated this entity.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.BaseEntity.IsDeleted">
+            <summary>
+            Gets or sets a value indicating whether this entity is deleted (soft delete).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.BaseEntity.DeletedAt">
+            <summary>
+            Gets or sets the date and time when this entity was deleted (for soft delete).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.BaseEntity.DeletedById">
+            <summary>
+            Gets or sets the ID of the user who deleted this entity.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.BaseEntity.RowVersion">
+            <summary>
+            Gets or sets the concurrency token for optimistic concurrency control.
             </summary>
         </member>
         <member name="T:Emma.Models.Models.ClientState">
@@ -312,19 +468,141 @@
             Contacts can transition between states as relationships evolve.
             </summary>
         </member>
-        <member name="T:Emma.Models.Models.ContactStateHistory">
+        <member name="T:Emma.Models.Models.Contact">
             <summary>
-            Tracks state transition history for analytics and audit purposes.
+            Represents a contact in the system, which could be a lead, client, partner, or other entity
+            that the organization interacts with. Contacts can be associated with multiple interactions,
+            tasks, and other entities in the system.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Contact.OrganizationId">
             <summary>
-            Organization that owns this contact (for multi-tenant support).
+            Gets or sets the ID of the organization that owns this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.FirstName">
+            <summary>
+            Gets or sets the contact's first name.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.LastName">
+            <summary>
+            Gets or sets the contact's last name.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.MiddleName">
+            <summary>
+            Gets or sets the contact's middle name or initial.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.PreferredName">
+            <summary>
+            Gets or sets the contact's preferred name or nickname.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Title">
+            <summary>
+            Gets or sets the contact's title (e.g., Mr., Mrs., Dr.).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.JobTitle">
+            <summary>
+            Gets or sets the contact's job title or position.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Company">
+            <summary>
+            Gets or sets the contact's company or organization name.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Department">
+            <summary>
+            Gets or sets the contact's department or team within their organization.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Contact.RelationshipState">
             <summary>
-            Current relationship state - can evolve over time as relationships change.
+            Gets or sets the contact's current relationship state.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.LastContactedAt">
+            <summary>
+            Gets or sets the date when this contact was last contacted.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.NextFollowUpAt">
+            <summary>
+            Gets or sets the date when this contact should be followed up with.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Source">
+            <summary>
+            Gets or sets the source of this contact (e.g., website, referral, event).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.OwnerId">
+            <summary>
+            Gets or sets the ID of the user who owns or is responsible for this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.PreferredContactMethod">
+            <summary>
+            Gets or sets the contact's preferred method of communication.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.PreferredContactTime">
+            <summary>
+            Gets or sets the contact's preferred time of day for contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Notes">
+            <summary>
+            Gets or sets any notes or additional information about the contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.ProfilePictureUrl">
+            <summary>
+            Gets or sets the contact's profile picture URL.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Organization">
+            <summary>
+            Gets or sets the organization that owns this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Owner">
+            <summary>
+            Gets or sets the user who owns or is responsible for this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.EmailAddresses">
+            <summary>
+            Gets or sets the collection of email addresses associated with this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.PhoneNumbers">
+            <summary>
+            Gets or sets the collection of phone numbers associated with this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Address">
+            <summary>
+            Gets or sets the primary address of this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Tasks">
+            <summary>
+            Gets or sets the collection of tasks associated with this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.Interactions">
+            <summary>
+            Gets or sets the collection of interactions associated with this contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.StateHistory">
+            <summary>
+            Gets or sets the history of relationship state changes for this contact.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Contact.IsActiveClient">
@@ -378,38 +656,30 @@
             Website URL for service providers.
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.Contact.OwnerId">
+        <member name="P:Emma.Models.Models.Contact.Tags">
             <summary>
             For agent contacts - links to their User record if they're part of the organization.
             </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.Tags">
             <summary>
             Segmentation tags only (e.g., VIP, Buyer, Region). DO NOT use for privacy/business logic (CRM, PERSONAL, PRIVATE, etc.).
             All privacy/business logic must be enforced via Interaction.Tags.
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.Contact.Owner">
+        <member name="P:Emma.Models.Models.Contact.AssignedTo">
             <summary>
             The user who owns/manages this contact (for agent contacts, this is the human agent managing the AI)
             </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.Organization">
             <summary>
             The organization this contact belongs to
             </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.AssignedTo">
             <summary>
             The user currently assigned to manage this contact
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.Contact.Interactions">
+        <member name="P:Emma.Models.Models.Contact.AssignedResources">
             <summary>
             All interactions with this contact
             </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.AssignedResources">
             <summary>
             Resources (service providers) assigned to this contact
             </summary>
@@ -419,12 +689,10 @@
             Assignments where this contact is the resource (service provider)
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.Contact.StateHistory">
+        <member name="P:Emma.Models.Models.Contact.Collaborators">
             <summary>
             History of state transitions for this contact
             </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.Collaborators">
             <summary>
             Users who have been granted access to collaborate on this contact
             </summary>
@@ -516,21 +784,6 @@
             <param name="newOwner">The new owner user</param>
             <param name="transferredBy">The user initiating the transfer</param>
             <exception cref="T:System.InvalidOperationException">Thrown if the transfer is not allowed</exception>
-        </member>
-        <member name="P:Emma.Models.Models.EmailAddress.Address">
-            <summary>
-            The email address - must be unique across all contacts in the system
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.EmailAddress.ContactId">
-            <summary>
-            Foreign key to the Contact that owns this email address
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.EmailAddress.Contact">
-            <summary>
-            Navigation property to the Contact
-            </summary>
         </member>
         <member name="T:Emma.Models.Models.ContactAssignment">
             <summary>
@@ -1019,6 +1272,56 @@
             Custom fields for additional state information
             </summary>
         </member>
+        <member name="T:Emma.Models.Models.ContactStateHistory">
+            <summary>
+            Tracks the history of relationship state transitions for a contact.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactStateHistory.ContactId">
+            <summary>
+            Gets or sets the ID of the contact this state history belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactStateHistory.FromState">
+            <summary>
+            Gets or sets the previous relationship state.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactStateHistory.ToState">
+            <summary>
+            Gets or sets the new relationship state after the transition.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactStateHistory.TransitionDate">
+            <summary>
+            Gets or sets the date and time when the state transition occurred.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactStateHistory.Reason">
+            <summary>
+            Gets or sets the reason or notes for the state transition.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactStateHistory.ChangedByUserId">
+            <summary>
+            Gets or sets the ID of the user who initiated the state transition.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactStateHistory.Metadata">
+            <summary>
+            Gets or sets any additional metadata about the state transition.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactStateHistory.Contact">
+            <summary>
+            Gets or sets the contact this state history belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.ContactStateHistory.ChangedByUser">
+            <summary>
+            Gets or sets the user who initiated the state transition.
+            </summary>
+        </member>
         <member name="T:Emma.Models.Models.ContactSummary">
             <summary>
             Rolling summary of contact interactions and context
@@ -1064,15 +1367,186 @@
             Custom fields for additional context
             </summary>
         </member>
+        <member name="T:Emma.Models.Models.DeviceToken">
+            <summary>
+            Represents a device token used for push notifications and device identification.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.DeviceToken.UserId">
+            <summary>
+            Gets or sets the user ID this device token is associated with.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.DeviceToken.DeviceId">
+            <summary>
+            Gets or sets the unique identifier for the device.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.DeviceToken.Token">
+            <summary>
+            Gets or sets the push notification token for the device.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.DeviceToken.Platform">
+            <summary>
+            Gets or sets the platform of the device (e.g., "ios", "android", "web").
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.DeviceToken.DeviceName">
+            <summary>
+            Gets or sets the name of the device (e.g., "David's iPhone").
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.DeviceToken.DeviceModel">
+            <summary>
+            Gets or sets the model of the device (e.g., "iPhone 13").
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.DeviceToken.OsVersion">
+            <summary>
+            Gets or sets the operating system version (e.g., "15.4.1").
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.DeviceToken.AppVersion">
+            <summary>
+            Gets or sets the application version (e.g., "1.0.0").
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.DeviceToken.IsActive">
+            <summary>
+            Gets or sets a value indicating whether this device is active.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.DeviceToken.LastUsedAt">
+            <summary>
+            Gets or sets the date and time when this device token was last used.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.DeviceToken.User">
+            <summary>
+            Gets or sets the user associated with this device token.
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.EmailAddress">
+            <summary>
+            Represents an email address associated with a user or contact in the system.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.Address">
+            <summary>
+            Gets or sets the email address value.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.IsPrimary">
+            <summary>
+            Gets or sets a value indicating whether this is the primary email address.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.IsVerified">
+            <summary>
+            Gets or sets a value indicating whether this email address has been verified.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.Type">
+            <summary>
+            Gets or sets the type of the email address (e.g., Personal, Work, Other).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.UserId">
+            <summary>
+            Gets or sets the ID of the user this email address belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.User">
+            <summary>
+            Gets or sets the user this email address belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.ContactId">
+            <summary>
+            Gets or sets the ID of the contact this email address belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.Contact">
+            <summary>
+            Gets or sets the contact this email address belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.CreatedAt">
+            <summary>
+            Gets or sets the date and time when this email address was created.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmailAddress.UpdatedAt">
+            <summary>
+            Gets or sets the date and time when this email address was last updated.
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.EmmaAnalysis">
+            <summary>
+            Represents an analysis performed by EMMA on a message, including AI-generated insights,
+            recommended actions, and compliance information.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmmaAnalysis.MessageId">
+            <summary>
+            Gets or sets the ID of the message this analysis is associated with.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmmaAnalysis.Message">
+            <summary>
+            Gets or sets the message this analysis is associated with.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmmaAnalysis.LeadStatus">
+            <summary>
+            Gets or sets the lead status determined by the analysis.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmmaAnalysis.RecommendedStrategy">
+            <summary>
+            Gets or sets the recommended strategy based on the analysis.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmmaAnalysis.TasksList">
+            <summary>
+            Gets or sets the list of tasks recommended by the analysis.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmmaAnalysis.AgentAssignments">
+            <summary>
+            Gets or sets the list of agent assignments recommended by the analysis.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmmaAnalysis.ComplianceFlags">
+            <summary>
+            Gets or sets the list of compliance flags raised during analysis.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmmaAnalysis.FollowupGuidance">
+            <summary>
+            Gets or sets the follow-up guidance provided by the analysis.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmmaAnalysis.ConfidenceScore">
+            <summary>
+            Gets or sets the confidence score of the analysis (0-100).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmmaAnalysis.ModelVersion">
+            <summary>
+            Gets or sets the version of the analysis model used.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.EmmaAnalysis.Metadata">
+            <summary>
+            Gets or sets any additional metadata or context for the analysis.
+            </summary>
+        </member>
         <member name="T:Emma.Models.Models.Feature">
             <summary>
             Represents a feature that can be included in subscription plans.
             Features control access to specific functionality in the application.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Feature.Id">
-            <summary>
-            Unique identifier for the feature
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Feature.Code">
@@ -1100,9 +1574,9 @@
             Whether this feature is currently active and available
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.Feature.CreatedAt">
+        <member name="P:Emma.Models.Models.Feature.SubscriptionPlans">
             <summary>
-            When this feature was first introduced
+            Navigation property for the subscription plans that include this feature
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Feature.UpdatedAt">
@@ -1138,6 +1612,36 @@
         <member name="T:Emma.Models.Models.Interaction">
             <summary>
             Represents an interaction between users, contacts, and systems in the EMMA platform.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Interaction.CreatedBy">
+            <summary>
+            Gets or sets the user who created this interaction.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Interaction.Messages">
+            <summary>
+            Gets or sets the collection of messages that are part of this interaction.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Interaction.Contact">
+            <summary>
+            Gets or sets the contact associated with this interaction.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Interaction.ParentInteraction">
+            <summary>
+            Gets or sets the parent interaction, if this is a reply or follow-up.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Interaction.ChildInteractions">
+            <summary>
+            Gets or sets the child interactions, if this is a parent interaction.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Interaction.Organization">
+            <summary>
+            Gets or sets the organization this interaction belongs to.
             </summary>
         </member>
         <member name="T:Emma.Models.Models.Participant">
@@ -1210,6 +1714,94 @@
             Custom fields for additional metadata
             </summary>
         </member>
+        <member name="T:Emma.Models.Models.Message">
+            <summary>
+            Represents a message in the system, which can be part of an interaction.
+            Messages can be of different types (e.g., email, SMS, chat, etc.) and may contain
+            various forms of content including text, attachments, and metadata.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.UserId">
+            <summary>
+            Gets or sets the ID of the user who sent or received this message.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.User">
+            <summary>
+            Gets or sets the user associated with this message.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.Payload">
+            <summary>
+            Gets or sets the raw payload of the message.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.AiResponse">
+            <summary>
+            Gets or sets the AI-generated response for this message, if any.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.BlobStorageUrl">
+            <summary>
+            Gets or sets the URL to the message content in blob storage, if applicable.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.Type">
+            <summary>
+            Gets or sets the type of the message (e.g., Email, SMS, Chat, etc.).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.OccurredAt">
+            <summary>
+            Gets or sets the date and time when the message was sent or received.
+            This is different from CreatedAt which is when the record was created in the database.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.InteractionId">
+            <summary>
+            Gets or sets the ID of the interaction this message belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.Interaction">
+            <summary>
+            Gets or sets the interaction this message is part of.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.Transcription">
+            <summary>
+            Gets or sets the transcription of this message, if available.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.CallMetadata">
+            <summary>
+            Gets or sets the call metadata associated with this message, if it's a call.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.Analyses">
+            <summary>
+            Gets or sets the collection of analyses performed on this message by EMMA.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.Direction">
+            <summary>
+            Gets or sets the direction of the message (Inbound, Outbound, or Internal).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.Status">
+            <summary>
+            Gets or sets the status of the message (e.g., Sent, Delivered, Read, Failed).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.ErrorDetails">
+            <summary>
+            Gets or sets any error information if the message failed to send or process.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Message.Metadata">
+            <summary>
+            Gets or sets any additional metadata for the message in JSON format.
+            </summary>
+        </member>
         <member name="T:Emma.Models.Models.NbaContext">
             <summary>
             Curated context for Next Best Action (NBA) recommendations
@@ -1225,9 +1817,9 @@
             Represents an organization in the EMMA platform, which can have multiple users and AI agents.
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.Organization.Id">
+        <member name="P:Emma.Models.Models.Organization.Subscriptions">
             <summary>
-            Unique identifier for the organization.
+            Gets or sets the collection of subscriptions for this organization.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Organization.Name">
@@ -1235,7 +1827,40 @@
             The name of the organization.
             </summary>
         </member>
+        <member name="P:Emma.Models.Models.Organization.Website">
+            <summary>
+            Gets or sets the website URL of the organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.PhoneNumber">
+            <summary>
+            Gets or sets the primary phone number of the organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.LogoUrl">
+            <summary>
+            Gets or sets the URL to the organization's logo.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.TimeZone">
+            <summary>
+            Gets or sets the timezone of the organization (e.g., "America/New_York").
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Locale">
+            <summary>
+            Gets or sets the locale of the organization (e.g., "en-US").
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Currency">
+            <summary>
+            Gets or sets the default currency code for the organization (e.g., "USD").
+            </summary>
+        </member>
         <member name="P:Emma.Models.Models.Organization.Email">
+            <summary>
+            Gets or sets a value indicating whether the organization is active.
+            </summary>
             <summary>
             The primary contact email for the organization.
             </summary>
@@ -1248,6 +1873,31 @@
         <member name="P:Emma.Models.Models.Organization.OwnerUser">
             <summary>
             Navigation property for the user who owns this organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Users">
+            <summary>
+            Gets or sets the collection of users belonging to this organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Contacts">
+            <summary>
+            Gets or sets the collection of contacts belonging to this organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Interactions">
+            <summary>
+            Gets or sets the collection of interactions associated with this organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.Agents">
+            <summary>
+            Gets or sets the collection of agents associated with this organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Organization.SubscriptionPlans">
+            <summary>
+            Gets or sets the collection of subscription plans available to this organization.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Organization.IndustryCode">
@@ -1264,11 +1914,6 @@
         <member name="P:Emma.Models.Models.Organization.UpdatedAt">
             <summary>
             The date and time when the organization was last updated.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Organization.IsActive">
-            <summary>
-            Indicates whether the organization is currently active.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Organization.FubApiKey">
@@ -1289,26 +1934,6 @@
         <member name="P:Emma.Models.Models.Organization.FubId">
             <summary>
             Follow Up Boss organization ID.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Organization.Users">
-            <summary>
-            Collection of users belonging to this organization.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Organization.Agents">
-            <summary>
-            Collection of AI agents configured for this organization.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Organization.Subscriptions">
-            <summary>
-            Collection of subscriptions associated with this organization.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Organization.Interactions">
-            <summary>
-            Collection of interactions associated with this organization.
             </summary>
         </member>
         <member name="M:Emma.Models.Models.Organization.IsOwner(System.Guid)">
@@ -1344,6 +1969,116 @@
             </summary>
             <returns>A tuple indicating whether the organization is valid and any error message.</returns>
         </member>
+        <member name="T:Emma.Models.Models.OrganizationSubscription">
+            <summary>
+            Represents an organization's subscription to a specific plan.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.OrganizationSubscription.OrganizationId">
+            <summary>
+            Gets or sets the ID of the organization that owns this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.OrganizationSubscription.Organization">
+            <summary>
+            Gets or sets the organization that owns this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.OrganizationSubscription.SubscriptionPlanId">
+            <summary>
+            Gets or sets the ID of the subscription plan.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.OrganizationSubscription.SubscriptionPlan">
+            <summary>
+            Gets or sets the subscription plan.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.OrganizationSubscription.SeatsLimit">
+            <summary>
+            Gets or sets the maximum number of seats allowed by this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.OrganizationSubscription.StripeSubscriptionId">
+            <summary>
+            Gets or sets the Stripe subscription ID for billing purposes.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.OrganizationSubscription.StartDate">
+            <summary>
+            Gets or sets the start date of the subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.OrganizationSubscription.EndDate">
+            <summary>
+            Gets or sets the end date of the subscription (if applicable).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.OrganizationSubscription.Status">
+            <summary>
+            Gets or sets the status of the subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.OrganizationSubscription.UserAssignments">
+            <summary>
+            Gets or sets the collection of user assignments for this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.OrganizationSubscription.UserSubscriptions">
+            <summary>
+            Gets or sets the collection of user subscriptions associated with this organization subscription.
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.PhoneNumber">
+            <summary>
+            Represents a phone number associated with a contact in the system.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.PhoneNumber.Number">
+            <summary>
+            Gets or sets the phone number value in E.164 format (e.g., +14155552671).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.PhoneNumber.Type">
+            <summary>
+            Gets or sets the type of phone number (e.g., Mobile, Home, Work).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.PhoneNumber.IsPrimary">
+            <summary>
+            Gets or sets a value indicating whether this is the primary phone number.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.PhoneNumber.IsVerified">
+            <summary>
+            Gets or sets a value indicating whether this phone number has been verified.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.PhoneNumber.Notes">
+            <summary>
+            Gets or sets any additional notes about this phone number.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.PhoneNumber.ContactId">
+            <summary>
+            Gets or sets the ID of the contact this phone number belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.PhoneNumber.Contact">
+            <summary>
+            Gets or sets the contact this phone number belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.PhoneNumber.UserId">
+            <summary>
+            Gets or sets the ID of the user this phone number belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.PhoneNumber.User">
+            <summary>
+            Gets or sets the user this phone number belongs to.
+            </summary>
+        </member>
         <member name="T:Emma.Models.Models.RelevantInteraction">
             <summary>
             Represents a relevant interaction with similarity score and relevance context
@@ -1367,19 +2102,6 @@
         <member name="P:Emma.Models.Models.RelevantInteraction.RelevanceReason">
             <summary>
             Human-readable explanation of why this interaction is considered relevant
-            </summary>
-        </member>
-        <member name="T:Emma.Models.Models.Resource">
-            <summary>
-            OBSOLETE: This entity is being phased out in favor of Contact-centric approach.
-            Service providers are now represented as Contact entities with RelationshipState.ServiceProvider.
-            Use ContactAssignment instead of ResourceAssignment for service provider assignments.
-            </summary>
-        </member>
-        <member name="T:Emma.Models.Models.ResourceAssignment">
-            <summary>
-            OBSOLETE: This entity is being phased out in favor of Contact-centric approach.
-            Use ContactAssignment instead, which links ClientContact to ServiceContact (both are Contact entities).
             </summary>
         </member>
         <member name="T:Emma.Models.Models.ResourceRecommendation">
@@ -1411,6 +2133,76 @@
         <member name="P:Emma.Models.Models.ResourceRecommendation.RecommendationOrder">
             <summary>
             The order of this recommendation in the list (1st, 2nd, 3rd choice).
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.Subscription">
+            <summary>
+            Represents a user's subscription to a subscription plan.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.UserId">
+            <summary>
+            Gets or sets the ID of the user who owns this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.User">
+            <summary>
+            Gets or sets the user who owns this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.StripeSubscriptionId">
+            <summary>
+            Gets or sets the Stripe subscription ID for this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.PlanId">
+            <summary>
+            Gets or sets the ID of the subscription plan this subscription is for.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.Plan">
+            <summary>
+            Gets or sets the subscription plan this subscription is for.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.StartDate">
+            <summary>
+            Gets or sets the date and time when the subscription started.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.EndDate">
+            <summary>
+            Gets or sets the date and time when the subscription will end, if applicable.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.Status">
+            <summary>
+            Gets or sets the status of the subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.SeatsLimit">
+            <summary>
+            Gets or sets the maximum number of seats allowed for this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.IsCallProcessingEnabled">
+            <summary>
+            Gets or sets a value indicating whether call processing is enabled for this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.OrganizationSubscriptionId">
+            <summary>
+            Gets or sets the ID of the organization subscription this user subscription is associated with.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.OrganizationSubscription">
+            <summary>
+            Gets or sets the organization subscription this user subscription is associated with.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Subscription.UserAssignments">
+            <summary>
+            Gets or sets the collection of user subscription assignments for this subscription.
             </summary>
         </member>
         <member name="T:Emma.Models.Models.SubscriptionPlan">
@@ -1446,6 +2238,26 @@
         <member name="P:Emma.Models.Models.SubscriptionPlan.Description">
             <summary>
             Optional description of the plan
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.Subscriptions">
+            <summary>
+            Gets or sets the collection of subscriptions that use this plan.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.OrganizationSubscriptions">
+            <summary>
+            Gets or sets the collection of organization subscriptions that use this plan.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.OrganizationId">
+            <summary>
+            The ID of the organization this subscription plan belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.SubscriptionPlan.Organization">
+            <summary>
+            The organization this subscription plan belongs to.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.SubscriptionPlan.MonthlyPrice">
@@ -1519,6 +2331,96 @@
             Optional notes about this feature for this plan
             </summary>
         </member>
+        <member name="T:Emma.Models.Models.TaskItem">
+            <summary>
+            Represents a task or to-do item that can be assigned to users or related to other entities.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Title">
+            <summary>
+            Gets or sets the title of the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Description">
+            <summary>
+            Gets or sets the detailed description of the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Status">
+            <summary>
+            Gets or sets the status of the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Priority">
+            <summary>
+            Gets or sets the priority of the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.DueDate">
+            <summary>
+            Gets or sets the date and time when the task is due.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.CompletedAt">
+            <summary>
+            Gets or sets the date and time when the task was completed.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.CreatedById">
+            <summary>
+            Gets or sets the ID of the user who created the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.CreatedBy">
+            <summary>
+            Gets or sets the user who created the task.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.AssignedToId">
+            <summary>
+            Gets or sets the ID of the user the task is assigned to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.AssignedTo">
+            <summary>
+            Gets or sets the user the task is assigned to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.ContactId">
+            <summary>
+            Gets or sets the ID of the related contact, if any.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Contact">
+            <summary>
+            Gets or sets the related contact, if any.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.InteractionId">
+            <summary>
+            Gets or sets the ID of the related interaction, if any.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Interaction">
+            <summary>
+            Gets or sets the related interaction, if any.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.CreatedAt">
+            <summary>
+            Gets or sets the date and time when the task was created.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.UpdatedAt">
+            <summary>
+            Gets or sets the date and time when the task was last updated.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.TaskItem.Metadata">
+            <summary>
+            Gets or sets any additional metadata for the task in JSON format.
+            </summary>
+        </member>
         <member name="P:Emma.Models.Models.User.IsAdmin">
             <summary>
             Indicates whether this user has administrative privileges.
@@ -1530,177 +2432,155 @@
             The role of the user within their organization (e.g., Admin, Member, etc.)
             </summary>
         </member>
+        <member name="P:Emma.Models.Models.User.Organization">
+            <summary>
+            Gets or sets the organization this user belongs to.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.OwnedOrganizations">
+            <summary>
+            Gets or sets the collection of organizations owned by this user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.EmailAddresses">
+            <summary>
+            Gets or sets the collection of email addresses associated with this user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.AssignedTasks">
+            <summary>
+            Gets or sets the collection of tasks assigned to this user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.DeviceTokens">
+            <summary>
+            Gets or sets the collection of device tokens for push notifications.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.PhoneNumbers">
+            <summary>
+            Gets or sets the collection of phone numbers associated with this user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.OwnedContacts">
+            <summary>
+            Gets or sets the collection of contacts owned by this user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.CreatedInteractions">
+            <summary>
+            Gets or sets the collection of interactions created by this user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.SubscriptionAssignments">
+            <summary>
+            Gets or sets the collection of subscription assignments for this user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.CreatedAgents">
+            <summary>
+            Gets or sets the collection of agents created by this user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.Subscriptions">
+            <summary>
+            Gets or sets the collection of subscriptions for this user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.AssignedSubscriptions">
+            <summary>
+            Gets or sets the collection of subscriptions assigned by this user to others.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.PrimaryPhoneNumber">
+            <summary>
+            Gets the primary phone number for this user, if available.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.User.PrimaryEmail">
+            <summary>
+            Gets the primary email address for this user, if available.
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.UserSubscriptionAssignment">
+            <summary>
+            Represents the assignment of a subscription to a user within an organization.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.UserId">
+            <summary>
+            Gets or sets the ID of the user who is assigned this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.User">
+            <summary>
+            Gets or sets the user who is assigned this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.OrganizationSubscriptionId">
+            <summary>
+            Gets or sets the ID of the organization subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.OrganizationSubscription">
+            <summary>
+            Gets or sets the organization subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.AssignedAt">
+            <summary>
+            Gets or sets the date and time when the subscription was assigned to the user.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.AssignedByUserId">
+            <summary>
+            Gets or sets the ID of the user who assigned this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.AssignedByUser">
+            <summary>
+            Gets or sets the user who assigned this subscription.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.SubscriptionId">
+            <summary>
+            Gets or sets the ID of the subscription this assignment is for.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.Subscription">
+            <summary>
+            Gets or sets the subscription this assignment is for.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.StartDate">
+            <summary>
+            Gets or sets the start date of the subscription for this user (if different from organization subscription).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.EndDate">
+            <summary>
+            Gets or sets the end date of the subscription for this user (if different from organization subscription).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.IsActive">
+            <summary>
+            Gets or sets a value indicating whether this assignment is active.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.DeactivatedAt">
+            <summary>
+            Gets or sets the date and time when this assignment was deactivated.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.UserSubscriptionAssignment.DeactivationReason">
+            <summary>
+            Gets or sets the reason for deactivating this assignment.
+            </summary>
+        </member>
         <member name="T:Emma.Models.Models.NbaRecommendation">
             <summary>
             Represents a Next Best Action (NBA) recommendation for a contact
             </summary>
-        </member>
-        <member name="T:Emma.Models.Models.TaskItem">
-            <summary>
-            Represents a task item in the system, which can be assigned to users
-            and associated with contacts and organizations.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Id">
-            <summary>
-            Unique identifier for the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.TaskId">
-            <summary>
-            For backward compatibility with legacy systems.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.ContactId">
-            <summary>
-            The contact associated with this task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Contact">
-            <summary>
-            Navigation property for the associated contact.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.OrganizationId">
-            <summary>
-            The organization that owns this task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Organization">
-            <summary>
-            Navigation property for the organization.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.ContactName">
-            <summary>
-            Cached contact name for display purposes.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Title">
-            <summary>
-            The title of the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Description">
-            <summary>
-            Detailed description of the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.DueDate">
-            <summary>
-            The due date and time for the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Priority">
-            <summary>
-            The priority level of the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Status">
-            <summary>
-            The current status of the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.TaskType">
-            <summary>
-            The type of task (e.g., FollowUp, Showing, Paperwork).
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.AssignedToUserId">
-            <summary>
-            The ID of the user this task is assigned to.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.AssignedToUser">
-            <summary>
-            Navigation property for the assigned user.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.CreatedAt">
-            <summary>
-            The date and time when the task was created.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.UpdatedAt">
-            <summary>
-            The date and time when the task was last updated.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.CreatedByUserId">
-            <summary>
-            The ID of the user who created the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.CreatedByUser">
-            <summary>
-            Navigation property for the user who created the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.UpdatedByUserId">
-            <summary>
-            The ID of the user who last updated the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.UpdatedByUser">
-            <summary>
-            Navigation property for the user who last updated the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.NbaRecommendationId">
-            <summary>
-            The ID of the NBA recommendation that created this task, if applicable.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.ConfidenceScore">
-            <summary>
-            The confidence score of the NBA recommendation (0-1).
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.ValidationReason">
-            <summary>
-            The reason for validation or rejection of the NBA recommendation.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.RequiresApproval">
-            <summary>
-            Indicates whether this task requires approval before being acted upon.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.ApprovalRequestId">
-            <summary>
-            The ID of the approval request, if this task requires approval.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Metadata">
-            <summary>
-            Custom metadata for extensibility.
-            </summary>
-        </member>
-        <member name="M:Emma.Models.Models.TaskItem.EnsureCompatibility">
-            <summary>
-            Ensures backward compatibility with older versions of the model.
-            </summary>
-        </member>
-        <member name="M:Emma.Models.Models.TaskItem.UpdateStatus(Emma.Models.Enums.TaskStatus,Emma.Models.Models.User,System.String)">
-            <summary>
-            Updates the task status and records the user who made the change.
-            </summary>
-            <param name="newStatus">The new status to set</param>
-            <param name="updatedBy">The user making the change</param>
-            <param name="notes">Optional notes about the status change</param>
-        </member>
-        <member name="M:Emma.Models.Models.TaskItem.AssignTo(Emma.Models.Models.User,Emma.Models.Models.User)">
-            <summary>
-            Assigns the task to a user.
-            </summary>
-            <param name="user">The user to assign the task to</param>
-            <param name="assignedBy">The user making the assignment</param>
-        </member>
-        <member name="M:Emma.Models.Models.TaskItem.Validate">
-            <summary>
-            Validates the task data.
-            </summary>
-            <returns>A tuple indicating whether the task is valid and any error message.</returns>
         </member>
         <member name="T:Emma.Models.Validation.NoPrivacyBusinessTagsAttribute">
             <summary>

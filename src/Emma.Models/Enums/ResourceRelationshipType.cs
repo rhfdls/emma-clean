@@ -1,1 +1,1 @@
-namespace Emma.Models.Enums;public enum ResourceRelationshipType{    Preferred,    Partner,    Referral,    TeamMember,    Vendor,    Contractor}
+// OBSOLETE: ResourceRelationshipType enum removed. Use RelationshipState or equivalent in Contact.
