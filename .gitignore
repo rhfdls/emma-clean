@@ -17,10 +17,16 @@ bin/
 *.code-workspace
 
 # Environment and configuration files
-#.env
-# *.env.*
-# appsettings.Development.json
-#!appsettings.Development.json.example
+.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+local.env
+# Do NOT ignore example/template files
+!env.example
+!env.template
+!appsettings.Development.json.example
 
 # Logs
 logs/
@@ -56,8 +62,8 @@ yarn-error.log*
 *.nuget.targets
 
 # Local development
-# local.env
-# *.local.*
+local.env
+*.local.*
 
 # IDE specific files
 .DS_Store

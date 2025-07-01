@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Emma.Models")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9266b3db139df8591b7150176aeccf20b89e127")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1960c7a8f4ae803ba693caf49205e7cf706202dc")]
 [assembly: System.Reflection.AssemblyProductAttribute("Emma.Models")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Emma.Models")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

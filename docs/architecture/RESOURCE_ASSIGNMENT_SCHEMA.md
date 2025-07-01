@@ -1,4 +1,34 @@
-# Emma AI Platform - Resource Assignment Schema
+# RESOURCE_ASSIGNMENT_SCHEMA.md (OBSOLETE)
+
+## 🚨 This schema is obsolete and should not be used in new development. 🚨
+
+### Unified Contact-Centric Model (Effective v3.0+)
+
+- **All resources, service providers, and agents are now represented as `Contact` entities** in the EMMA platform.
+- The previous `Resource`, `ResourceAssignment`, and `ResourceRecommendation` entities have been **deprecated** and replaced by:
+  - `Contact` (with `RelationshipState.ServiceProvider`, `Agent`, etc.)
+  - `ContactAssignment` (links client contacts to service contacts/providers)
+  - `ContactCollaborationType` (for assignment/collaboration semantics)
+
+### Migration Guidance
+- **Remove/replace all code and documentation** referencing `Resource`, `ResourceAssignment`, or `ResourceRecommendation`.
+- **Use the canonical `Contact` and `ContactAssignment` models** as defined in `docs/architecture/UNIFIED_SCHEMA.md`.
+- For recommendations, use lightweight result objects or context models based on `Contact`.
+
+### References
+- See [`UNIFIED_SCHEMA.md`](./UNIFIED_SCHEMA.md) for the latest canonical entity definitions and relationships.
+- See [`EMMA-LEXICON.md`](../EMMA-LEXICON.md) for standardized terminology.
+- See migration notes in [`TERMINOLOGY-MIGRATION-GUIDE.md`](../TERMINOLOGY-MIGRATION-GUIDE.md) for details on the transition from resource-centric to contact-centric models.
+
+---
+
+**Summary:**
+- ❌ Do NOT use ResourceAssignment or Resource entities.
+- ✅ Use Contact, ContactAssignment, and ContactCollaborationType.
+- ✅ All provider/service/agent roles are modeled as Contacts with appropriate RelationshipState.
+
+This file is retained for historical reference only and should not be used for implementation or design decisions.
+
 
 ## Overview
 

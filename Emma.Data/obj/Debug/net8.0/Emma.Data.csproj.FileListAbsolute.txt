@@ -1,4 +1,0 @@
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\Emma.Data.csproj.AssemblyReference.cache
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\Emma.Data.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\Emma.Data.csproj.CoreCompileInputs.cache
-C:\Users\david\GitHub\WindsurfProjects\emma\Emma.Data\obj\Debug\net8.0\Emma.Data.sourcelink.json
