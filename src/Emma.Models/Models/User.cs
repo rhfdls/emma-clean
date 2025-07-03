@@ -70,7 +70,7 @@ public class User : BaseEntity
     /// <summary>
     /// Gets or sets the collection of tasks assigned to this user.
     /// </summary>
-    [InverseProperty(nameof(TaskItem.AssignedTo))]
+    [InverseProperty(nameof(TaskItem.AssignedToUser))]
     public virtual ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();
     
     /// <summary>
