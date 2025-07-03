@@ -1,5 +1,25 @@
 # .NET Core
 bin/
+obj/
+*.dll
+*.pdb
+*.cache
+*.sourcelink.json
+*.AssemblyInfo.cs
+*.AssemblyInfoInputs.cache
+*.GeneratedMSBuildEditorConfig.editorconfig
+*.GlobalUsings.g.cs
+*.csproj.AssemblyReference.cache
+*.csproj.CoreCompileInputs.cache
+*.csproj.FileListAbsolute.txt
+*.csproj.Up2Date
+*.genruntimeconfig.cache
+*.xml
+*.targets
+*.nuget.*
+project.assets.json
+project.nuget.cache
+
 # obj/
 *.user
 *.userosscache
