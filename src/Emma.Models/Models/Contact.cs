@@ -172,8 +172,6 @@ public class Contact : BaseEntity
     /// <summary>
     /// Gets or sets the collection of tasks associated with this contact.
     /// </summary>
-    [InverseProperty(nameof(TaskItem.Contact))]
-    public virtual ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     
     /// <summary>
     /// Gets or sets the collection of interactions associated with this contact.

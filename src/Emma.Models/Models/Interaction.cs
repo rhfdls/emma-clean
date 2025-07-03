@@ -35,6 +35,7 @@ public class Interaction : BaseEntity
     public float[]? VectorEmbedding { get; set; }
     public float? SentimentScore { get; set; } // -1.0 to 1.0
     public string? SentimentLabel { get; set; } // VeryNegative, Negative, Neutral, Positive, VeryPositive
+    [NotMapped]
     public Dictionary<string, object>? AiMetadata { get; set; }
     public List<ActionItem>? ActionItems { get; set; }
     
@@ -48,6 +49,7 @@ public class Interaction : BaseEntity
     
     // Channel & Participants
     public string Channel { get; set; } = "other"; // email, phone, sms, whatsapp, web, mobileapp, inperson, mail, social, other
+    [NotMapped]
     public Dictionary<string, object>? ChannelData { get; set; }
     public List<Participant> Participants { get; set; } = new();
     public List<Attachment> Attachments { get; set; } = new();
@@ -55,6 +57,7 @@ public class Interaction : BaseEntity
     // Related Entities
     public List<RelatedEntity> RelatedEntities { get; set; } = new();
     public List<string> Tags { get; set; } = new();
+    [NotMapped]
     public Dictionary<string, object> CustomFields { get; set; } = new();
     
     // Navigation properties
@@ -87,7 +90,9 @@ public class Interaction : BaseEntity
     /// </summary>
     [ForeignKey(nameof(OrganizationId))]
     public virtual Organization? Organization { get; set; }
+    [NotMapped]
     public Dictionary<string, string> ExternalIds { get; set; } = new();
+    [NotMapped]
     public Dictionary<string, object> Metadata { get; set; } = new();
     
     // Timing
@@ -110,6 +115,7 @@ public class Interaction : BaseEntity
 /// <summary>
 /// Represents a participant in an interaction
 /// </summary>
+[NotMapped]
 public class Participant
 {
     public Guid ContactId { get; set; }
@@ -117,6 +123,7 @@ public class Participant
     public string? Name { get; set; }
     public string? Email { get; set; }
     public string? Phone { get; set; }
+    [NotMapped]
     public Dictionary<string, object>? Metadata { get; set; }
 }
 
@@ -131,6 +138,7 @@ public class Attachment
     public long Size { get; set; }
     public string? Url { get; set; }
     public string? PreviewUrl { get; set; }
+    [NotMapped]
     public Dictionary<string, object>? Metadata { get; set; }
 }
 
@@ -147,5 +155,6 @@ public class ActionItem
     public Guid? AssignedTo { get; set; }
     public DateTime? DueBy { get; set; }
     public DateTime? CompletedAt { get; set; }
+    [NotMapped]
     public Dictionary<string, object>? Metadata { get; set; }
 }
