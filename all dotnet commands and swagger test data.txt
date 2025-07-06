@@ -1,0 +1,80 @@
+/api/health/cosmos
+
+ow to Fix This (Manual Steps)
+1. Kill all lingering .NET and Emma.Api processes:
+
+Via Task Manager:
+Open Task Manager (Ctrl+Shift+Esc)
+Look for any dotnet.exe or Emma.Api.exe processes
+Select and end each one
+Or via PowerShell:
+powershell
+Get-Process | Where-Object { $_.ProcessName -like "Emma.Api*" -or $_.ProcessName -eq "dotnet" } | Stop-Process -Force
+
+2. Clean and rebuild:
+
+sh
+dotnet clean
+dotnet build src/Emma.Api/Emma.Api.csproj
+
+3. Start the backend from the root:
+
+sh
+dotnet run --project src/Emma.Api/Emma.Api.csproj
+
+Going Forward
+Always ensure no old backend processes are running before building or running again.
+If you see "file is being used by another process" or "port is already in use," check for and kill old processes.
+For best-practice .NET config, rely on 
+appsettings.json
+ and environment variables, not manual 
+.env
+ loading.
+ 
+ # ===== POSTGRESQL (App Connection String) =====
+# Azure PostgreSQL connection string
+ConnectionStrings__PostgreSql=Host=emma-db-server.postgres.database.azure.com;Port=5432;Database=emma;Username=emmaadmin;Password=GOGdb54321;SslMode=Require
+ConnectionStrings__DefaultConnection=Host=emma-db-server.postgres.database.azure.com;Port=5432;Database=emma;Username=emmaadmin;Password=GOGdb54321;SslMode=Require
+
+
+dotnet run --project src/Emma.Api/Emma.Api.csproj
+
+{
+  "organizationName": "Test Org",
+  "email": "user@example.com",
+  "password": "strongpass1",
+  "planKey": "Pro",
+  "seatCount": 5
+}
+
+psql "host=emma-db-server.postgres.database.azure.com port=5432 dbname=postgres user=emmaadmin password=Gogdb54321 sslmode=require"
+
+psql "host=emma-db-server.postgres.database.azure.com port=5432 dbname=postgres user=emmaadmin@emma-db-server password=Gogdb54321 sslmode=require"
+
+$env:PGHOST="emma-db-server.postgres.database.azure.com"
+$env:PGUSER="emmaadmin"
+$env:PGPORT="5432"
+$env:PGDATABASE="emma"
+$env:PGPASSWORD="Gogdb54321"
+
+psql "sslmode=require"
+
+psql "host=emma-db-server.postgres.database.azure.com port=5432 dbname=emma user=emmaadmin password=Gogdb54321 sslmode=require"
+
+ummary
+You must set PGHOST, PGUSER, PGPORT, PGDATABASE, and PGPASSWORD for psql to connect to Azure.
+Do not use just set PGPASSWORD=... (that only sets the password, not the host/user/db).
+Always use sslmode=require with Azure.
+Try these steps and let me know if you can connect! If you get a new error, copy the full message here.
+
+Feedback submitted
+Your recent terminal commands:
+> $env:PGHOST="emma-db-server.postgres.database.azure.com"
+> $env:PGUSER="emmaadmin"
+> $env:PGPORT="5432"
+> $env:PGDATABASE="emma"
+> $env:PGPASSWORD="Gogdb54321"
+
+
+dotnet ef migrations add %1 --project src/Emma.Data --startup-project src/Emma.Api
+
