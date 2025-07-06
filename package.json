@@ -16,5 +16,8 @@
   "dependencies": {
     "@azure/identity": "^4.10.0",
     "@azure/storage-blob": "^12.27.0"
+  },
+  "devDependencies": {
+    "@shadcn/ui": "^0.0.4"
   }
 }

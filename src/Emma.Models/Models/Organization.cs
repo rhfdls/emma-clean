@@ -10,7 +10,8 @@ namespace Emma.Models.Models
     /// Represents an organization in the EMMA platform, which can have multiple users and AI agents.
     /// </summary>
     [Table("Organizations")]
-    public class Organization : BaseEntity
+    // SPRINT1: Added OrgGuid, PlanType, SeatCount for onboarding and plan/seat tracking
+public class Organization : BaseEntity
 {
     /// <summary>
     /// Gets or sets the collection of subscriptions for this organization.
@@ -19,6 +20,16 @@ namespace Emma.Models.Models
     public virtual ICollection<OrganizationSubscription> Subscriptions { get; set; } = new List<OrganizationSubscription>();
 
         // ===== CORE PROPERTIES =====
+
+        // SPRINT1: Persistent organization GUID
+        [Required]
+        public Guid OrgGuid { get; set; } = Guid.NewGuid();
+
+        // SPRINT1: Plan type for quick lookup (optional, can be synced with OrganizationSubscription)
+        public PlanType? PlanType { get; set; }
+
+        // SPRINT1: Seat count for plan enforcement (optional)
+        public int? SeatCount { get; set; }
         
         /// <summary>
         /// The name of the organization.

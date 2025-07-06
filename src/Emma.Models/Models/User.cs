@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace Emma.Models.Models;
 
+// SPRINT1: Added AccountStatus, VerificationToken, IsVerified for onboarding/email verification
 public class User : BaseEntity
 {
     [Required]
@@ -31,6 +32,16 @@ public class User : BaseEntity
     public int? FubUserId { get; set; }
     
     public bool IsActive { get; set; } = true;
+
+    // SPRINT1: Account status for onboarding/email verification
+    public AccountStatus AccountStatus { get; set; } = AccountStatus.PendingVerification;
+
+    // SPRINT1: Email verification token (nullable)
+    [MaxLength(200)]
+    public string? VerificationToken { get; set; }
+
+    // SPRINT1: Quick check for verification
+    public bool IsVerified { get; set; } = false;
     
     /// <summary>
     /// Indicates whether this user has administrative privileges.

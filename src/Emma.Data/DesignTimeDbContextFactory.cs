@@ -20,10 +20,12 @@ namespace Emma.Data
                 .Build();
 
             var builder = new DbContextOptionsBuilder<AppDbContext>();
-            var envConn = Environment.GetEnvironmentVariable("ConnectionStrings__PostgreSql");
+            var envConn = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+                ?? Environment.GetEnvironmentVariable("ConnectionStrings__PostgreSql");
             var connectionString = !string.IsNullOrWhiteSpace(envConn)
                 ? envConn
-                : configuration.GetConnectionString("PostgreSql");
+                : configuration.GetConnectionString("DefaultConnection")
+                ?? configuration.GetConnectionString("PostgreSql");
 
             if (string.IsNullOrWhiteSpace(connectionString))
                 throw new InvalidOperationException("No PostgreSql connection string found in environment variables or appsettings.json.");

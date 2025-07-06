@@ -19,7 +19,7 @@ namespace Emma.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.5")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             
@@ -633,7 +633,7 @@ namespace Emma.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Dictionary<string, string>>("CustomFields")
-                        .HasColumnType("jsonb");
+                        .HasColumnType("hstore");
 
                     b.Property<DateTime?>("FollowUpAt")
                         .HasColumnType("timestamp with time zone");
@@ -1727,6 +1727,9 @@ namespace Emma.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<Guid>("OrgGuid")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("OwnerUserId")
                         .HasColumnType("uuid");
 
@@ -1734,11 +1737,17 @@ namespace Emma.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<int?>("PlanType")
+                        .HasColumnType("integer");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("bytea");
+
+                    b.Property<int?>("SeatCount")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TimeZone")
                         .HasMaxLength(100)
@@ -1985,7 +1994,7 @@ namespace Emma.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Dictionary<string, string>>("CustomFields")
-                        .HasColumnType("jsonb");
+                        .HasColumnType("hstore");
 
                     b.Property<Guid?>("InteractionId")
                         .HasColumnType("uuid");
@@ -2460,6 +2469,9 @@ namespace Emma.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("AccountStatus")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -2498,6 +2510,9 @@ namespace Emma.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -2526,6 +2541,10 @@ namespace Emma.Data.Migrations
 
                     b.Property<Guid?>("UpdatedById")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("VerificationToken")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 

@@ -43,8 +43,7 @@ namespace Emma.Models.Interfaces
         DbSet<Feature> Features { get; set; }
         
         // Resource management (legacy, being migrated)
-        DbSet<ResourceCategory> ResourceCategories { get; set; }
-        DbSet<ResourceRecommendation> ResourceRecommendations { get; set; }
+            DbSet<ResourceRecommendation> ResourceRecommendations { get; set; }
         
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

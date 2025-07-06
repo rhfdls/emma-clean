@@ -8,9 +8,6 @@ namespace Emma.Data
     {
         public static void EnsureSeeded(AppDbContext context)
         {
-            // Seed Resource Categories first
-            SeedResourceCategories(context);
-            
             // Seed Organization
             var orgName = "Region Realty";
             var org = context.Organizations.FirstOrDefault(o => o.Name == orgName);
@@ -97,22 +94,6 @@ namespace Emma.Data
                 context.Messages.Add(message);
                 context.SaveChanges();
             }
-        }
-
-        private static void SeedResourceCategories(AppDbContext context)
-        {
-            var categories = ResourceCategorySeed.GetDefaultCategories();
-            
-            foreach (var category in categories)
-            {
-                var existingCategory = context.ResourceCategories.FirstOrDefault(rc => rc.Name == category.Name);
-                if (existingCategory == null)
-                {
-                    context.ResourceCategories.Add(category);
-                }
-            }
-            
-            context.SaveChanges();
         }
     }
 }

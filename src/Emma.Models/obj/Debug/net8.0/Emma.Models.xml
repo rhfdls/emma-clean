@@ -590,12 +590,10 @@
             Gets or sets the primary address of this contact.
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.Contact.Tasks">
+        <member name="P:Emma.Models.Models.Contact.Interactions">
             <summary>
             Gets or sets the collection of tasks associated with this contact.
             </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.Interactions">
             <summary>
             Gets or sets the collection of interactions associated with this contact.
             </summary>
@@ -1367,6 +1365,11 @@
             Custom fields for additional context
             </summary>
         </member>
+        <member name="T:Emma.Models.Models.DetailedNote">
+            <summary>
+            AI-generated detailed note linked to an interaction, but managed as a standalone entity.
+            </summary>
+        </member>
         <member name="T:Emma.Models.Models.DeviceToken">
             <summary>
             Represents a device token used for push notifications and device identification.
@@ -1712,6 +1715,11 @@
         <member name="P:Emma.Models.Models.InteractionEmbedding.CustomFields">
             <summary>
             Custom fields for additional metadata
+            </summary>
+        </member>
+        <member name="T:Emma.Models.Models.InteractionTranscription">
+            <summary>
+            Explicitly links an audio-based interaction to its transcription.
             </summary>
         </member>
         <member name="T:Emma.Models.Models.Message">
@@ -2331,94 +2339,14 @@
             Optional notes about this feature for this plan
             </summary>
         </member>
+        <member name="T:Emma.Models.Models.SummaryOfSummary">
+            <summary>
+            AI-generated summary-of-summaries, linked to an interaction or contact, managed as a standalone entity.
+            </summary>
+        </member>
         <member name="T:Emma.Models.Models.TaskItem">
             <summary>
-            Represents a task or to-do item that can be assigned to users or related to other entities.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Title">
-            <summary>
-            Gets or sets the title of the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Description">
-            <summary>
-            Gets or sets the detailed description of the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Status">
-            <summary>
-            Gets or sets the status of the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Priority">
-            <summary>
-            Gets or sets the priority of the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.DueDate">
-            <summary>
-            Gets or sets the date and time when the task is due.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.CompletedAt">
-            <summary>
-            Gets or sets the date and time when the task was completed.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.CreatedById">
-            <summary>
-            Gets or sets the ID of the user who created the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.CreatedBy">
-            <summary>
-            Gets or sets the user who created the task.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.AssignedToId">
-            <summary>
-            Gets or sets the ID of the user the task is assigned to.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.AssignedTo">
-            <summary>
-            Gets or sets the user the task is assigned to.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.ContactId">
-            <summary>
-            Gets or sets the ID of the related contact, if any.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Contact">
-            <summary>
-            Gets or sets the related contact, if any.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.InteractionId">
-            <summary>
-            Gets or sets the ID of the related interaction, if any.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Interaction">
-            <summary>
-            Gets or sets the related interaction, if any.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.CreatedAt">
-            <summary>
-            Gets or sets the date and time when the task was created.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.UpdatedAt">
-            <summary>
-            Gets or sets the date and time when the task was last updated.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.TaskItem.Metadata">
-            <summary>
-            Gets or sets any additional metadata for the task in JSON format.
+            Represents an actionable task or follow-up item, generated by user, agent, or AI, linked to contacts/interactions, NBA, and supporting recurrence/dependencies.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.User.IsAdmin">

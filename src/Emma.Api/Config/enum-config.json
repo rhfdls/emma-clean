@@ -1,0 +1,54 @@
+{
+  "Plan": [
+    {
+      "key": "GOG_BASIC_MONTHLY",
+      "label": "Basic",
+      "description": "For small teams getting started",
+      "price": 250,
+      "features": ["core_crm", "email_support"]
+    },
+    {
+      "key": "GOG_PRO_MONTHLY",
+      "label": "Pro",
+      "description": "Full AI orchestration, notes, and next best actions",
+      "price": 750,
+      "features": ["ask_emma", "notes", "nba"]
+    }
+  ],
+  "IndustryProfile": [
+    {
+      "key": "REAL_ESTATE",
+      "label": "Real Estate",
+      "description": "For real estate professionals and brokerages"
+    },
+    {
+      "key": "INSURANCE",
+      "label": "Insurance",
+      "description": "For insurance agents and agencies"
+    }
+  ],
+  "AgentCapability": [
+    {
+      "key": "ask_emma",
+      "label": "Ask EMMA",
+      "description": "Conversational Q&A agent"
+    },
+    {
+      "key": "nba",
+      "label": "Next Best Action",
+      "description": "AI-driven recommendations"
+    }
+  ],
+  "ContactStage": [
+    {
+      "key": "NEW_LEAD",
+      "label": "New Lead",
+      "description": "Initial inquiry or contact"
+    },
+    {
+      "key": "QUALIFIED",
+      "label": "Qualified",
+      "description": "Qualified and ready for sales process"
+    }
+  ]
+}
