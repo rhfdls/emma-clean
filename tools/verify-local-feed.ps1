@@ -1,9 +1,14 @@
 # Verifies required 8.0.8 packages exist in the local feed and performs a forced restore
+param(
+  [string]$DriverVersion = "8.0.7",
+  [string]$EfProviderVersion = "8.0.8"
+)
+
 $ErrorActionPreference = "Stop"
 
 $Feed = Join-Path (Get-Location) "nuget-local-cache"
-$pkgDriver = Join-Path $Feed "Npgsql.8.0.8.nupkg"
-$pkgEf = Join-Path $Feed "npgsql.entityframeworkcore.postgresql.8.0.8.nupkg"
+$pkgDriver = Join-Path $Feed ("Npgsql.{0}.nupkg" -f $DriverVersion)
+$pkgEf = Join-Path $Feed ("npgsql.entityframeworkcore.postgresql.{0}.nupkg" -f $EfProviderVersion)
 
 if (-not (Test-Path $Feed)) { throw "Local feed not found: $Feed" }
 
@@ -17,7 +22,9 @@ if ($missing.Count -gt 0) {
   throw "One or more required packages are missing."
 }
 
-Write-Host "All required packages present in local feed." -ForegroundColor Green
+Write-Host "All required packages present in local feed:" -ForegroundColor Green
+Write-Host "  - $pkgDriver" -ForegroundColor Green
+Write-Host "  - $pkgEf" -ForegroundColor Green
 
 Write-Host "Clearing NuGet caches..." -ForegroundColor Cyan
  dotnet nuget locals all --clear
