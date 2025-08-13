@@ -2,6 +2,9 @@ using Emma.Api.Interfaces;
 using Emma.Api.Services;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Emma.Api.Auth;
+using Emma.Core.Services;
+using Emma.Infrastructure.Services;
 
 DotNetEnv.Env.Load("../../.env");
 Console.WriteLine("COSMOSDB__ACCOUNTKEY: " + Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTKEY"));
@@ -33,6 +36,10 @@ Console.WriteLine($"[DEBUG] Loaded DefaultConnection: {connString}");
 builder.Services.AddEmmaDatabase(builder.Configuration, isDevelopment: builder.Environment.IsDevelopment());
 
 builder.Services.AddScoped<IOnboardingService, OnboardingService>();
+
+// SPRINT2: AuthZ policies and email sender
+builder.Services.AddEmmaAuthorization();
+builder.Services.AddScoped<IEmailSender, EmailSenderDev>();
 
 // SPRINT1: Modular CRM integration registration
 var selectedCrm = builder.Configuration["SelectedCrmIntegration"] ?? Environment.GetEnvironmentVariable("SELECTED_CRM_INTEGRATION") ?? "none";
@@ -76,6 +83,7 @@ app.UseCors(MyAllowSpecificOrigins);
 
 // app.UseHttpsRedirection(); // TODO: Uncomment for Sprint 2 (real authentication)
 // app.UseAuthentication(); // TODO: Uncomment for Sprint 2 (real authentication)
+app.UseAuthorization();
 
 app.MapControllers();
 app.Run();

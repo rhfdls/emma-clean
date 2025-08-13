@@ -4,6 +4,8 @@ using Emma.Models.Models;
 using Emma.Infrastructure.Data;
 using System.ComponentModel.DataAnnotations;
 using Emma.Api.Dtos;
+using Microsoft.AspNetCore.Authorization;
+using Emma.Core.Services;
 
 namespace Emma.Api.Controllers
 {
@@ -128,6 +130,7 @@ namespace Emma.Api.Controllers
 
         // POST api/organization/{orgId}/invitations
         [HttpPost("{orgId}/invitations")]
+        [Authorize(Policy = Emma.Api.Auth.Policies.OrgOwnerOrAdmin)]
         public async Task<IActionResult> CreateInvitation(Guid orgId, [FromBody] CreateInvitationDto dto, [FromServices] EmmaDbContext db)
         {
             try
@@ -261,7 +264,7 @@ namespace Emma.Api.Controllers
 
         // POST api/organization/invitations/{token}/register
         [HttpPost("invitations/{token}/register")]
-        public async Task<IActionResult> RegisterFromInvitation(string token, [FromBody] RegisterFromInvitationDto dto, [FromServices] EmmaDbContext db)
+        public async Task<IActionResult> RegisterFromInvitation(string token, [FromBody] RegisterFromInvitationDto dto, [FromServices] EmmaDbContext db, [FromServices] IEmailSender emailSender, [FromServices] IConfiguration config)
         {
             try
             {
@@ -313,7 +316,10 @@ namespace Emma.Api.Controllers
                     };
                     db.Users.Add(user);
 
-                    // TODO: send verification email with verifyToken
+                    // Send verification email (dev stub)
+                    var baseUrl = config["VerifyUrlBase"] ?? Environment.GetEnvironmentVariable("VERIFY_URL_BASE") ?? "http://localhost:3000/onboarding/verify";
+                    var verifyUrl = $"{baseUrl}?token={Uri.EscapeDataString(verifyToken)}";
+                    await emailSender.SendVerificationAsync(email, verifyUrl);
                 }
 
                 // Mark invitation accepted if not already
