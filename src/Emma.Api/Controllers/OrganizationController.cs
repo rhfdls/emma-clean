@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Emma.Models.Models;
 using Emma.Infrastructure.Data;
 using System.ComponentModel.DataAnnotations;
+using Emma.Api.Dtos;
 
 namespace Emma.Api.Controllers
 {
@@ -12,27 +13,52 @@ namespace Emma.Api.Controllers
     {
         // POST api/organization
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateOrganizationDto dto, [FromServices] EmmaDbContext db)
+        public async Task<IActionResult> Create([FromBody] OrganizationCreateDto dto, [FromServices] EmmaDbContext db)
         {
             try
             {
                 if (dto == null || string.IsNullOrWhiteSpace(dto.Name))
                     return BadRequest("Name is required.");
 
+                if (string.IsNullOrWhiteSpace(dto.Email) || !new EmailAddressAttribute().IsValid(dto.Email))
+                    return BadRequest("Valid Email is required.");
+
+                if (dto.OwnerUserId == Guid.Empty)
+                    return BadRequest("OwnerUserId is required.");
+
                 var exists = await db.Organizations.AnyAsync(o => o.Name == dto.Name);
                 if (exists)
                     return Conflict("Organization with this name already exists.");
 
+                // Validate owner user exists
+                var owner = await db.Users.FirstOrDefaultAsync(u => u.Id == dto.OwnerUserId);
+                if (owner == null)
+                    return BadRequest("OwnerUserId is invalid.");
+
                 var org = new Organization
                 {
                     Id = Guid.NewGuid(),
+                    OrgGuid = Guid.NewGuid(),
                     Name = dto.Name,
+                    Email = dto.Email,
+                    OwnerUserId = dto.OwnerUserId,
+                    PlanType = dto.PlanType,
+                    SeatCount = dto.SeatCount,
+                    IsActive = true,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
                 db.Organizations.Add(org);
                 await db.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetById), new { id = org.Id }, new OrganizationReadDto { Id = org.Id, Name = org.Name });
+                return CreatedAtAction(nameof(GetById), new { id = org.Id }, new OrganizationReadDto
+                {
+                    Id = org.Id,
+                    OrgGuid = org.OrgGuid,
+                    Name = org.Name,
+                    Email = org.Email,
+                    PlanType = org.PlanType,
+                    SeatCount = org.SeatCount
+                });
             }
             catch (Exception ex)
             {
@@ -88,14 +114,14 @@ namespace Emma.Api.Controllers
             }
         }
 
-        public class CreateOrganizationDto
-        {
-            public string Name { get; set; } = string.Empty;
-        }
         public class OrganizationReadDto
         {
             public Guid Id { get; set; }
+            public Guid OrgGuid { get; set; }
             public string Name { get; set; } = string.Empty;
+            public string Email { get; set; } = string.Empty;
+            public Emma.Models.Enums.PlanType? PlanType { get; set; }
+            public int? SeatCount { get; set; }
         }
 
         // ===== Invitations =====
