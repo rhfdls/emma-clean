@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Emma.Core.Interfaces;
+using Emma.Core.Interfaces.Repositories;
 using Emma.Infrastructure.Data;
 using Emma.Models.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Infrastructure.Data.Repositories
@@ -29,7 +30,8 @@ namespace Emma.Infrastructure.Data.Repositories
         {
             return _context.Interactions
                 .Include(i => i.Contact)
-                .Include(i => i.AssignedTo)
+                .Include(i => i.AssignedToUser)
+                .Include(i => i.AssignedToAgent)
                 .Include(i => i.Participants)
                 .Include(i => i.RelatedEntities)
                 .Include(i => i.ActionItems)
@@ -41,7 +43,8 @@ namespace Emma.Infrastructure.Data.Repositories
         {
             return await _context.Interactions
                 .Include(i => i.Contact)
-                .Include(i => i.AssignedTo)
+                .Include(i => i.AssignedToUser)
+                .Include(i => i.AssignedToAgent)
                 .Include(i => i.Participants)
                 .Include(i => i.RelatedEntities)
                 .Include(i => i.ActionItems)
@@ -54,7 +57,8 @@ namespace Emma.Infrastructure.Data.Repositories
             var idList = ids.ToList();
             return await _context.Interactions
                 .Include(i => i.Contact)
-                .Include(i => i.AssignedTo)
+                .Include(i => i.AssignedToUser)
+                .Include(i => i.AssignedToAgent)
                 .Include(i => i.Participants)
                 .Include(i => i.RelatedEntities)
                 .Include(i => i.ActionItems)
@@ -70,7 +74,8 @@ namespace Emma.Infrastructure.Data.Repositories
                 .OrderByDescending(i => i.CreatedAt)
                 .Take(maxResults)
                 .Include(i => i.Contact)
-                .Include(i => i.AssignedTo)
+                .Include(i => i.AssignedToUser)
+                .Include(i => i.AssignedToAgent)
                 .Include(i => i.Participants)
                 .Include(i => i.RelatedEntities)
                 .Include(i => i.ActionItems)

@@ -26,7 +26,8 @@ namespace Emma.Models.Models
         /// <summary>
         /// Gets or sets a value indicating whether this email address has been verified.
         /// </summary>
-        public bool IsVerified { get; set; }
+        // SPRINT2: For DbContext alignment, use only one verification property
+public bool? Verified { get; set; }
 
 
         /// <summary>

@@ -1,4 +1,5 @@
 using System;
+using TaskStatus = Emma.Models.Enums.TaskStatus;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -10,6 +11,8 @@ using Emma.Models.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata;
+using System.Text.Json;
 
 namespace Emma.Infrastructure.Data
 {
@@ -45,7 +48,42 @@ namespace Emma.Infrastructure.Data
             {
                 if (entityEntry.State == EntityState.Added)
                 {
-                    ((BaseEntity)entityEntry.Entity).CreatedAt = now;
+                    var baseEntity = (BaseEntity)entityEntry.Entity;
+                    baseEntity.CreatedAt = now;
+                    // Ensure non-null RowVersion for NOT NULL constraint
+                    if (baseEntity.RowVersion == null || baseEntity.RowVersion.Length == 0)
+                    {
+                        var guidBytes = Guid.NewGuid().ToByteArray();
+                        // Use first 8 bytes for a short token
+                        baseEntity.RowVersion = new byte[8];
+                        Array.Copy(guidBytes, baseEntity.RowVersion, 8);
+                    }
+                    // Ensure Contacts.PhoneNumbers jsonb gets an empty array instead of NULL
+                    if (entityEntry.Entity is Contact)
+                    {
+                        var prop = entityEntry.Property("PhoneNumbersJson");
+                        if (prop != null && prop.CurrentValue == null)
+                        {
+                            prop.CurrentValue = JsonDocument.Parse("[]");
+                        }
+                        // Ensure Specialties and ServiceAreas arrays are non-null
+                        var specialtiesProp = entityEntry.Property("SpecialtiesShadow");
+                        if (specialtiesProp != null && specialtiesProp.CurrentValue == null)
+                        {
+                            specialtiesProp.CurrentValue = new List<string>();
+                        }
+                        var serviceAreasProp = entityEntry.Property("ServiceAreasShadow");
+                        if (serviceAreasProp != null && serviceAreasProp.CurrentValue == null)
+                        {
+                            serviceAreasProp.CurrentValue = new List<string>();
+                        }
+                        // Ensure Tags jsonb is non-null
+                        var tagsProp = entityEntry.Property("TagsJson");
+                        if (tagsProp != null && tagsProp.CurrentValue == null)
+                        {
+                            tagsProp.CurrentValue = JsonDocument.Parse("[]");
+                        }
+                    }
                 }
                 else if (entityEntry.State == EntityState.Modified)
                 {
@@ -83,6 +121,9 @@ namespace Emma.Infrastructure.Data
         public DbSet<ContactAssignment> ContactAssignments { get; set; } = null!;
         public DbSet<AccessAuditLog> AccessAuditLogs { get; set; } = null!;
         
+        // Organization invitations
+        public DbSet<OrganizationInvitation> OrganizationInvitations { get; set; } = null!;
+        
         // NBA Context Management System
         public DbSet<ContactSummary> ContactSummaries { get; set; } = null!;
         public DbSet<ContactState> ContactStates { get; set; } = null!;
@@ -94,10 +135,6 @@ namespace Emma.Infrastructure.Data
         public DbSet<Feature> Features { get; set; } = null!;
         
         // Resource management (legacy, being migrated)
-        public DbSet<ResourceCategory> ResourceCategories { get; set; } = null!;
-        public DbSet<Resource> Resources { get; set; } = null!;
-        public DbSet<ResourceAssignment> ResourceAssignments { get; set; } = null!;
-        public DbSet<ResourceRecommendation> ResourceRecommendations { get; set; } = null!;
         
         // Additional DbSets not in IAppDbContext but used internally
         public DbSet<ContactStateHistory> ContactStateHistories { get; set; } = null!;
@@ -111,6 +148,11 @@ namespace Emma.Infrastructure.Data
             // Apply configurations from the current assembly
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(EmmaDbContext).Assembly);
             
+            // Ignore obsolete Resource entity (empty/obsolete class)
+            modelBuilder.Ignore<Resource>();
+            modelBuilder.Ignore<ResourceAssignment>();
+            modelBuilder.Ignore<ResourceRecommendation>();
+            
             #region Entity Configurations
             
             // EmailAddress entity configuration
@@ -123,16 +165,40 @@ namespace Emma.Infrastructure.Data
                 entity.HasIndex(e => e.Address).IsUnique();
                 
                 // Relationship with User
-                entity.HasOne<Models.User>()
+                entity.HasOne<User>()
                     .WithMany(u => u.EmailAddresses)
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
                     
-                // Relationship with Contact
+                // Relationship with Contact (no navigation on Contact side)
                 entity.HasOne<Contact>()
-                    .WithMany(c => c.EmailAddresses)
+                    .WithMany()
                     .HasForeignKey(e => e.ContactId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+            
+            // Configure OrganizationInvitation entity
+            modelBuilder.Entity<OrganizationInvitation>(entity =>
+            {
+                entity.HasKey(i => i.Id);
+                entity.Property(i => i.Id).ValueGeneratedOnAdd();
+                entity.ToTable("OrganizationInvitations");
+
+                entity.Property(i => i.Email).IsRequired().HasMaxLength(200);
+                entity.Property(i => i.Role).HasMaxLength(50);
+                entity.Property(i => i.Token).IsRequired().HasMaxLength(100);
+
+                entity.HasIndex(i => i.OrganizationId);
+                entity.HasIndex(i => i.Email);
+                entity.HasIndex(i => i.Token).IsUnique();
+                entity.HasIndex(i => i.ExpiresAt);
+                entity.HasIndex(i => i.AcceptedAt);
+                entity.HasIndex(i => i.RevokedAt);
+
+                entity.HasOne(i => i.Organization)
+                      .WithMany()
+                      .HasForeignKey(i => i.OrganizationId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
             
             // TaskItem entity configuration
@@ -141,18 +207,18 @@ namespace Emma.Infrastructure.Data
                 entity.HasKey(t => t.Id);
                 entity.Property(t => t.Title).IsRequired().HasMaxLength(200);
                 entity.Property(t => t.Description).HasMaxLength(4000);
-                entity.Property(t => t.Status).HasDefaultValue(TaskStatus.NotStarted);
+                entity.Property(t => t.Status).HasDefaultValue(TaskStatus.Pending);
                 entity.Property(t => t.Priority).HasDefaultValue(TaskPriority.Medium);
                 
                 // Relationship with User (AssignedTo)
-                entity.HasOne<Models.User>()
+                entity.HasOne<User>()
                     .WithMany(u => u.AssignedTasks)
                     .HasForeignKey(t => t.AssignedToId)
                     .OnDelete(DeleteBehavior.Restrict);
                     
-                // Relationship with Contact
+                // Relationship with Contact (no navigation on Contact side)
                 entity.HasOne<Contact>()
-                    .WithMany(c => c.Tasks)
+                    .WithMany()
                     .HasForeignKey(t => t.ContactId)
                     .OnDelete(DeleteBehavior.Cascade);
                     
@@ -181,7 +247,7 @@ namespace Emma.Infrastructure.Data
                 entity.Property(a => a.Timestamp).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 
                 // Relationship with User
-                entity.HasOne<Models.User>()
+                entity.HasOne<User>()
                     .WithMany()
                     .HasForeignKey(a => a.UserId)
                     .OnDelete(DeleteBehavior.SetNull);
@@ -199,7 +265,9 @@ namespace Emma.Infrastructure.Data
             // Contact entity configuration
             modelBuilder.Entity<Contact>(entity =>
             {
-                entity.HasKey(c => c.Id);
+                entity.ToTable("Contacts");
+                // Map to existing table name in DB
+                entity.ToTable("Contacts");
                 
                 // Property configurations
                 entity.Property(c => c.FirstName).IsRequired().HasMaxLength(100);
@@ -215,35 +283,56 @@ namespace Emma.Infrastructure.Data
                 entity.Property(c => c.PreferredContactTime).HasMaxLength(50);
                 entity.Property(c => c.ProfilePictureUrl).HasMaxLength(500);
                 
-                // Configure enums
-                entity.Property(c => c.RelationshipState)
-                    .HasConversion<string>()
-                    .HasMaxLength(20);
+                // Relationship state enum stored as integer (default)
+                entity.Property(c => c.RelationshipState);
+
+                // Configure RowVersion (bytea) as concurrency token, value provided by application on insert/update
+                entity.Property(c => c.RowVersion)
+                      .HasColumnName("RowVersion")
+                      .HasColumnType("bytea")
+                      .IsConcurrencyToken()
+                      .ValueGeneratedNever();
                 
-                // Configure owned types
-                entity.OwnsOne(c => c.Address, a =>
-                {
-                    a.Property(ad => ad.Street1).HasMaxLength(200);
-                    a.Property(ad => ad.Street2).HasMaxLength(200);
-                    a.Property(ad => ad.City).HasMaxLength(100);
-                    a.Property(ad => ad.State).HasMaxLength(100);
-                    a.Property(ad => ad.PostalCode).HasMaxLength(20);
-                    a.Property(ad => ad.Country).HasMaxLength(2);
-                    a.Property(ad => ad.Type).HasMaxLength(50);
-                    a.Property(ad => ad.Notes).HasMaxLength(500);
-                });
+                // Address is not a canonical owned type of Contact per Emma.Models.Models.Contact. Remove Address mapping. (If needed, add back only after schema change approval.)
                 
-                // Relationships
-                entity.HasOne(c => c.Organization)
-                    .WithMany()
-                    .HasForeignKey(c => c.OrganizationId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                    
-                entity.HasOne(c => c.Owner)
-                    .WithMany()
-                    .HasForeignKey(c => c.OwnerId)
-                    .OnDelete(DeleteBehavior.SetNull);
+                // Relationships: configure FKs explicitly without navigations
+                entity.HasOne<Organization>()
+                      .WithMany()
+                      .HasForeignKey(c => c.OrganizationId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<User>()
+                      .WithMany()
+                      .HasForeignKey(c => c.OwnerId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                // Ignore navigation properties to avoid inverse mapping inference
+                entity.Ignore(c => c.Organization);
+                entity.Ignore(c => c.Owner);
                 
+                // Ignore navigations that are not mapped in the current schema to avoid
+                // EF trying to infer relationships that don't exist yet.
+                entity.Ignore(c => c.AssignedResources);
+                entity.Ignore(c => c.Collaborators);
+                entity.Ignore(c => c.Tasks);
+                entity.Ignore(c => c.AssignedTo);
+                entity.Ignore(c => c.EmailAddresses);
+                entity.Ignore(c => c.PhoneNumbers);
+                entity.Ignore(c => c.Addresses);
+                entity.Ignore(c => c.Interactions);
+                entity.Ignore(c => c.StateHistory);
+
+                // Ignore legacy primitive list properties not stored in DB
+                entity.Ignore(c => c.Emails);
+                entity.Ignore(c => c.Phones);
+
+                // Ignore scalar collections and dictionary for now to avoid EF inferring navigations
+                // Re-introduce with a migration and proper value converters + comparers later
+                entity.Ignore(c => c.Tags);
+                entity.Ignore(c => c.Specialties);
+                entity.Ignore(c => c.ServiceAreas);
+                entity.Ignore(c => c.CustomFields);
+
                 // Indexes
                 entity.HasIndex(c => c.OrganizationId);
                 entity.HasIndex(c => c.OwnerId);
@@ -253,6 +342,46 @@ namespace Emma.Infrastructure.Data
                 entity.HasIndex(c => c.LastContactedAt);
                 entity.HasIndex(c => c.NextFollowUpAt);
             });
+
+            // Shadow property defaults for required jsonb columns on Contacts
+            // Ensure PhoneNumbers column gets a default [] jsonb when not provided
+            var phoneNumbersProp = modelBuilder.Entity<Contact>()
+                        // Use a different EF property name to avoid colliding with the CLR navigation/property
+                        .Property<JsonDocument>("PhoneNumbersJson")
+                        .HasColumnName("PhoneNumbers")
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'::jsonb")
+                        .IsRequired();
+
+            // Note: Database may not have a default constraint; we'll set a value on insert in SaveChangesAsync.
+
+            // Note: Contacts table does not have EmailAddresses or Addresses jsonb columns per migrations.
+            // Those are separate tables; do not map shadow properties for them to avoid referencing non-existent columns.
+
+            // Shadow properties for NOT NULL array/jsonb columns not represented in the CLR model
+            // Specialties: text[] NOT NULL -> use '{}'::text[]
+            modelBuilder.Entity<Contact>()
+                        .Property<List<string>>("SpecialtiesShadow")
+                        .HasColumnName("Specialties")
+                        .HasColumnType("text[]")
+                        .HasDefaultValueSql("'{}'::text[]")
+                        .IsRequired();
+
+            // ServiceAreas: text[] NOT NULL -> use '{}'::text[]
+            modelBuilder.Entity<Contact>()
+                        .Property<List<string>>("ServiceAreasShadow")
+                        .HasColumnName("ServiceAreas")
+                        .HasColumnType("text[]")
+                        .HasDefaultValueSql("'{}'::text[]")
+                        .IsRequired();
+
+            // Tags: jsonb NOT NULL -> use '[]'::jsonb
+            modelBuilder.Entity<Contact>()
+                        .Property<JsonDocument>("TagsJson")
+                        .HasColumnName("Tags")
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'::jsonb")
+                        .IsRequired();
             
             // PhoneNumber entity configuration
             modelBuilder.Entity<PhoneNumber>(entity =>
@@ -266,21 +395,16 @@ namespace Emma.Infrastructure.Data
                 
                 // Relationships
                 entity.HasOne(p => p.Contact)
-                    .WithMany(c => c.PhoneNumbers)
+                    .WithMany()
                     .HasForeignKey(p => p.ContactId)
                     .OnDelete(DeleteBehavior.Cascade);
                     
-                entity.HasOne(p => p.User)
-                    .WithMany(u => u.PhoneNumbers)
-                    .HasForeignKey(p => p.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                
+
                 // Indexes
                 entity.HasIndex(p => p.Number);
                 entity.HasIndex(p => p.Type);
                 entity.HasIndex(p => p.IsPrimary);
                 entity.HasIndex(p => p.ContactId);
-                entity.HasIndex(p => p.UserId);
             });
             
             // ContactStateHistory entity configuration
@@ -293,7 +417,7 @@ namespace Emma.Infrastructure.Data
                 
                 // Relationships
                 entity.HasOne(h => h.Contact)
-                    .WithMany(c => c.StateHistory)
+                    .WithMany()
                     .HasForeignKey(h => h.ContactId)
                     .OnDelete(DeleteBehavior.Cascade);
                     
@@ -377,10 +501,7 @@ namespace Emma.Infrastructure.Data
                     .HasForeignKey(pn => pn.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
                     
-                entity.HasMany(u => u.OwnedContacts)
-                    .WithOne(c => c.Owner)
-                    .HasForeignKey(c => c.OwnerId)
-                    .OnDelete(DeleteBehavior.SetNull);
+                // Removed direct mapping of OwnedContacts to avoid referencing Contact navigations
                     
                 entity.HasMany(u => u.CreatedInteractions)
                     .WithOne(i => i.CreatedBy)
@@ -401,6 +522,9 @@ namespace Emma.Infrastructure.Data
                     .WithOne(t => t.AssignedTo)
                     .HasForeignKey(t => t.AssignedToId)
                     .OnDelete(DeleteBehavior.SetNull);
+
+                // Prevent EF from inferring Contact inverse relationship via OwnedContacts
+                entity.Ignore(u => u.OwnedContacts);
             });
             
             // Organization entity configuration
@@ -439,11 +563,8 @@ namespace Emma.Infrastructure.Data
                     .HasForeignKey(u => u.OrganizationId)
                     .OnDelete(DeleteBehavior.Restrict);
                     
-                // Relationship with Contacts
-                entity.HasMany(o => o.Contacts)
-                    .WithOne(c => c.Organization)
-                    .HasForeignKey(c => c.OrganizationId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                // Do not map Contacts collection to avoid inverse Contact navigation
+                entity.Ignore(o => o.Contacts);
                     
                 // Relationship with Interactions
                 entity.HasMany(o => o.Interactions)
@@ -497,8 +618,6 @@ namespace Emma.Infrastructure.Data
                 entity.HasIndex(i => i.Status);
             });
             
-            #endregion
-            
             // DeviceToken entity configuration
             modelBuilder.Entity<DeviceToken>(entity =>
             {
@@ -550,18 +669,6 @@ namespace Emma.Infrastructure.Data
                     .HasForeignKey(ea => ea.MessageId)
                     .OnDelete(DeleteBehavior.Cascade);
                     
-                // Configure the one-to-many relationship with EmmaTask
-                entity.HasMany(ea => ea.TasksList)
-                    .WithOne(t => t.Analysis)
-                    .HasForeignKey(t => t.AnalysisId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                    
-                // Configure the one-to-many relationship with AgentAssignment
-                entity.HasMany(ea => ea.AgentAssignments)
-                    .WithOne(aa => aa.Analysis)
-                    .HasForeignKey(aa => aa.AnalysisId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                
                 // Configure the JSON serialization for ComplianceFlags
                 entity.Property(ea => ea.ComplianceFlags)
                     .HasConversion(
@@ -604,7 +711,7 @@ namespace Emma.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Cascade);
                     
                 entity.HasOne(i => i.Contact)
-                    .WithMany(c => c.Interactions)
+                    .WithMany()
                     .HasForeignKey(i => i.ContactId)
                     .OnDelete(DeleteBehavior.Cascade);
                     
@@ -721,103 +828,77 @@ namespace Emma.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Restrict);
                     
                 // Configure owned entity types
-                entity.OwnsMany(u => u.PhoneNumbers, p =>
-                {
-                    p.WithOwner().HasForeignKey("UserId");
-                    p.Property<Guid>("Id").ValueGeneratedOnAdd();
-                    p.HasKey("Id");
-                    p.Property(pn => pn.PhoneNumber).IsRequired().HasMaxLength(20);
-                    p.Property(pn => pn.Type).HasMaxLength(50);
-                    p.Property(pn => pn.IsPrimary).HasDefaultValue(false);
-                    p.Property(pn => pn.IsVerified).HasDefaultValue(false);
-                    p.Property(pn => pn.VerifiedAt).IsRequired(false);
-                });
                 
                 entity.HasIndex(u => u.Email).IsUnique();
-                entity.HasIndex(u => u.OrganizationId);
-                entity.HasIndex(u => u.IsActive);
             });
-            
-            // Configure UserPhoneNumber entity
-            modelBuilder.Entity<UserPhoneNumber>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
-                
-                entity.Property(pn => pn.PhoneNumber).IsRequired().HasMaxLength(20);
-                entity.Property(pn => pn.Type).HasMaxLength(50);
-                entity.Property(pn => pn.IsPrimary).HasDefaultValue(false);
-                entity.Property(pn => pn.IsVerified).HasDefaultValue(false);
-                entity.Property(pn => pn.VerifiedAt).IsRequired(false);
-                
-                // Relationships
-                entity.HasOne(pn => pn.User)
-                    .WithMany(u => u.PhoneNumbers)
-                    .HasForeignKey(pn => pn.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                    
-                entity.HasIndex(pn => pn.UserId);
-                entity.HasIndex(pn => pn.PhoneNumber);
-                entity.HasIndex(pn => pn.IsPrimary);
-            });
-            
-            // Configure UserSubscriptionAssignment entity
-            modelBuilder.Entity<UserSubscriptionAssignment>(entity =>
-            {
-                entity.HasKey(usa => new { usa.UserId, usa.SubscriptionId });
-                
-                entity.Property(usa => usa.AssignedAt).IsRequired();
-                entity.Property(usa => usa.ExpiresAt).IsRequired(false);
-                
-                // Relationships
-                entity.HasOne(usa => usa.User)
-                    .WithMany(u => u.SubscriptionAssignments)
-                    .HasForeignKey(usa => usa.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                    
-                entity.HasOne(usa => usa.Subscription)
-                    .WithMany(s => s.UserAssignments)
-                    .HasForeignKey(usa => usa.SubscriptionId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                    
-                entity.HasIndex(usa => new { usa.UserId, usa.IsActive });
-                entity.HasIndex(usa => usa.ExpiresAt);
-            });
-            
-            // Configure PasswordResetToken entity
-            modelBuilder.Entity<PasswordResetToken>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
-                
-                entity.Property(prt => prt.Token).IsRequired().HasMaxLength(100);
-                entity.Property(prt => prt.CreatedAt).IsRequired();
-                entity.Property(prt => prt.UsedAt).IsRequired(false);
-                
-                // Relationships
-                entity.HasOne(prt => prt.User)
-                    .WithMany()
-                    .HasForeignKey(prt => prt.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                    
-                entity.HasIndex(prt => prt.Token).IsUnique();
-                entity.HasIndex(prt => prt.UserId);
-                entity.HasIndex(prt => prt.UsedAt);
-            });
-            
-            // Configure DeviceToken entity
-            modelBuilder.Entity<DeviceToken>(entity =>
-            {
-                entity.HasKey(dt => new { dt.UserId, dt.DeviceId });
-                
-                entity.Property(dt => dt.Token).IsRequired().HasMaxLength(500);
-                
-                // Relationships
-                entity.HasOne(dt => dt.User)
-                    .WithMany(u => u.DeviceTokens)
-                    .HasForeignKey(dt => dt.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
+// Configure UserPhoneNumber entity
+modelBuilder.Entity<UserPhoneNumber>(entity =>
+{
+    entity.HasKey(e => e.Id);
+    entity.Property(e => e.Id).ValueGeneratedOnAdd();
+    entity.Property(e => e.Type).HasMaxLength(50);
+    entity.Property(e => e.Number).HasMaxLength(20);
+    entity.Property(e => e.IsPrimary).HasDefaultValue(false);
+    // Relationships
+    entity.HasOne(pn => pn.User)
+        .WithMany(u => u.PhoneNumbers)
+        .HasForeignKey(pn => pn.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+    entity.HasIndex(pn => pn.UserId);
+    entity.HasIndex(pn => pn.IsPrimary);
+});
+
+// Configure UserSubscriptionAssignment entity
+modelBuilder.Entity<UserSubscriptionAssignment>(entity =>
+{
+    entity.HasKey(usa => new { usa.UserId, usa.SubscriptionId });
+    entity.Property(usa => usa.AssignedAt).IsRequired();
+    // Relationships
+    entity.HasOne(usa => usa.User)
+        .WithMany(u => u.SubscriptionAssignments)
+        .HasForeignKey(usa => usa.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+    entity.HasOne(usa => usa.Subscription)
+        .WithMany(s => s.UserAssignments)
+        .HasForeignKey(usa => usa.SubscriptionId)
+        .OnDelete(DeleteBehavior.Cascade);
+    entity.HasIndex(usa => new { usa.UserId, usa.IsActive });
+});
+
+// Configure PasswordResetToken entity
+modelBuilder.Entity<PasswordResetToken>(entity =>
+{
+    entity.HasKey(e => e.Id);
+    entity.Property(e => e.Id).ValueGeneratedOnAdd();
+    
+    entity.Property(prt => prt.Token).IsRequired().HasMaxLength(100);
+    entity.Property(prt => prt.CreatedAt).IsRequired();
+    entity.Property(prt => prt.UsedAt).IsRequired(false);
+    
+    // Relationships
+    entity.HasOne(prt => prt.User)
+        .WithMany()
+        .HasForeignKey(prt => prt.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+        
+    entity.HasIndex(prt => prt.Token).IsUnique();
+    entity.HasIndex(prt => prt.UserId);
+    entity.HasIndex(prt => prt.UsedAt);
+});
+
+// Configure DeviceToken entity
+modelBuilder.Entity<DeviceToken>(entity =>
+{
+    entity.HasKey(dt => new { dt.UserId, dt.DeviceId });
+    
+    entity.Property(dt => dt.Token).IsRequired().HasMaxLength(500);
+    
+    // Relationships
+    entity.HasOne(dt => dt.User)
+        .WithMany(u => u.DeviceTokens)
+        .HasForeignKey(dt => dt.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+});
             
             // Configure the Interaction entity
             modelBuilder.Entity<Interaction>(entity =>
@@ -842,7 +923,7 @@ namespace Emma.Infrastructure.Data
                 
                 // Configure relationships
                 entity.HasOne(i => i.Contact)
-                    .WithMany(c => c.Interactions)
+                    .WithMany()
                     .HasForeignKey(i => i.ContactId)
                     .OnDelete(DeleteBehavior.Restrict);
                     
@@ -891,7 +972,7 @@ namespace Emma.Infrastructure.Data
                     
                 // Configure indexes
                 entity.HasIndex(i => i.ContactId);
-                entity.HasIndex(i => i.AssignedToId);
+
                 entity.HasIndex(i => i.OrganizationId);
                 entity.HasIndex(i => i.Type);
                 entity.HasIndex(i => i.Status);
@@ -909,68 +990,272 @@ namespace Emma.Infrastructure.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
                 
-                entity.Property(e => e.Description).IsRequired().HasMaxLength(1000);
+
                 entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Priority).HasMaxLength(20);
-                entity.Property(e => e.DueDate).IsRequired(false);
+                entity.Property(e => e.DueBy).IsRequired(false);
                 
                 // Configure relationships
-                entity.HasOne(ai => ai.Interaction)
-                    .WithMany(i => i.ActionItems)
-                    .HasForeignKey(ai => ai.InteractionId)
-                    .OnDelete(DeleteBehavior.Cascade);
+
                     
-                entity.HasOne(ai => ai.AssignedTo)
-                    .WithMany()
-                    .HasForeignKey(ai => ai.AssignedToId)
-                    .OnDelete(DeleteBehavior.SetNull);
+
                     
-                entity.HasOne(ai => ai.CreatedBy)
-                    .WithMany()
-                    .HasForeignKey(ai => ai.CreatedById)
-                    .OnDelete(DeleteBehavior.SetNull);
+
                     
                 // Configure indexes
-                entity.HasIndex(ai => ai.InteractionId);
-                entity.HasIndex(ai => ai.AssignedToId);
+
+                entity.HasIndex(ai => ai.AssignedTo);
                 entity.HasIndex(ai => ai.Status);
                 entity.HasIndex(ai => ai.Priority);
-                entity.HasIndex(ai => ai.DueDate);
-                entity.HasIndex(ai => ai.IsCompleted);
+                entity.HasIndex(ai => ai.DueBy);
             });
             
-            // Configure Participant entity (owned by Interaction)
-            modelBuilder.Entity<Participant>(entity =>
+            modelBuilder.Entity<TaskItem>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
-                
-                entity.Property(p => p.Name).IsRequired().HasMaxLength(200);
-                entity.Property(p => p.Email).HasMaxLength(200);
-                entity.Property(p => p.Phone).HasMaxLength(50);
-                entity.Property(p => p.Role).HasMaxLength(100);
-                entity.Property(p => p.ExternalId).HasMaxLength(100);
-                
-                // Configure indexes
-                entity.HasIndex(p => p.Email);
-                entity.HasIndex(p => p.ExternalId);
+
+                // Defaults
+                entity.Property(e => e.Status).HasDefaultValue("pending");
+                entity.Property(e => e.Priority).HasDefaultValue("normal");
+
+                // Relationships
+                entity.HasOne(t => t.Contact)
+                    .WithMany()
+                    .HasForeignKey(t => t.ContactId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.Interaction)
+                    .WithMany()
+                    .HasForeignKey(t => t.InteractionId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(t => t.AssignedToUser)
+                    .WithMany()
+                    .HasForeignKey(t => t.AssignedToUserId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                // Ignore legacy duplicate assignment fields to avoid ambiguity
+                entity.Ignore(t => t.AssignedTo);
+                entity.Ignore(t => t.AssignedToId);
+
+                // Indexes
+                entity.HasIndex(e => e.ContactId);
+                entity.HasIndex(e => e.DueDate);
+                entity.HasIndex(e => e.Status);
+                entity.HasIndex(e => e.Priority);
+                entity.HasIndex(e => e.AssignedToUserId);
             });
-            
-            // Configure RelatedEntity (owned by Interaction)
-            modelBuilder.Entity<RelatedEntity>(entity =>
+
+            // Configure ContactSummary entity (map JSONB and relationships)
+            modelBuilder.Entity<ContactSummary>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.KeyMilestones)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.Property(e => e.ImportantPreferences)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, object>() : JsonSerializer.Deserialize<Dictionary<string, object>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.Property(e => e.CustomFields)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, object>() : JsonSerializer.Deserialize<Dictionary<string, object>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.HasOne(cs => cs.Contact)
+                    .WithMany()
+                    .HasForeignKey(cs => cs.ContactId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(cs => new { cs.ContactId, cs.OrganizationId, cs.SummaryType });
+            });
+
+            // Configure Interaction entity (vector embedding)
+            modelBuilder.Entity<Interaction>(entity =>
+            {
+                // Map float[] to PostgreSQL real[] array type
+                entity.Property(i => i.VectorEmbedding)
+                      .HasColumnType("real[]");
+            });
+
+            // Configure InteractionEmbedding entity (JSONB + relationships)
+            modelBuilder.Entity<InteractionEmbedding>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.PrivacyTags)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.Property(e => e.ExtractedEntities)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, object>() : JsonSerializer.Deserialize<Dictionary<string, object>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.Property(e => e.Topics)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.Property(e => e.CustomFields)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, object>() : JsonSerializer.Deserialize<Dictionary<string, object>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.HasOne(e => e.Contact)
+                      .WithMany()
+                      .HasForeignKey(e => e.ContactId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Interaction)
+                      .WithMany()
+                      .HasForeignKey(e => e.InteractionId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(e => new { e.ContactId, e.OrganizationId, e.Timestamp });
+                entity.HasIndex(e => e.InteractionId).IsUnique();
+            });
+
+            // Configure CallMetadata (PK and 1:1 with Message)
+            modelBuilder.Entity<CallMetadata>(entity =>
+            {
+                entity.HasKey(cm => cm.MessageId);
+                entity.HasOne(cm => cm.Message)
+                      .WithOne(m => m.CallMetadata)
+                      .HasForeignKey<CallMetadata>(cm => cm.MessageId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure ContactState entity (map complex properties to JSONB)
+            modelBuilder.Entity<ContactState>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.HasOne(cs => cs.Contact)
+                    .WithMany()
+                    .HasForeignKey(cs => cs.ContactId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(cs => cs.AssignedUser)
+                    .WithMany()
+                    .HasForeignKey(cs => cs.AssignedUserId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.Property(cs => cs.PendingTasks)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.Property(cs => cs.OpenObjections)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.Property(cs => cs.ImportantDates)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, DateTime>() : JsonSerializer.Deserialize<Dictionary<string, DateTime>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.Property(cs => cs.PropertyInfo)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, object>() : JsonSerializer.Deserialize<Dictionary<string, object>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.Property(cs => cs.FinancialInfo)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, object>() : JsonSerializer.Deserialize<Dictionary<string, object>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.Property(cs => cs.CustomFields)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, object>() : JsonSerializer.Deserialize<Dictionary<string, object>>(v, (JsonSerializerOptions?)null)!
+                    )
+                    .HasColumnType("jsonb");
+
+                entity.HasIndex(cs => cs.ContactId);
+                entity.HasIndex(cs => cs.OrganizationId);
+                entity.HasIndex(cs => cs.AssignedUserId);
+                entity.HasIndex(cs => new { cs.ContactId, cs.OrganizationId }).IsUnique(false);
+            });
+
+            // Configure ContactAssignment entity
+            modelBuilder.Entity<ContactAssignment>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
-                
-                entity.Property(r => r.Type).IsRequired().HasMaxLength(100);
-                entity.Property(r => r.Name).IsRequired().HasMaxLength(200);
-                entity.Property(r => r.Role).HasMaxLength(100);
-                entity.Property(r => r.ExternalId).HasMaxLength(100);
-                
-                // Configure indexes
-                entity.HasIndex(r => r.Type);
-                entity.HasIndex(r => r.ExternalId);
+
+                // Required fields already enforced by data annotations; add helpful indexes
+                entity.HasIndex(e => e.ContactId);
+                entity.HasIndex(e => e.ServiceContactId);
+                entity.HasIndex(e => e.AssignedByUserId);
+                entity.HasIndex(e => e.OrganizationId);
+                entity.HasIndex(e => e.InteractionId);
+                entity.HasIndex(e => e.Status);
+                entity.HasIndex(e => e.Priority);
+                entity.HasIndex(e => e.AssignedAt);
+
+                // Explicitly map the two separate relationships to Contact
+                entity.HasOne(e => e.ClientContact)
+                    .WithMany()
+                    .HasForeignKey(e => e.ContactId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.ServiceContact)
+                    .WithMany()
+                    .HasForeignKey(e => e.ServiceContactId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Other relationships
+                entity.HasOne(e => e.AssignedByUser)
+                    .WithMany()
+                    .HasForeignKey(e => e.AssignedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Organization)
+                    .WithMany()
+                    .HasForeignKey(e => e.OrganizationId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Interaction)
+                    .WithMany()
+                    .HasForeignKey(e => e.InteractionId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
+            
+            // Participant and RelatedEntity are configured as owned types via OwnsMany above.
+            // Do not configure them as regular entities to avoid EF ownership conflicts.
         }
+        #endregion
     }
 }

@@ -32,10 +32,17 @@ namespace Emma.Models.Models
         [Required]
         [MaxLength(32)]
         public string Priority { get; set; } = "normal"; // e.g., low, normal, high, urgent
+        // SPRINT2: For EF/DbContext alignment, ensure TaskStatus enum is available via alias if needed
+        // using TaskStatus = Emma.Models.Enums.TaskStatus;
+        // public TaskStatus? TaskStatus { get; set; }
 
         // Assignment
         public Guid? AssignedToUserId { get; set; }
         public virtual User? AssignedToUser { get; set; }
+
+        // SPRINT2: For DbContext alignment
+        public Guid? AssignedToId { get; set; }
+        public virtual User? AssignedTo { get; set; }
 
         // Timing
         public DateTime? DueDate { get; set; }

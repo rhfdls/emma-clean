@@ -1,5 +1,7 @@
 using System;
 using Emma.Infrastructure.Data;
+using Emma.Infrastructure.Data.Repositories;
+using Emma.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,9 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
                             maxRetryCount: 5,
                             maxRetryDelay: TimeSpan.FromSeconds(30),
                             errorCodesToAdd: null);
-                        
-                        // Enable vector search
-                        npgsqlOptions.UseVector();
+                        // Vector extension is not enabled (Npgsql.Vector package not referenced)
                     });
 
                 if (isDevelopment)
@@ -73,7 +73,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             catch (Exception ex)
             {
-                var logger = services.GetRequiredService<ILogger<Program>>();
+                var logger = services.GetRequiredService<ILogger<EmmaDbContext>>();
                 logger.LogError(ex, "An error occurred while initializing the database.");
                 throw;
             }

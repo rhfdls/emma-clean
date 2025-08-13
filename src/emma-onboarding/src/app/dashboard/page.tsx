@@ -28,7 +28,7 @@ export default function OrgDashboard() {
     // If onboarding context is missing, fetch from API
     if (!data?.plan || !data?.orgName) {
       setLoading(true);
-      fetch('/api/account/profile')
+      fetch('http://localhost:5000/api/account/profile')
         .then((res) => res.json())
         .then((profile) => setProfile(profile))
         .finally(() => setLoading(false));
@@ -55,7 +55,11 @@ export default function OrgDashboard() {
         </div>
       )}
       <div className="mb-4">
-        <span className="font-medium">Plan:</span> {profile.plan.label} <span className="text-gray-500">(${profile.plan.price}/mo)</span>
+        <span className="font-medium">Plan:</span>{' '}
+        {profile.plan?.label ?? profile.planLabel}{' '}
+        <span className="text-gray-500">
+          (${profile.plan?.price ?? profile.planPrice}/mo)
+        </span>
       </div>
       <div className="mb-8">
         <span className="font-medium">Account Status:</span> {profile.accountStatus}

@@ -1,0 +1,47 @@
+### Create Contact (ready-to-use)
+
+POST http://localhost:5000/api/contacts
+Content-Type: application/json
+
+{
+  "organizationId": "da60e1ad-acc7-4b1d-91da-307d1b53c0ed",
+  "firstName": "Testy",
+  "lastName": "McTestface",
+  "middleName": "Q",
+  "preferredName": "Tester",
+  "title": "Mr.",
+  "jobTitle": "QA Engineer",
+  "company": "Test Corp",
+  "department": "QA",
+  "source": "Manual",
+  "ownerId": "REPLACE-WITH-VALID-USER-GUID",
+  "preferredContactMethod": "email",
+  "preferredContactTime": "morning",
+  "notes": "Created by API test",
+  "profilePictureUrl": "https://example.com/pic.png"
+}
+# Replace the ownerId with a valid GUID from your Users table before sending the request. You can find a User GUID by running:
+# SELECT "Id", "Email" FROM "Users";
+
+
+### Create Contact (missing required fields)
+POST http://localhost:5000/api/Contact
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "lastName": "Doe"
+}
+
+### Expected Response (201)
+# {
+#   "id": "{{contactId}}",
+#   "organizationId": "{{orgId}}",
+#   "firstName": "Jane",
+#   "lastName": "Doe",
+#   ...
+# }
+
+### Get Created Contact
+GET http://localhost:5000/api/Contact/{{contactId}}
+Authorization: Bearer {{token}}

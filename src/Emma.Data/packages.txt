@@ -1,0 +1,2 @@
+# Missing NuGet package for in-memory EF Core support
+Microsoft.EntityFrameworkCore.InMemory, Version=8.0.8

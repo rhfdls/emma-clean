@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Emma.Models.Enums; // Only one instance should remain at the top of the file
-using Emma.Models.Enums; // Only one instance should remain at the top of the file
 
 namespace Emma.Models.Models;
 

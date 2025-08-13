@@ -1,0 +1,31 @@
+$base = "http://localhost:5000"
+$orgId = "da60e1ad-acc7-4b1d-91da-307d1b53c0ed"
+$ownerId = "60e757d8-ae9a-4460-8b91-369a86f41a71"
+
+# Create contact
+$body = @{
+  firstName = "Test"
+  lastName  = "Contact"
+  organizationId = $orgId
+  ownerId = $ownerId
+  emailAddresses = @(@{ address="test.contact@example.com"; isPrimary=$true })
+  phoneNumbers   = @(@{ number="+15551234567"; isPrimary=$true })
+} | ConvertTo-Json -Depth 5
+
+Invoke-RestMethod -Uri "$base/api/contacts" -Method Post -ContentType "application/json" -Body $body
+
+# Get by organization
+Invoke-RestMethod -Uri "$base/api/contacts/organization/$orgId" -Method Get
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Invoke-RestMethod -Method Post `
+  -Uri "http://localhost:5000/api/organization/00000000-0000-0000-0000-000000000000/invitations" `
+  -ContentType "application/json" `
+  -Body (@{
+    email = "invitee@example.com"
+    role = "Member"
+    expiresInDays = 7
+    invitedByUserId = "11111111-1111-1111-1111-111111111111"
+  } | ConvertTo-Json)

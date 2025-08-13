@@ -14,12 +14,14 @@
         "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -34,6 +36,9 @@
               },
               "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Data\\Emma.Data.csproj": {
                 "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Data\\Emma.Data.csproj"
+              },
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Infrastructure\\Emma.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Infrastructure\\Emma.Infrastructure.csproj"
               },
               "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {
                 "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj"
@@ -67,6 +72,10 @@
             "Microsoft.Azure.Cosmos": {
               "target": "Package",
               "version": "[3.52.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.8, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
@@ -112,18 +121,24 @@
         "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core.Interfaces\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -170,12 +185,14 @@
         "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -232,12 +249,14 @@
         "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Data\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -279,6 +298,10 @@
               "target": "Package",
               "version": "[8.0.8, )"
             },
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
             "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
               "version": "[8.0.8, )"
@@ -297,7 +320,149 @@
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
+              "version": "[8.0.8, )",
+              "noWarn": [
+                "NU1605"
+              ]
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.409/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Infrastructure\\Emma.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Infrastructure\\Emma.Infrastructure.csproj",
+        "projectName": "Emma.Infrastructure",
+        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Infrastructure\\Emma.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
+          "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core.Interfaces\\Emma.Core.Interfaces.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core.Interfaces\\Emma.Core.Interfaces.csproj"
+              },
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core\\Emma.Core.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core\\Emma.Core.csproj"
+              },
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
               "version": "[8.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Relational": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.5, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.6, )"
+            },
+            "Microsoft.Extensions.Hosting.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.6, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[8.0.8, )",
+              "noWarn": [
+                "NU1605"
+              ]
             }
           },
           "imports": [
@@ -330,12 +495,14 @@
         "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

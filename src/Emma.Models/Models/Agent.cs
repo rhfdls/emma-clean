@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Emma.Models.Models;
 
@@ -21,6 +22,13 @@ public class Agent
     public string? Configuration { get; set; }  // JSON configuration for the agent
     
     public bool IsActive { get; set; } = true;
+
+    // SPRINT2: Added for orchestration/AI registry
+    public string? Status { get; set; }
+    public DateTime? LastHeartbeat { get; set; }
+    public List<string> Capabilities { get; set; } = new();
+    public Dictionary<string, string>? Metadata { get; set; }
+    public string? Version { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastActive { get; set; }
     
@@ -39,6 +47,7 @@ public class Agent
     public Subscription? Subscription { get; set; }
     
     // Agent's contacts (if this agent is assigned to specific contacts)
+    [NotMapped]
     public ICollection<Contact> Contacts { get; set; } = new List<Contact>();
     
     // Agent's interactions

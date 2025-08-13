@@ -1,0 +1,29 @@
+### Create a new contact (valid)
+POST http://localhost:5000/contacts
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "organizationId": "{{organizationId}}",
+  "emailAddresses": [
+    { "address": "test.user@example.com" }
+  ],
+  "phoneNumbers": [
+    { "number": "+1234567890" }
+  ],
+  "addresses": [
+    { "line1": "123 Main St", "city": "Testville", "state": "TS", "postalCode": "12345" }
+  ]
+}
+
+### Get the created contact by ID
+GET http://localhost:5000/contacts/{{contactId}}
+
+### Negative test: missing required fields
+POST http://localhost:5000/contacts
+Content-Type: application/json
+
+{
+  "lastName": "User"
+}

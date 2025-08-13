@@ -33,6 +33,9 @@ public class PhoneNumber : BaseEntity
     /// </summary>
     public bool IsVerified { get; set; }
 
+    // SPRINT2: For DbContext alignment
+    public DateTime? VerifiedAt { get; set; }
+
     /// <summary>
     /// Gets or sets any additional notes about this phone number.
     /// </summary>
@@ -50,18 +53,7 @@ public class PhoneNumber : BaseEntity
     /// Gets or sets the contact this phone number belongs to.
     /// </summary>
     [ForeignKey(nameof(ContactId))]
-    [InverseProperty(nameof(Models.Contact.PhoneNumbers))]
     public virtual Contact? Contact { get; set; }
     
-    /// <summary>
-    /// Gets or sets the ID of the user this phone number belongs to.
-    /// </summary>
-    public Guid? UserId { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the user this phone number belongs to.
-    /// </summary>
-    [ForeignKey(nameof(UserId))]
-    [InverseProperty("PhoneNumbers")]
-    public virtual User? User { get; set; }
+
 }

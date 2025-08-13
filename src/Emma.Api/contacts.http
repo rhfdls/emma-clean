@@ -1,0 +1,32 @@
+@baseUrl = http://localhost:50000
+@orgId = 00000000-0000-0000-0000-000000000000
+@ownerId = 00000000-0000-0000-0000-000000000000
+
+### Create Contact
+POST {{baseUrl}}/api/Contact
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "firstName": "Ada",
+  "lastName": "Lovelace",
+  "middleName": "",
+  "preferredName": "Ada",
+  "title": "Ms.",
+  "jobTitle": "Engineer",
+  "company": "Analytical Engines Inc.",
+  "department": "R&D",
+  "source": "Manual",
+  "ownerId": "{{ownerId}}",
+  "preferredContactMethod": "Email",
+  "preferredContactTime": "Morning",
+  "notes": "Test contact created from .http file",
+  "profilePictureUrl": "https://example.com/ada.png"
+}
+
+### Get Contact By Id (paste id from Create response)
+@contactId = 00000000-0000-0000-0000-000000000000
+GET {{baseUrl}}/api/Contact/{{contactId}}
+
+### Get Contacts By Organization
+GET {{baseUrl}}/api/Contact?orgId={{orgId}}

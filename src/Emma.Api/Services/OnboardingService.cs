@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Emma.Api.Models;
-using Emma.Data;
+using Emma.Infrastructure.Data;
 using Emma.Models.Models; // SPRINT1_ENUM_FIX
 using Emma.Api.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -11,11 +11,11 @@ namespace Emma.Api.Services
     // SPRINT1: Onboarding service implementation for registration/profile
     public class OnboardingService : IOnboardingService
     {
-        private readonly AppDbContext _db;
+        private readonly EmmaDbContext _db;
         // TODO: Inject plan metadata service if plan validation requires external source
         // TODO: Inject password hasher if using ASP.NET Identity
 
-        public OnboardingService(AppDbContext db)
+        public OnboardingService(EmmaDbContext db)
         {
             _db = db;
         }
@@ -48,11 +48,15 @@ namespace Emma.Api.Services
                 var orgGuid = Guid.NewGuid();
 
                 // 6. Create user entity first (no org assigned yet)
+                // SPRINT1: Generate verification token
+                var verificationToken = Guid.NewGuid().ToString();
                 var user = new User
                 {
                     Email = request.Email,
                     Password = hashedPassword,
-                    AccountStatus = AccountStatus.PendingVerification
+                    AccountStatus = AccountStatus.PendingVerification,
+                    VerificationToken = verificationToken,
+                    IsVerified = false
                 };
                 _db.Users.Add(user);
                 await _db.SaveChangesAsync(); // User gets Id

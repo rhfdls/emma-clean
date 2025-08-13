@@ -4,3 +4,28 @@ GET {{Emma.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+# SPRINT2: Test Add Contact
+POST {{Emma.Api_HostAddress}}/api/contact
+Content-Type: application/json
+Accept: application/json
+
+{
+  "organizationId": "00000000-0000-0000-0000-000000000000",
+  "firstName": "Test",
+  "lastName": "User",
+  "middleName": "Q",
+  "preferredName": "Tester",
+  "title": "Ms.",
+  "jobTitle": "QA Engineer",
+  "company": "Acme Inc.",
+  "department": "Engineering",
+  "source": "Manual",
+  "ownerId": "00000000-0000-0000-0000-000000000000",
+  "preferredContactMethod": "Email",
+  "preferredContactTime": "Morning",
+  "notes": "Test contact for API.",
+  "profilePictureUrl": null
+}
+
+###

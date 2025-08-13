@@ -58,6 +58,9 @@ public class Organization : BaseEntity
         [Url(ErrorMessage = "Invalid logo URL format")]
         [MaxLength(500, ErrorMessage = "Logo URL cannot exceed 500 characters")]
         public string? LogoUrl { get; set; }
+
+    // SPRINT2: For DbContext alignment
+    public bool IsActive { get; set; } = true;
         
         /// <summary>
         /// Gets or sets the timezone of the organization (e.g., "America/New_York").
@@ -113,7 +116,7 @@ public virtual ICollection<User> Users { get; set; } = new List<User>();
         /// <summary>
         /// Gets or sets the collection of contacts belonging to this organization.
         /// </summary>
-        [InverseProperty(nameof(Models.Contact.Organization))]
+        [NotMapped]
         public virtual ICollection<Contact> Contacts { get; set; } = new List<Contact>();
         
         /// <summary>

@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+using Emma.Core.Interfaces.Repositories;
+using Emma.Infrastructure.Data.Repositories;
 
 namespace Emma.Infrastructure.Data
 {
@@ -112,7 +116,7 @@ namespace Emma.Infrastructure.Data
                     });
 
                     // Only enable sensitive data logging in development
-                    var env = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+                    var env = serviceProvider.GetRequiredService<IHostEnvironment>();
                     if (env.IsDevelopment())
                     {
                         options.EnableSensitiveDataLogging();

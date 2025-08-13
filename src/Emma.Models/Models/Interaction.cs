@@ -8,6 +8,17 @@ namespace Emma.Models.Models;
 /// </summary>
 public class Interaction : BaseEntity
 {
+    #region EFCore Mapping
+    // Enforced by ModelSync-ContactUserInteraction-2025Q3
+    // Navigation properties
+    public virtual Contact? Contact { get; set; }
+    public Guid? AssignedToUserId { get; set; }
+    public virtual User? AssignedToUser { get; set; }
+    public Guid? AssignedToAgentId { get; set; }
+    public virtual Agent? AssignedToAgent { get; set; }
+    public Guid? AssignedToId { get; set; }
+    #endregion
+
     /// <summary>
     /// Gets or sets the user who created this interaction.
     /// </summary>
@@ -68,12 +79,7 @@ public class Interaction : BaseEntity
     /// </summary>
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
     
-    /// <summary>
-    /// Gets or sets the contact associated with this interaction.
-    /// </summary>
-    [ForeignKey(nameof(ContactId))]
-    public virtual Contact? Contact { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the parent interaction, if this is a reply or follow-up.
     /// </summary>
@@ -104,7 +110,6 @@ public class Interaction : BaseEntity
     
     // Audit
     public Guid CreatedById { get; set; }
-    public Guid? AssignedToUserId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? DeletedAt { get; set; }

@@ -42,8 +42,6 @@ namespace Emma.Models.Interfaces
         DbSet<SubscriptionPlanFeature> SubscriptionPlanFeatures { get; set; }
         DbSet<Feature> Features { get; set; }
         
-        // Resource management (legacy, being migrated)
-            DbSet<ResourceRecommendation> ResourceRecommendations { get; set; }
         
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

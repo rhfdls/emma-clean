@@ -13,4 +13,7 @@ public class AgentAssignment
     public Agent? Agent { get; set; }
     public string AssignmentType { get; set; } = string.Empty;
     public DateTime AssignedAt { get; set; }
+
+    // SPRINT2: For DbContext alignment
+    public string? Analysis { get; set; }
 }

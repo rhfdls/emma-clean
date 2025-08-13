@@ -1,0 +1,25 @@
+$base = 'http://localhost:5000'
+$orgId = 'da60e1ad-acc7-4b1d-91da-307d1b53c0ed'
+$ownerId = '60e757d8-ae9a-4460-8b91-369a86f41a71'
+
+$payload = @{
+  firstName = 'Test'
+  lastName  = 'Contact'
+  organizationId = $orgId
+  ownerId = $ownerId
+  emailAddresses = @(@{ address = 'test.contact@example.com'; isPrimary = $true })
+  phoneNumbers   = @(@{ number = '+15551234567'; isPrimary = $true })
+} | ConvertTo-Json -Depth 5
+
+# Create (singular route)
+$createResp = Invoke-RestMethod -Uri "$base/api/contact" -Method Post -ContentType 'application/json' -Body $payload
+$createResp | ConvertTo-Json -Depth 5
+
+$contactId = $createResp.id
+"Created contactId: $contactId"
+
+# Get by Id
+Invoke-RestMethod -Uri "$base/api/contact/$contactId" -Method Get | ConvertTo-Json -Depth 5
+
+# Get by organization (query param)
+Invoke-RestMethod -Uri "$base/api/contact?orgId=$orgId" -Method Get | ConvertTo-Json -Depth 5

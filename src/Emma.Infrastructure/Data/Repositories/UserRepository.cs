@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Emma.Core.Interfaces;
+using Emma.Core.Interfaces.Repositories;
 using Emma.Infrastructure.Data;
 using Emma.Models.Models;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +30,7 @@ namespace Emma.Infrastructure.Data.Repositories
         {
             return await _context.Users
                 .Include(u => u.Organization)
-                .Include(u => u.Roles)
+                
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
@@ -42,23 +42,8 @@ namespace Emma.Infrastructure.Data.Repositories
 
             return await _context.Users
                 .Include(u => u.Organization)
-                .Include(u => u.Roles)
-                .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
-        }
-
-        /// <inheritdoc />
-        public async Task<User?> GetByExternalIdAsync(string provider, string providerId)
-        {
-            if (string.IsNullOrWhiteSpace(provider))
-                throw new ArgumentException("Provider cannot be null or whitespace.", nameof(provider));
                 
-            if (string.IsNullOrWhiteSpace(providerId))
-                throw new ArgumentException("Provider ID cannot be null or whitespace.", nameof(providerId));
-
-            return await _context.Users
-                .Include(u => u.Organization)
-                .Include(u => u.Roles)
-                .FirstOrDefaultAsync(u => u.IdentityProvider == provider && u.IdentityProviderId == providerId);
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
         }
 
         /// <inheritdoc />
@@ -67,7 +52,7 @@ namespace Emma.Infrastructure.Data.Repositories
             var idList = ids.ToList();
             return await _context.Users
                 .Include(u => u.Organization)
-                .Include(u => u.Roles)
+                
                 .Where(u => idList.Contains(u.Id))
                 .ToListAsync();
         }
@@ -77,7 +62,7 @@ namespace Emma.Infrastructure.Data.Repositories
         {
             return await _context.Users
                 .Include(u => u.Organization)
-                .Include(u => u.Roles)
+                
                 .Where(predicate)
                 .ToListAsync();
         }

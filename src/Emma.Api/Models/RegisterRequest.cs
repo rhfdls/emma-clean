@@ -23,5 +23,7 @@ namespace Emma.Api.Models
         [Required]
         [Range(1, 1000, ErrorMessage = "Seat count must be between 1 and 1000.")]
         public int SeatCount { get; set; }
+        // SPRINT1: Optional CRM selection (for modular onboarding)
+        public string? Crm { get; set; }
     }
 }

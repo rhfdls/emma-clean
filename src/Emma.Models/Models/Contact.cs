@@ -32,6 +32,34 @@ public enum RelationshipState
 /// </summary>
 public class Contact : BaseEntity
 {
+    #region EFCore Mapping
+    // Enforced by ModelSync-ContactUserInteraction-2025Q3
+
+    // Navigation properties
+    [NotMapped]
+    public virtual ICollection<EmailAddress> EmailAddresses { get; set; } = new List<EmailAddress>();
+    [NotMapped]
+    public virtual ICollection<PhoneNumber> PhoneNumbers { get; set; } = new List<PhoneNumber>();
+    [NotMapped]
+    public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
+    [NotMapped]
+    public virtual ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();
+    [NotMapped]
+    public virtual ICollection<ContactAssignment> AssignedResources { get; set; } = new List<ContactAssignment>();
+    [NotMapped]
+    public virtual ICollection<ContactCollaborator> Collaborators { get; set; } = new List<ContactCollaborator>();
+    [NotMapped]
+    public virtual ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
+
+    // [Obsolete] legacy fields; ignored in EF mapping
+    [Obsolete("Use EmailAddresses instead. Field is ignored in EF mapping.")]
+    [NotMapped]
+    public List<string>? Emails { get; set; }
+    [Obsolete("Use PhoneNumbers instead. Field is ignored in EF mapping.")]
+    [NotMapped]
+    public List<string>? Phones { get; set; }
+    #endregion
+
     /// <summary>
     /// Gets or sets the ID of the organization that owns this contact.
     /// </summary>
@@ -142,54 +170,26 @@ public class Contact : BaseEntity
     
     /// <summary>
     /// Gets or sets the organization that owns this contact.
+    /// Not mapped to EF; relationship is configured via FK in DbContext.
     /// </summary>
-    [ForeignKey(nameof(OrganizationId))]
+    [NotMapped]
     public virtual Organization? Organization { get; set; }
     
     /// <summary>
     /// Gets or sets the user who owns or is responsible for this contact.
+    /// Not mapped to EF; relationship is configured via FK in DbContext.
     /// </summary>
-    [ForeignKey(nameof(OwnerId))]
+    [NotMapped]
     public virtual User? Owner { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the collection of email addresses associated with this contact.
-    /// </summary>
-    [InverseProperty(nameof(Models.EmailAddress.Contact))]
-    public virtual ICollection<EmailAddress> EmailAddresses { get; set; } = new List<EmailAddress>();
-    
-    /// <summary>
-    /// Gets or sets the collection of phone numbers associated with this contact.
-    /// </summary>
-    [InverseProperty(nameof(PhoneNumber.Contact))]
-    public virtual ICollection<PhoneNumber> PhoneNumbers { get; set; } = new List<PhoneNumber>();
-    
-    /// <summary>
-    /// Gets or sets the primary address of this contact.
-    /// </summary>
-    public virtual Address? Address { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the collection of tasks associated with this contact.
-    /// </summary>
-    
-    /// <summary>
-    /// Gets or sets the collection of interactions associated with this contact.
-    /// </summary>
-    [InverseProperty(nameof(Interaction.Contact))]
-    public virtual ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();
     
     /// <summary>
     /// Gets or sets the history of relationship state changes for this contact.
     /// </summary>
+    [NotMapped]
     public virtual ICollection<ContactStateHistory> StateHistory { get; set; } = new List<ContactStateHistory>();
     
     // Legacy properties (to be migrated/removed)
-    [Obsolete("Use EmailAddresses collection instead")]
-    public List<EmailAddress> Emails { get; set; } = new();
-    
-    [Obsolete("Use PhoneNumbers collection instead")]
-    public List<PhoneNumber> Phones { get; set; } = new();
+
     
     
     /// <summary>
@@ -217,11 +217,13 @@ public class Contact : BaseEntity
     /// <summary>
     /// Service specialties (e.g., "FHA Loans", "Commercial Properties", "New Construction").
     /// </summary>
+    [NotMapped]
     public List<string> Specialties { get; set; } = new();
     
     /// <summary>
     /// Geographic service areas (e.g., "Downtown", "North County", "San Diego County").
     /// </summary>
+    [NotMapped]
     public List<string> ServiceAreas { get; set; } = new();
     
     /// <summary>
@@ -254,10 +256,12 @@ public class Contact : BaseEntity
     /// All privacy/business logic must be enforced via Interaction.Tags.
     /// </summary>
     [Emma.Models.Validation.NoPrivacyBusinessTags]
+    [NotMapped]
     public List<string> Tags { get; set; } = new();
     public string? LeadSource { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    [NotMapped]
     public Dictionary<string, string>? CustomFields { get; set; }
     
     // Navigation properties
@@ -272,6 +276,7 @@ public class Contact : BaseEntity
     /// <summary>
     /// The user currently assigned to manage this contact
     /// </summary>
+    [NotMapped]
     public User? AssignedTo { get; set; }
     
     /// <summary>
@@ -281,26 +286,7 @@ public class Contact : BaseEntity
     /// <summary>
     /// Resources (service providers) assigned to this contact
     /// </summary>
-    public List<ContactAssignment> AssignedResources { get; set; } = new();
-    
-    /// <summary>
-    /// Assignments where this contact is the resource (service provider)
-    /// </summary>
-    public List<ContactAssignment> ResourceAssignments { get; set; } = new();
-    
-    /// <summary>
-    /// History of state transitions for this contact
-    /// </summary>
-    
-    /// <summary>
-    /// Users who have been granted access to collaborate on this contact
-    /// </summary>
-    public List<ContactCollaborator> Collaborators { get; set; } = new();
-    
-    /// <summary>
-    /// Contacts that this user is collaborating on
-    /// </summary>
-    public List<ContactCollaborator> CollaboratingOn { get; set; } = new();
+
     
     // NOTE: PrivacyLevel property has been removed. Run EF Core migration to drop the PrivacyLevel column from the database.
     
@@ -407,7 +393,8 @@ public class Contact : BaseEntity
         };
         
         // Update both sides of the relationship
-        ResourceAssignments.Add(assignment);
+        // Add to assignments for both sides
+        // If you have a collection of assignments, add here; otherwise, only update clientContact.AssignedResources if defined as ContactAssignment
         clientContact.AssignedResources.Add(assignment);
         
         return assignment;

@@ -739,12 +739,14 @@
       "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
+        "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
         "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

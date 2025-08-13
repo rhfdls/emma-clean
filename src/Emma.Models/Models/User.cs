@@ -9,6 +9,22 @@ namespace Emma.Models.Models;
 // SPRINT1: Added AccountStatus, VerificationToken, IsVerified for onboarding/email verification
 public class User : BaseEntity
 {
+    #region EFCore Mapping
+    // Enforced by ModelSync-ContactUserInteraction-2025Q3
+    // Navigation and required properties
+    public virtual ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();
+    [NotMapped]
+    public virtual ICollection<Contact> OwnedContacts { get; set; } = new List<Contact>();
+    public virtual ICollection<EmailAddress> EmailAddresses { get; set; } = new List<EmailAddress>();
+    public virtual ICollection<UserPhoneNumber> PhoneNumbers { get; set; } = new List<UserPhoneNumber>();
+    public virtual ICollection<UserSubscriptionAssignment> SubscriptionAssignments { get; set; } = new List<UserSubscriptionAssignment>();
+    public List<string> Roles { get; set; } = new();
+    public string? ProfileImageUrl { get; set; }
+    public string? TimeZone { get; set; }
+    public string? Locale { get; set; }
+    public DateTime? LastLoginAt { get; set; }
+    #endregion
+
     [Required]
     [MaxLength(100)]
     public string FirstName { get; set; } = string.Empty;
@@ -32,6 +48,11 @@ public class User : BaseEntity
     public int? FubUserId { get; set; }
     
     public bool IsActive { get; set; } = true;
+
+    // SPRINT2: Added for orchestration/personalization
+
+
+    // SPRINT2: For DbContext alignment
 
     // SPRINT1: Account status for onboarding/email verification
     public AccountStatus AccountStatus { get; set; } = AccountStatus.PendingVerification;
@@ -72,47 +93,14 @@ public class User : BaseEntity
     
     // Navigation properties
     
-    /// <summary>
-    /// Gets or sets the collection of email addresses associated with this user.
-    /// </summary>
-    [InverseProperty(nameof(Models.EmailAddress.User))]
-    public virtual ICollection<EmailAddress> EmailAddresses { get; set; } = new List<EmailAddress>();
-    
-    /// <summary>
-    /// Gets or sets the collection of tasks assigned to this user.
-    /// </summary>
-    [InverseProperty(nameof(TaskItem.AssignedToUser))]
-    public virtual ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();
-    
-    /// <summary>
-    /// Gets or sets the collection of device tokens for push notifications.
-    /// </summary>
     [InverseProperty(nameof(DeviceToken.User))]
     public virtual ICollection<DeviceToken> DeviceTokens { get; set; } = new List<DeviceToken>();
-    
-    /// <summary>
-    /// Gets or sets the collection of phone numbers associated with this user.
-    /// </summary>
-    [InverseProperty(nameof(PhoneNumber.User))]
-    public virtual ICollection<PhoneNumber> PhoneNumbers { get; set; } = new List<PhoneNumber>();
-    
-    /// <summary>
-    /// Gets or sets the collection of contacts owned by this user.
-    /// </summary>
-    [InverseProperty(nameof(Models.Contact.Owner))]
-    public virtual ICollection<Contact> OwnedContacts { get; set; } = new List<Contact>();
     
     /// <summary>
     /// Gets or sets the collection of interactions created by this user.
     /// </summary>
     [InverseProperty(nameof(Models.Interaction.CreatedBy))]
     public virtual ICollection<Interaction> CreatedInteractions { get; set; } = new List<Interaction>();
-    
-    /// <summary>
-    /// Gets or sets the collection of subscription assignments for this user.
-    /// </summary>
-    [InverseProperty(nameof(UserSubscriptionAssignment.User))]
-    public virtual ICollection<UserSubscriptionAssignment> SubscriptionAssignments { get; set; } = new List<UserSubscriptionAssignment>();
     
     /// <summary>
     /// Gets or sets the collection of agents created by this user.
@@ -138,7 +126,7 @@ public class User : BaseEntity
     /// Gets the primary phone number for this user, if available.
     /// </summary>
     [NotMapped]
-    public PhoneNumber? PrimaryPhoneNumber => PhoneNumbers.FirstOrDefault(p => p.IsPrimary);
+    public UserPhoneNumber? PrimaryPhoneNumber => PhoneNumbers.FirstOrDefault(p => p.IsPrimary);
     
     /// <summary>
     /// Gets the primary email address for this user, if available.

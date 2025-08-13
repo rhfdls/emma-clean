@@ -568,34 +568,13 @@
         <member name="P:Emma.Models.Models.Contact.Organization">
             <summary>
             Gets or sets the organization that owns this contact.
+            Not mapped to EF; relationship is configured via FK in DbContext.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Contact.Owner">
             <summary>
             Gets or sets the user who owns or is responsible for this contact.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.EmailAddresses">
-            <summary>
-            Gets or sets the collection of email addresses associated with this contact.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.PhoneNumbers">
-            <summary>
-            Gets or sets the collection of phone numbers associated with this contact.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.Address">
-            <summary>
-            Gets or sets the primary address of this contact.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.Interactions">
-            <summary>
-            Gets or sets the collection of tasks associated with this contact.
-            </summary>
-            <summary>
-            Gets or sets the collection of interactions associated with this contact.
+            Not mapped to EF; relationship is configured via FK in DbContext.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Contact.StateHistory">
@@ -672,32 +651,6 @@
             </summary>
             <summary>
             The user currently assigned to manage this contact
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.AssignedResources">
-            <summary>
-            All interactions with this contact
-            </summary>
-            <summary>
-            Resources (service providers) assigned to this contact
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.ResourceAssignments">
-            <summary>
-            Assignments where this contact is the resource (service provider)
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.Collaborators">
-            <summary>
-            History of state transitions for this contact
-            </summary>
-            <summary>
-            Users who have been granted access to collaborate on this contact
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.CollaboratingOn">
-            <summary>
-            Contacts that this user is collaborating on
             </summary>
         </member>
         <member name="M:Emma.Models.Models.Contact.TransitionToState(Emma.Models.Models.RelationshipState,System.String,System.Nullable{System.Guid})">
@@ -1445,7 +1398,7 @@
             Gets or sets a value indicating whether this is the primary email address.
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.EmailAddress.IsVerified">
+        <member name="P:Emma.Models.Models.EmailAddress.Verified">
             <summary>
             Gets or sets a value indicating whether this email address has been verified.
             </summary>
@@ -1625,11 +1578,6 @@
         <member name="P:Emma.Models.Models.Interaction.Messages">
             <summary>
             Gets or sets the collection of messages that are part of this interaction.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Interaction.Contact">
-            <summary>
-            Gets or sets the contact associated with this interaction.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Interaction.ParentInteraction">
@@ -2077,16 +2025,6 @@
             Gets or sets the contact this phone number belongs to.
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.PhoneNumber.UserId">
-            <summary>
-            Gets or sets the ID of the user this phone number belongs to.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.PhoneNumber.User">
-            <summary>
-            Gets or sets the user this phone number belongs to.
-            </summary>
-        </member>
         <member name="T:Emma.Models.Models.RelevantInteraction">
             <summary>
             Represents a relevant interaction with similarity score and relevance context
@@ -2370,39 +2308,9 @@
             Gets or sets the collection of organizations owned by this user.
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.User.EmailAddresses">
-            <summary>
-            Gets or sets the collection of email addresses associated with this user.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.User.AssignedTasks">
-            <summary>
-            Gets or sets the collection of tasks assigned to this user.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.User.DeviceTokens">
-            <summary>
-            Gets or sets the collection of device tokens for push notifications.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.User.PhoneNumbers">
-            <summary>
-            Gets or sets the collection of phone numbers associated with this user.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.User.OwnedContacts">
-            <summary>
-            Gets or sets the collection of contacts owned by this user.
-            </summary>
-        </member>
         <member name="P:Emma.Models.Models.User.CreatedInteractions">
             <summary>
             Gets or sets the collection of interactions created by this user.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.User.SubscriptionAssignments">
-            <summary>
-            Gets or sets the collection of subscription assignments for this user.
             </summary>
         </member>
         <member name="P:Emma.Models.Models.User.CreatedAgents">

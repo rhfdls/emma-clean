@@ -206,12 +206,24 @@ public class AppDbContext : DbContext, IAppDbContext
         
         modelBuilder.Entity<ContactSummary>()
             .Property(cs => cs.KeyMilestones)
+            .HasConversion(
+                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v => string.IsNullOrWhiteSpace(v) ? new List<string>() : System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null)!
+            )
             .HasColumnType("jsonb");
         modelBuilder.Entity<ContactSummary>()
             .Property(cs => cs.ImportantPreferences)
+            .HasConversion(
+                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, object>() : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, (System.Text.Json.JsonSerializerOptions?)null)!
+            )
             .HasColumnType("jsonb");
         modelBuilder.Entity<ContactSummary>()
             .Property(cs => cs.CustomFields)
+            .HasConversion(
+                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, object>() : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, (System.Text.Json.JsonSerializerOptions?)null)!
+            )
             .HasColumnType("jsonb");
         modelBuilder.Entity<ContactSummary>()
             .HasIndex(cs => new { cs.ContactId, cs.OrganizationId, cs.SummaryType });
@@ -242,15 +254,31 @@ public class AppDbContext : DbContext, IAppDbContext
         // InteractionEmbedding
         modelBuilder.Entity<InteractionEmbedding>()
             .Property(ie => ie.PrivacyTags)
+            .HasConversion(
+                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v => string.IsNullOrWhiteSpace(v) ? new List<string>() : System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null)!
+            )
             .HasColumnType("jsonb");
         modelBuilder.Entity<InteractionEmbedding>()
             .Property(ie => ie.ExtractedEntities)
+            .HasConversion(
+                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, object>() : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, (System.Text.Json.JsonSerializerOptions?)null)!
+            )
             .HasColumnType("jsonb");
         modelBuilder.Entity<InteractionEmbedding>()
             .Property(ie => ie.Topics)
+            .HasConversion(
+                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v => string.IsNullOrWhiteSpace(v) ? new List<string>() : System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null)!
+            )
             .HasColumnType("jsonb");
         modelBuilder.Entity<InteractionEmbedding>()
             .Property(ie => ie.CustomFields)
+            .HasConversion(
+                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v => string.IsNullOrWhiteSpace(v) ? new Dictionary<string, object>() : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, (System.Text.Json.JsonSerializerOptions?)null)!
+            )
             .HasColumnType("jsonb");
         modelBuilder.Entity<InteractionEmbedding>()
             .HasIndex(ie => new { ie.ContactId, ie.OrganizationId, ie.Timestamp });
@@ -289,15 +317,11 @@ public class AppDbContext : DbContext, IAppDbContext
         
         modelBuilder.Entity<Contact>()
             .HasMany(c => c.AssignedResources)
-            .WithOne(ca => ca.ClientContact)
-            .HasForeignKey(ca => ca.ContactId)
+            .WithOne()
+            .HasForeignKey(cr => cr.ContactId)
             .OnDelete(DeleteBehavior.Restrict);
         
-        modelBuilder.Entity<Contact>()
-            .HasMany(c => c.CollaboratingOn)
-            .WithOne(cc => cc.Contact)
-            .HasForeignKey(cc => cc.ContactId)
-            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }
 
