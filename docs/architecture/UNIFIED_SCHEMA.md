@@ -1,7 +1,7 @@
 # EMMA Unified Data Schema
 
-**Version**: 3.1  
-**Last Updated**: 2025-06-19  
+**Version**: 3.2  
+**Last Updated**: 2025-08-13  
 **Status**: ACTIVE - Developer Reference Document
 
 > **IMPORTANT CHANGES IN V3.1**
@@ -16,6 +16,10 @@
 > - **Industry Extensibility**: Support for multiple industry verticals
 
 This document defines the unified, CRM-agnostic schema for the EMMA platform, serving as the single source of truth for all data models. The schema is designed to support multi-tenant, contact-centric AI workflows with robust privacy and access control across multiple industry verticals.
+
+> Changes in 3.2
+> - Added OrganizationInvitation entity
+> - Added User verification attributes (AccountStatus, VerificationToken, IsVerified)
 
 ## Key Principles
 
@@ -151,6 +155,7 @@ erDiagram
     Organization ||--o{ Contact : has
     Organization ||--o{ Agent : has
     Organization ||--o{ OrganizationSubscription : has
+    Organization ||--o{ OrganizationInvitation : issues
     
     %% Subscription Relationships
     OrganizationSubscription ||--o{ Subscription : contains
@@ -181,6 +186,7 @@ erDiagram
     %% Workflow
     Interaction }|--o{ NbaRecommendation : generates
     NbaRecommendation ||--o{ ScheduledAction : creates
+    User }|..o{ OrganizationInvitation : "accepts via token"
 ```
 
 ---
@@ -196,7 +202,22 @@ erDiagram
         string email
         string organizationId
         string status
+        bool isVerified
+        string? verificationToken
     }
+
+OrganizationInvitation {
+    string id
+    string organizationId
+    string email
+    string role
+    string token
+    datetime expiresAtUtc
+    datetime? acceptedAtUtc
+    datetime? revokedAtUtc
+    datetime createdAt
+    datetime updatedAt
+}
     
     Contact {
         string id

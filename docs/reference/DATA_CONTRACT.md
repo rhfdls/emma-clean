@@ -117,3 +117,141 @@ User/Agent (agentId) →
 ## Notes
 - For future vector search in PostgreSQL, consider enabling the pgvector extension and mirroring the `embedding` field.
 - Always document any schema changes here and in code comments for maintainability.
+
+---
+
+# Onboarding & Invitations API
+
+This section defines the contracts for organization creation, invitations, registration from invitation, and email verification.
+
+## Create Organization
+
+- Method: POST
+- Path: `/api/organization`
+- Auth: Required (creator must be valid user)
+- Body: `OrganizationCreateDto`
+
+```json
+{
+  "name": "Acme Inc",
+  "email": "owner@acme.com",
+  "ownerUserId": "00000000-0000-0000-0000-000000000000",
+  "planType": "pro",
+  "seatCount": 10
+}
+```
+
+Response: 201 Created → `OrganizationReadDto`
+
+```json
+{
+  "id": "11111111-1111-1111-1111-111111111111",
+  "orgGuid": "22222222-2222-2222-2222-222222222222",
+  "name": "Acme Inc",
+  "email": "owner@acme.com",
+  "planType": "pro",
+  "seatCount": 10
+}
+```
+
+Errors:
+- 400 Bad Request (missing/invalid fields, unknown ownerUserId)
+
+## Create Invitation (OrgOwnerOrAdmin)
+
+- Method: POST
+- Path: `/api/organization/{organizationId}/invitations`
+- Auth: Required, policy `OrgOwnerOrAdmin`
+- Body:
+
+```json
+{
+  "email": "user@invitee.com",
+  "role": "OrgAdmin"
+}
+```
+
+Response: 201 Created
+
+```json
+{
+  "id": "33333333-3333-3333-3333-333333333333",
+  "organizationId": "11111111-1111-1111-1111-111111111111",
+  "email": "user@invitee.com",
+  "role": "OrgAdmin",
+  "token": "opaque-token",
+  "expiresAtUtc": "2025-08-20T00:00:00Z"
+}
+```
+
+Errors:
+- 401/403 (missing/insufficient permissions)
+- 400 (invalid email)
+
+## Get Invitation by Token
+
+- Method: GET
+- Path: `/api/organization/invitations/{token}`
+- Auth: Anonymous
+- Response: 200 OK
+
+```json
+{
+  "organizationId": "11111111-1111-1111-1111-111111111111",
+  "email": "user@invitee.com",
+  "role": "OrgAdmin",
+  "isExpired": false
+}
+```
+
+Errors:
+- 404 (not found or expired)
+
+## Register From Invitation
+
+- Method: POST
+- Path: `/api/organization/invitations/{token}/register`
+- Auth: Anonymous
+- Body:
+
+```json
+{
+  "firstName": "Taylor",
+  "lastName": "Lee",
+  "password": "P@ssw0rd!"
+}
+```
+
+Response: 201 Created
+
+```json
+{
+  "userId": "44444444-4444-4444-4444-444444444444",
+  "organizationId": "11111111-1111-1111-1111-111111111111",
+  "accountStatus": "PendingVerification"
+}
+```
+
+Side effects:
+- Generates `verificationToken` and sends a verification email using `VERIFY_URL_BASE`
+
+Errors:
+- 400 (invalid token, weak password)
+- 409 (email already registered)
+
+## Verify Email
+
+- Method: POST
+- Path: `/api/auth/verify-email`
+- Auth: Anonymous
+- Body:
+
+```json
+{ "token": "verification-token" }
+```
+
+Response:
+- 204 No Content (success)
+
+Errors:
+- 400 (invalid/expired token)

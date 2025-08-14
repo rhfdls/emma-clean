@@ -63,6 +63,9 @@ public class User : BaseEntity
 
     // SPRINT1: Quick check for verification
     public bool IsVerified { get; set; } = false;
+
+    // SPRINT2: Timestamp when verification completed
+    public DateTime? VerifiedAt { get; set; }
     
     /// <summary>
     /// Indicates whether this user has administrative privileges.

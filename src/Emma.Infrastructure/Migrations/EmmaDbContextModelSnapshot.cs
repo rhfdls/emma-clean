@@ -1694,6 +1694,9 @@ namespace Emma.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("PlanId")
+                        .HasColumnType("text");
+
                     b.Property<int?>("PlanType")
                         .HasColumnType("integer");
 
@@ -2470,6 +2473,9 @@ namespace Emma.Infrastructure.Migrations
                     b.Property<string>("VerificationToken")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 

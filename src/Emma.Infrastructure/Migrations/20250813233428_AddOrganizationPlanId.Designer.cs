@@ -14,8 +14,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Emma.Infrastructure.Migrations
 {
     [DbContext(typeof(EmmaDbContext))]
-    [Migration("20250812161632_AddOrganizationInvitations")]
-    partial class AddOrganizationInvitations
+    [Migration("20250813233428_AddOrganizationPlanId")]
+    partial class AddOrganizationPlanId
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1697,6 +1697,9 @@ namespace Emma.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("PlanId")
+                        .HasColumnType("text");
+
                     b.Property<int?>("PlanType")
                         .HasColumnType("integer");
 
@@ -2473,6 +2476,9 @@ namespace Emma.Infrastructure.Migrations
                     b.Property<string>("VerificationToken")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 

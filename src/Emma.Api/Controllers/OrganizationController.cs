@@ -6,6 +6,8 @@ using System.ComponentModel.DataAnnotations;
 using Emma.Api.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Emma.Core.Services;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Emma.Api.Controllers
 {
@@ -14,6 +16,7 @@ namespace Emma.Api.Controllers
     public class OrganizationController : ControllerBase
     {
         // POST api/organization
+        [Authorize(Policy = "VerifiedUser")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] OrganizationCreateDto dto, [FromServices] EmmaDbContext db)
         {
@@ -45,6 +48,7 @@ namespace Emma.Api.Controllers
                     Email = dto.Email,
                     OwnerUserId = dto.OwnerUserId,
                     PlanType = dto.PlanType,
+                    PlanId = dto.PlanId ?? dto.PlanType?.ToString(),
                     SeatCount = dto.SeatCount,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
@@ -58,8 +62,10 @@ namespace Emma.Api.Controllers
                     OrgGuid = org.OrgGuid,
                     Name = org.Name,
                     Email = org.Email,
-                    PlanType = org.PlanType,
-                    SeatCount = org.SeatCount
+                    PlanId = org.PlanId,
+                    PlanType = org.PlanType?.ToString(),
+                    SeatCount = org.SeatCount,
+                    IsActive = org.IsActive
                 });
             }
             catch (Exception ex)
@@ -75,12 +81,46 @@ namespace Emma.Api.Controllers
 
         // GET api/organization
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromServices] EmmaDbContext db)
+        [Authorize]
+        public async Task<IActionResult> GetAll([FromServices] EmmaDbContext db, [FromServices] IHttpContextAccessor http, [FromQuery] int page = 1, [FromQuery] int size = 20)
         {
             try
             {
-                var list = await db.Organizations
-                    .Select(o => new OrganizationReadDto { Id = o.Id, Name = o.Name })
+                page = page < 1 ? 1 : page;
+                size = size < 1 ? 1 : (size > 100 ? 100 : size);
+
+                Guid userId;
+                var userIdStr = http.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? http.HttpContext?.User?.FindFirstValue("sub");
+                if (!Guid.TryParse(userIdStr, out userId))
+                    return Forbid();
+
+                var me = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+                if (me == null) return Forbid();
+
+                var query = db.Organizations.AsQueryable();
+                if (!me.IsAdmin)
+                {
+                    if (me.OrganizationId == null)
+                        return Ok(Array.Empty<OrganizationReadDto>());
+                    var myOrgId = me.OrganizationId.Value;
+                    query = query.Where(o => o.Id == myOrgId);
+                }
+
+                var list = await query
+                    .OrderBy(o => o.Name)
+                    .Skip((page - 1) * size)
+                    .Take(size)
+                    .Select(o => new OrganizationReadDto
+                    {
+                        Id = o.Id,
+                        OrgGuid = o.OrgGuid,
+                        Name = o.Name,
+                        Email = o.Email,
+                        PlanId = o.PlanId,
+                        PlanType = o.PlanType.HasValue ? o.PlanType.Value.ToString() : null,
+                        SeatCount = o.SeatCount,
+                        IsActive = o.IsActive
+                    })
                     .ToListAsync();
                 return Ok(list);
             }
@@ -97,13 +137,34 @@ namespace Emma.Api.Controllers
 
         // GET api/organization/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id, [FromServices] EmmaDbContext db)
+        [Authorize]
+        public async Task<IActionResult> GetById(Guid id, [FromServices] EmmaDbContext db, [FromServices] IHttpContextAccessor http)
         {
             try
             {
+                Guid userId;
+                var userIdStr = http.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? http.HttpContext?.User?.FindFirstValue("sub");
+                if (!Guid.TryParse(userIdStr, out userId))
+                    return Forbid();
+
+                var me = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+                if (me == null) return Forbid();
+
                 var o = await db.Organizations.FirstOrDefaultAsync(x => x.Id == id);
                 if (o == null) return NotFound();
-                return Ok(new OrganizationReadDto { Id = o.Id, Name = o.Name });
+                if (!me.IsAdmin && me.OrganizationId != o.Id)
+                    return Forbid();
+                return Ok(new OrganizationReadDto
+                {
+                    Id = o.Id,
+                    OrgGuid = o.OrgGuid,
+                    Name = o.Name,
+                    Email = o.Email,
+                    PlanId = o.PlanId,
+                    PlanType = o.PlanType?.ToString(),
+                    SeatCount = o.SeatCount,
+                    IsActive = o.IsActive
+                });
             }
             catch (Exception ex)
             {
@@ -116,20 +177,13 @@ namespace Emma.Api.Controllers
             }
         }
 
-        public class OrganizationReadDto
-        {
-            public Guid Id { get; set; }
-            public Guid OrgGuid { get; set; }
-            public string Name { get; set; } = string.Empty;
-            public string Email { get; set; } = string.Empty;
-            public Emma.Models.Enums.PlanType? PlanType { get; set; }
-            public int? SeatCount { get; set; }
-        }
+        // moved to Dtos/OrganizationReadDto.cs
 
         // ===== Invitations =====
 
         // POST api/organization/{orgId}/invitations
         [HttpPost("{orgId}/invitations")]
+        [Authorize(Policy = "VerifiedUser")]
         [Authorize(Policy = Emma.Api.Auth.Policies.OrgOwnerOrAdmin)]
         public async Task<IActionResult> CreateInvitation(Guid orgId, [FromBody] CreateInvitationDto dto, [FromServices] EmmaDbContext db)
         {

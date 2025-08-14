@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Emma.Core.Interfaces.Repositories;
 using Emma.Models.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Emma.Api.Controllers
 {
@@ -9,6 +10,7 @@ namespace Emma.Api.Controllers
     public class ContactController : ControllerBase
     {
         // POST /contacts
+        [Authorize(Policy = "VerifiedUser")]
         [HttpPost]
         public async Task<IActionResult> CreateContact([FromBody] Dtos.ContactCreateDto dto, [FromServices] IContactRepository repo)
         {
@@ -138,6 +140,7 @@ namespace Emma.Api.Controllers
         }
 
         // PUT /contacts/{id}/assign
+        [Authorize(Policy = "VerifiedUser")]
         [HttpPut("{id}/assign")]
         public async Task<IActionResult> AssignContact(Guid id, [FromBody] Dtos.ContactAssignDto dto, [FromServices] IContactRepository repo)
         {

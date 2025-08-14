@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -14,32 +14,10 @@ namespace Emma.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterDatabase()
-                .Annotation("Npgsql:PostgresExtension:hstore", ",,");
-
-            migrationBuilder.CreateTable(
-                name: "Features",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    DisplayName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    Category = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uuid", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uuid", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    DeletedById = table.Column<Guid>(type: "uuid", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "bytea", rowVersion: true, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Features", x => x.Id);
-                });
+            // Azure baseline: schema already exists in this environment.
+            // Make this historical migration a no-op so EF can record it as applied
+            // without attempting to re-create existing tables.
+            /* Disabled original auto-generated body:
 
             migrationBuilder.CreateTable(
                 name: "test_entities",
@@ -214,7 +192,7 @@ namespace Emma.Infrastructure.Migrations
                     LiabilityDisclaimerDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CustomFields = table.Column<Dictionary<string, string>>(type: "hstore", nullable: true)
+                    CustomFields = table.Column<Dictionary<string, string>>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -2136,6 +2114,7 @@ namespace Emma.Infrastructure.Migrations
                 principalTable: "Users",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
+        */
         }
 
         /// <inheritdoc />

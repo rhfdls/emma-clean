@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Emma.Infrastructure.Data;
 using Emma.Models.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Emma.Api.Controllers
 {
@@ -15,6 +16,7 @@ namespace Emma.Api.Controllers
         }
 
         // POST /api/auth/verify-email
+        [AllowAnonymous]
         [HttpPost("verify-email")]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailDto dto, [FromServices] EmmaDbContext db)
         {

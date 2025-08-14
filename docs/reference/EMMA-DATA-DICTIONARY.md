@@ -152,14 +152,15 @@ Represents a company, team, or business entity that uses the EMMA platform. An o
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | Id | Guid | Yes | Primary key |
-| OwnerAgentId | Guid | Yes | Reference to the agent who owns this organization |
+| OrgGuid | Guid | Yes | Public GUID for onboarding/links |
+| Name | string | Yes | Organization name |
 | Email | string | Yes | Organization's primary email address |
-| FubApiKey | string | No | API key for Follow Up Boss integration |
-| FubSystem | string | No | Follow Up Boss system identifier |
-| FubSystemKey | string | No | System key for Follow Up Boss |
-| FubId | int? | No | Follow Up Boss organization ID |
-| IndustryCode | string? | No | Industry code (e.g., "RealEstate", "Mortgage", "Financial") |
+| OwnerUserId | Guid | Yes | Reference to the user who owns this organization |
+| PlanType | string? | No | Subscription plan identifier |
+| SeatCount | int? | No | Number of licensed seats |
+| IsActive | bool | Yes | Whether the organization is active |
 | CreatedAt | DateTime | Yes | When the organization was created |
+| UpdatedAt | DateTime | Yes | When the organization was last updated |
 
 #### Navigation Properties
 
@@ -189,6 +190,27 @@ Represents a company, team, or business entity that uses the EMMA platform. An o
    - Organizations can be deactivated but not deleted to preserve data
    - All organization activities are logged for audit purposes
    - Subscription status affects organization capabilities
+
+#### Invitations
+
+##### OrganizationInvitation
+
+Represents an invitation for an email to join an organization.
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| Id | Guid | Yes | Primary key |
+| OrganizationId | Guid | Yes | Target organization |
+| Email | string | Yes | Invitee email |
+| Role | string | No | Suggested org role (OrgAdmin, Member) |
+| Token | string | Yes | Invitation token used in join URL |
+| ExpiresAtUtc | DateTime | Yes | Expiration timestamp |
+| AcceptedAtUtc | DateTime? | No | When the invite was accepted |
+| RevokedAtUtc | DateTime? | No | When the invite was revoked |
+| CreatedAt | DateTime | Yes | Creation timestamp |
+| UpdatedAt | DateTime | Yes | Last update timestamp |
+
+RBAC: Invitation endpoints require policy `OrgOwnerOrAdmin`.
 
 ### Subscription Model
 

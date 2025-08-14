@@ -26,7 +26,11 @@ public class Organization : BaseEntity
         public Guid OrgGuid { get; set; } = Guid.NewGuid();
 
         // SPRINT1: Plan type for quick lookup (optional, can be synced with OrganizationSubscription)
+        [Obsolete("Use PlanId; PlanType will be removed in a future release.")]
         public PlanType? PlanType { get; set; }
+
+        // SPRINT2: Preferred plan identifier (string, e.g., Stripe price/product id)
+        public string? PlanId { get; set; }
 
         // SPRINT1: Seat count for plan enforcement (optional)
         public int? SeatCount { get; set; }

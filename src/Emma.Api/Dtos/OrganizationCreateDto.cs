@@ -1,6 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using Emma.Models.Enums;
+using Emma.Models.Models;
 
 namespace Emma.Api.Dtos
 {
@@ -19,6 +19,10 @@ namespace Emma.Api.Dtos
         [Required]
         public Guid OwnerUserId { get; set; }
 
+        // Preferred plan identifier (e.g., Stripe price/product id)
+        public string? PlanId { get; set; }
+
+        [Obsolete("Use PlanId. This will be removed in a future release.")]
         public PlanType? PlanType { get; set; }
         public int? SeatCount { get; set; }
     }

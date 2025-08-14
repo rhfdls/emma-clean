@@ -5,9 +5,10 @@ using Npgsql;
 using Emma.Api.Auth;
 using Emma.Core.Services;
 using Emma.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
+using Emma.Infrastructure.Data;
 
 DotNetEnv.Env.Load("../../.env");
-Console.WriteLine("COSMOSDB__ACCOUNTKEY: " + Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTKEY"));
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,8 +30,6 @@ builder.Services.AddCors(options =>
 });
 
 // Add services to the container.
-var connString = builder.Configuration.GetConnectionString("DefaultConnection");
-Console.WriteLine($"[DEBUG] Loaded DefaultConnection: {connString}");
 
 // Use Infrastructure DI (DbContext + repositories)
 builder.Services.AddEmmaDatabase(builder.Configuration, isDevelopment: builder.Environment.IsDevelopment());
@@ -39,6 +38,12 @@ builder.Services.AddScoped<IOnboardingService, OnboardingService>();
 
 // SPRINT2: AuthZ policies and email sender
 builder.Services.AddEmmaAuthorization();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAuthorizationHandler, VerifiedUserHandler>();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("VerifiedUser", p => p.AddRequirements(new VerifiedUserRequirement()));
+});
 builder.Services.AddScoped<IEmailSender, EmailSenderDev>();
 
 // SPRINT1: Modular CRM integration registration

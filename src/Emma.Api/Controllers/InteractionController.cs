@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Emma.Api.Controllers
 {
@@ -7,6 +8,7 @@ namespace Emma.Api.Controllers
     public class InteractionController : ControllerBase
     {
         // POST /contacts/{id}/interactions
+        [Authorize(Policy = "VerifiedUser")]
         [HttpPost]
         public IActionResult LogInteraction(int contactId)
         {

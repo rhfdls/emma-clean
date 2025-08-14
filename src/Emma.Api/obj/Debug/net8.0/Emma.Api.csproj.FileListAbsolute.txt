@@ -1,11 +1,3 @@
-C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.csproj.AssemblyReference.cache
-C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.AssemblyInfoInputs.cache
-C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.AssemblyInfo.cs
-C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.csproj.CoreCompileInputs.cache
-C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.sourcelink.json
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\bin\Debug\net8.0\Microsoft.Azure.Cosmos.ServiceInterop.dll
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\bin\Debug\net8.0\Cosmos.CRTCompat.dll
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\bin\Debug\net8.0\msvcp140.dll
@@ -138,6 +130,14 @@ C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\bin\Debug\net8.0\
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\bin\Debug\net8.0\Emma.Core.pdb
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\bin\Debug\net8.0\Emma.Core.Interfaces.pdb
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\bin\Debug\net8.0\Emma.Infrastructure.pdb
+C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.csproj.AssemblyReference.cache
+C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.AssemblyInfoInputs.cache
+C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.AssemblyInfo.cs
+C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.csproj.CoreCompileInputs.cache
+C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.sourcelink.json
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\staticwebassets\msbuild.Emma.Api.Microsoft.AspNetCore.StaticWebAssets.props

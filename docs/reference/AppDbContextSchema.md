@@ -1,7 +1,7 @@
 # EMMA Platform Database Schema
 
-**Version**: 1.0
-**Last Updated**: 2025-06-14
+**Version**: 1.1
+**Last Updated**: 2025-08-13
 **Status**: ACTIVE - Core Development Document
 
 ---
@@ -17,6 +17,27 @@ This document provides a comprehensive overview of the EMMA platform's database 
 Main database context for the EMMA platform, containing all entity sets and configuration.
 
 ## Entity Reference
+
+### 0. Organization
+
+Represents a tenant/company that owns users and data within the platform.
+
+#### Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| Id | Guid | Yes | Primary key |
+| OrgGuid | Guid | Yes | Public GUID used in onboarding/links |
+| Name | string | Yes | Organization name |
+| Email | string | Yes | Primary email for the organization |
+| OwnerUserId | Guid | Yes | User who owns/administers the org |
+| PlanType | string? | No | Subscription plan identifier |
+| SeatCount | int? | No | Number of seats purchased/allocated |
+| IsActive | bool | Yes | Whether org is active |
+| CreatedAt | DateTime | Yes | Creation timestamp |
+| UpdatedAt | DateTime | Yes | Last update timestamp |
+
+---
 
 ### 1. Contact
 
@@ -111,6 +132,8 @@ erDiagram
     CONTACT }|--|| AGENT : "owner"
     CONTACT }|--o| AGENT : "assigned agent"
     CONTACT }|--|| ORGANIZATION : "organization"
+    ORGANIZATION ||--o{ USER : has
+    ORGANIZATION ||--o{ ORGANIZATION_INVITATION : issues
 ```
 
 ### Interaction Relationships
@@ -121,7 +144,43 @@ erDiagram
     INTERACTION }|--|| CONTACT : "related to"
     INTERACTION }|--|| AGENT : "involves"
     INTERACTION }|--|| ORGANIZATION : "belongs to"
+    ORGANIZATION_INVITATION }|..|| ORGANIZATION : "for"
 ```
+
+---
+
+## Invitations & Verification
+
+### OrganizationInvitation
+
+Represents an invite sent to an email to join an organization with a role.
+
+#### Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| Id | Guid | Yes | Primary key |
+| OrganizationId | Guid | Yes | Target organization |
+| Email | string | Yes | Invitee email |
+| Role | string | No | Suggested role for the new user (e.g., OrgAdmin, Member) |
+| Token | string | Yes | Secure invitation token |
+| ExpiresAtUtc | DateTime | Yes | Expiration timestamp |
+| AcceptedAtUtc | DateTime? | No | When invite was accepted |
+| RevokedAtUtc | DateTime? | No | When invite was revoked |
+| CreatedAt | DateTime | Yes | Creation timestamp |
+| UpdatedAt | DateTime | Yes | Last update timestamp |
+
+### User Verification (AccountStatus)
+
+Newly registered users from invitations start as PendingVerification and must verify via emailed token.
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| AccountStatus | enum | Yes | PendingVerification, Active, Suspended, Deleted |
+| VerificationToken | string? | No | One-time token for email verification |
+| IsVerified | bool | Yes | True after successful verification |
+
+Verification Endpoint: `POST /api/auth/verify-email` with `{ token: string }` → 204 No Content on success.
 
 ## Indexes
 
@@ -198,6 +257,12 @@ var activeClients = await _context.Contacts
 - Patch version for documentation updates
 
 ### Change Log
+
+#### 1.1.0 (2025-08-13)
+
+- Added Organization entity fields (OrgGuid, Email, OwnerUserId, PlanType, SeatCount)
+- Added OrganizationInvitation entity and relationships
+- Documented user verification fields and endpoint
 
 #### 1.0.0 (2025-06-14)
 

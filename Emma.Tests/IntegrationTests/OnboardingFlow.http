@@ -1,0 +1,63 @@
+@host = http://localhost:5000
+@orgId = {{orgId}}
+@inviteToken = {{inviteToken}}
+@verifyToken = {{verifyToken}}
+
+### 1) Create org
+POST {{host}}/api/organization
+Content-Type: application/json
+
+{
+  "name": "Acme Realty",
+  "email": "owner@acme.com",
+  "ownerUserId": "00000000-0000-0000-0000-000000000001",
+  "planType": "Premium",
+  "seatCount": 5
+}
+
+> {% client.global.set("orgId", response.body.id); %}
+
+### 2) Create invitation (requires auth/role; supply bearer if enabled)
+POST {{host}}/api/organization/{{orgId}}/invitations
+Content-Type: application/json
+
+{
+  "email": "teammate@acme.com",
+  "role": "OrgAdmin",
+  "expiresInDays": 7
+}
+
+> {% client.global.set("inviteToken", response.body.token); %}
+
+### 3) Get invitation by token (anonymous)
+GET {{host}}/api/organization/invitations/{{inviteToken}}
+
+### 4) Register from invitation (anonymous)
+POST {{host}}/api/organization/invitations/{{inviteToken}}/register
+Content-Type: application/json
+
+{
+  "firstName": "Taylor",
+  "lastName": "Ng",
+  "password": "S3cure!Passw0rd"
+}
+
+# Simulate reading the verification token from dev email log
+# Set {{verifyToken}} manually from logs if not returned inline.
+
+### 5) Verify email (anonymous)
+POST {{host}}/api/auth/verify-email
+Content-Type: application/json
+
+{ "token": "{{verifyToken}}" }
+
+### 6) Create a contact (requires verified auth; add bearer if enabled)
+POST {{host}}/api/contact
+Content-Type: application/json
+
+{
+  "firstName": "Alex",
+  "lastName": "Rivera",
+  "leadSource": "Website",
+  "tags": ["VIP"]
+}

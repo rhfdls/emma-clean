@@ -431,9 +431,9 @@ public class TenantContextService : ITenantContextService
 ```csharp
 public interface IAIFoundryService
 {
-    Task<string> ProcessMessageAsync(string message, string? conversationId = null);
-    Task<string> ProcessMessageWithContextAsync(string message, string context, string? conversationId = null);
-    Task<string> ProcessAgentRequestAsync(string systemPrompt, string userPrompt, string? conversationId = null);
+    Task<string> ProcessMessageAsync(string message, string? interactionId = null);
+    Task<string> ProcessMessageWithContextAsync(string message, string context, string? interactionId = null);
+    Task<string> ProcessAgentRequestAsync(string systemPrompt, string userPrompt, string? interactionId = null);
     Task<string> StartNewInteractionAsync();
 }
 ```
@@ -441,7 +441,7 @@ public interface IAIFoundryService
 **Implementation Guidelines:**
 - All AI requests must go through `IAIFoundryService`
 - Never implement custom AI logic in business services
-- Use conversation IDs for stateful interactions
+- Use interaction IDs for stateful interactions
 - Handle Azure AI Foundry errors gracefully with fallbacks
 
 ### Agent Orchestration Pattern
@@ -524,7 +524,7 @@ services.AddScoped<Emma.Core.Services.IAgentOrchestrator, AgentOrchestrator>();
 
 **Azure AI Foundry Integration:**
 ```csharp
-public async Task<string> ProcessAgentRequestAsync(string systemPrompt, string userPrompt, string? conversationId = null)
+public async Task<string> ProcessAgentRequestAsync(string systemPrompt, string userPrompt, string? interactionId = null)
 {
     try
     {
@@ -599,7 +599,7 @@ public class AgentRequest
     public string UserInput { get; set; }
     public Guid ContactId { get; set; }
     public Guid AgentId { get; set; }
-    public string? ConversationId { get; set; }
+    public string? InteractionId { get; set; }
     public Dictionary<string, object>? Context { get; set; }
 }
 ```
@@ -610,7 +610,7 @@ public class AgentResponse
 {
     public string Content { get; set; }
     public List<SuggestedAction> SuggestedActions { get; set; }
-    public string? ConversationId { get; set; }
+    public string? InteractionId { get; set; }
     public bool RequiresFollowUp { get; set; }
 }
 ```
@@ -736,7 +736,7 @@ public class AIFoundryService : IAIFoundryService
         _rateLimitSemaphore = new SemaphoreSlim(10, 10); // Max 10 concurrent requests
     }
     
-    public async Task<string> ProcessAgentRequestAsync(string systemPrompt, string userPrompt, string? conversationId = null)
+    public async Task<string> ProcessAgentRequestAsync(string systemPrompt, string userPrompt, string? interactionId = null)
     {
         await _rateLimitSemaphore.WaitAsync();
         try
@@ -950,7 +950,7 @@ public class AgentCommunicationBus : IAgentCommunicationBus
             var message = new ServiceBusMessage(JsonSerializer.Serialize(agentEvent))
             {
                 MessageId = agentEvent.EventId,
-                CorrelationId = agentEvent.ConversationId,
+                CorrelationId = agentEvent.InteractionId,
                 Subject = agentEvent.EventType,
                 TimeToLive = TimeSpan.FromMinutes(30),
                 SessionId = agentEvent.TenantId // Enable message sessions for FIFO processing
@@ -1276,7 +1276,7 @@ public class AIOutputGuardrailService : IAIOutputGuardrailService
                 ContentHash = ComputeContentHash(content),
                 TenantId = context.TenantId,
                 UserId = context.UserId,
-                ConversationId = context.ConversationId,
+                InteractionId = context.InteractionId,
                 ValidationResult = overallResult,
                 Timestamp = DateTime.UtcNow,
                 ProcessingTimeMs = overallResult.ProcessingTimeMs

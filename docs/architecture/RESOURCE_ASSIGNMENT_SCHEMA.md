@@ -185,7 +185,7 @@ var recommendation = new ResourceRecommendation
     ContactId = clientId,
     ResourceId = mortgageBrokerId,
     RecommendedByAgentId = agentId,
-    InteractionId = conversationId,
+    InteractionId = interactionId,
     Purpose = "First-time buyer mortgage pre-approval",
     RecommendationOrder = 1,
     RecommendationNotes = "Specializes in first-time buyers, great rates"
@@ -201,7 +201,7 @@ var assignment = new ResourceAssignment
     AssignedByAgentId = agentId,
     Purpose = "Mortgage pre-approval",
     Status = ResourceAssignmentStatus.Active,
-    InteractionId = conversationId,
+    InteractionId = interactionId,
     ClientRequest = "Need help getting pre-approved for mortgage"
 };
 ```
