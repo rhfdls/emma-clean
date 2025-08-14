@@ -1,89 +1,104 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { apiGet, apiPost } from "@/lib/api";
+import { useRouter, useParams } from "next/navigation";
+import { api } from "@/lib/api";
 
-interface InvitationDto {
-  id: string;
+type InvitationView = {
   organizationId: string;
-  email: string;
-  role: string;
+  organizationName: string;
+  email?: string;
+  role?: string;
   token: string;
   expiresAt?: string;
-  acceptedAt?: string;
-  revokedAt?: string;
-  isActive: boolean;
-}
+};
 
 export default function JoinByTokenPage() {
-  const { token } = useParams<{ token: string }>();
   const router = useRouter();
+  const params = useParams<{ token: string }>();
+  const token = params.token;
+  const [invite, setInvite] = useState<InvitationView | null>(null);
   const [loading, setLoading] = useState(true);
-  const [invitation, setInvitation] = useState<InvitationDto | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [accepting, setAccepting] = useState(false);
+  const [form, setForm] = useState({ email: "", password: "", fullName: "" });
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    let active = true;
-    async function load() {
+    (async () => {
       try {
-        setLoading(true);
-        setError(null);
-        const data = await apiGet<InvitationDto>(`/api/organization/invitations/${token}`);
-        if (active) setInvitation(data);
+        const data = await api<InvitationView>(`/api/organization/invitations/${token}`);
+        setInvite(data);
       } catch (e: any) {
-        if (active) setError(e?.message || "Invitation not found.");
+        setError(e.message ?? "Failed to load invitation");
       } finally {
-        if (active) setLoading(false);
+        setLoading(false);
       }
-    }
-    if (token) load();
-    return () => {
-      active = false;
-    };
+    })();
   }, [token]);
 
-  async function accept() {
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
     try {
-      setAccepting(true);
-      setError(null);
-      await apiPost(`/api/organization/invitations/${token}/accept`, {});
-      router.push("/onboarding");
+      await api(`/api/organization/invitations/${token}/register`, {
+        method: "POST",
+        json: {
+          email: form.email || invite?.email,
+          password: form.password,
+          fullName: form.fullName,
+        },
+      });
+      setSubmitted(true);
     } catch (e: any) {
-      setError(e?.message || "Failed to accept invitation.");
-    } finally {
-      setAccepting(false);
+      setError(e.message ?? "Registration failed");
     }
   }
 
-  return (
-    <main className="min-h-dvh bg-white">
-      <div className="mx-auto max-w-xl p-6 md:py-12">
-        {loading ? (
-          <div>Loading invitation…</div>
-        ) : error ? (
-          <div className="rounded border border-red-300 bg-red-50 p-3 text-red-700">{error}</div>
-        ) : invitation ? (
-          <div className="space-y-4">
-            <h1 className="text-2xl font-semibold">Join organization</h1>
-            <div className="text-sm text-gray-700">
-              Email: <b>{invitation.email}</b>
-            </div>
-            {!invitation.isActive && (
-              <div className="rounded border border-amber-300 bg-amber-50 p-3 text-amber-800 text-sm">
-                This invitation is not active (revoked, accepted, or expired).
-              </div>
-            )}
-            <button
-              onClick={accept}
-              disabled={accepting || !invitation.isActive}
-              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60"
-            >
-              {accepting ? "Joining…" : "Accept Invitation"}
-            </button>
-          </div>
-        ) : null}
+  if (loading) return <div className="p-6">Loading invitation…</div>;
+  if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
+  if (!invite) return <div className="p-6">Invitation not found.</div>;
+
+  if (submitted) {
+    return (
+      <div className="p-6 space-y-2">
+        <h1 className="text-xl font-semibold">Check your email</h1>
+        <p>
+          We sent a verification link to <b>{form.email || invite.email}</b>. After verifying,
+          you can continue to the app.
+        </p>
       </div>
-    </main>
+    );
+  }
+
+  return (
+    <div className="max-w-md p-6 space-y-4">
+      <h1 className="text-2xl font-bold">Join {invite.organizationName}</h1>
+      <p className="text-sm opacity-80">Role: {invite.role ?? "Member"}</p>
+      <form onSubmit={onSubmit} className="space-y-3">
+        <input
+          className="w-full border rounded-lg p-2"
+          placeholder="Full name"
+          value={form.fullName}
+          onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+          required
+        />
+        <input
+          className="w-full border rounded-lg p-2"
+          type="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          required={!invite.email}
+        />
+        <input
+          className="w-full border rounded-lg p-2"
+          type="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          required
+        />
+        <button className="w-full rounded-xl p-2 bg-black text-white">Create account</button>
+      </form>
+    </div>
   );
 }
