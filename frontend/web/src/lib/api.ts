@@ -1,10 +1,8 @@
 export const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
-type Json = Record<string, unknown> | unknown[] | null;
-
 export async function api<T = any>(
   path: string,
-  init: RequestInit & { json?: Json } = {}
+  init: RequestInit & { json?: any } = {}
 ): Promise<T> {
   if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not set");
   const { json, ...rest } = init;

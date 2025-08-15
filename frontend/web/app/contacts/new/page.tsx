@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { api } from "@/lib/api";
+import { VerifiedGuard } from "@/lib/guards";
 
 interface ContactCreateDto {
   fullName: string;
@@ -35,7 +36,8 @@ export default function NewContactPage() {
   }
 
   return (
-    <div className="max-w-md p-6 space-y-4">
+    <VerifiedGuard>
+      <div className="max-w-md p-6 space-y-4">
       <h1 className="text-2xl font-bold">New Contact</h1>
       {error && (
         <div className="rounded border border-red-300 bg-red-50 p-3 text-red-700 text-sm">
@@ -77,6 +79,7 @@ export default function NewContactPage() {
           {saving ? "Saving…" : "Create Contact"}
         </button>
       </form>
-    </div>
+      </div>
+    </VerifiedGuard>
   );
 }

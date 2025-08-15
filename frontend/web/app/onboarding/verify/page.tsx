@@ -2,11 +2,13 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { useSession } from "@/context/SessionContext";
 
 export default function VerifyPage() {
   const sp = useSearchParams();
   const router = useRouter();
   const token = sp.get("token");
+  const { session, setSession } = useSession();
   const [status, setStatus] = useState<"pending"|"ok"|"error">("pending");
   const [message, setMessage] = useState<string>("Verifying…");
 
@@ -15,6 +17,7 @@ export default function VerifyPage() {
       if (!token) { setStatus("error"); setMessage("Missing token"); return; }
       try {
         await api("/api/auth/verify-email", { method: "POST", json: { token } });
+        setSession({ ...session, isVerified: true });
         setStatus("ok"); setMessage("Email verified! Redirecting…");
         setTimeout(() => router.push("/contacts/new"), 800);
       } catch (e: any) {
