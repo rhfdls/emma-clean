@@ -14,12 +14,16 @@
 - [ ] Documentation update
 
 ## Checklist
-- [ ] My code follows project style and conventions
-- [ ] I have added or updated necessary tests
-- [ ] I have updated `CHANGELOG.md`
-- [ ] I have documented any new environment variables or secrets
-- [ ] I have performed security review if touching auth or secrets
-- [ ] I have reviewed my changes in the development/staging environment
+- [ ] Locked restore/build/tests pass (Windows + Linux runners)
+- [ ] AI calls go through orchestrator/service; no direct SDKs in business code
+- [ ] Validation → override → execution intact; if rejected, at least one safer alternative is proposed
+- [ ] Tenant + subscription checks present; Postgres scoped by OrganizationId/TenantId (or RLS); Cosmos includes /tenantId
+- [ ] Structured outputs validate against JSON Schemas (Category=Schema tests updated)
+- [ ] Telemetry updated: traceId, tenantId, orgId, model info, token counts, cost, decision, overrideMode, aiConfidenceScore, durationMs
+- [ ] Secrets/PII check: no secrets or raw PII in code, tests, prompts, or dumps
+- [ ] ADR added/updated for any significant architectural decision
+- [ ] `CHANGELOG.md` updated and docs touched if behavior changed
+- [ ] I have reviewed my changes in dev/staging and attached screenshots if UI
 
 ## Screenshots (if applicable)
 

@@ -1,0 +1,40 @@
+name: dependency-guard
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  guard-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Locked restore
+        run: dotnet restore --locked-mode
+      - name: Vulnerability scan (non-blocking)
+        run: dotnet list package --vulnerable --include-transitive || true
+      - name: Enforce versionless PackageReferences (CPM)
+        run: bash tools/verify-cpm-versionless.sh
+      - name: PostgreSQL stack drift (driver + provider)
+        run: bash tools/verify-npgsql.sh
+
+  guard-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Locked restore
+        run: dotnet restore --locked-mode
+      - name: Vulnerability scan (non-blocking)
+        run: dotnet list package --vulnerable --include-transitive || true
+      - name: Enforce versionless PackageReferences (CPM)
+        shell: pwsh
+        run: pwsh -File tools/verify-cpm-versionless.ps1
+      - name: PostgreSQL stack drift (driver + provider)
+        shell: pwsh
+        run: pwsh -File tools/verify-npgsql.ps1

@@ -681,6 +681,7 @@
           "Azure.Storage.Blobs": "12.14.0",
           "coverlet.collector": "6.0.2",
           "DotNetEnv": "3.1.0",
+          "JsonSchema.Net": "6.0.0",
           "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
           "Microsoft.AspNetCore.OpenApi": "8.0.10",
           "Microsoft.Azure.Cosmos": "3.39.1",

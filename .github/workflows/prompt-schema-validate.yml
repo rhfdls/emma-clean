@@ -1,0 +1,29 @@
+name: Prompt & Schema Validation
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore (locked)
+        run: dotnet restore --locked-mode
+
+      - name: Build
+        run: dotnet build --no-restore -c Release /bl:msbuild.binlog
+
+      - name: Run schema tests only
+        run: dotnet test tests/Emma.Schemas.Tests/ -c Release --logger "trx;LogFileName=schemas.trx"
+
+      # TODO: Prompt validation step (snapshot/prompt lint) can be added here when tooling is available

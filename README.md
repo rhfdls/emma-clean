@@ -138,6 +138,11 @@ API documentation is available via Swagger UI at [http://localhost:5262/swagger]
 - **📋 [Project Management](./docs/project-management/)** - Tasks, roadmaps, and planning
 - **📚 [Reference](./docs/reference/)** - Data dictionary, contracts, and specifications
 
+### Docs index
+- AI-assisted contribution guide: [docs/reference/AI-assisted-contribution-guide.md](./docs/reference/AI-assisted-contribution-guide.md)
+- Assistant brief: [.windsurf/assistant-brief.md](./.windsurf/assistant-brief.md)
+- AI contributing guide: [.windsurf/CONTRIBUTING-AI.md](./.windsurf/CONTRIBUTING-AI.md)
+
 ### Essential Documents:
 - [📖 Documentation Index](./docs/README.md) - Complete documentation guide
 - [🏗️ System Architecture](./docs/architecture/EMMA-AI-ARCHITECTURE-GUIDE.md) - Comprehensive architecture guide
