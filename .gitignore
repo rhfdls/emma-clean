@@ -158,3 +158,13 @@ Run migrations as part of your CI/CD pipeline "@ | Out-File -FilePath "MIGRATION
 # Build outputs
 bin/
 #obj/
+
+<path/to/file>
+
+archive/Emma.Api/appsettings.json
+
+docker-compose yml backup.txt
+
+Emma.Frontend/.env
+
+Emma.Api/appsettings.json
