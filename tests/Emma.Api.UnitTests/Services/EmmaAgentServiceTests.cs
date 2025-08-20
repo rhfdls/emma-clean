@@ -80,7 +80,7 @@ namespace Emma.Api.UnitTests.Services
         {
             // Arrange
             var testMessage = "Hello, EMMA!";
-            var expectedResponse = new EmmaAction { Action = "none", Payload = "" };
+            var expectedResponse = new EmmaAction { Action = EmmaActionType.None, Payload = "" };
             
             var chatCompletions = ChatCompletions.DeserializeChatCompletions(
                 JsonDocument.Parse($"""

@@ -13,6 +13,8 @@
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Api\\obj\\",
         "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
         "configFilePaths": [
           "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -21,7 +23,6 @@
           "net8.0"
         ],
         "sources": {
-          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -51,6 +52,10 @@
             "NU1605"
           ]
         },
+        "restoreLockProperties": {
+          "restorePackagesWithLockFile": "true",
+          "restoreLockedMode": true
+        },
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
@@ -61,32 +66,100 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Azure.AI.OpenAI": {
+              "target": "Package",
+              "version": "[2.2.0-beta.4, )",
+              "versionCentrallyManaged": true
+            },
             "DotNetEnv": {
               "target": "Package",
-              "version": "[3.1.1, )"
+              "version": "[3.1.0, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
-              "version": "[8.0.16, )"
+              "version": "[8.0.10, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Azure.Cosmos": {
               "target": "Package",
-              "version": "[3.52.0, )"
+              "version": "[3.39.1, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
+            },
+            "Newtonsoft.Json.Schema": {
+              "target": "Package",
+              "version": "[4.0.4, )",
+              "versionCentrallyManaged": true
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[8.5.2, )",
+              "versionCentrallyManaged": true
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
-              "version": "[6.6.2, )"
+              "version": "[8.1.2, )",
+              "versionCentrallyManaged": true
             }
+          },
+          "centralPackageVersions": {
+            "Asp.Versioning.Mvc": "8.0.0",
+            "Azure.AI.ContentSafety": "1.0.0",
+            "Azure.AI.OpenAI": "2.2.0-beta.4",
+            "Azure.Storage.Blobs": "12.14.0",
+            "coverlet.collector": "6.0.2",
+            "DotNetEnv": "3.1.0",
+            "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
+            "Microsoft.AspNetCore.OpenApi": "8.0.10",
+            "Microsoft.Azure.Cosmos": "3.39.1",
+            "Microsoft.EntityFrameworkCore": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Design": "8.0.8",
+            "Microsoft.EntityFrameworkCore.InMemory": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Relational": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Tools": "8.0.8",
+            "Microsoft.Extensions.AI": "9.5.0",
+            "Microsoft.Extensions.Configuration": "8.0.0",
+            "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Configuration.Binder": "8.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "8.0.0",
+            "Microsoft.Extensions.Configuration.Json": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.0",
+            "Microsoft.Extensions.Hosting": "8.0.0",
+            "Microsoft.Extensions.Hosting.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Http.Polly": "8.0.0",
+            "Microsoft.Extensions.Logging": "8.0.0",
+            "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Logging.Console": "8.0.0",
+            "Microsoft.Extensions.Options": "8.0.0",
+            "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
+            "Microsoft.NET.Test.Sdk": "17.11.1",
+            "Microsoft.SemanticKernel": "1.57.0",
+            "Moq": "4.20.70",
+            "Newtonsoft.Json": "13.0.3",
+            "Newtonsoft.Json.Schema": "4.0.4",
+            "Npgsql": "8.0.7",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.7",
+            "Polly": "8.5.2",
+            "Polly.Extensions.Http": "3.0.0",
+            "Swashbuckle.AspNetCore": "8.1.2",
+            "xunit": "2.9.0",
+            "xunit.runner.visualstudio": "2.8.2",
+            "Xunit.SkippableFact": "1.4.13",
+            "YamlDotNet": "15.1.1"
           },
           "imports": [
             "net461",
@@ -120,6 +193,8 @@
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core.Interfaces\\obj\\",
         "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
         "configFilePaths": [
           "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -128,13 +203,15 @@
           "net8.0"
         ],
         "sources": {
-          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core\\Emma.Core.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core\\Emma.Core.csproj"
+              },
               "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {
                 "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj"
               }
@@ -146,6 +223,10 @@
             "NU1605"
           ]
         },
+        "restoreLockProperties": {
+          "restorePackagesWithLockFile": "true",
+          "restoreLockedMode": true
+        },
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
@@ -155,6 +236,53 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "centralPackageVersions": {
+            "Asp.Versioning.Mvc": "8.0.0",
+            "Azure.AI.ContentSafety": "1.0.0",
+            "Azure.AI.OpenAI": "2.2.0-beta.4",
+            "Azure.Storage.Blobs": "12.14.0",
+            "coverlet.collector": "6.0.2",
+            "DotNetEnv": "3.1.0",
+            "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
+            "Microsoft.AspNetCore.OpenApi": "8.0.10",
+            "Microsoft.Azure.Cosmos": "3.39.1",
+            "Microsoft.EntityFrameworkCore": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Design": "8.0.8",
+            "Microsoft.EntityFrameworkCore.InMemory": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Relational": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Tools": "8.0.8",
+            "Microsoft.Extensions.AI": "9.5.0",
+            "Microsoft.Extensions.Configuration": "8.0.0",
+            "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Configuration.Binder": "8.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "8.0.0",
+            "Microsoft.Extensions.Configuration.Json": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.0",
+            "Microsoft.Extensions.Hosting": "8.0.0",
+            "Microsoft.Extensions.Hosting.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Http.Polly": "8.0.0",
+            "Microsoft.Extensions.Logging": "8.0.0",
+            "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Logging.Console": "8.0.0",
+            "Microsoft.Extensions.Options": "8.0.0",
+            "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
+            "Microsoft.NET.Test.Sdk": "17.11.1",
+            "Microsoft.SemanticKernel": "1.57.0",
+            "Moq": "4.20.70",
+            "Newtonsoft.Json": "13.0.3",
+            "Newtonsoft.Json.Schema": "4.0.4",
+            "Npgsql": "8.0.7",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.7",
+            "Polly": "8.5.2",
+            "Polly.Extensions.Http": "3.0.0",
+            "Swashbuckle.AspNetCore": "8.1.2",
+            "xunit": "2.9.0",
+            "xunit.runner.visualstudio": "2.8.2",
+            "Xunit.SkippableFact": "1.4.13",
+            "YamlDotNet": "15.1.1"
+          },
           "imports": [
             "net461",
             "net462",
@@ -184,6 +312,8 @@
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core\\obj\\",
         "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
         "configFilePaths": [
           "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -192,7 +322,6 @@
           "net8.0"
         ],
         "sources": {
-          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -210,6 +339,10 @@
             "NU1605"
           ]
         },
+        "restoreLockProperties": {
+          "restorePackagesWithLockFile": "true",
+          "restoreLockedMode": true
+        },
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
@@ -219,6 +352,53 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "centralPackageVersions": {
+            "Asp.Versioning.Mvc": "8.0.0",
+            "Azure.AI.ContentSafety": "1.0.0",
+            "Azure.AI.OpenAI": "2.2.0-beta.4",
+            "Azure.Storage.Blobs": "12.14.0",
+            "coverlet.collector": "6.0.2",
+            "DotNetEnv": "3.1.0",
+            "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
+            "Microsoft.AspNetCore.OpenApi": "8.0.10",
+            "Microsoft.Azure.Cosmos": "3.39.1",
+            "Microsoft.EntityFrameworkCore": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Design": "8.0.8",
+            "Microsoft.EntityFrameworkCore.InMemory": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Relational": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Tools": "8.0.8",
+            "Microsoft.Extensions.AI": "9.5.0",
+            "Microsoft.Extensions.Configuration": "8.0.0",
+            "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Configuration.Binder": "8.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "8.0.0",
+            "Microsoft.Extensions.Configuration.Json": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.0",
+            "Microsoft.Extensions.Hosting": "8.0.0",
+            "Microsoft.Extensions.Hosting.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Http.Polly": "8.0.0",
+            "Microsoft.Extensions.Logging": "8.0.0",
+            "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Logging.Console": "8.0.0",
+            "Microsoft.Extensions.Options": "8.0.0",
+            "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
+            "Microsoft.NET.Test.Sdk": "17.11.1",
+            "Microsoft.SemanticKernel": "1.57.0",
+            "Moq": "4.20.70",
+            "Newtonsoft.Json": "13.0.3",
+            "Newtonsoft.Json.Schema": "4.0.4",
+            "Npgsql": "8.0.7",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.7",
+            "Polly": "8.5.2",
+            "Polly.Extensions.Http": "3.0.0",
+            "Swashbuckle.AspNetCore": "8.1.2",
+            "xunit": "2.9.0",
+            "xunit.runner.visualstudio": "2.8.2",
+            "Xunit.SkippableFact": "1.4.13",
+            "YamlDotNet": "15.1.1"
+          },
           "imports": [
             "net461",
             "net462",
@@ -248,6 +428,8 @@
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Data\\obj\\",
         "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
         "configFilePaths": [
           "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -256,7 +438,6 @@
           "net8.0"
         ],
         "sources": {
-          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -274,6 +455,10 @@
             "NU1605"
           ]
         },
+        "restoreLockProperties": {
+          "restorePackagesWithLockFile": "true",
+          "restoreLockedMode": true
+        },
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
@@ -286,45 +471,101 @@
           "dependencies": {
             "DotNetEnv": {
               "target": "Package",
-              "version": "[3.0.0, )"
+              "version": "[3.1.0, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore.InMemory": {
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.Configuration": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.Configuration.EnvironmentVariables": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.Configuration.Json": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[8.0.8, )",
+              "version": "[8.0.7, )",
               "noWarn": [
                 "NU1605"
-              ]
+              ],
+              "versionCentrallyManaged": true
             }
+          },
+          "centralPackageVersions": {
+            "Asp.Versioning.Mvc": "8.0.0",
+            "Azure.AI.ContentSafety": "1.0.0",
+            "Azure.AI.OpenAI": "2.2.0-beta.4",
+            "Azure.Storage.Blobs": "12.14.0",
+            "coverlet.collector": "6.0.2",
+            "DotNetEnv": "3.1.0",
+            "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
+            "Microsoft.AspNetCore.OpenApi": "8.0.10",
+            "Microsoft.Azure.Cosmos": "3.39.1",
+            "Microsoft.EntityFrameworkCore": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Design": "8.0.8",
+            "Microsoft.EntityFrameworkCore.InMemory": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Relational": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Tools": "8.0.8",
+            "Microsoft.Extensions.AI": "9.5.0",
+            "Microsoft.Extensions.Configuration": "8.0.0",
+            "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Configuration.Binder": "8.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "8.0.0",
+            "Microsoft.Extensions.Configuration.Json": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.0",
+            "Microsoft.Extensions.Hosting": "8.0.0",
+            "Microsoft.Extensions.Hosting.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Http.Polly": "8.0.0",
+            "Microsoft.Extensions.Logging": "8.0.0",
+            "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Logging.Console": "8.0.0",
+            "Microsoft.Extensions.Options": "8.0.0",
+            "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
+            "Microsoft.NET.Test.Sdk": "17.11.1",
+            "Microsoft.SemanticKernel": "1.57.0",
+            "Moq": "4.20.70",
+            "Newtonsoft.Json": "13.0.3",
+            "Newtonsoft.Json.Schema": "4.0.4",
+            "Npgsql": "8.0.7",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.7",
+            "Polly": "8.5.2",
+            "Polly.Extensions.Http": "3.0.0",
+            "Swashbuckle.AspNetCore": "8.1.2",
+            "xunit": "2.9.0",
+            "xunit.runner.visualstudio": "2.8.2",
+            "Xunit.SkippableFact": "1.4.13",
+            "YamlDotNet": "15.1.1"
           },
           "imports": [
             "net461",
@@ -355,6 +596,8 @@
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
         "configFilePaths": [
           "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -363,7 +606,6 @@
           "net8.0"
         ],
         "sources": {
-          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -387,6 +629,10 @@
             "NU1605"
           ]
         },
+        "restoreLockProperties": {
+          "restorePackagesWithLockFile": "true",
+          "restoreLockedMode": true
+        },
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
@@ -399,71 +645,130 @@
           "dependencies": {
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore.InMemory": {
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.5, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.Configuration": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.Configuration.EnvironmentVariables": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.Configuration.Json": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.DependencyInjection": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.DependencyInjection.Abstractions": {
               "target": "Package",
-              "version": "[9.0.6, )"
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.Hosting.Abstractions": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.Logging": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.Logging.Abstractions": {
               "target": "Package",
-              "version": "[9.0.6, )"
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
             },
             "Newtonsoft.Json": {
               "target": "Package",
-              "version": "[13.0.3, )"
+              "version": "[13.0.3, )",
+              "versionCentrallyManaged": true
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[8.0.8, )",
-              "noWarn": [
-                "NU1605"
-              ]
+              "version": "[8.0.7, )",
+              "versionCentrallyManaged": true
             }
+          },
+          "centralPackageVersions": {
+            "Asp.Versioning.Mvc": "8.0.0",
+            "Azure.AI.ContentSafety": "1.0.0",
+            "Azure.AI.OpenAI": "2.2.0-beta.4",
+            "Azure.Storage.Blobs": "12.14.0",
+            "coverlet.collector": "6.0.2",
+            "DotNetEnv": "3.1.0",
+            "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
+            "Microsoft.AspNetCore.OpenApi": "8.0.10",
+            "Microsoft.Azure.Cosmos": "3.39.1",
+            "Microsoft.EntityFrameworkCore": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Design": "8.0.8",
+            "Microsoft.EntityFrameworkCore.InMemory": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Relational": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Tools": "8.0.8",
+            "Microsoft.Extensions.AI": "9.5.0",
+            "Microsoft.Extensions.Configuration": "8.0.0",
+            "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Configuration.Binder": "8.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "8.0.0",
+            "Microsoft.Extensions.Configuration.Json": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.0",
+            "Microsoft.Extensions.Hosting": "8.0.0",
+            "Microsoft.Extensions.Hosting.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Http.Polly": "8.0.0",
+            "Microsoft.Extensions.Logging": "8.0.0",
+            "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Logging.Console": "8.0.0",
+            "Microsoft.Extensions.Options": "8.0.0",
+            "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
+            "Microsoft.NET.Test.Sdk": "17.11.1",
+            "Microsoft.SemanticKernel": "1.57.0",
+            "Moq": "4.20.70",
+            "Newtonsoft.Json": "13.0.3",
+            "Newtonsoft.Json.Schema": "4.0.4",
+            "Npgsql": "8.0.7",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.7",
+            "Polly": "8.5.2",
+            "Polly.Extensions.Http": "3.0.0",
+            "Swashbuckle.AspNetCore": "8.1.2",
+            "xunit": "2.9.0",
+            "xunit.runner.visualstudio": "2.8.2",
+            "Xunit.SkippableFact": "1.4.13",
+            "YamlDotNet": "15.1.1"
           },
           "imports": [
             "net461",
@@ -494,6 +799,8 @@
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\obj\\",
         "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
         "configFilePaths": [
           "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -502,7 +809,6 @@
           "net8.0"
         ],
         "sources": {
-          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\nuget-local-cache": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -516,6 +822,10 @@
             "NU1605"
           ]
         },
+        "restoreLockProperties": {
+          "restorePackagesWithLockFile": "true",
+          "restoreLockedMode": true
+        },
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
@@ -528,16 +838,61 @@
           "dependencies": {
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
             },
             "Newtonsoft.Json": {
               "target": "Package",
-              "version": "[13.0.3, )"
-            },
-            "System.ComponentModel.Annotations": {
-              "target": "Package",
-              "version": "[5.0.0, )"
+              "version": "[13.0.3, )",
+              "versionCentrallyManaged": true
             }
+          },
+          "centralPackageVersions": {
+            "Asp.Versioning.Mvc": "8.0.0",
+            "Azure.AI.ContentSafety": "1.0.0",
+            "Azure.AI.OpenAI": "2.2.0-beta.4",
+            "Azure.Storage.Blobs": "12.14.0",
+            "coverlet.collector": "6.0.2",
+            "DotNetEnv": "3.1.0",
+            "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
+            "Microsoft.AspNetCore.OpenApi": "8.0.10",
+            "Microsoft.Azure.Cosmos": "3.39.1",
+            "Microsoft.EntityFrameworkCore": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Design": "8.0.8",
+            "Microsoft.EntityFrameworkCore.InMemory": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Relational": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Tools": "8.0.8",
+            "Microsoft.Extensions.AI": "9.5.0",
+            "Microsoft.Extensions.Configuration": "8.0.0",
+            "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Configuration.Binder": "8.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "8.0.0",
+            "Microsoft.Extensions.Configuration.Json": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection": "8.0.0",
+            "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.0",
+            "Microsoft.Extensions.Hosting": "8.0.0",
+            "Microsoft.Extensions.Hosting.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Http.Polly": "8.0.0",
+            "Microsoft.Extensions.Logging": "8.0.0",
+            "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+            "Microsoft.Extensions.Logging.Console": "8.0.0",
+            "Microsoft.Extensions.Options": "8.0.0",
+            "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
+            "Microsoft.NET.Test.Sdk": "17.11.1",
+            "Microsoft.SemanticKernel": "1.57.0",
+            "Moq": "4.20.70",
+            "Newtonsoft.Json": "13.0.3",
+            "Newtonsoft.Json.Schema": "4.0.4",
+            "Npgsql": "8.0.7",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.7",
+            "Polly": "8.5.2",
+            "Polly.Extensions.Http": "3.0.0",
+            "Swashbuckle.AspNetCore": "8.1.2",
+            "xunit": "2.9.0",
+            "xunit.runner.visualstudio": "2.8.2",
+            "Xunit.SkippableFact": "1.4.13",
+            "YamlDotNet": "15.1.1"
           },
           "imports": [
             "net461",

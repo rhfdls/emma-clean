@@ -1,10 +1,11 @@
-# Builds a private Npgsql 8.0.8 NuGet package and places it in the repo-local feed
+# Builds a private Npgsql 8.0.7 NuGet package and places it in the repo-local feed
 # Usage: run from solution root or anywhere: powershell -ExecutionPolicy Bypass -File .\tools\build-npgsql-8.0.8.ps1
 
 # Parameters (must appear before any executable statements)
 param(
-  [string]$Version = "8.0.7",         # Driver package version to build (default 8.0.7; note: tag v8.0.8 does not exist upstream)
-  [string]$Tag = "v8.0.7"              # Git tag to checkout
+  [string]$Version = "8.0.7",   # Driver package version to build
+  [string]$Tag = "v8.0.7",      # Git tag to checkout
+  [switch]$AddLocalSource        # If set, register nuget-local-cache as a NuGet source
 )
 
 $ErrorActionPreference = "Stop"
@@ -37,6 +38,10 @@ try {
   Write-Host "Fetching tags..." -ForegroundColor Cyan
   git fetch --tags
 
+  # Validate tag exists
+  $tagExists = git tag --list $Tag
+  if (-not $tagExists) { throw "Git tag not found: $Tag" }
+
   Write-Host "Checking out tag $Tag ..." -ForegroundColor Cyan
   git checkout $Tag
 
@@ -57,6 +62,16 @@ finally {
 
 Write-Host "Clearing NuGet caches..." -ForegroundColor Cyan
  dotnet nuget locals all --clear
+
+if ($AddLocalSource) {
+  Write-Host "Ensuring local NuGet source is registered..." -ForegroundColor Cyan
+  $sources = dotnet nuget list source | Out-String
+  if ($sources -notmatch "LocalNpgsql") {
+    dotnet nuget add source $LocalFeed -n LocalNpgsql | Out-Null
+  }
+  Write-Host "Forcing restore to re-evaluate sources..." -ForegroundColor Cyan
+  dotnet restore --force-evaluate | Out-Null
+}
 
 Write-Host ("Done. Placed: {0}" -f (Join-Path $LocalFeed ("Npgsql.{0}.nupkg" -f $Version))) -ForegroundColor Green
 Write-Host "Next: ensure Directory.Packages.props pins Npgsql=$Version (or desired) and restore with: dotnet restore --force-evaluate" -ForegroundColor Yellow

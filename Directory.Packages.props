@@ -1,4 +1,13 @@
 <Project>
+  <PropertyGroup>
+    <!-- Turn on central mgmt & strict behavior -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <!-- Lock package graphs by default (dev + CI) -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>true</RestoreLockedMode>
+  </PropertyGroup>
+
   <ItemGroup>
     <!-- Pin all core package versions here -->
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
@@ -17,8 +26,8 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.8" />
 
-    <PackageVersion Include="Npgsql" Version="8.0.8" />
-    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />
+    <PackageVersion Include="Npgsql" Version="8.0.7" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.7" />
     <PackageVersion Include="YamlDotNet" Version="15.1.1" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Asp.Versioning.Mvc" Version="8.0.0" />
@@ -30,6 +39,26 @@
     <PackageVersion Include="Microsoft.SemanticKernel" Version="1.57.0" />
     <PackageVersion Include="Azure.AI.OpenAI" Version="2.2.0-beta.4" />
     <PackageVersion Include="Microsoft.Extensions.AI" Version="9.5.0" />
+    
+    <!-- Additional pins to satisfy NU1010 across all projects -->
+    <PackageVersion Include="DotNetEnv" Version="3.1.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.10" />
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.39.1" />
+    <PackageVersion Include="Newtonsoft.Json.Schema" Version="4.0.4" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.8" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.10" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageVersion Include="xunit" Version="2.9.0" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+    <PackageVersion Include="Moq" Version="4.20.70" />
+    <PackageVersion Include="Xunit.SkippableFact" Version="1.4.13" />
   </ItemGroup>
 </Project>
+
 

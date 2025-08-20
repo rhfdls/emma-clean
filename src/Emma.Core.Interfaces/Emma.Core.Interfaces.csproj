@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Emma.Models\Emma.Models.csproj" />
+    <ProjectReference Include="..\Emma.Core\Emma.Core.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

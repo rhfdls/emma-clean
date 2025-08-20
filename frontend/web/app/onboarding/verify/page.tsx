@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { useSession } from "@/context/SessionContext";
+import PageContainer from "@/components/ui/PageContainer";
+import { Card, CardContent } from "@/components/ui/Card";
 
 export default function VerifyPage() {
   const sp = useSearchParams();
@@ -27,9 +29,15 @@ export default function VerifyPage() {
   }, [token, router]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold">{status === "pending" ? "Verifying…" : "Verification"}</h1>
-      <p className={status==="error" ? "text-red-600" : ""}>{message}</p>
-    </div>
+    <main className="min-h-dvh bg-neutral-50">
+      <PageContainer>
+        <Card>
+          <CardContent className="p-6">
+            <h1 className="text-2xl font-bold text-gray-900">{status === "pending" ? "Verifying…" : "Verification"}</h1>
+            <p className={status === "error" ? "text-red-600" : "text-gray-800"}>{message}</p>
+          </CardContent>
+        </Card>
+      </PageContainer>
+    </main>
   );
 }

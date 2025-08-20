@@ -2,6 +2,8 @@
 import { useState } from "react";
 import CheckoutPreview from "@/components/onboarding/CheckoutPreview";
 import UserRegistrationForm, { RegistrationPayload } from "@/components/onboarding/UserRegistrationForm";
+import PageContainer from "@/components/ui/PageContainer";
+import { Card, CardContent } from "@/components/ui/Card";
 import { useBilling } from "@/context/BillingContext";
 // import { apiPost } from "@/lib/api"; // TODO: wire when backend endpoints are confirmed
 
@@ -26,20 +28,26 @@ export default function OnboardingRegisterPage() {
   }
 
   return (
-    <main className="min-h-dvh bg-white">
-      <div className="mx-auto grid max-w-4xl gap-8 p-6 md:grid-cols-2 md:py-12">
-        <div>
-          <h1 className="text-2xl font-semibold mb-4">Create your account</h1>
-          <UserRegistrationForm onSubmit={handleSubmit} />
-          {status !== "idle" && (
-            <div className={`mt-4 text-sm ${status === "error" ? "text-red-600" : "text-gray-700"}`}>{message}</div>
-          )}
+    <main className="min-h-dvh bg-neutral-50">
+      <PageContainer>
+        <div className="grid gap-8 md:grid-cols-2">
+          <Card>
+            <CardContent>
+              <h1 className="text-3xl font-bold mb-4 text-gray-900">Create your account</h1>
+              <UserRegistrationForm onSubmit={handleSubmit} />
+              {status !== "idle" && (
+                <div className={`mt-4 text-sm ${status === "error" ? "text-red-600" : "text-gray-900"}`}>{message}</div>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent>
+              <CheckoutPreview />
+              <div className="mt-4 text-sm text-gray-800">Selected plan: <b>{plan}</b> • Seats: <b>{seats}</b></div>
+            </CardContent>
+          </Card>
         </div>
-        <div>
-          <CheckoutPreview />
-          <div className="mt-4 text-sm text-gray-600">Selected plan: <b>{plan}</b> • Seats: <b>{seats}</b></div>
-        </div>
-      </div>
+      </PageContainer>
     </main>
   );
 }

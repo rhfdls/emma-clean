@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/context/SessionContext";
 
@@ -7,11 +7,13 @@ export function VerifiedGuard({ children }: { children: React.ReactNode }) {
   const { session } = useSession();
   const router = useRouter();
 
-  if (session.isVerified) return <>{children}</>;
+  useEffect(() => {
+    if (!session?.isVerified) {
+      router.replace("/verify-required");
+    }
+  }, [session?.isVerified, router]);
 
-  // Soft-redirect for unverified users
-  if (typeof window !== "undefined") {
-    router.replace("/verify-required");
-  }
+  if (session?.isVerified) return <>{children}</>;
+  // Fallback while redirecting
   return null;
 }

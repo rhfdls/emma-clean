@@ -30,25 +30,44 @@ export default function UserRegistrationForm({ onSubmit }: { onSubmit: (p: Regis
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <div className="rounded border border-red-300 bg-red-50 p-2 text-sm text-red-700">{error}</div>}
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {error && <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <div>
-        <label className="block text-sm font-medium mb-1">Organization name</label>
-        <input value={orgName} onChange={(e) => setOrgName(e.target.value)} className="w-full rounded border border-gray-300 px-3 py-2" placeholder="Acme Inc." />
+        <label className="block text-sm font-semibold mb-1 text-gray-900">Organization name</label>
+        <input
+          value={orgName}
+          onChange={(e) => setOrgName(e.target.value)}
+          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          placeholder="Acme Inc."
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1">Work email</label>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded border border-gray-300 px-3 py-2" placeholder="you@company.com" />
+        <label className="block text-sm font-semibold mb-1 text-gray-900">Work email</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          placeholder="you@company.com"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1">Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded border border-gray-300 px-3 py-2" placeholder="••••••••" />
+        <label className="block text-sm font-semibold mb-1 text-gray-900">Password</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          placeholder="••••••••"
+        />
       </div>
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-        <span>I agree that new accounts start as PendingVerification and must verify via email.</span>
+      <label className="flex items-start gap-2 text-sm text-gray-800">
+        <input className="mt-0.5" type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
+        <span>I agree that new accounts start as <b>PendingVerification</b> and must verify via email.</span>
       </label>
-      <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">Create account</button>
+      <button type="submit" className="inline-flex items-center justify-center rounded-md bg-blue-600 px-5 py-2.5 text-white font-semibold shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
+        Create account
+      </button>
     </form>
   );
 }

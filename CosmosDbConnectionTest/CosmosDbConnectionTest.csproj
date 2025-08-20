@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.51.0" />
-    <PackageReference Include="DotNetEnv" Version="2.5.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" />
+    <PackageReference Include="DotNetEnv" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,9 @@
 using Emma.Api.Interfaces;
 using Emma.Api.Services;
+using Azure;
+using Azure.AI.OpenAI;
+using Emma.Core.Config;
+using Emma.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Emma.Api.Auth;
@@ -16,14 +20,14 @@ var builder = WebApplication.CreateBuilder(args);
 var npgsqlAsm = typeof(NpgsqlConnection).Assembly;
 Console.WriteLine($"[Npgsql] Version: {npgsqlAsm.GetName().Version}, Location: {npgsqlAsm.Location}");
 
-// SPRINT1: Enable CORS for local frontend
+// SPRINT1+2: Enable CORS for local frontend (Next.js dev on 3000 or 4000)
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy  =>
         {
-            policy.WithOrigins("http://localhost:3000")
+            policy.WithOrigins("http://localhost:3000", "http://localhost:4000")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -35,6 +39,21 @@ builder.Services.AddCors(options =>
 builder.Services.AddEmmaDatabase(builder.Configuration, isDevelopment: builder.Environment.IsDevelopment());
 
 builder.Services.AddScoped<IOnboardingService, OnboardingService>();
+
+// Azure OpenAI configuration and client
+builder.Services.Configure<AzureOpenAIConfig>(builder.Configuration.GetSection("AzureOpenAI"));
+builder.Services.AddSingleton<OpenAIClient>(sp =>
+{
+    var cfg = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AzureOpenAIConfig>>().Value;
+    return new OpenAIClient(new Uri(cfg.Endpoint), new AzureKeyCredential(cfg.ApiKey));
+});
+builder.Services.AddScoped<IEmmaAgentService, EmmaAgentService>();
+
+// SPRINT2: Analysis services and queue
+builder.Services.AddHttpClient("azure-openai");
+builder.Services.AddSingleton<IAnalysisQueue, AnalysisQueue>();
+builder.Services.AddHostedService<AnalysisQueueWorker>();
+builder.Services.AddScoped<IEmmaAnalysisService, EmmaAnalysisService>();
 
 // SPRINT2: AuthZ policies and email sender
 builder.Services.AddEmmaAuthorization();

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Nnh9rB/G7HA=",
+  "dgSpecHash": "ljE8lNSZXlQ=",
   "success": true,
   "projectFilePath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core\\Emma.Core.csproj",
   "expectedPackageFiles": [
@@ -15,8 +15,7 @@
     "C:\\Users\\david\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\david\\.nuget\\packages\\microsoft.extensions.options\\8.0.0\\microsoft.extensions.options.8.0.0.nupkg.sha512",
     "C:\\Users\\david\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
-    "C:\\Users\\david\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
-    "C:\\Users\\david\\.nuget\\packages\\system.componentmodel.annotations\\5.0.0\\system.componentmodel.annotations.5.0.0.nupkg.sha512"
+    "C:\\Users\\david\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
   ],
   "logs": []
 }

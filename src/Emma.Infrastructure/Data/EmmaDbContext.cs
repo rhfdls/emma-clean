@@ -709,7 +709,21 @@ namespace Emma.Infrastructure.Data
                     .WithMany()
                     .HasForeignKey(i => i.OrganizationId)
                     .OnDelete(DeleteBehavior.Cascade);
-                    
+            });
+
+            // Shadow properties for Interaction AI analysis storage (Option A)
+            modelBuilder.Entity<Interaction>()
+                        .Property<JsonDocument>("AnalysisJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("analysis_json");
+
+            modelBuilder.Entity<Interaction>()
+                        .Property<JsonDocument>("AnalysisRunLogJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("analysis_run_log_json");
+
+            modelBuilder.Entity<Interaction>(entity =>
+            {
                 entity.HasOne(i => i.Contact)
                     .WithMany()
                     .HasForeignKey(i => i.ContactId)
