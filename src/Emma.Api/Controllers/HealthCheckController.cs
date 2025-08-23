@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Emma.Api.Infrastructure;
+using Microsoft.AspNetCore.Http;
 
 namespace Emma.Api.Controllers
 {
@@ -6,18 +8,55 @@ namespace Emma.Api.Controllers
     [Route("api/health")]
     public class HealthCheckController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult Get()
+        // Liveness: process is up
+        [HttpGet("live")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult Live()
         {
-            return Ok(new
+            return Ok(new { status = "Live" });
+        }
+
+        // Readiness: dependencies OK (Postgres/Cosmos)
+        [HttpGet("ready")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
+        public async Task<IActionResult> Ready([FromServices] IConfiguration config)
+        {
+            // Check Postgres
+            try
             {
-                status = "Healthy",
-                version = typeof(HealthCheckController).Assembly.GetName().Version?.ToString() ?? "unknown"
-            });
+                var connStr = config.GetConnectionString("PostgreSql") ?? config["ConnectionStrings__PostgreSql"];
+                using var conn = new Npgsql.NpgsqlConnection(connStr);
+                await conn.OpenAsync();
+                using var cmd = new Npgsql.NpgsqlCommand("SELECT 1", conn);
+                _ = await cmd.ExecuteScalarAsync();
+            }
+            catch (Exception ex)
+            {
+                return ProblemFactory.Create(HttpContext, 503, "Dependency Unhealthy", $"PostgreSQL not ready: {ex.Message}", ProblemFactory.DependencyUnhealthy).ToResult();
+            }
+
+            // Check Cosmos
+            try
+            {
+                var endpoint = config["COSMOSDB__ACCOUNTENDPOINT"] ?? Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTENDPOINT");
+                var key = config["COSMOSDB__ACCOUNTKEY"] ?? Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTKEY");
+                var db = config["COSMOSDB__DATABASENAME"] ?? Environment.GetEnvironmentVariable("COSMOSDB__DATABASENAME");
+                var client = new Microsoft.Azure.Cosmos.CosmosClient(endpoint, key);
+                var dbResponse = await client.GetDatabase(db).ReadAsync();
+            }
+            catch (Exception ex)
+            {
+                return ProblemFactory.Create(HttpContext, 503, "Dependency Unhealthy", $"CosmosDB not ready: {ex.Message}", ProblemFactory.DependencyUnhealthy).ToResult();
+            }
+
+            return Ok(new { status = "Ready" });
         }
 
         // SPRINT1: Cosmos DB health check
         [HttpGet("cosmos")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> CosmosHealth([FromServices] IConfiguration config)
         {
             try
@@ -52,12 +91,14 @@ namespace Emma.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { status = "CosmosDB Unreachable", error = ex.Message });
+                return ProblemFactory.Create(HttpContext, 503, "CosmosDB Unreachable", ex.Message, ProblemFactory.DependencyUnhealthy).ToResult();
             }
         }
 
         // SPRINT1: PostgreSQL health check
         [HttpGet("postgres")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> PostgresHealth([FromServices] IConfiguration config)
         {
             try
@@ -71,11 +112,14 @@ namespace Emma.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { status = "PostgreSQL Unreachable", error = ex.Message });
+                return ProblemFactory.Create(HttpContext, 503, "PostgreSQL Unreachable", ex.Message, ProblemFactory.DependencyUnhealthy).ToResult();
             }
         }
         // SPRINT1: Cosmos DB document-level health check
         [HttpGet("cosmos/item")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> CosmosItemHealth([FromServices] IConfiguration config)
         {
             var endpoint = config["COSMOSDB__ACCOUNTENDPOINT"] ?? Environment.GetEnvironmentVariable("COSMOSDB__ACCOUNTENDPOINT");
@@ -94,12 +138,13 @@ namespace Emma.Api.Controllers
             }
             catch (Microsoft.Azure.Cosmos.CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                return NotFound(new { status = "CosmosDB Item Not Found", id, partitionKey });
+                return ProblemFactory.Create(HttpContext, 404, "CosmosDB Item Not Found", $"Item id={id}, partitionKey={partitionKey} not found.", ProblemFactory.NotFound).ToResult();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { status = "CosmosDB Item Error", error = ex.Message });
+                return ProblemFactory.Create(HttpContext, 503, "CosmosDB Item Error", ex.Message, ProblemFactory.DependencyUnhealthy).ToResult();
             }
         }
     }
 }
+

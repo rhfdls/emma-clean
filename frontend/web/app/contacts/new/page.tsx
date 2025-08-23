@@ -7,15 +7,16 @@ import { Card, CardContent } from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
 import Button from "@/components/ui/Button";
+import { useOrg } from "@/context/OrgContext";
 
-interface ContactCreateDto {
-  fullName: string;
-  email?: string;
-  phone?: string;
+interface ContactCreateForm {
+  firstName: string;
+  lastName: string;
 }
 
 export default function NewContactPage() {
-  const [form, setForm] = useState<ContactCreateDto>({ fullName: "" });
+  const { org } = useOrg();
+  const [form, setForm] = useState<ContactCreateForm>({ firstName: "", lastName: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successId, setSuccessId] = useState<string | null>(null);
@@ -26,12 +27,18 @@ export default function NewContactPage() {
     setSaving(true);
     setSuccessId(null);
     try {
-      const created = await api<{ id: string }>("/api/contacts", {
+      if (!org.orgId) throw new Error("Missing orgId in context");
+      const payload = {
+        organizationId: org.orgId,
+        firstName: form.firstName,
+        lastName: form.lastName,
+      };
+      const created = await api<{ id: string }>("/api/contact", {
         method: "POST",
-        json: form,
+        json: payload,
       });
       setSuccessId(created.id);
-      setForm({ fullName: "" });
+      setForm({ firstName: "", lastName: "" });
     } catch (e: any) {
       const msg = e?.message || "Failed to create contact";
       setError(msg);
@@ -50,11 +57,6 @@ export default function NewContactPage() {
               {error && (
                 <div className="mt-4 rounded-md border border-red-300 bg-red-50 p-3 text-red-700 text-sm">
                   {error}
-                  {(error.includes("401") || error.includes("403")) && (
-                    <div className="mt-2">
-                      You must verify your email before creating contacts. Please check your inbox for a verification link.
-                    </div>
-                  )}
                 </div>
               )}
               {successId && (
@@ -63,34 +65,27 @@ export default function NewContactPage() {
                 </div>
               )}
               <form onSubmit={onSubmit} className="mt-4 space-y-4">
-                <div>
-                  <Label htmlFor="fullName">Full name</Label>
-                  <Input
-                    id="fullName"
-                    placeholder="Full name"
-                    value={form.fullName}
-                    onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Email (optional)"
-                    value={form.email ?? ""}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    placeholder="Phone (optional)"
-                    value={form.phone ?? ""}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="firstName">First name</Label>
+                    <Input
+                      id="firstName"
+                      placeholder="First name"
+                      value={form.firstName}
+                      onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last name</Label>
+                    <Input
+                      id="lastName"
+                      placeholder="Last name"
+                      value={form.lastName}
+                      onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                      required
+                    />
+                  </div>
                 </div>
                 <Button type="submit" disabled={saving} className="w-full">
                   {saving ? "Saving…" : "Create Contact"}

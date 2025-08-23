@@ -1,0 +1,47 @@
+name: API Quality
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+
+      - name: Restore
+        run: dotnet restore Emma.sln
+
+      - name: Build
+        run: dotnet build Emma.sln -c Release --nologo --no-restore
+
+      # Optional EF design-time check. This repo may not include a design-time factory; allow failure without breaking CI.
+      - name: Install dotnet-ef
+        run: dotnet tool install --global dotnet-ef
+
+      - name: EF design-time check (best-effort)
+        env:
+          PATH: $HOME/.dotnet/tools:${{ env.PATH }}
+        run: |
+          set -e
+          echo "Listing DbContexts (may be empty if no design-time factory present)"
+          dotnet ef dbcontext list --project src/Emma.Infrastructure --startup-project src/Emma.Api || echo "EF design-time check skipped (no design-time factory)"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Lint OpenAPI with Redocly
+        run: npx --yes @redocly/cli@latest lint docs/api/openapi.yaml

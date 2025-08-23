@@ -38,11 +38,11 @@ namespace Emma.Api.Controllers
             }
             // Fallback to local config
             if (!System.IO.File.Exists(ConfigPath))
-                return NotFound();
+                return Problem(statusCode: 404, title: "Not Found", detail: "Local enum configuration file was not found.");
             var json = await System.IO.File.ReadAllTextAsync(ConfigPath);
             var doc = JsonDocument.Parse(json);
             if (!doc.RootElement.TryGetProperty(type, out var values))
-                return NotFound();
+                return Problem(statusCode: 404, title: "Not Found", detail: $"Enum type '{type}' not found in configuration.");
             return Ok(JsonSerializer.Deserialize<object>(values.GetRawText()));
         }
     }

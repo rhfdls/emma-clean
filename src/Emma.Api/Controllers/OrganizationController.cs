@@ -23,22 +23,22 @@ namespace Emma.Api.Controllers
             try
             {
                 if (dto == null || string.IsNullOrWhiteSpace(dto.Name))
-                    return BadRequest("Name is required.");
+                    return Problem(statusCode: 400, title: "Validation failed", detail: "Name is required.");
 
                 if (string.IsNullOrWhiteSpace(dto.Email) || !new EmailAddressAttribute().IsValid(dto.Email))
-                    return BadRequest("Valid Email is required.");
+                    return Problem(statusCode: 400, title: "Validation failed", detail: "Valid Email is required.");
 
                 if (dto.OwnerUserId == Guid.Empty)
-                    return BadRequest("OwnerUserId is required.");
+                    return Problem(statusCode: 400, title: "Validation failed", detail: "OwnerUserId is required.");
 
                 var exists = await db.Organizations.AnyAsync(o => o.Name == dto.Name);
                 if (exists)
-                    return Conflict("Organization with this name already exists.");
+                    return Problem(statusCode: 409, title: "Conflict", detail: "Organization with this name already exists.");
 
                 // Validate owner user exists
                 var owner = await db.Users.FirstOrDefaultAsync(u => u.Id == dto.OwnerUserId);
                 if (owner == null)
-                    return BadRequest("OwnerUserId is invalid.");
+                    return Problem(statusCode: 400, title: "Validation failed", detail: "OwnerUserId is invalid.");
 
                 var org = new Organization
                 {
@@ -75,13 +75,13 @@ namespace Emma.Api.Controllers
                 {
                     details += "\nInner: " + ex.InnerException.ToString();
                 }
-                return StatusCode(500, $"Error creating organization: {details}");
+                return Problem(statusCode: 500, title: "Error creating organization", detail: details);
             }
         }
 
         // GET api/organization
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "VerifiedUser")]
         public async Task<IActionResult> GetAll([FromServices] EmmaDbContext db, [FromServices] IHttpContextAccessor http, [FromQuery] int page = 1, [FromQuery] int size = 20)
         {
             try
@@ -92,10 +92,10 @@ namespace Emma.Api.Controllers
                 Guid userId;
                 var userIdStr = http.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? http.HttpContext?.User?.FindFirstValue("sub");
                 if (!Guid.TryParse(userIdStr, out userId))
-                    return Forbid();
+                    return Problem(statusCode: 403, title: "Forbidden", detail: "Missing or invalid user id in token.");
 
                 var me = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
-                if (me == null) return Forbid();
+                if (me == null) return Problem(statusCode: 403, title: "Forbidden", detail: "User not found.");
 
                 var query = db.Organizations.AsQueryable();
                 if (!me.IsAdmin)
@@ -131,13 +131,13 @@ namespace Emma.Api.Controllers
                 {
                     details += "\nInner: " + ex.InnerException.ToString();
                 }
-                return StatusCode(500, $"Error listing organizations: {details}");
+                return Problem(statusCode: 500, title: "Error listing organizations", detail: details);
             }
         }
 
         // GET api/organization/{id}
         [HttpGet("{id}")]
-        [Authorize]
+        [Authorize(Policy = "VerifiedUser")]
         public async Task<IActionResult> GetById(Guid id, [FromServices] EmmaDbContext db, [FromServices] IHttpContextAccessor http)
         {
             try
@@ -145,15 +145,15 @@ namespace Emma.Api.Controllers
                 Guid userId;
                 var userIdStr = http.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? http.HttpContext?.User?.FindFirstValue("sub");
                 if (!Guid.TryParse(userIdStr, out userId))
-                    return Forbid();
+                    return Problem(statusCode: 403, title: "Forbidden", detail: "Missing or invalid user id in token.");
 
                 var me = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
-                if (me == null) return Forbid();
+                if (me == null) return Problem(statusCode: 403, title: "Forbidden", detail: "User not found.");
 
                 var o = await db.Organizations.FirstOrDefaultAsync(x => x.Id == id);
-                if (o == null) return NotFound();
+                if (o == null) return Problem(statusCode: 404, title: "Not Found", detail: $"Organization {id} not found");
                 if (!me.IsAdmin && me.OrganizationId != o.Id)
-                    return Forbid();
+                    return Problem(statusCode: 403, title: "Forbidden", detail: "Not a member of this organization.");
                 return Ok(new OrganizationReadDto
                 {
                     Id = o.Id,
@@ -173,7 +173,7 @@ namespace Emma.Api.Controllers
                 {
                     details += "\nInner: " + ex.InnerException.ToString();
                 }
-                return StatusCode(500, $"Error getting organization: {details}");
+                return Problem(statusCode: 500, title: "Error getting organization", detail: details);
             }
         }
 
@@ -190,26 +190,26 @@ namespace Emma.Api.Controllers
             try
             {
                 var org = await db.Organizations.FirstOrDefaultAsync(o => o.Id == orgId);
-                if (org == null) return NotFound($"Organization {orgId} not found");
+                if (org == null) return Problem(statusCode: 404, title: "Not Found", detail: $"Organization {orgId} not found");
 
                 if (string.IsNullOrWhiteSpace(dto.Email) || !new EmailAddressAttribute().IsValid(dto.Email))
-                    return BadRequest("Valid email is required");
+                    return Problem(statusCode: 400, title: "Validation failed", detail: "Valid email is required");
 
                 // RBAC: inviter must be org owner or admin
                 if (dto.InvitedByUserId.HasValue)
                 {
                     var inviter = await db.Users.FirstOrDefaultAsync(u => u.Id == dto.InvitedByUserId.Value);
-                    if (inviter == null) return BadRequest("InvitedByUserId is invalid");
-                    if (inviter.OrganizationId != orgId) return Forbid();
+                    if (inviter == null) return Problem(statusCode: 400, title: "Validation failed", detail: "InvitedByUserId is invalid");
+                    if (inviter.OrganizationId != orgId) return Problem(statusCode: 403, title: "Forbidden", detail: "Inviter must belong to the organization.");
                     var isOwner = org.OwnerUserId == inviter.Id;
                     var isAdmin = inviter.IsAdmin || (inviter.Role != null && inviter.Role == "Admin");
-                    if (!isOwner && !isAdmin) return Forbid();
+                    if (!isOwner && !isAdmin) return Problem(statusCode: 403, title: "Forbidden", detail: "Only owner or admin can invite.");
                 }
 
                 // Optional: prevent multiple active invites for same email/org
                 var existingActive = await db.OrganizationInvitations.AnyAsync(i => i.OrganizationId == orgId && i.Email == dto.Email && i.AcceptedAt == null && i.RevokedAt == null && (i.ExpiresAt == null || i.ExpiresAt > DateTime.UtcNow));
                 if (existingActive)
-                    return Conflict("An active invitation already exists for this email");
+                    return Problem(statusCode: 409, title: "Conflict", detail: "An active invitation already exists for this email");
 
                 var token = Guid.NewGuid().ToString("N");
                 var invitation = new OrganizationInvitation
@@ -248,7 +248,7 @@ namespace Emma.Api.Controllers
             {
                 var details = ex.ToString();
                 if (ex.InnerException != null) details += "\nInner: " + ex.InnerException;
-                return StatusCode(500, $"Error creating invitation: {details}");
+                return Problem(statusCode: 500, title: "Error creating invitation", detail: details);
             }
         }
 
@@ -258,9 +258,9 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Token is required");
+                if (string.IsNullOrWhiteSpace(token)) return Problem(statusCode: 400, title: "Validation failed", detail: "Token is required");
                 var invitation = await db.OrganizationInvitations.FirstOrDefaultAsync(i => i.Token == token);
-                if (invitation == null) return NotFound();
+                if (invitation == null) return Problem(statusCode: 404, title: "Not Found", detail: "Invitation not found");
 
                 var active = invitation.RevokedAt == null && invitation.AcceptedAt == null && (!invitation.ExpiresAt.HasValue || invitation.ExpiresAt > DateTime.UtcNow);
                 var read = new InvitationReadDto
@@ -281,7 +281,7 @@ namespace Emma.Api.Controllers
             {
                 var details = ex.ToString();
                 if (ex.InnerException != null) details += "\nInner: " + ex.InnerException;
-                return StatusCode(500, $"Error retrieving invitation: {details}");
+                return Problem(statusCode: 500, title: "Error retrieving invitation", detail: details);
             }
         }
 
@@ -291,13 +291,13 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Token is required");
+                if (string.IsNullOrWhiteSpace(token)) return Problem(statusCode: 400, title: "Validation failed", detail: "Token is required");
                 var invitation = await db.OrganizationInvitations.FirstOrDefaultAsync(i => i.Token == token);
-                if (invitation == null) return NotFound();
+                if (invitation == null) return Problem(statusCode: 404, title: "Not Found", detail: "Invitation not found");
 
-                if (invitation.RevokedAt != null) return Conflict("Invitation has been revoked");
-                if (invitation.AcceptedAt != null) return Conflict("Invitation already accepted");
-                if (invitation.ExpiresAt.HasValue && invitation.ExpiresAt <= DateTime.UtcNow) return Conflict("Invitation has expired");
+                if (invitation.RevokedAt != null) return Problem(statusCode: 409, title: "Conflict", detail: "Invitation has been revoked");
+                if (invitation.AcceptedAt != null) return Problem(statusCode: 409, title: "Conflict", detail: "Invitation already accepted");
+                if (invitation.ExpiresAt.HasValue && invitation.ExpiresAt <= DateTime.UtcNow) return Problem(statusCode: 409, title: "Conflict", detail: "Invitation has expired");
 
                 invitation.AcceptedAt = DateTime.UtcNow;
                 invitation.UpdatedAt = DateTime.UtcNow;
@@ -312,7 +312,7 @@ namespace Emma.Api.Controllers
             {
                 var details = ex.ToString();
                 if (ex.InnerException != null) details += "\nInner: " + ex.InnerException;
-                return StatusCode(500, $"Error accepting invitation: {details}");
+                return Problem(statusCode: 500, title: "Error accepting invitation", detail: details);
             }
         }
 
@@ -322,11 +322,11 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Token is required");
+                if (string.IsNullOrWhiteSpace(token)) return Problem(statusCode: 400, title: "Validation failed", detail: "Token is required");
                 var invitation = await db.OrganizationInvitations.FirstOrDefaultAsync(i => i.Token == token);
-                if (invitation == null) return NotFound();
-                if (invitation.RevokedAt != null) return Conflict("Invitation has been revoked");
-                if (invitation.ExpiresAt.HasValue && invitation.ExpiresAt <= DateTime.UtcNow) return Conflict("Invitation has expired");
+                if (invitation == null) return Problem(statusCode: 404, title: "Not Found", detail: "Invitation not found");
+                if (invitation.RevokedAt != null) return Problem(statusCode: 409, title: "Conflict", detail: "Invitation has been revoked");
+                if (invitation.ExpiresAt.HasValue && invitation.ExpiresAt <= DateTime.UtcNow) return Problem(statusCode: 409, title: "Conflict", detail: "Invitation has expired");
 
                 // Normalize email
                 var email = invitation.Email.Trim();
@@ -337,7 +337,7 @@ namespace Emma.Api.Controllers
                 {
                     // Enforce single-tenant membership (policy: single org per user)
                     if (existing.OrganizationId.HasValue && existing.OrganizationId.Value != invitation.OrganizationId)
-                        return Conflict("User already belongs to a different organization");
+                        return Problem(statusCode: 409, title: "Conflict", detail: "User already belongs to a different organization");
 
                     existing.OrganizationId = invitation.OrganizationId;
                     if (string.IsNullOrWhiteSpace(existing.Role)) existing.Role = invitation.Role;
@@ -350,7 +350,7 @@ namespace Emma.Api.Controllers
                     var first = string.IsNullOrWhiteSpace(dto.FirstName) ? names.Split(' ').FirstOrDefault() ?? "" : dto.FirstName.Trim();
                     var last = string.IsNullOrWhiteSpace(dto.LastName) ? (names.Contains(' ') ? names.Substring(names.IndexOf(' ') + 1) : "") : dto.LastName.Trim();
                     if (string.IsNullOrWhiteSpace(first) || string.IsNullOrWhiteSpace(last))
-                        return BadRequest("FirstName and LastName are required");
+                        return Problem(statusCode: 400, title: "Validation failed", detail: "FirstName and LastName are required");
 
                     var verifyToken = Guid.NewGuid().ToString("N");
                     var user = new User
@@ -391,7 +391,7 @@ namespace Emma.Api.Controllers
             {
                 var details = ex.ToString();
                 if (ex.InnerException != null) details += "\nInner: " + ex.InnerException;
-                return StatusCode(500, $"Error registering from invitation: {details}");
+                return Problem(statusCode: 500, title: "Error registering from invitation", detail: details);
             }
         }
 

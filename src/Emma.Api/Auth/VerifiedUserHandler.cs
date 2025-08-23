@@ -21,6 +21,14 @@ namespace Emma.Api.Auth
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, VerifiedUserRequirement requirement)
         {
+            // Fast-path for dev tokens: scope contains 'verified'
+            var scope = context.User.FindFirstValue("scope");
+            if (!string.IsNullOrEmpty(scope) && scope.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Contains("verified", StringComparer.OrdinalIgnoreCase))
+            {
+                context.Succeed(requirement);
+                return;
+            }
+
             // Try common claim types for user id
             var userIdStr = context.User.FindFirstValue("sub")
                           ?? context.User.FindFirstValue("user_id")

@@ -1,0 +1,5 @@
+# Ignore build output and stray legacy files
+.next/
+node_modules/
+# Ignore legacy lib mirror; canonical code is under src/
+lib/

@@ -48,7 +48,7 @@ namespace Emma.Api.Controllers
 
             var profile = await _onboardingService.GetProfileAsync(email);
             if (profile == null)
-                return NotFound();
+                return Problem(statusCode: 404, title: "Profile not found", detail: "No profile exists for the current user.");
 
             return Ok(profile);
         }
@@ -58,15 +58,15 @@ namespace Emma.Api.Controllers
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyRequest request, [FromServices] EmmaDbContext db)
         {
             if (string.IsNullOrWhiteSpace(request.Token))
-                return BadRequest("Missing verification token.");
+                return Problem(statusCode: 400, title: "Validation failed", detail: "Missing verification token.");
 
             // Find user by verification token
             var user = await db.Users.FirstOrDefaultAsync(u => u.VerificationToken == request.Token);
             if (user == null)
-                return BadRequest("Invalid or expired token.");
+                return Problem(statusCode: 400, title: "Validation failed", detail: "Invalid or expired token.");
 
             if (user.AccountStatus == Emma.Models.Models.AccountStatus.Active)
-                return BadRequest("Account already verified.");
+                return Problem(statusCode: 409, title: "Conflict", detail: "Account already verified.");
 
             user.AccountStatus = Emma.Models.Models.AccountStatus.Active;
             user.IsVerified = true;
@@ -90,7 +90,7 @@ namespace Emma.Api.Controllers
         {
             var email = User.Identity?.Name;
             if (!await IsUserActive(email))
-                return Forbid("Account not verified. Please complete email verification.");
+                return Problem(statusCode: 403, title: "Forbidden", detail: "Account not verified. Please complete email verification.");
             // ... actual resource logic ...
             return Ok(new { message = "You are verified and can access protected resources." });
         }

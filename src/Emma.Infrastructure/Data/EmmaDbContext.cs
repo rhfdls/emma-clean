@@ -672,8 +672,8 @@ namespace Emma.Infrastructure.Data
                 // Configure the JSON serialization for ComplianceFlags
                 entity.Property(ea => ea.ComplianceFlags)
                     .HasConversion(
-                        v => string.Join(',', v ?? new List<string>()),
-                        v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                        v => string.Join(",", v ?? new List<string>()),
+                        v => v.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList()
                     );
             });
             
@@ -804,8 +804,8 @@ namespace Emma.Infrastructure.Data
                 // Configure JSON columns
                 entity.Property(a => a.Capabilities)
                     .HasConversion(
-                        v => string.Join(',', v ?? new List<string>()),
-                        v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                        v => string.Join(",", v ?? new List<string>()),
+                        v => v.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList()
                     );
                     
                 entity.Property(a => a.Metadata)
@@ -974,8 +974,8 @@ modelBuilder.Entity<DeviceToken>(entity =>
                 // Configure JSON columns
                 entity.Property(e => e.Tags)
                     .HasConversion(
-                        v => string.Join(',', v ?? new List<string>()),
-                        v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                        v => string.Join(",", v ?? new List<string>()),
+                        v => v.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList()
                     );
                     
                 entity.Property(e => e.CustomFields)

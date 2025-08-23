@@ -1,0 +1,745 @@
+openapi: 3.0.3
+info:
+  title: EMMA API
+  version: 0.1.0
+  description: OpenAPI specification for the EMMA API (developer-docs snapshot)
+servers:
+  - url: http://localhost:5262
+    description: Local development
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    VerifyRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+    DevTokenRequest:
+      type: object
+      properties:
+        orgId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+    DevTokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        orgId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+    ContactCreateDto:
+      type: object
+      required: [organizationId, firstName, lastName]
+      properties:
+        organizationId: { type: string, format: uuid }
+        firstName: { type: string }
+        lastName: { type: string }
+        middleName: { type: string, nullable: true }
+        preferredName: { type: string, nullable: true }
+        title: { type: string, nullable: true }
+        jobTitle: { type: string, nullable: true }
+        company: { type: string, nullable: true }
+        department: { type: string, nullable: true }
+        source: { type: string, nullable: true }
+        ownerId: { type: string, format: uuid, nullable: true }
+        preferredContactMethod: { type: string, nullable: true }
+        preferredContactTime: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        profilePictureUrl: { type: string, nullable: true }
+    ContactReadDto:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        firstName: { type: string }
+        lastName: { type: string }
+        middleName: { type: string, nullable: true }
+        preferredName: { type: string, nullable: true }
+        title: { type: string, nullable: true }
+        jobTitle: { type: string, nullable: true }
+        company: { type: string, nullable: true }
+        department: { type: string, nullable: true }
+        source: { type: string, nullable: true }
+        ownerId: { type: string, format: uuid, nullable: true }
+        preferredContactMethod: { type: string, nullable: true }
+        preferredContactTime: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        profilePictureUrl: { type: string, nullable: true }
+        lastContactedAt: { type: string, format: date-time, nullable: true }
+        nextFollowUpAt: { type: string, format: date-time, nullable: true }
+    ContactAssignDto:
+      type: object
+      required: [contactId, userId, assignedByAgentId]
+      properties:
+        contactId: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        assignedByAgentId: { type: string, format: uuid }
+        sourceContext: { type: string, nullable: true }
+        traceId: { type: string, nullable: true }
+    InteractionCreateDto:
+      type: object
+      properties:
+        type:
+          type: string
+        direction:
+          type: string
+          enum: [inbound, outbound]
+        subject:
+          type: string
+        content:
+          type: string
+        consentGranted:
+          type: boolean
+        occurredAt:
+          type: string
+          format: date-time
+    InteractionReadDto:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        timestamp: { type: string, format: date-time }
+        type: { type: string }
+        subject: { type: string, nullable: true }
+        content: { type: string, nullable: true }
+        analysisSummary: { type: string, nullable: true }
+    RegisterRequest:
+      type: object
+      required: [organizationName, email, password, planKey, seatCount]
+      properties:
+        organizationName: { type: string }
+        email: { type: string, format: email }
+        password: { type: string }
+        planKey: { type: string }
+        seatCount: { type: integer, minimum: 1 }
+        crm: { type: string, nullable: true }
+    OrganizationCreateDto:
+      type: object
+      required: [name, email, ownerUserId]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        ownerUserId:
+          type: string
+          format: uuid
+        planId:
+          type: string
+          nullable: true
+        planType:
+          type: string
+          nullable: true
+        seatCount:
+          type: integer
+          minimum: 1
+    OrganizationReadDto:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        orgGuid: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+        planId: { type: string, nullable: true }
+        planType: { type: string, nullable: true }
+        seatCount: { type: integer, nullable: true }
+        isActive: { type: boolean }
+    InvitationCreateDto:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+        expiresInDays:
+          type: integer
+        invitedByUserId:
+          type: string
+          format: uuid
+    RegisterFromInvitationDto:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        fullName:
+          type: string
+        password:
+          type: string
+    ProfileResponse:
+      type: object
+      properties:
+        organizationName: { type: string }
+        planKey: { type: string }
+        planLabel: { type: string }
+        planDescription: { type: string }
+        planPrice: { type: number, format: decimal }
+        seatCount: { type: integer }
+        orgGuid: { type: string }
+        accountStatus: { type: string }
+        email: { type: string, format: email }
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+paths:
+  /api/Account/profile:
+    get:
+      summary: Get current user profile
+      tags: [Account]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+  /api/Account/verify:
+    post:
+      summary: Verify user (legacy)
+      tags: [Account]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRequest'
+      responses:
+        '200': { description: Verified }
+        '400': { description: Bad Request }
+  /api/agent/suggest-followup:
+    post:
+      summary: Suggest follow-up (dev stub)
+      tags: [Agent]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contactId: { type: string, format: uuid }
+                context: { type: string }
+      responses:
+        '200': { description: Example suggestion returned }
+        '404': { description: Not available outside Development }
+  /api/Contact:
+    post:
+      summary: Create contact
+      tags: [Contact]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactCreateDto'
+            example:
+              organizationId: "11111111-1111-1111-1111-111111111111"
+              firstName: "Ada"
+              lastName: "Lovelace"
+              jobTitle: "Engineer"
+              ownerId: "22222222-2222-2222-2222-222222222222"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactReadDto'
+              example:
+                id: "33333333-3333-3333-3333-333333333333"
+                organizationId: "11111111-1111-1111-1111-111111111111"
+                firstName: "Ada"
+                lastName: "Lovelace"
+                jobTitle: "Engineer"
+                ownerId: "22222222-2222-2222-2222-222222222222"
+        '400': { description: Bad Request }
+        '401': { description: Unauthorized, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '500': { description: Error, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+    get:
+      summary: List contacts by organization
+      tags: [Contact]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: orgId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContactReadDto'
+              example:
+                - id: "33333333-3333-3333-3333-333333333333"
+                  organizationId: "11111111-1111-1111-1111-111111111111"
+                  firstName: "Ada"
+                  lastName: "Lovelace"
+        '400': { description: Bad Request, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '401': { description: Unauthorized, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+  /api/Contact/{id}:
+    get:
+      summary: Get contact by id
+      tags: [Contact]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactReadDto'
+        '404': { description: Not Found }
+        '401': { description: Unauthorized, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+  /api/Contact/{id}/assign:
+    put:
+      summary: Assign contact to user
+      tags: [Contact]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactAssignDto'
+            example:
+              contactId: "33333333-3333-3333-3333-333333333333"
+              userId: "22222222-2222-2222-2222-222222222222"
+              assignedByAgentId: "99999999-9999-9999-9999-999999999999"
+              sourceContext: "crm:bulk-assign"
+      responses:
+        '204': { description: No Content }
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/ProblemDetails' }
+              example:
+                title: "Validation failed"
+                status: 400
+                detail: "Path id must match body.contactId."
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/ProblemDetails' }
+  /api/contacts/{contactId}/collaborators:
+    get:
+      summary: List collaborators (placeholder)
+      tags: [ContactCollaborator]
+      parameters:
+        - in: path
+          name: contactId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '501': { description: Not Implemented }
+    post:
+      summary: Add collaborator (placeholder)
+      tags: [ContactCollaborator]
+      parameters:
+        - in: path
+          name: contactId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '501': { description: Not Implemented }
+  /api/auth/dev-token:
+    post:
+      summary: Create development JWT
+      tags: [Auth]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DevTokenRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevTokenResponse'
+  /api/enums/{type}:
+    get:
+      summary: Get enum values by type
+      tags: [Enum]
+      parameters:
+        - in: path
+          name: type
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+        '404': { description: Not Found }
+  /api/health:
+    get:
+      summary: Health - liveness
+      tags: [Health]
+      responses:
+        '200': { description: OK }
+  /api/health/cosmos:
+    get:
+      summary: Health - Cosmos connectivity
+      tags: [Health]
+      responses:
+        '200': { description: OK }
+        '500': { description: Error }
+  /api/health/postgres:
+    get:
+      summary: Health - Postgres connectivity
+      tags: [Health]
+      responses:
+        '200': { description: OK }
+        '500': { description: Error }
+  /api/health/cosmos/item:
+    get:
+      summary: Health - read sample Cosmos item
+      tags: [Health]
+      responses:
+        '200': { description: OK }
+        '404': { description: Not Found }
+        '500': { description: Error }
+  /api/contacts/{contactId}/interactions:
+    get:
+      summary: List interactions for a contact
+      tags: [Interaction]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: contactId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InteractionReadDto'
+              example:
+                - id: "44444444-4444-4444-4444-444444444444"
+                  timestamp: "2025-08-21T17:00:00Z"
+                  type: "call"
+                  subject: "Intro call"
+                  content: "Discussed onboarding"
+        '404': { description: Not Found }
+        '400': { description: Bad Request, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '401': { description: Unauthorized, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+    post:
+      summary: Log an interaction for a contact
+      tags: [Interaction]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: contactId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InteractionCreateDto'
+            example:
+              type: "call"
+              direction: "inbound"
+              subject: "Intro call"
+              content: "Talked through product fit"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  interactionId: { type: string, format: uuid }
+                  analysisPresent: { type: boolean }
+                  traceId: { type: string }
+              example:
+                interactionId: "55555555-5555-5555-5555-555555555555"
+                analysisPresent: false
+                traceId: "0HMO1B6G4D1A1:00000002"
+        '400': { description: Bad Request, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '401': { description: Unauthorized, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '500': { description: Error, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+  /api/Onboarding/register:
+    post:
+      summary: Register organization and initial user
+      tags: [Onboarding]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200': { description: OK }
+        '400': { description: Bad Request }
+  /api/Organization:
+    get:
+      summary: List organizations (paged)
+      tags: [Organization]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, minimum: 1, default: 20, maximum: 100 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/OrganizationReadDto' }
+              example:
+                - id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                  orgGuid: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+                  name: "Acme Corp"
+                  email: "owner@acme.com"
+                  planId: "pro"
+                  planType: "Pro"
+                  seatCount: 10
+                  isActive: true
+        '401': { description: Unauthorized, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '500': { description: Error, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+    post:
+      summary: Create organization
+      tags: [Organization]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationCreateDto'
+            example:
+              name: "Acme Corp"
+              email: "owner@acme.com"
+              ownerUserId: "22222222-2222-2222-2222-222222222222"
+              planType: "Pro"
+              seatCount: 10
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationReadDto'
+              example:
+                id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                orgGuid: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+                name: "Acme Corp"
+                email: "owner@acme.com"
+                planId: "pro"
+                planType: "Pro"
+                seatCount: 10
+                isActive: true
+        '400': { description: Bad Request, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' }, example: { title: "Validation failed", status: 400, detail: "Name is required." } } } }
+        '401': { description: Unauthorized, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '409': { description: Conflict, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' }, example: { title: "Conflict", status: 409, detail: "Organization with this name already exists." } } } }
+        '500': { description: Error, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+  /api/Organization/{id}:
+    get:
+      summary: Get organization by id
+      tags: [Organization]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationReadDto'
+        '401': { description: Unauthorized, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '403': { description: Forbidden, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '404': { description: Not Found, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+  /api/Organization/{orgId}/invitations:
+    post:
+      summary: Create invitation for an organization
+      tags: [Organization]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: orgId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvitationCreateDto'
+            example:
+              email: "invitee@example.com"
+              role: "Member"
+              expiresInDays: 7
+              invitedByUserId: "22222222-2222-2222-2222-222222222222"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvitationCreateDto'
+              example:
+                id: "77777777-7777-7777-7777-777777777777"
+                organizationId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                email: "invitee@example.com"
+                role: "Member"
+                token: "4f3f0a2f5c0249e7a9c9e3f0a2f5c024"
+                expiresAt: "2025-09-01T00:00:00Z"
+                acceptedAt: null
+                revokedAt: null
+        '400': { description: Bad Request, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' }, example: { title: "Validation failed", status: 400, detail: "Valid email is required" } } } }
+        '401': { description: Unauthorized, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '403': { description: Forbidden, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' }, example: { title: "Forbidden", status: 403, detail: "Only owner or admin can invite." } } } }
+        '409': { description: Conflict, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' }, example: { title: "Conflict", status: 409, detail: "An active invitation already exists for this email" } } } }
+        '500': { description: Error, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+  /api/Organization/invitations/{token}:
+    get:
+      summary: Get invitation by token
+      tags: [Organization]
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: "77777777-7777-7777-7777-777777777777"
+                organizationId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                email: "invitee@example.com"
+                role: "Member"
+                token: "4f3f0a2f5c0249e7a9c9e3f0a2f5c024"
+                expiresAt: "2025-09-01T00:00:00Z"
+                acceptedAt: null
+                revokedAt: null
+                isActive: true
+        '400': { description: Bad Request, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' }, example: { title: "Validation failed", status: 400, detail: "Token is required" } } } }
+        '404': { description: Not Found, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '500': { description: Error, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+  /api/Organization/invitations/{token}/accept:
+    post:
+      summary: Accept invitation by token
+      tags: [Organization]
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: No Content }
+        '400': { description: Bad Request, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' }, example: { title: "Validation failed", status: 400, detail: "Token is required" } } } }
+        '404': { description: Not Found, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' }, example: { title: "Not Found", status: 404, detail: "Invitation not found" } } } }
+        '409': { description: Conflict, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '500': { description: Error, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+  /api/Organization/invitations/{token}/register:
+    post:
+      summary: Register from invitation token
+      tags: [Organization]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterFromInvitationDto'
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: No Content }
+        '400': { description: Bad Request, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' }, example: { title: "Validation failed", status: 400, detail: "Token is required" } } } }
+        '404': { description: Not Found, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' }, example: { title: "Not Found", status: 404, detail: "Invitation not found" } } } }
+        '409': { description: Conflict, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+        '500': { description: Error, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } } }
+  /api/auth/verify-email:
+    post:
+      summary: Verify email by token
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRequest'
+      responses:
+        '200': { description: Verified }

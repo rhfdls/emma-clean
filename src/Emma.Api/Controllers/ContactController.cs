@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Emma.Core.Interfaces.Repositories;
 using Emma.Models.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Emma.Api.Controllers
 {
@@ -15,9 +16,9 @@ namespace Emma.Api.Controllers
         public async Task<IActionResult> CreateContact([FromBody] Dtos.ContactCreateDto dto, [FromServices] IContactRepository repo)
         {
             if (dto == null)
-                return BadRequest("Contact data is required.");
+                return Problem(statusCode: 400, title: "Validation failed", detail: "Contact data is required.");
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return Problem(statusCode: 400, title: "Validation failed", detail: "Invalid request body.");
             try
             {
                 var contact = new Contact
@@ -73,17 +74,23 @@ namespace Emma.Api.Controllers
                 {
                     details += "\nInner: " + ex.InnerException.ToString();
                 }
-                return StatusCode(500, $"Error creating contact: {details}");
+                return Problem(statusCode: 500, title: "Error creating contact", detail: details);
             }
         }
 
         // GET /contacts/{id}
+        [Authorize(Policy = "VerifiedUser")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetContactById(Guid id, [FromServices] IContactRepository repo)
         {
+            var orgIdStr = User?.FindFirstValue("orgId");
+            if (string.IsNullOrWhiteSpace(orgIdStr) || !Guid.TryParse(orgIdStr, out var orgId))
+                return Problem(statusCode: 400, title: "Missing org context", detail: "Missing or invalid orgId claim.");
             var contact = await repo.GetByIdAsync(id);
             if (contact == null)
-                return NotFound();
+                return Problem(statusCode: 404, title: "Contact not found", detail: $"No contact with id {id}.");
+            if (contact.OrganizationId != orgId)
+                return Problem(statusCode: 403, title: "Forbidden", detail: "Contact organization does not match orgId claim.");
             var dto = new Dtos.ContactReadDto
             {
                 Id = contact.Id,
@@ -109,11 +116,17 @@ namespace Emma.Api.Controllers
         }
 
         // GET /contacts?orgId=x
+        [Authorize(Policy = "VerifiedUser")]
         [HttpGet]
         public async Task<IActionResult> GetContactsByOrg([FromQuery] Guid orgId, [FromServices] IContactRepository repo)
         {
             if (orgId == Guid.Empty)
-                return BadRequest("orgId is required.");
+                return Problem(statusCode: 400, title: "Validation failed", detail: "orgId is required.");
+            var orgIdStr = User?.FindFirstValue("orgId");
+            if (string.IsNullOrWhiteSpace(orgIdStr) || !Guid.TryParse(orgIdStr, out var claimOrgId))
+                return Problem(statusCode: 400, title: "Missing org context", detail: "Missing or invalid orgId claim.");
+            if (claimOrgId != orgId)
+                return Problem(statusCode: 403, title: "Forbidden", detail: "Query orgId does not match orgId claim.");
             var contacts = await repo.FindAsync(c => c.OrganizationId == orgId);
             var dtos = contacts.Select(contact => new Dtos.ContactReadDto
             {
@@ -142,17 +155,29 @@ namespace Emma.Api.Controllers
         // PUT /contacts/{id}/assign
         [Authorize(Policy = "VerifiedUser")]
         [HttpPut("{id}/assign")]
-        public async Task<IActionResult> AssignContact(Guid id, [FromBody] Dtos.ContactAssignDto dto, [FromServices] IContactRepository repo)
+        public async Task<IActionResult> AssignContact(
+            Guid id,
+            [FromBody] Dtos.ContactAssignDto dto,
+            [FromServices] IContactRepository repo,
+            [FromServices] ILogger<ContactController> logger)
         {
-            if (dto == null || dto.UserId == Guid.Empty)
-                return BadRequest("UserId is required.");
+            if (dto == null)
+                return Problem(statusCode: 400, title: "Invalid request", detail: "Request body is required.");
+            if (dto.UserId == Guid.Empty)
+                return Problem(statusCode: 400, title: "Validation failed", detail: "UserId is required.");
+            if (dto.AssignedByAgentId == Guid.Empty)
+                return Problem(statusCode: 400, title: "Validation failed", detail: "AssignedByAgentId is required.");
+            if (dto.ContactId != Guid.Empty && dto.ContactId != id)
+                return Problem(statusCode: 400, title: "Validation failed", detail: "Path id must match body.contactId.");
             var contact = await repo.GetByIdAsync(id);
             if (contact == null)
-                return NotFound();
+                return Problem(statusCode: 404, title: "Contact not found", detail: $"No contact with id {id}.");
             contact.OwnerId = dto.UserId;
             contact.UpdatedAt = DateTime.UtcNow;
             repo.Update(contact);
             await repo.SaveChangesAsync();
+            var traceId = HttpContext?.TraceIdentifier;
+            logger.LogInformation("Assigned contact {ContactId} to user {UserId} by agent {AgentId} traceId={TraceId}", id, dto.UserId, dto.AssignedByAgentId, traceId);
             return NoContent();
         }
     }

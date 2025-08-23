@@ -26,11 +26,11 @@ namespace Emma.Api.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return Problem(statusCode: 400, title: "Validation failed", detail: "Invalid request body.");
 
             var tokenOrError = await _onboardingService.RegisterOrganizationAsync(request);
             if (tokenOrError == null)
-                return BadRequest("Registration failed (duplicate org or email, or invalid plan/seats).");
+                return Problem(statusCode: 400, title: "Registration failed", detail: "Duplicate org or email, or invalid plan/seats.");
 
             return Ok(tokenOrError);
         }

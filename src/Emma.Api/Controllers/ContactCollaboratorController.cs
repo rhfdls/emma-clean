@@ -10,7 +10,7 @@ namespace Emma.Api.Controllers
         // POST /contacts/{id}/collaborators
         [Authorize(Policy = "VerifiedUser")]
         [HttpPost]
-        public IActionResult AddCollaborator(int contactId)
+        public IActionResult AddCollaborator(Guid contactId)
         {
             // TODO: Implement
             return StatusCode(501);
@@ -18,7 +18,7 @@ namespace Emma.Api.Controllers
 
         // GET /contacts/{id}/collaborators
         [HttpGet]
-        public IActionResult GetCollaborators(int contactId)
+        public IActionResult GetCollaborators(Guid contactId)
         {
             // TODO: Implement
             return StatusCode(501);

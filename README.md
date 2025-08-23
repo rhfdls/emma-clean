@@ -108,6 +108,45 @@ Copy `env.template` to `.env` and update values. See [Infrastructure](./docs/ope
 
 > Note: The Emma AI Platform currently supports both `.env` files and docker-compose.yml for configuration. This dual approach is intentionally maintained during the transition period.
 
+### Configuration Precedence
+
+At runtime and during EF design-time, configuration sources are applied in this order (last wins):
+
+1. `appsettings.json`
+2. `appsettings.{Environment}.json`
+3. User Secrets (Development)
+4. Environment Variables
+
+Implication: environment variables will override values from JSON files. Be cautious when debugging connection strings or credentials.
+
+Required JWT settings for local dev (used by `src/Emma.Api/Controllers/DevAuthController.cs`):
+
+```json
+{
+  "Jwt": {
+    "Issuer": "http://localhost",
+    "Audience": "emma-local",
+    "Key": "a-very-long-dev-only-secret"
+  }
+}
+```
+
+### Troubleshooting: Stale Environment Variables Shadowing JSON
+
+Symptoms: the app logs or behavior indicate it is using an old value (e.g., Postgres password) despite updates to `appsettings.json`.
+
+Checklist:
+
+- Clear or update the corresponding OS-level environment variable (User and Machine scopes).
+- If using `.env`, reload it in the current shell (e.g., `./load-env.ps1`).
+- Verify `appsettings.Development.json` and `appsettings.json` are consistent.
+- Check any secret stores or deployment variables that might be injected by your run profile.
+
+Verification:
+
+- Start the API and hit health endpoints (`/api/health/postgres`).
+- Check logs for masked connection strings and confirm the expected source values are in effect.
+
 ### Azure Service Setup
 
 1. Configure Azure PostgreSQL for relational data storage
@@ -124,6 +163,9 @@ AZURE_OPENAI_DEPLOYMENT=your-deployment-name
 ## API Documentation
 
 API documentation is available via Swagger UI at [http://localhost:5262/swagger](http://localhost:5262/swagger) when the API is running.
+  
+- Comprehensive API reference with curl examples: [docs/api/EMMA-API.md](./docs/api/EMMA-API.md)
+- OpenAPI specification (YAML): [docs/api/openapi.yaml](./docs/api/openapi.yaml)
 
 ## Additional Documentation
 

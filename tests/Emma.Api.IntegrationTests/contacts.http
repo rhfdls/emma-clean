@@ -1,0 +1,56 @@
+@baseUrl = http://localhost:5073
+
+### Get a dev token (Development only)
+# @name devtoken
+POST {{baseUrl}}/api/auth/dev-token
+Content-Type: application/json
+
+{
+  "orgId": "{{$guid}}",
+  "userId": "{{$guid}}",
+  "email": "tester@example.local"
+}
+
+### Extract token
+@token = {{devtoken.response.body.$.token}}
+
+### Create a contact
+# @name create_contact
+POST {{baseUrl}}/api/contact
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "organizationId": "{{devtoken.response.body.$.orgId}}",
+  "firstName": "Ada",
+  "lastName": "Lovelace",
+  "company": "Analytical Engines Ltd"
+}
+
+### Capture contact id
+@contactId = {{create_contact.response.body.$.id}}
+
+### Log an interaction with occurredAt (maps to Timestamp/StartedAt)
+POST {{baseUrl}}/api/contacts/{{contactId}}/interactions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "subject": "Kickoff call",
+  "content": "Discussed project goals and timelines.",
+  "consentGranted": true,
+  "occurredAt": "{{$datetime iso8601}}"
+}
+
+### Get interactions for the contact
+GET {{baseUrl}}/api/contacts/{{contactId}}/interactions
+Authorization: Bearer {{token}}
+
+### Ask dev agent for suggest-followup
+POST {{baseUrl}}/api/agent/suggest-followup
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "contactId": "{{contactId}}"
+}

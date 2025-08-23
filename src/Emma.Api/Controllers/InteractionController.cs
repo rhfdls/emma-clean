@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Emma.Api.Services;
-using Emma.Api.Interfaces;
 using Emma.Infrastructure.Data;
 using Emma.Models.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using System.Security.Claims;
+using Emma.Api.Infrastructure;
+using Microsoft.AspNetCore.Http;
 
 namespace Emma.Api.Controllers
 {
@@ -13,17 +16,15 @@ namespace Emma.Api.Controllers
     public class InteractionController : ControllerBase
     {
         private readonly EmmaDbContext _db;
-        private readonly IEmmaAnalysisService _analysis;
-        private readonly IAnalysisQueue _queue;
         private readonly IConfiguration _config;
+        private readonly ILogger<InteractionController> _logger;
         private const int MaxContentLength = 8000; // safety rail; large bodies should be moved to blob
 
-        public InteractionController(EmmaDbContext db, IEmmaAnalysisService analysis, IAnalysisQueue queue, IConfiguration config)
+        public InteractionController(EmmaDbContext db, IConfiguration config, ILogger<InteractionController> logger)
         {
             _db = db;
-            _analysis = analysis;
-            _queue = queue;
             _config = config;
+            _logger = logger;
         }
 
         public class CreateInteractionRequest
@@ -33,108 +34,107 @@ namespace Emma.Api.Controllers
             public string? Subject { get; set; }
             public string? Content { get; set; }
             public bool ConsentGranted { get; set; } = true;
+            public DateTime? OccurredAt { get; set; }
+            public string? PrivacyLevel { get; set; }
+            public List<string>? Tags { get; set; }
         }
 
         // POST /contacts/{id}/interactions
         [Authorize(Policy = "VerifiedUser")]
         [HttpPost]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> LogInteraction(Guid contactId, [FromBody] CreateInteractionRequest body, CancellationToken ct)
         {
-            if (body is null) return BadRequest();
+            if (body is null)
+            {
+                return ProblemFactory.Create(HttpContext, 400, "Validation failed", "Request body is required.", ProblemFactory.ValidationError).ToResult();
+            }
+            var sw = Stopwatch.StartNew();
+            var traceId = HttpContext.TraceIdentifier;
+            var orgIdStr = User.FindFirstValue("orgId");
+            if (string.IsNullOrWhiteSpace(orgIdStr) || !Guid.TryParse(orgIdStr, out var orgId))
+            {
+                return ProblemFactory.Create(HttpContext, 400, "Missing org context", "Missing or invalid orgId claim.", ProblemFactory.ValidationError).ToResult();
+            }
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            Guid.TryParse(userIdStr, out var userId);
+
+            // Validate required privacy fields per UNIFIED_SCHEMA
+            var privacy = string.IsNullOrWhiteSpace(body.PrivacyLevel) ? null : body.PrivacyLevel!.Trim().ToLowerInvariant();
+            var allowedPrivacy = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "public", "internal", "private", "confidential" };
+            if (privacy is null || !allowedPrivacy.Contains(privacy))
+            {
+                return ProblemFactory.Create(HttpContext, 400, "Validation failed", "privacyLevel is required and must be one of: public, internal, private, confidential.", ProblemFactory.ValidationError).ToResult();
+            }
+            if (body.Content != null && body.Content.Length > MaxContentLength)
+            {
+                return ProblemFactory.Create(HttpContext, 422, "Content too large", $"Content length exceeds {MaxContentLength} characters. Move large payloads to blob storage.", ProblemFactory.Unprocessable).ToResult();
+            }
+
+            // Ownership check: contact must exist and belong to orgId
+            var contact = await _db.Set<Contact>().FirstOrDefaultAsync(c => c.Id == contactId, ct);
+            if (contact == null)
+            {
+                return ProblemFactory.Create(HttpContext, 404, "Contact not found", $"Contact {contactId} does not exist.", ProblemFactory.NotFound).ToResult();
+            }
+            if (contact.OrganizationId != orgId)
+            {
+                return ProblemFactory.Create(HttpContext, 403, "Organization mismatch", "You do not have access to this contact in the specified organization.", ProblemFactory.OrgMismatch).ToResult();
+            }
 
             var interaction = new Interaction
             {
                 Id = Guid.NewGuid(),
                 ContactId = contactId,
+                OrganizationId = orgId,
+                TenantId = orgId, // demo: tenant == org in dev
                 Type = string.IsNullOrWhiteSpace(body.Type) ? "other" : body.Type!,
                 Direction = string.IsNullOrWhiteSpace(body.Direction) ? "inbound" : body.Direction!,
                 Subject = body.Subject,
                 Content = body.Content,
                 Status = "completed",
+                // Event time: map occurredAt -> StartedAt; default to now (UTC) when missing
+                StartedAt = body.OccurredAt?.ToUniversalTime() ?? DateTime.UtcNow,
+                // Record time: server-side now
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                PrivacyLevel = privacy!,
+                Tags = body.Tags ?? new List<string>()
             };
-
-            // Cap input size; for larger content, future: store to blob and pass trimmed text
-            var contentForAnalysis = interaction.Content ?? string.Empty;
-            if (contentForAnalysis.Length > MaxContentLength)
+            if (userId != Guid.Empty)
             {
-                contentForAnalysis = contentForAnalysis.Substring(0, MaxContentLength);
-                // TODO: store full content to blob and set URL in CustomFields
+                interaction.CreatedById = userId;
             }
 
-            // Persist the interaction first
+            // Persist the interaction
             _db.Set<Interaction>().Add(interaction);
             await _db.SaveChangesAsync(ct);
-
-            // Consent gate
-            if (!body.ConsentGranted)
-            {
-                // Do not analyze; respond 202 Accepted
-                return Accepted(new { id = interaction.Id, analysisQueued = false });
-            }
-
-            // Synchronous analysis for demo
-            EmmaAnalysisResult? result = null;
-            try
-            {
-                result = await _analysis.AnalyzeAsync(contentForAnalysis, ct);
-            }
-            catch (InvalidDataException)
-            {
-                // Schema invalid → 422 per guidance
-                return UnprocessableEntity(new { message = "AI output failed schema validation" });
-            }
-
-            // Failure semantics: if ERROR, do not write analysis_json; write only run log
-            if (result != null)
-            {
-                var runLogJson = System.Text.Json.JsonSerializer.Serialize(result.RunLog);
-                if (string.Equals(result.RunLog.Status, "OK", StringComparison.OrdinalIgnoreCase))
-                {
-                    _db.SetAnalysisJson(interaction, result.Json);
-                    _db.SetRunLogJson(interaction, runLogJson);
-                }
-                else
-                {
-                    _db.SetRunLogJson(interaction, runLogJson);
-                }
-                await _db.SaveChangesAsync(ct);
-            }
-
-            // Enqueue background job (dev worker may re-run or be no-op) behind feature flag
-            var reprocessEnabled = _config.GetValue<bool>("EmmaAnalysis:BackgroundReprocessEnabled", true);
-            if (reprocessEnabled)
-            {
-                await _queue.QueueAsync(new AnalysisJob
-                {
-                    InteractionId = interaction.Id,
-                    InputText = contentForAnalysis
-                }, ct);
-            }
-
-            // Build response per guidance
-            var isOk = result != null && string.Equals(result.RunLog.Status, "OK", StringComparison.OrdinalIgnoreCase);
-            var runLogSummary = new
-            {
-                status = result?.RunLog.Status,
-                latencyMs = result?.RunLog.LatencyMs,
-                traceId = result?.RunLog.TraceId,
-                correlationId = result?.RunLog.CorrelationId,
-                timestamp = result?.RunLog.Timestamp
-            };
-            if (!isOk)
-            {
-                return CreatedAtAction(nameof(GetInteractions), new { contactId }, new { interactionId = interaction.Id, analysisPresent = false, reason = "AI_UNAVAILABLE", runLogSummary });
-            }
-            return CreatedAtAction(nameof(GetInteractions), new { contactId }, new { interactionId = interaction.Id, analysisPresent = true, runLogSummary });
+            
+            // Build simple response (analysis disabled in this repo)
+            sw.Stop();
+            _logger.LogInformation("{Endpoint} created interaction traceId={TraceId} orgId={OrgId} durationMs={Duration}", "POST /api/contacts/{id}/interactions", traceId, orgId, sw.ElapsedMilliseconds);
+            return CreatedAtAction(nameof(GetInteractions), new { contactId }, new { interactionId = interaction.Id, analysisPresent = false, traceId });
         }
 
         // GET /contacts/{id}/interactions
+        [Authorize(Policy = "VerifiedUser")]
         [HttpGet]
         public async Task<IActionResult> GetInteractions(Guid contactId, CancellationToken ct)
         {
-            var list = await _db.Set<Interaction>()
+            var sw = Stopwatch.StartNew();
+            var traceId = HttpContext.TraceIdentifier;
+            var orgIdClaim = User?.FindFirstValue("orgId");
+            if (string.IsNullOrWhiteSpace(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var orgId))
+            {
+                return ProblemFactory.Create(HttpContext, 400, "Missing org context", "Missing or invalid orgId claim.", ProblemFactory.ValidationError).ToResult();
+            }
+            var query = _db.Set<Interaction>().AsQueryable();
+            query = query.Where(i => i.OrganizationId == orgId);
+
+            var list = await query
                 .Where(i => i.ContactId == contactId)
                 .OrderByDescending(i => i.CreatedAt)
                 .ToListAsync(ct);
@@ -144,28 +144,22 @@ namespace Emma.Api.Controllers
             foreach (var i in list)
             {
                 string? summary = null;
-                var json = _db.GetAnalysisJson(i);
-                if (!string.IsNullOrWhiteSpace(json))
-                {
-                    try
-                    {
-                        var jo = Newtonsoft.Json.Linq.JObject.Parse(json);
-                        summary = (string?)jo.SelectToken("notes.summary");
-                        if (!string.IsNullOrEmpty(summary) && summary.Length > 240) summary = summary.Substring(0, 240) + "…";
-                    }
-                    catch { /* ignore parse issues */ }
-                }
+                // Analysis disabled in this repo; leave summary null
                 shaped.Add(new
                 {
                     id = i.Id,
-                    timestamp = i.CreatedAt,
+                    // Prefer event time when present; otherwise fallback to record creation time
+                    timestamp = i.StartedAt ?? i.CreatedAt,
                     type = i.Type,
                     subject = i.Subject,
                     content = i.Content,
                     analysisSummary = summary
                 });
             }
+            sw.Stop();
+            _logger.LogInformation("{Endpoint} fetched interactions traceId={TraceId} contactId={ContactId} durationMs={Duration}", "GET /api/contacts/{id}/interactions", traceId, contactId, sw.ElapsedMilliseconds);
             return Ok(shaped);
         }
     }
 }
+
