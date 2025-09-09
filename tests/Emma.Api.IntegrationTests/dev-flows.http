@@ -1,0 +1,23 @@
+### Mint token (auto-provision, generated ids)
+POST http://localhost:5000/api/auth/dev-token
+Content-Type: application/json
+
+{
+  "email": "dev-user@example.local",
+  "autoProvision": true
+}
+
+### Mint token (known ids)
+POST http://localhost:5000/api/auth/dev-token
+Content-Type: application/json
+
+{
+  "userId": "60e757d8-ae9a-4460-8b91-369a86f41a71",
+  "orgId": "da60e1ad-acc7-4b1d-91da-307d1b53c0ed",
+  "email": "testemail5@example.com",
+  "autoProvision": true
+}
+
+### Cleanup (replace with actual ids from response)
+DELETE http://localhost:5000/api/dev/user/{{userId}}
+DELETE http://localhost:5000/api/dev/org/{{orgId}}

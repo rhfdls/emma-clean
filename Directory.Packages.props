@@ -42,6 +42,7 @@
     
     <!-- Additional pins to satisfy NU1010 across all projects -->
     <PackageVersion Include="DotNetEnv" Version="3.1.0" />
+    <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.39.1" />

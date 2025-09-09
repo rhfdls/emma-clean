@@ -22,7 +22,7 @@ public class User : BaseEntity
     public string? ProfileImageUrl { get; set; }
     public string? TimeZone { get; set; }
     public string? Locale { get; set; }
-    public DateTime? LastLoginAt { get; set; }
+    public DateTimeOffset? LastLoginAt { get; set; }
     #endregion
 
     [Required]

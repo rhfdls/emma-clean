@@ -1,0 +1,39 @@
+name: Schema Guard
+on: [push, pull_request]
+jobs:
+  ef-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore -c Release
+      - name: Generate EF Target Schema (idempotent)
+        run: >
+          dotnet ef migrations script 0
+          --project src/Emma.Infrastructure/Emma.Infrastructure.csproj
+          --startup-project src/Emma.Api/Emma.Api.csproj
+          --context Emma.Infrastructure.Data.EmmaDbContext
+          --idempotent
+          --output artifacts/ef_target_schema.sql
+      - name: Upload EF Target Schema artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ef_target_schema.sql
+          path: artifacts/ef_target_schema.sql
+      - name: Bundle Migrations (optional)
+        run: >
+          dotnet ef migrations bundle
+          --project src/Emma.Infrastructure/Emma.Infrastructure.csproj
+          --startup-project src/Emma.Api/Emma.Api.csproj
+          --context Emma.Infrastructure.Data.EmmaDbContext
+          --output artifacts/ef_migrations_bundle
+      - name: Upload EF Migrations Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ef_migrations_bundle
+          path: artifacts/ef_migrations_bundle

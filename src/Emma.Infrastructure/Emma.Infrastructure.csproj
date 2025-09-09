@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -30,6 +30,7 @@
     </PackageReference>
     <!-- Npgsql EF Core provider aligned to EF Core 8.0.7 -->
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" />
   </ItemGroup>
 
   <ItemGroup>

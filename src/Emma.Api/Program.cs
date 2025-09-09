@@ -1,6 +1,19 @@
 using Emma.Api.Interfaces;
 using Emma.Api.Services;
 using Emma.Core.Interfaces;
+using Microsoft.ApplicationInsights.Extensibility;
+using Emma.Api.Config;
+using Emma.Api.Telemetry;
+using Emma.Core.Interfaces.ProceduralMemory;
+using Emma.Core.ProceduralMemory;
+using Emma.Core.Interfaces.Orchestration;
+using Emma.Core.Interfaces.Validation;
+using Emma.Core.Orchestration;
+using Emma.Core.Validation;
+using Emma.Core.AI;
+using Emma.Core.Context;
+using Emma.Infrastructure.Config;
+using Emma.Infrastructure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Emma.Api.Auth;
@@ -14,10 +27,13 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Emma.Api.Infrastructure;
 using Emma.Api.Infrastructure.Swagger;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 DotNetEnv.Env.Load("../../.env");
 
 var builder = WebApplication.CreateBuilder(args);
+// Increase EF command logging to surface SQL errors loudly (e.g., 42703)
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
 
 // Diagnostics: print Npgsql assembly version and path
 var npgsqlAsm = typeof(NpgsqlConnection).Assembly;
@@ -44,6 +60,10 @@ builder.Services.AddEmmaDatabase(builder.Configuration, isDevelopment: builder.E
 
 builder.Services.AddScoped<IOnboardingService, OnboardingService>();
 
+// Minimal health checks
+builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks().AddCheck<Emma.Api.Health.DbMigrationsHealthCheck>("db_migrations");
+
 // Azure OpenAI disabled in this repo to avoid dependency on preview SDK
 Console.WriteLine("[AzureOpenAI] Disabled (client not registered in this build)");
 
@@ -52,6 +72,36 @@ Console.WriteLine("[AzureOpenAI] Disabled (client not registered in this build)"
 // builder.Services.AddSingleton<IAnalysisQueue, AnalysisQueue>();
 // builder.Services.AddHostedService<AnalysisQueueWorker>();
 // builder.Services.AddScoped<IEmmaAnalysisService, EmmaAnalysisService>();
+
+// Phase 0: Feature flags (Procedural Memory) and telemetry enricher
+builder.Services.Configure<ProceduralMemoryOptions>(
+    builder.Configuration.GetSection("Features:ProceduralMemory"));
+builder.Services.Configure<CosmosOptions>(builder.Configuration.GetSection("Cosmos"));
+builder.Services.AddSingleton<ITelemetryInitializer, ReplayTelemetryEnricher>();
+
+// Phase 1: DI for Procedural Memory (behind feature flag). No behavior change when disabled.
+var pmoConfig = builder.Configuration.GetSection("Features:ProceduralMemory").Get<ProceduralMemoryOptions>() ?? new ProceduralMemoryOptions();
+if (pmoConfig.Enabled)
+{
+    // Cosmos-backed repositories and PMS
+    builder.Services.AddSingleton<ICosmosClientFactory, CosmosClientFactory>();
+    builder.Services.AddScoped<IProceduresRepository, ProceduresRepository>();
+    builder.Services.AddScoped<IProcedureTracesRepository, ProcedureTracesRepository>();
+    builder.Services.AddScoped<IProceduralMemoryService, CosmosProceduralMemoryService>();
+    builder.Services.AddScoped<IProcedureExecutor, NoopProcedureExecutor>();
+
+    // Planner + Retrieval via Azure AI Foundry (flag-gated)
+    builder.Services.AddScoped<Emma.Core.Interfaces.AI.IAIFoundryService, FoundryAIFoundryService>();
+    builder.Services.AddScoped<Emma.Core.Interfaces.Context.IContextRetrievalService, ContextRetrievalService>();
+    builder.Services.AddScoped<IAgentPlanner, FoundryAgentPlanner>();
+
+    // Real validator pipeline (flag-gated)
+    builder.Services.AddScoped<IValidatorPipeline, ValidatorPipeline>();
+    builder.Services.AddScoped<EmmaOrchestrator>();
+
+    // Ensure Cosmos containers exist for pilots
+    builder.Services.AddHostedService<CosmosBootstrapHostedService>();
+}
 
 // SPRINT2: AuthZ policies and email sender
 builder.Services.AddEmmaAuthorization();
@@ -117,6 +167,31 @@ builder.Services.AddSwaggerGen(options =>
 
     // Add global ProblemDetails examples for common error responses
     options.OperationFilter<ProblemDetailsResponsesOperationFilter>();
+
+    // Add Bearer JWT security so Swagger UI can authorize requests
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: Bearer eyJhbGciOi...",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 // Standardized problem details for errors
@@ -174,4 +249,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/live", new HealthCheckOptions { Predicate = _ => false });
+app.MapHealthChecks("/ready", new HealthCheckOptions { Predicate = r => r.Name == "db_migrations" });
+app.MapHealthChecks("/health");
 app.Run();

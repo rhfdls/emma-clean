@@ -76,6 +76,11 @@
               "version": "[3.1.0, )",
               "versionCentrallyManaged": true
             },
+            "Microsoft.ApplicationInsights.AspNetCore": {
+              "target": "Package",
+              "version": "[2.22.0, )",
+              "versionCentrallyManaged": true
+            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[8.0.10, )",
@@ -127,6 +132,7 @@
             "coverlet.collector": "6.0.2",
             "DotNetEnv": "3.1.0",
             "JsonSchema.Net": "6.0.0",
+            "Microsoft.ApplicationInsights.AspNetCore": "2.22.0",
             "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
             "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
             "Microsoft.AspNetCore.OpenApi": "8.0.10",
@@ -216,9 +222,6 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core\\Emma.Core.csproj": {
-                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core\\Emma.Core.csproj"
-              },
               "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {
                 "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj"
               }
@@ -251,6 +254,7 @@
             "coverlet.collector": "6.0.2",
             "DotNetEnv": "3.1.0",
             "JsonSchema.Net": "6.0.0",
+            "Microsoft.ApplicationInsights.AspNetCore": "2.22.0",
             "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
             "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
             "Microsoft.AspNetCore.OpenApi": "8.0.10",
@@ -337,6 +341,9 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
+              "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core.Interfaces\\Emma.Core.Interfaces.csproj": {
+                "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Core.Interfaces\\Emma.Core.Interfaces.csproj"
+              },
               "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {
                 "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj"
               }
@@ -361,6 +368,18 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
+            }
+          },
           "centralPackageVersions": {
             "Asp.Versioning.Mvc": "8.0.0",
             "Azure.AI.ContentSafety": "1.0.0",
@@ -369,6 +388,7 @@
             "coverlet.collector": "6.0.2",
             "DotNetEnv": "3.1.0",
             "JsonSchema.Net": "6.0.0",
+            "Microsoft.ApplicationInsights.AspNetCore": "2.22.0",
             "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
             "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
             "Microsoft.AspNetCore.OpenApi": "8.0.10",
@@ -539,6 +559,7 @@
             "coverlet.collector": "6.0.2",
             "DotNetEnv": "3.1.0",
             "JsonSchema.Net": "6.0.0",
+            "Microsoft.ApplicationInsights.AspNetCore": "2.22.0",
             "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
             "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
             "Microsoft.AspNetCore.OpenApi": "8.0.10",
@@ -656,6 +677,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.Azure.Cosmos": {
+              "target": "Package",
+              "version": "[3.39.1, )",
+              "versionCentrallyManaged": true
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.8, )",
@@ -744,6 +770,7 @@
             "coverlet.collector": "6.0.2",
             "DotNetEnv": "3.1.0",
             "JsonSchema.Net": "6.0.0",
+            "Microsoft.ApplicationInsights.AspNetCore": "2.22.0",
             "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
             "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
             "Microsoft.AspNetCore.OpenApi": "8.0.10",
@@ -870,6 +897,7 @@
             "coverlet.collector": "6.0.2",
             "DotNetEnv": "3.1.0",
             "JsonSchema.Net": "6.0.0",
+            "Microsoft.ApplicationInsights.AspNetCore": "2.22.0",
             "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
             "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
             "Microsoft.AspNetCore.OpenApi": "8.0.10",

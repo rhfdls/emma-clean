@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import PageContainer from "@/components/ui/PageContainer";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import { api } from "@/lib/api";
+import { apiGet } from "@/lib/api";
+import { toastProblem } from "@/lib/toast-problem";
+import { getOrgIdFromJwt } from "@/lib/jwt";
 
 interface ContactItem {
   id: string;
@@ -20,28 +22,42 @@ export default function ContactsIndexPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [orgId, setOrgId] = useState<string>("");
+  const [showNoOrgCard, setShowNoOrgCard] = useState(false);
 
   useEffect(() => {
-    // Try to decode orgId from dev token payload for convenience
-    const raw = typeof window !== "undefined" ? localStorage.getItem("emma_dev_token") : null;
-    if (!raw) return;
-    try {
-      const [, payloadB64] = raw.split(".");
-      const payload = JSON.parse(atob(payloadB64));
-      if (payload?.orgId) setOrgId(payload.orgId);
-    } catch {}
+    const id = getOrgIdFromJwt();
+    if (id) setOrgId(id);
+    else setShowNoOrgCard(true);
   }, []);
 
   useEffect(() => {
     async function load() {
-      if (!orgId) return;
+      if (!orgId) {
+        setLoading(false);
+        toastProblem({
+          title: "Missing org context",
+          status: 400,
+          type: "/problems/validation-error",
+          detail: "Save a dev token on /dev-token.",
+        } as any);
+        setShowNoOrgCard(true);
+        return;
+      }
       setLoading(true);
       setError(null);
       try {
-        const data = await api<ContactItem[]>(`/api/contact?orgId=${orgId}`, { method: "GET" });
-        setItems(data);
+        const data = await apiGet<ContactItem[]>(`/api/Contact?orgId=${orgId}`);
+        setItems(data || []);
       } catch (e: any) {
-        setError(e?.message || "Failed to load contacts");
+        setError("Failed to load contacts");
+        toastProblem(e);
+        try {
+          if (e && typeof e === "object") {
+            const { traceId, title, detail, status } = e as any;
+            // Helpful in dev to correlate with server logs
+            console.debug("Contacts load error", { traceId, title, detail, status });
+          }
+        } catch {}
       } finally {
         setLoading(false);
       }
@@ -61,7 +77,14 @@ export default function ContactsIndexPage() {
             <div className="text-sm text-gray-600">Org: {orgId || "(set via dev token)"}</div>
           </CardHeader>
           <CardContent>
-            {loading ? (
+            {showNoOrgCard ? (
+              <div className="rounded-md border p-4 bg-amber-50 text-amber-800 text-sm">
+                Missing org context. Save a dev token.
+                <div className="mt-3">
+                  <Link href="/dev-token" className="inline-flex items-center rounded-md bg-amber-700 px-3 py-1.5 text-white hover:bg-amber-800">Go to /dev-token</Link>
+                </div>
+              </div>
+            ) : loading ? (
               <p className="text-sm text-gray-600">Loading…</p>
             ) : error ? (
               <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700">{error}</div>

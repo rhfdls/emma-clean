@@ -2,7 +2,7 @@
 
 This document provides a concise, developer-friendly reference for EMMA API endpoints with authentication steps and example curl requests.
 
-- Base URL (local): http://localhost:5262
+- Base URL (local): <http://localhost:5262>
 - All routes below include their full path (prefix already applied in controllers).
 - Authentication: Most protected endpoints require a Bearer JWT with the VerifiedUser policy. In Development, mint one via the dev-token endpoint.
 
@@ -19,6 +19,7 @@ curl -s -X POST http://localhost:5262/api/auth/dev-token \
 ```
 
 Response:
+
 ```json
 {
   "token": "<JWT>",
@@ -39,11 +40,13 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:5262/api/Account/profile
 ---
 
 ## Account (`AccountController`)
+
 Route prefix: `api/Account`
 
 - GET /api/Account/profile
   - Purpose: Return current user profile/org. Anonymous allowed; if authed, uses identity.
   - curl:
+
     ```bash
     curl http://localhost:5262/api/Account/profile
     ```
@@ -52,6 +55,7 @@ Route prefix: `api/Account`
   - Purpose: Verify user via token (legacy; prefer /api/auth/verify-email).
   - Body: { "token": "..." }
   - curl:
+
     ```bash
     curl -X POST http://localhost:5262/api/Account/verify \
       -H "Content-Type: application/json" \
@@ -59,13 +63,15 @@ Route prefix: `api/Account`
     ```
 
 ## Agent (`AgentController`)
+
 Route prefix: `api/agent`
 
 - POST /api/agent/suggest-followup
   - Purpose: Dev-only stub that returns a suggestion payload.
   - Auth: Bearer (VerifiedUser), Development environment only.
-  - Body (optional): { "contactId": "<guid>", "context": "..." }
+  - Body (optional): { "contactId": "GUID", "context": "..." }
   - curl:
+
     ```bash
     curl -X POST http://localhost:5262/api/agent/suggest-followup \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
@@ -73,6 +79,7 @@ Route prefix: `api/agent`
     ```
 
 ## Contact (`ContactController`)
+
 Route prefix: `api/Contact`
 
 - POST /api/Contact
@@ -80,6 +87,7 @@ Route prefix: `api/Contact`
   - Auth: Bearer (VerifiedUser)
   - Body: ContactCreateDto (e.g., OrganizationId, FirstName, LastName, OwnerId, ...)
   - curl:
+
     ```bash
     curl -X POST http://localhost:5262/api/Contact \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
@@ -96,6 +104,7 @@ Route prefix: `api/Contact`
   - Auth: Bearer (VerifiedUser)
   - Org scoping: Requires `orgId` claim in JWT; returns 403 if contact's organization doesn't match claim; 400 if claim missing/invalid.
   - curl:
+
     ```bash
     curl http://localhost:5262/api/Contact/<contact-guid>
     ```
@@ -105,6 +114,7 @@ Route prefix: `api/Contact`
   - Auth: Bearer (VerifiedUser)
   - Org scoping: Query `orgId` must match `orgId` in JWT; 403 if mismatch; 400 if claim missing/invalid.
   - curl:
+
     ```bash
     curl "http://localhost:5262/api/Contact?orgId=<org-guid>"
     ```
@@ -112,8 +122,9 @@ Route prefix: `api/Contact`
 - PUT /api/Contact/{id}/assign
   - Purpose: Assign a contact to a user.
   - Auth: Bearer (VerifiedUser)
-  - Body: ContactAssignDto { "userId": "<guid>" }
+  - Body: ContactAssignDto { "userId": "GUID" }
   - curl:
+
     ```bash
     curl -X PUT http://localhost:5262/api/Contact/<contact-guid>/assign \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
@@ -121,6 +132,7 @@ Route prefix: `api/Contact`
     ```
 
 ## ContactCollaborator (`ContactCollaboratorController`)
+
 Route prefix: `api/contacts/{contactId}/collaborators`
 
 - NOTE: Endpoints are placeholders and return 501 (Not Implemented). `contactId` currently typed as int in controller.
@@ -129,13 +141,15 @@ Route prefix: `api/contacts/{contactId}/collaborators`
 - GET /api/contacts/{contactId}/collaborators
 
 ## Dev Auth (`DevAuthController`)
+
 Route prefix: `api/auth`
 
 - POST /api/auth/dev-token
   - Purpose: Issue a dev JWT.
   - Auth: Anonymous; Development only.
-  - Body (optional): { "orgId": "<guid>", "userId": "<guid>", "email": "..." }
+  - Body (optional): { "orgId": "GUID", "userId": "GUID", "email": "..." }
   - curl:
+
     ```bash
     curl -X POST http://localhost:5262/api/auth/dev-token \
       -H "Content-Type: application/json" \
@@ -143,41 +157,62 @@ Route prefix: `api/auth`
     ```
 
 ## Enum (`EnumController`)
+
 Route prefix: `api/enums`
 
 - GET /api/enums/{type}
   - Purpose: Return dynamic enum values by type. Cosmos-backed with JSON fallback.
   - curl:
+
     ```bash
     curl http://localhost:5262/api/enums/PlanType
     ```
 
 ## Health (`HealthCheckController`)
+
 Route prefix: `api/health`
 
 - GET /api/health
   - Liveness check.
-  - curl: `curl http://localhost:5262/api/health`
+  - curl:
+
+    ```bash
+    curl http://localhost:5262/api/health
+    ```
 
 - GET /api/health/cosmos
   - Check Cosmos DB connectivity.
-  - curl: `curl http://localhost:5262/api/health/cosmos`
+  - curl:
+
+    ```bash
+    curl http://localhost:5262/api/health/cosmos
+    ```
 
 - GET /api/health/postgres
   - Check PostgreSQL connectivity.
-  - curl: `curl http://localhost:5262/api/health/postgres`
+  - curl:
+
+    ```bash
+    curl http://localhost:5262/api/health/postgres
+    ```
 
 - GET /api/health/cosmos/item
   - Read a dev sample item.
-  - curl: `curl http://localhost:5262/api/health/cosmos/item`
+  - curl:
+
+    ```bash
+    curl http://localhost:5262/api/health/cosmos/item
+    ```
 
 ## Interaction (`InteractionController`)
+
 Route prefix: `api/contacts/{contactId}/interactions`
 
 - POST /api/contacts/{contactId}/interactions
   - Purpose: Log a contact interaction. AI analysis currently disabled.
   - Auth: Bearer (VerifiedUser)
   - Body example:
+
     ```json
     {
       "type": "email",
@@ -188,7 +223,9 @@ Route prefix: `api/contacts/{contactId}/interactions`
       "occurredAt": "2025-08-20T13:00:00Z"
     }
     ```
+  
   - curl:
+
     ```bash
     curl -X POST http://localhost:5262/api/contacts/<contact-guid>/interactions \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
@@ -200,18 +237,21 @@ Route prefix: `api/contacts/{contactId}/interactions`
   - Auth: Bearer (VerifiedUser)
   - Org scoping: Requires `orgId` claim in JWT; results filtered by it. 400 if claim missing/invalid.
   - curl:
+
     ```bash
     curl -H "Authorization: Bearer $TOKEN" \
       http://localhost:5262/api/contacts/<contact-guid>/interactions
     ```
 
 ## Onboarding (`OnboardingController`)
+
 Route prefix: `api/Onboarding`
 
 - POST /api/Onboarding/register
   - Purpose: Register an organization and initial user; returns verification token (dev stub).
   - Auth: Anonymous
   - Body example:
+  
     ```json
     {
       "organizationName": "Acme Realty",
@@ -221,7 +261,9 @@ Route prefix: `api/Onboarding`
       "seatCount": 5
     }
     ```
+  
   - curl:
+  
     ```bash
     curl -X POST http://localhost:5262/api/Onboarding/register \
       -H "Content-Type: application/json" \
@@ -229,6 +271,7 @@ Route prefix: `api/Onboarding`
     ```
 
 ## Organization (`OrganizationController`)
+
 Route prefix: `api/Organization`
 
 - POST /api/Organization
@@ -236,6 +279,7 @@ Route prefix: `api/Organization`
   - Auth: Bearer (VerifiedUser)
   - Body: OrganizationCreateDto
   - curl:
+
     ```bash
     curl -X POST http://localhost:5262/api/Organization \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
@@ -247,6 +291,7 @@ Route prefix: `api/Organization`
   - Auth: Bearer (VerifiedUser)
   - Query: page (default 1), size (default 20)
   - curl:
+
     ```bash
     curl -H "Authorization: Bearer $TOKEN" \
       "http://localhost:5262/api/Organization?page=1&size=20"
@@ -256,18 +301,20 @@ Route prefix: `api/Organization`
   - Purpose: Get organization by id.
   - Auth: Bearer (VerifiedUser)
   - curl:
+
     ```bash
     curl -H "Authorization: Bearer $TOKEN" \
       http://localhost:5262/api/Organization/<org-guid>
     ```
 
-Invitations
+### Invitations
 
 - POST /api/Organization/{orgId}/invitations
   - Purpose: Create an invitation for an email to join the org.
   - Auth: Bearer with OrgOwnerOrAdmin policy.
   - Body: CreateInvitationDto { email, role?, expiresInDays?, invitedByUserId? }
   - curl:
+
     ```bash
     curl -X POST http://localhost:5262/api/Organization/<org-guid>/invitations \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
@@ -278,6 +325,7 @@ Invitations
   - Purpose: Get an invitation by token.
   - Auth: Public
   - curl:
+
     ```bash
     curl http://localhost:5262/api/Organization/invitations/<token>
     ```
@@ -287,6 +335,7 @@ Invitations
   - Auth: Public (token-gated)
   - Responses: 204 No Content on success; ProblemDetails for revoked/expired/not found.
   - curl:
+
     ```bash
     curl -X POST http://localhost:5262/api/Organization/invitations/<token>/accept
     ```
@@ -297,6 +346,7 @@ Invitations
   - Body: RegisterFromInvitationDto { firstName?, lastName?/fullName?, password? }
   - Responses: 204 No Content on success; ProblemDetails for revoked/expired/not found/validation.
   - curl:
+
     ```bash
     curl -X POST http://localhost:5262/api/Organization/invitations/<token>/register \
       -H "Content-Type: application/json" \
@@ -304,6 +354,7 @@ Invitations
     ```
 
 ## Verification (`VerificationController`)
+
 Route prefix: `api/auth`
 
 - POST /api/auth/verify-email
@@ -311,6 +362,7 @@ Route prefix: `api/auth`
   - Auth: Anonymous
   - Body: { "token": "..." }
   - curl:
+
     ```bash
     curl -X POST http://localhost:5262/api/auth/verify-email \
       -H "Content-Type: application/json" \
@@ -320,6 +372,7 @@ Route prefix: `api/auth`
 ---
 
 ## Notes
+
 - JWT claims used by policies/queries: `orgId` (GUID), `sub`/`nameidentifier` (user id).
 - Some endpoints (e.g., collaborators) are placeholders and return 501.
 - Health endpoints are intended for development diagnostics.

@@ -1264,6 +1264,14 @@ namespace Emma.Infrastructure.Migrations
                     b.Property<Dictionary<string, object>>("AiMetadata")
                         .HasColumnType("jsonb");
 
+                    b.Property<JsonDocument>("AnalysisJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("analysis_json");
+
+                    b.Property<JsonDocument>("AnalysisRunLogJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("analysis_run_log_json");
+
                     b.Property<Guid?>("AssignedToAgentId")
                         .HasColumnType("uuid");
 
@@ -2422,7 +2430,7 @@ namespace Emma.Infrastructure.Migrations
                     b.Property<bool>("IsVerified")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime?>("LastLoginAt")
+                    b.Property<DateTimeOffset?>("LastLoginAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastName")

@@ -4,6 +4,7 @@ import "./globals.css";
 import { BillingProvider } from "@/context/BillingContext";
 import { SessionProvider } from "@/context/SessionContext";
 import { OrgProvider } from "@/context/OrgContext";
+import ClientBoot from "@/components/ClientBoot";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
         <SessionProvider>
           <OrgProvider>
             <BillingProvider>
+              <ClientBoot />
               {children}
             </BillingProvider>
           </OrgProvider>

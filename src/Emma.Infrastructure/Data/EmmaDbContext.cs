@@ -459,6 +459,13 @@ namespace Emma.Infrastructure.Data
                 entity.Property(u => u.FubApiKey).HasMaxLength(255);
                 entity.Property(u => u.Role).HasMaxLength(50);
                 entity.Property(u => u.IsActive).HasDefaultValue(true);
+                // Explicit column types to avoid drift
+                entity.Property(u => u.LastLoginAt).HasColumnType("timestamp with time zone");
+                entity.Property(u => u.Locale).HasColumnType("text");
+                entity.Property(u => u.TimeZone).HasColumnType("text");
+                entity.Property(u => u.ProfileImageUrl).HasColumnType("text");
+                // Do not map Roles (List<string>) to a column
+                entity.Ignore(u => u.Roles);
                 
                 // Configure enums or complex types if any
                 

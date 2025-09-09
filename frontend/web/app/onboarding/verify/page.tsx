@@ -1,43 +1,49 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { api } from "@/lib/api";
-import { useSession } from "@/context/SessionContext";
-import PageContainer from "@/components/ui/PageContainer";
-import { Card, CardContent } from "@/components/ui/Card";
+import { verifyEmail } from "@/lib/onboardingApi";
+import { toastProblem } from "@/lib/toast-problem";
+import Link from "next/link";
 
 export default function VerifyPage() {
   const sp = useSearchParams();
+  const token = sp.get("token") || "";
   const router = useRouter();
-  const token = sp.get("token");
-  const { session, setSession } = useSession();
-  const [status, setStatus] = useState<"pending"|"ok"|"error">("pending");
-  const [message, setMessage] = useState<string>("Verifying…");
+  const [status, setStatus] = useState<"checking" | "ok" | "err">("checking");
 
   useEffect(() => {
+    let on = true;
     (async () => {
-      if (!token) { setStatus("error"); setMessage("Missing token"); return; }
+      if (!token) { setStatus("err"); return; }
       try {
-        await api("/api/auth/verify-email", { method: "POST", json: { token } });
-        setSession({ ...session, isVerified: true });
-        setStatus("ok"); setMessage("Email verified! Redirecting…");
-        setTimeout(() => router.push("/contacts/new"), 800);
+        await verifyEmail(token);
+        if (on) setStatus("ok");
+        // Optionally redirect after a short delay
+        setTimeout(() => router.push("/contacts"), 800);
       } catch (e: any) {
-        setStatus("error"); setMessage(e.message ?? "Verification failed");
+        toastProblem(e);
+        if (on) setStatus("err");
       }
     })();
+    return () => { on = false; };
   }, [token, router]);
 
   return (
-    <main className="min-h-dvh bg-neutral-50">
-      <PageContainer>
-        <Card>
-          <CardContent className="p-6">
-            <h1 className="text-2xl font-bold text-gray-900">{status === "pending" ? "Verifying…" : "Verification"}</h1>
-            <p className={status === "error" ? "text-red-600" : "text-gray-800"}>{message}</p>
-          </CardContent>
-        </Card>
-      </PageContainer>
-    </main>
+    <div className="max-w-xl space-y-4">
+      <h1 className="text-2xl font-semibold">Email verification</h1>
+      {status === "checking" && <div className="rounded-lg border p-3 animate-pulse">Verifying…</div>}
+      {status === "ok" && (
+        <div className="rounded-lg border p-4 bg-white">
+          <p className="mb-2">Your email is verified. Redirecting…</p>
+          <Link className="underline" href="/contacts">Go to contacts</Link>
+        </div>
+      )}
+      {status === "err" && (
+        <div className="rounded-lg border p-4 bg-white">
+          <p className="mb-2">Verification failed. Check the link or request a new one.</p>
+          <Link className="underline" href="/onboarding/register">Back to registration</Link>
+        </div>
+      )}
+    </div>
   );
 }

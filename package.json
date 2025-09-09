@@ -1,14 +1,16 @@
 {
-    "name": "emma-monorepo",
-    "private": true,
-    "packageManager": "pnpm@10.12.4",
-    "workspaces": [
-      "frontend/*"
-    ],
-    "scripts": {
-      "dev:web": "pnpm --filter @emma/web dev",
-      "build:web": "pnpm --filter @emma/web build",
-      "start:web": "pnpm --filter @emma/web start"
-    }
+  "name": "emma-monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.12.4",
+  "workspaces": [
+    "frontend/*"
+  ],
+  "scripts": {
+    "dev:web": "pnpm --filter @emma/web dev",
+    "build:web": "pnpm --filter @emma/web build",
+    "start:web": "pnpm --filter @emma/web start"
+  },
+  "dependencies": {
+    "sonner": "^1.7.4"
   }
-  
+}

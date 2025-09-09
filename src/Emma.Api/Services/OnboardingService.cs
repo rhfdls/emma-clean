@@ -5,6 +5,7 @@ using Emma.Infrastructure.Data;
 using Emma.Models.Models; // SPRINT1_ENUM_FIX
 using Emma.Api.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Emma.Api.Services
 {

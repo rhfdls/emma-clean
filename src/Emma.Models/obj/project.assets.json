@@ -672,6 +672,7 @@
           "coverlet.collector": "6.0.2",
           "DotNetEnv": "3.1.0",
           "JsonSchema.Net": "6.0.0",
+          "Microsoft.ApplicationInsights.AspNetCore": "2.22.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
           "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
           "Microsoft.AspNetCore.OpenApi": "8.0.10",

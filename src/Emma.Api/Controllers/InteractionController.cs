@@ -8,6 +8,9 @@ using System.Diagnostics;
 using System.Security.Claims;
 using Emma.Api.Infrastructure;
 using Microsoft.AspNetCore.Http;
+using Emma.Api.Config;
+using Emma.Core.Orchestration;
+using Emma.Core.Interfaces.Orchestration;
 
 namespace Emma.Api.Controllers
 {
@@ -18,13 +21,15 @@ namespace Emma.Api.Controllers
         private readonly EmmaDbContext _db;
         private readonly IConfiguration _config;
         private readonly ILogger<InteractionController> _logger;
+        private readonly IServiceProvider _sp;
         private const int MaxContentLength = 8000; // safety rail; large bodies should be moved to blob
 
-        public InteractionController(EmmaDbContext db, IConfiguration config, ILogger<InteractionController> logger)
+        public InteractionController(EmmaDbContext db, IConfiguration config, ILogger<InteractionController> logger, IServiceProvider sp)
         {
             _db = db;
             _config = config;
             _logger = logger;
+            _sp = sp;
         }
 
         public class CreateInteractionRequest
@@ -37,6 +42,13 @@ namespace Emma.Api.Controllers
             public DateTime? OccurredAt { get; set; }
             public string? PrivacyLevel { get; set; }
             public List<string>? Tags { get; set; }
+            public InteractionMeta? Meta { get; set; }
+        }
+
+        public class InteractionMeta
+        {
+            public string? ActionType { get; set; }
+            public string? Channel { get; set; }
         }
 
         // POST /contacts/{id}/interactions
@@ -113,6 +125,62 @@ namespace Emma.Api.Controllers
             _db.Set<Interaction>().Add(interaction);
             await _db.SaveChangesAsync(ct);
             
+            // Orchestrator seam (flagged): attempt replay -> plan -> validate -> execute (all no-op for now)
+            var pmo = _config.GetSection("Features:ProceduralMemory").Get<ProceduralMemoryOptions>() ?? new ProceduralMemoryOptions();
+            if (pmo.Enabled)
+            {
+                try
+                {
+                    var orch = _sp.GetService(typeof(EmmaOrchestrator)) as EmmaOrchestrator;
+                    if (orch is not null)
+                    {
+                        // SPRINT2: Phase0 — derive industry from Organization when enabled
+                        string industry = "general";
+                        if (pmo.UseIndustry)
+                        {
+                            var org = await _db.Set<Organization>().AsNoTracking().FirstOrDefaultAsync(o => o.Id == orgId, ct);
+                            if (!string.IsNullOrWhiteSpace(org?.IndustryCode))
+                            {
+                                industry = org!.IndustryCode!;
+                            }
+                            else
+                            {
+                                _logger.LogWarning("[SPRINT2:Phase0] Organization {OrgId} missing IndustryCode; defaulting industry=general", orgId);
+                                industry = "general";
+                            }
+                        }
+                        var req = new AgentRequest(
+                            TenantId: interaction.TenantId,
+                            OrganizationId: interaction.OrganizationId,
+                            UserId: userId == Guid.Empty ? null : userId,
+                            ActionType: string.IsNullOrWhiteSpace(body.Meta?.ActionType) ? "log-interaction" : body.Meta!.ActionType!,
+                            Channel: string.IsNullOrWhiteSpace(body.Meta?.Channel) ? (interaction.Type ?? "other") : body.Meta!.Channel!,
+                            Industry: industry, // SPRINT2: Phase0
+                            RiskBand: "low",
+                            Params: new Dictionary<string, object>
+                            {
+                                ["contactId"] = contactId,
+                                ["interactionId"] = interaction.Id,
+                                ["direction"] = interaction.Direction ?? "inbound",
+                                ["privacyLevel"] = interaction.PrivacyLevel,
+                                ["tags"] = body.Tags ?? new List<string>(),
+                                ["occurredAt"] = interaction.StartedAt ?? DateTime.UtcNow,
+                                ["channel"] = string.IsNullOrWhiteSpace(body.Meta?.Channel) ? (interaction.Type ?? "other") : body.Meta!.Channel!
+                            },
+                            UserOverrides: null);
+                        _ = await orch.HandleAsync(req, ct);
+                    }
+                    else
+                    {
+                        _logger.LogDebug("EmmaOrchestrator not resolved; skipping orchestrator path.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Orchestrator path failed; continuing without impact to API result.");
+                }
+            }
+
             // Build simple response (analysis disabled in this repo)
             sw.Stop();
             _logger.LogInformation("{Endpoint} created interaction traceId={TraceId} orgId={OrgId} durationMs={Duration}", "POST /api/contacts/{id}/interactions", traceId, orgId, sw.ElapsedMilliseconds);

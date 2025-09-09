@@ -1,5 +1,16 @@
 export const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
+// RFC7807 ProblemDetails shape (extended friendly typing)
+export type Problem = {
+  type?: string;
+  title: string;
+  status: number;
+  detail?: string;
+  instance?: string;
+  traceId?: string;
+  [k: string]: unknown;
+};
+
 const TOKEN_KEY = "emma_dev_token";
 
 export function setDevToken(token: string | null) {
@@ -16,6 +27,15 @@ export function getDevToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+function getJwtToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return localStorage.getItem("jwt");
+  } catch {
+    return null;
+  }
+}
+
 export async function api<T = any>(
   path: string,
   init: RequestInit & { json?: any } = {}
@@ -25,7 +45,7 @@ export async function api<T = any>(
   const url = `${API_URL}${path}`;
   let res: Response;
   try {
-    const token = getDevToken();
+    const token = getDevToken() || getJwtToken();
     res = await fetch(url, {
       ...rest,
       headers: {
@@ -38,16 +58,36 @@ export async function api<T = any>(
       cache: "no-store",
     });
   } catch (err: any) {
-    // Surface network issues clearly (CORS, DNS, refused connection, etc.)
     const msg = err?.message || "Failed to fetch";
-    throw new Error(`Network error calling ${url}: ${msg}`);
+    const problem: Problem = { title: "Network error", status: 0, detail: `Network error calling ${url}: ${msg}` };
+    throw problem;
   }
+
   if (!res.ok) {
-    const msg = await res.text().catch(() => res.statusText);
-    const error: any = new Error(msg || `HTTP ${res.status}`);
-    (error.status = res.status);
-    throw error;
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/problem+json")) {
+      const problem = (await res.json()) as Problem;
+      // Ensure status filled
+      if (typeof problem.status !== "number") problem.status = res.status;
+      throw problem;
+    }
+    // Fallback non-problem error
+    const text = await res.text().catch(() => res.statusText);
+    const fallback: Problem = { title: text || "Unexpected error", status: res.status };
+    throw fallback;
   }
+
   if (res.status === 204) return undefined as T;
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) return undefined as T;
   return (await res.json()) as T;
 }
+
+export const apiGet = async <T = any>(path: string, init: RequestInit = {}) =>
+  api<T>(path, { ...init, method: "GET" });
+
+export const apiPost = async <T = any>(path: string, body?: unknown, init: RequestInit = {}) =>
+  api<T>(path, { ...init, method: "POST", json: body });
+
+export const apiPut = async <T = any>(path: string, body?: unknown, init: RequestInit = {}) =>
+  api<T>(path, { ...init, method: "PUT", json: body });
