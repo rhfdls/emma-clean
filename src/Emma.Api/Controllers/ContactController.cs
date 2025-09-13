@@ -143,8 +143,17 @@ namespace Emma.Api.Controllers
             }
         }
 
-        // GET /contacts/{id}
+        /// <summary>Get a single contact by id within the caller's organization.</summary>
+        /// <remarks>
+        /// Returns 404 if the contact does not exist or does not belong to the caller's organization (tenant scoping).
+        /// </remarks>
+        /// <response code="200">Contact found.</response>
+        /// <response code="404">Not found within caller's org.</response>
+        /// <response code="400">Missing org context.</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Emma.Api.Dtos.ContactReadDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetContactById(Guid id, [FromServices] IContactRepository repo)
         {
             var orgId = GetOrgIdFromClaims();
@@ -184,18 +193,21 @@ namespace Emma.Api.Controllers
             return Ok(dto);
         }
 
-        // GET /contacts?orgId=x
+        /// <summary>List contacts for the caller's organization.</summary>
+        /// <remarks>
+        /// Tenant scoping is derived from the orgId claim. Any client-provided orgId is ignored.
+        /// </remarks>
+        /// <response code="200">List of contacts scoped to the caller's organization.</response>
+        /// <response code="400">Missing org context.</response>
         [HttpGet]
-        public async Task<IActionResult> GetContactsByOrg([FromQuery] Guid orgId, [FromServices] IContactRepository repo)
+        [ProducesResponseType(typeof(IEnumerable<Emma.Api.Dtos.ContactReadDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetContactsByOrg([FromServices] IContactRepository repo)
         {
-            if (orgId == Guid.Empty)
-                return Problem(statusCode: 400, title: "Validation failed", detail: "orgId is required.");
             var claimOrgId = GetOrgIdFromClaims();
             if (claimOrgId is null)
                 return Problem(statusCode: 400, title: "Missing org context", detail: "Missing or invalid orgId claim.");
-            if (claimOrgId.Value != orgId)
-                return Problem(statusCode: 403, title: "Forbidden", detail: "Query orgId does not match orgId claim.");
-            var contacts = await repo.FindAsync(c => c.OrganizationId == orgId);
+            var contacts = await repo.FindAsync(c => c.OrganizationId == claimOrgId.Value);
             var dtos = contacts.Select(contact => new Dtos.ContactReadDto
             {
                 Id = contact.Id,
