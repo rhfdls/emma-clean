@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Gather PR metadata
         id: meta
@@ -37,9 +39,11 @@ jobs:
       - name: Detect migration files
         id: detect
         run: |
-          # List changed files
-          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
-          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD > changed.txt
+          # List changed files using base/head SHAs to avoid shallow clone issues
+          BASE_SHA='${{ github.event.pull_request.base.sha }}'
+          HEAD_SHA='${{ github.sha }}'
+          git fetch --no-tags --prune --depth=2 origin "$BASE_SHA" "$HEAD_SHA"
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" > changed.txt
 
           # Detect EF Core migrations (exclude ModelSnapshot so docs-only updates don't trigger)
           grep -E '^src/.+/Migrations/.+\.cs$' changed.txt | grep -v 'ModelSnapshot\.cs' || true > migrations.txt
@@ -115,12 +119,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Detect enum reference changes
         id: detect_enum
         run: |
-          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
-          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | \
+          BASE_SHA='${{ github.event.pull_request.base.sha }}'
+          HEAD_SHA='${{ github.sha }}'
+          git fetch --no-tags --prune --depth=2 origin "$BASE_SHA" "$HEAD_SHA"
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" | \
             grep -E '^docs/reference/ENUMS-REFERENCE\.md$' || true > enum_changes.txt
           COUNT=$(wc -l < enum_changes.txt | tr -d '[:space:]')
           echo "enum_changed=${COUNT}" >> $GITHUB_OUTPUT
