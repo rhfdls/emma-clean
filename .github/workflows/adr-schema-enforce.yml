@@ -58,15 +58,11 @@ jobs:
       - name: Check for ADR token or link
         id: adr
         run: |
-          BODY="${{ steps.meta.outputs.body }}"
-          TITLE="${{ steps.meta.outputs.title }}"
           ADR_TOKEN_REGEX='ADR-[0-9]{4}'
           ADR_LINK_REGEX='docs/adr/[0-9]{4}-[A-Za-z0-9._-]+\.md'
-
-          HAS_TOKEN=$(printf "%s\n%s" "$TITLE" "$BODY" | grep -Eo "$ADR_TOKEN_REGEX" || true)
-          HAS_LINK=$(printf "%s\n%s" "$TITLE" "$BODY" | grep -Eo "$ADR_LINK_REGEX" || true)
-
-          if [ -n "$HAS_TOKEN" ] || [ -n "$HAS_LINK" ]; then
+          TMP=pr_text.txt
+          printf "%s\n%s\n" "${{ steps.meta.outputs.title }}" "${{ steps.meta.outputs.body }}" > "$TMP"
+          if grep -Eiq "$ADR_TOKEN_REGEX" "$TMP" || grep -Eiq "$ADR_LINK_REGEX" "$TMP"; then
             echo "adr_present=true" >> $GITHUB_OUTPUT
           else
             echo "adr_present=false" >> $GITHUB_OUTPUT
@@ -138,13 +134,13 @@ jobs:
       - name: Check for ADR token or link (enums)
         if: steps.detect_enum.outputs.enum_changed != '0'
         run: |
-          BODY="${{ github.event.pull_request.body }}"
-          TITLE="${{ github.event.pull_request.title }}"
           ADR_TOKEN_REGEX='ADR-[0-9]{4}'
           ADR_LINK_REGEX='docs/adr/[0-9]{4}-[A-Za-z0-9._-]+\.md'
-          HAS_TOKEN=$(printf "%s\n%s" "$TITLE" "$BODY" | grep -Eo "$ADR_TOKEN_REGEX" || true)
-          HAS_LINK=$(printf "%s\n%s" "$TITLE" "$BODY" | grep -Eo "$ADR_LINK_REGEX" || true)
-          if [ -z "$HAS_TOKEN" ] && [ -z "$HAS_LINK" ]; then
+          TMP=pr_text_enum.txt
+          printf "%s\n%s\n" "${{ steps.meta.outputs.title }}" "${{ steps.meta.outputs.body }}" > "$TMP"
+          if grep -Eiq "$ADR_TOKEN_REGEX" "$TMP" || grep -Eiq "$ADR_LINK_REGEX" "$TMP"; then
+            echo "adr_present=true" >> $GITHUB_OUTPUT
+          else
             echo "Enum changes detected without ADR reference" >&2
             exit 1
           fi
