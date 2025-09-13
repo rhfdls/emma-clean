@@ -137,7 +137,7 @@ jobs:
           ADR_TOKEN_REGEX='ADR-[0-9]{4}'
           ADR_LINK_REGEX='docs/adr/[0-9]{4}-[A-Za-z0-9._-]+\.md'
           TMP=pr_text_enum.txt
-          printf "%s\n%s\n" "${{ steps.meta.outputs.title }}" "${{ steps.meta.outputs.body }}" > "$TMP"
+          printf "%s\n%s\n" "${{ github.event.pull_request.title }}" "${{ github.event.pull_request.body }}" > "$TMP"
           if grep -Eiq "$ADR_TOKEN_REGEX" "$TMP" || grep -Eiq "$ADR_LINK_REGEX" "$TMP"; then
             echo "adr_present=true" >> $GITHUB_OUTPUT
           else
