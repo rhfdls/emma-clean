@@ -1,0 +1,160 @@
+name: ADR Schema Enforcement
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    paths:
+      - '**/*.cs'
+      - 'docs/adr/**'
+      - '.github/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Gather PR metadata
+        id: meta
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const base = pr.base.ref;
+            const head = pr.head.sha;
+            const title = pr.title || "";
+            const body  = pr.body  || "";
+            core.setOutput('base', base);
+            core.setOutput('title', title);
+            core.setOutput('body', body);
+
+      - name: Detect migration files
+        id: detect
+        run: |
+          # List changed files
+          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD > changed.txt
+
+          # Detect EF Core migrations (exclude ModelSnapshot so docs-only updates don't trigger)
+          grep -E '^src/.+/Migrations/.+\.cs$' changed.txt | grep -v 'ModelSnapshot\.cs' || true > migrations.txt
+          MIG_COUNT=$(wc -l < migrations.txt | tr -d '[:space:]')
+          echo "migrations_count=${MIG_COUNT}" >> $GITHUB_OUTPUT
+
+          echo "Changed files:"
+          cat changed.txt || true
+          echo "Detected migrations:"
+          cat migrations.txt || true
+
+      - name: Check for ADR token or link
+        id: adr
+        run: |
+          BODY="${{ steps.meta.outputs.body }}"
+          TITLE="${{ steps.meta.outputs.title }}"
+          ADR_TOKEN_REGEX='ADR-[0-9]{4}'
+          ADR_LINK_REGEX='docs/adr/[0-9]{4}-[A-Za-z0-9._-]+\.md'
+
+          HAS_TOKEN=$(printf "%s\n%s" "$TITLE" "$BODY" | grep -Eo "$ADR_TOKEN_REGEX" || true)
+          HAS_LINK=$(printf "%s\n%s" "$TITLE" "$BODY" | grep -Eo "$ADR_LINK_REGEX" || true)
+
+          if [ -n "$HAS_TOKEN" ] || [ -n "$HAS_LINK" ]; then
+            echo "adr_present=true" >> $GITHUB_OUTPUT
+          else
+            echo "adr_present=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add schema-change label when migrations detected
+        if: steps.detect.outputs.migrations_count != '0'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: schema-change
+
+      - name: Post guidance comment if ADR missing
+        if: steps.detect.outputs.migrations_count != '0' && steps.adr.outputs.adr_present == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const msg = `
+            ⚠️ **Schema change detected** (EF Core migrations) but no ADR reference found.
+
+            Please update this PR:
+            - Add an ADR token like \`ADR-0012\` **or**
+            - Link the ADR file, e.g. \`docs/adr/0012-schema-change-policy.md\`
+
+            **Checklist**
+            - [ ] Link ADR in PR description
+            - [ ] Update \`docs/architecture/AppDbContextSchema.md\`
+            - [ ] Update \`docs/architecture/EMMA-DATA-DICTIONARY.md\`
+            `;
+            github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body: msg
+            });
+
+      - name: Fail if migrations without ADR
+        if: steps.detect.outputs.migrations_count != '0' && steps.adr.outputs.adr_present == 'false'
+        run: |
+          echo "Migrations present but ADR missing. Failing check."
+          exit 1
+
+      - name: Job Summary
+        run: |
+          echo "### ADR Schema Enforcement" >> $GITHUB_STEP_SUMMARY
+          echo "- Base branch: \`${{ steps.meta.outputs.base }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Migrations detected: \`${{ steps.detect.outputs.migrations_count }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- ADR present: \`${{ steps.adr.outputs.adr_present }}\`" >> $GITHUB_STEP_SUMMARY
+
+  enum_enforce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect enum reference changes
+        id: detect_enum
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | \
+            grep -E '^docs/reference/ENUMS-REFERENCE\.md$' || true > enum_changes.txt
+          COUNT=$(wc -l < enum_changes.txt | tr -d '[:space:]')
+          echo "enum_changed=${COUNT}" >> $GITHUB_OUTPUT
+          echo "Enum changes:"
+          cat enum_changes.txt || true
+
+      - name: Check for ADR token or link (enums)
+        if: steps.detect_enum.outputs.enum_changed != '0'
+        run: |
+          BODY="${{ github.event.pull_request.body }}"
+          TITLE="${{ github.event.pull_request.title }}"
+          ADR_TOKEN_REGEX='ADR-[0-9]{4}'
+          ADR_LINK_REGEX='docs/adr/[0-9]{4}-[A-Za-z0-9._-]+\.md'
+          HAS_TOKEN=$(printf "%s\n%s" "$TITLE" "$BODY" | grep -Eo "$ADR_TOKEN_REGEX" || true)
+          HAS_LINK=$(printf "%s\n%s" "$TITLE" "$BODY" | grep -Eo "$ADR_LINK_REGEX" || true)
+          if [ -z "$HAS_TOKEN" ] && [ -z "$HAS_LINK" ]; then
+            echo "Enum changes detected without ADR reference" >&2
+            exit 1
+          fi
+
+      - name: Post guidance comment (enums)
+        if: steps.detect_enum.outputs.enum_changed != '0' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const msg = `
+            ⚠️ **Enum reference change detected** but no ADR reference found.
+
+            Please update this PR:
+            - Add an ADR token like \`ADR-0013\` **or**
+            - Link the ADR file, e.g. \`docs/adr/0013-enum-update.md\`
+            `;
+            github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body: msg
+            });
