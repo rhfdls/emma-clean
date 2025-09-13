@@ -28,12 +28,60 @@ using Microsoft.AspNetCore.Mvc;
 using Emma.Api.Infrastructure;
 using Emma.Api.Infrastructure.Swagger;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using System.IO;
 
-DotNetEnv.Env.Load("../../.env");
 
 var builder = WebApplication.CreateBuilder(args);
 // Increase EF command logging to surface SQL errors loudly (e.g., 42703)
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+
+// Sprint 0: Load .env only in Development and only if present, then log configuration source hints
+if (builder.Environment.IsDevelopment())
+{
+    // Resolve .env relative to content root if possible
+    var candidatePaths = new[]
+    {
+        Path.Combine(builder.Environment.ContentRootPath, ".env"),
+        Path.Combine(AppContext.BaseDirectory, "../../.env")
+    };
+
+    string? loadedEnvPath = null;
+    foreach (var p in candidatePaths)
+    {
+        if (File.Exists(p))
+        {
+            DotNetEnv.Env.Load(p);
+            loadedEnvPath = p;
+            Console.WriteLine($"[Config] Loaded .env from '{p}' (Development only)");
+            break;
+        }
+    }
+
+    // Log effective connection string hint and source precedence signals
+    var envConn = Environment.GetEnvironmentVariable("ConnectionStrings__PostgreSql")
+                  ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+    var cfgConn = builder.Configuration.GetConnectionString("PostgreSql")
+                 ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+    string source = envConn != null ? "Environment variables"
+                  : loadedEnvPath != null ? $".env ({loadedEnvPath})"
+                  : "appsettings.json";
+
+    Console.WriteLine($"[Config] ConnectionStrings source hint: {source}");
+    if (!string.IsNullOrWhiteSpace(cfgConn))
+    {
+        // Avoid printing secrets; only show host and database if parseable
+        try
+        {
+            var csb = new NpgsqlConnectionStringBuilder(cfgConn);
+            Console.WriteLine($"[Config] PostgreSQL -> Host={csb.Host}; Database={csb.Database}; Username={csb.Username}; SslMode={csb.SslMode}");
+        }
+        catch
+        {
+            Console.WriteLine("[Config] PostgreSQL connection string present but not parseable for safe preview.");
+        }
+    }
+}
 
 // Diagnostics: print Npgsql assembly version and path
 var npgsqlAsm = typeof(NpgsqlConnection).Assembly;
