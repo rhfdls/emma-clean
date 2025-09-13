@@ -21,6 +21,7 @@
     <PackageReference Include="Azure.AI.OpenAI">
       <IncludeAssets>compile;runtime;build;native;contentfiles;analyzers;buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Azure.Core" />
     <PackageReference Include="Polly" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="Newtonsoft.Json.Schema" />
@@ -33,12 +34,5 @@
     <ProjectReference Include="..\Emma.Core.Interfaces\Emma.Core.Interfaces.csproj" />
     <ProjectReference Include="..\Emma.Infrastructure\Emma.Infrastructure.csproj" />
   </ItemGroup>
-  
-  <ItemGroup Condition="Exists('$(UserProfile)\.nuget\packages\azure.ai.openai\2.2.0-beta.4\lib\net8.0\Azure.AI.OpenAI.dll')">
-  <Reference Include="Azure.AI.OpenAI">
-    <HintPath>$(UserProfile)\.nuget\packages\azure.ai.openai\2.2.0-beta.4\lib\net8.0\Azure.AI.OpenAI.dll</HintPath>
-    <Private>true</Private>
-  </Reference>
-</ItemGroup>
 
 </Project>

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev-alt": "node scripts/dev-runner.cjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

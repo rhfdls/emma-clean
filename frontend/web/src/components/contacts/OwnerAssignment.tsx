@@ -5,6 +5,7 @@ import { assignOwner } from "@/lib/contactsApi";
 import { toast } from "sonner";
 import { toastProblem } from "@/lib/toast-problem";
 import { getCurrentUserIdFromJwt } from "@/lib/jwt";
+import { getLabel } from "@/lib/labels";
 
 type Props = {
   contactId: string;
@@ -16,6 +17,7 @@ export default function OwnerAssignment({ contactId, currentOwnerId, onAssigned 
   const [ownerId, setOwnerId] = useState<string>(currentOwnerId ?? "");
   const [pending, setPending] = useState(false);
   const assignedByAgentId = useMemo(() => getCurrentUserIdFromJwt(), []);
+  const LABEL = getLabel("contactOwner"); // Vertical-friendly label (e.g., Assigned Agent / Contact Owner / Client Owner)
 
   async function onAssign(e: React.FormEvent) {
     e.preventDefault();
@@ -41,10 +43,10 @@ export default function OwnerAssignment({ contactId, currentOwnerId, onAssigned 
 
   return (
     <div className="rounded-lg border bg-white p-4 space-y-3">
-      <h2 className="text-base font-semibold">Owner</h2>
+      <h2 className="text-base font-semibold">{LABEL}</h2>
       <form onSubmit={onAssign} className="grid gap-2">
         <label className="grid gap-1">
-          <span className="text-sm font-medium">Owner User ID</span>
+          <span className="text-sm font-medium">{LABEL} User ID</span>
           <input
             className="border rounded-lg px-3 py-2"
             placeholder="00000000-0000-0000-0000-000000000000"
@@ -58,7 +60,7 @@ export default function OwnerAssignment({ contactId, currentOwnerId, onAssigned 
             disabled={pending}
             className="rounded-lg bg-black text-white px-4 py-2 disabled:opacity-60"
           >
-            {pending ? "Assigning…" : "Assign owner"}
+            {pending ? "Assigning…" : `Assign ${LABEL.toLowerCase()}`}
           </button>
         </div>
       </form>

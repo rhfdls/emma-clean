@@ -144,8 +144,8 @@ public class AgentContext
     // Upcoming tasks and appointments
     public List<Activity> UpcomingActivities { get; set; } = new();
     
-    // Assigned resources and service providers
-    public List<ResourceAssignment> AssignedResources { get; set; } = new();
+    // Assigned service providers (contact-centric)
+    public List<ContactAssignment> AssignedServiceProviders { get; set; } = new();
 }
 
 public class ContactProfile

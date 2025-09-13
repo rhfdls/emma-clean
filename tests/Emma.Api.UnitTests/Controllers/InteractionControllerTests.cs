@@ -2,12 +2,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Emma.Api.Controllers;
-using Emma.Api.Interfaces;
 using Emma.Infrastructure.Data;
 using Emma.Models.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 
@@ -27,11 +27,10 @@ namespace Emma.Api.UnitTests.Controllers
         public async Task LogInteraction_MapsOccurredAtToStartedAt_AndSetsCreatedAtServerSide()
         {
             var db = CreateDb();
-            var analysis = new Mock<IEmmaAnalysisService>();
-            var queue = new Mock<IAnalysisQueue>();
             var cfg = new ConfigurationBuilder().Build();
             var logger = new Mock<ILogger<InteractionController>>();
-            var controller = new InteractionController(db, analysis.Object, queue.Object, cfg, logger.Object);
+            var sp = new ServiceCollection().BuildServiceProvider();
+            var controller = new InteractionController(db, cfg, logger.Object, sp);
 
             var contactId = Guid.NewGuid();
             var orgId = Guid.NewGuid();

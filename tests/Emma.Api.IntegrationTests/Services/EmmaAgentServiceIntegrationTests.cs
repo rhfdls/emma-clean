@@ -1,7 +1,14 @@
+using System.Text.Json;
 using Emma.Api.IntegrationTests.Fixtures;
+using Emma.Api.IntegrationTests.TestHelpers;
+using Emma.Api.Services;
+using Emma.Core.Config;
 using Emma.Core.Dtos;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Moq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -13,6 +20,7 @@ namespace Emma.Api.IntegrationTests.Services
         private readonly AzureOpenAIFixture _fixture;
         private readonly ITestOutputHelper _output;
         private readonly EmmaAgentService _service;
+        private readonly Mock<IChatCompletionsClient> _chatClientMock = TestHelper.CreateOpenAIClientMock();
 
         public EmmaAgentServiceIntegrationTests(AzureOpenAIFixture fixture, ITestOutputHelper output)
         {
@@ -24,11 +32,15 @@ namespace Emma.Api.IntegrationTests.Services
             
             var serviceProvider = services.BuildServiceProvider();
             var logger = serviceProvider.GetRequiredService<ILogger<EmmaAgentService>>();
-            
+
+            // For integration test, if available, still run against mocked interface (no external call)
+            var httpContextAccessor = new Mock<IHttpContextAccessor>().Object;
+            _chatClientMock.SetupSuccessfulChatCompletion(JsonSerializer.Serialize(new EmmaAction { Action = EmmaActionType.None, Payload = "" }));
+
             _service = new EmmaAgentService(
                 logger,
-                null, // IHttpContextAccessor not needed for this test
-                _fixture.Client,
+                httpContextAccessor,
+                _chatClientMock.Object,
                 new OptionsWrapper<AzureOpenAIConfig>(_fixture.Config));
         }
 
@@ -55,7 +67,7 @@ namespace Emma.Api.IntegrationTests.Services
             // _output.WriteLine($"Raw Response: {result.RawResponse}"); // RawResponse property does not exist
             
             // Verify the response is a valid action
-            Assert.Contains(result.Action.Action, new[] { EmmaActionType.SendEmail, EmmaActionType.ScheduleFollowup, EmmaActionType.None });
+            Assert.Contains(result.Action.Action, new[] { EmmaActionType.SendEmail, EmmaActionType.ScheduleFollowUp, EmmaActionType.None });
         }
     }
     

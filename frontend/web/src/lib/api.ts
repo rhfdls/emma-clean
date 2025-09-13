@@ -46,13 +46,17 @@ export async function api<T = any>(
   let res: Response;
   try {
     const token = getDevToken() || getJwtToken();
+    const headers: Record<string, string> = {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(rest.headers as any),
+    };
+    if (json !== undefined || rest.body !== undefined) {
+      headers["Content-Type"] = headers["Content-Type"] || "application/json";
+    }
+
     res = await fetch(url, {
       ...rest,
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(rest.headers || {}),
-      },
+      headers,
       body: json !== undefined ? JSON.stringify(json) : rest.body,
       credentials: "include",
       cache: "no-store",

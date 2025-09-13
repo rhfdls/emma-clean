@@ -19,6 +19,8 @@ This document provides a comprehensive inventory of all AI agents within the EMM
 | **NotificationAgent** | Sends real-time alerts and notifications to users via push or email | • Push notifications<br>• Alert management<br>• User preferences | Push notification services | **FULL** |
 | **ResourceAgent** | Manages assignment or procurement of external resources (e.g., contractors, vendors) | • Resource allocation<br>• Vendor management<br>• Service coordination | External vendor systems | **FULL** |
 
+> Deprecated: Rename to `ServiceProviderAgent` and ensure all assignments operate via the contact-centric model (`Contact` with `RelationshipState.ServiceProvider` + `ContactAssignment`). See `docs/architecture/UNIFIED_SCHEMA.md` and `docs/development/TERMINOLOGY-MIGRATION-GUIDE.md`.
+
 **Total Real-World Agents: 8**
 
 ---

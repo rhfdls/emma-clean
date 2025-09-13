@@ -1,4 +1,5 @@
 using System;
+using Emma.Models.Models;
 
 namespace Emma.Api.Dtos
 {
@@ -22,6 +23,11 @@ namespace Emma.Api.Dtos
         public string? ProfilePictureUrl { get; set; }
         public DateTime? LastContactedAt { get; set; }
         public DateTime? NextFollowUpAt { get; set; }
-        // Add other relevant fields as needed
+        // Provider-friendly fields already present on model
+        public RelationshipState RelationshipState { get; set; }
+        public string? CompanyName { get; set; }
+        public string? LicenseNumber { get; set; }
+        public bool IsPreferred { get; set; }
+        public string? Website { get; set; }
     }
 }

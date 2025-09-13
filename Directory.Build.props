@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <!-- Ensure CPVM is on early in evaluation for all projects -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+
+    <!-- You can keep lock-file behavior here too, or leave it in Directory.Packages.props -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <!-- Keep false until graph reconciles; set true after it’s clean -->
+    <RestoreLockedMode>false</RestoreLockedMode>
+  </PropertyGroup>
+</Project>

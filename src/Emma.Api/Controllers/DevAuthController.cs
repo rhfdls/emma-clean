@@ -52,9 +52,17 @@ namespace Emma.Api.Controllers
                 emailNorm = email.ToLowerInvariant();
             }
 
-            // Prefer existing organization by Id or dev email
-            const string devOrgEmail = "dev-org@example.local";
-            var existingOrg = await _db.Organizations.FirstOrDefaultAsync(o => o.Id == orgId || o.Email == devOrgEmail);
+            // Prefer existing organization by Id or by provided OrganizationName (case-insensitive)
+            Organization? existingOrg = null;
+            if (orgId != Guid.Empty)
+            {
+                existingOrg = await _db.Organizations.FirstOrDefaultAsync(o => o.Id == orgId);
+            }
+            if (existingOrg == null && !string.IsNullOrWhiteSpace(body.OrganizationName))
+            {
+                var orgNameNorm = body.OrganizationName.Trim();
+                existingOrg = await _db.Organizations.FirstOrDefaultAsync(o => EF.Functions.ILike(o.Name, orgNameNorm));
+            }
             if (existingOrg != null)
             {
                 orgId = existingOrg.Id;
@@ -93,8 +101,8 @@ namespace Emma.Api.Controllers
                 org = new Organization
                 {
                     Id = orgId,
-                    Name = "Dev Org",
-                    Email = devOrgEmail,
+                    Name = string.IsNullOrWhiteSpace(body.OrganizationName) ? "Dev Org" : body.OrganizationName.Trim(),
+                    Email = $"{Guid.NewGuid():N}@example.local",
                     IsActive = true,
                     PlanId = "Basic",
                     OwnerUserId = user.Id,
@@ -122,6 +130,11 @@ namespace Emma.Api.Controllers
                 new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, email)
             };
+            // Include OrgOwner role for convenience in dev when the requester is the org owner
+            if (org.OwnerUserId == user.Id)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, "OrgOwner"));
+            }
 
             var creds = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256);
             var expires = DateTime.UtcNow.AddHours(2);

@@ -257,6 +257,8 @@ Defines the roles that can be assigned to team members collaborating on a contac
 
 Defines the type of relationship between resources (e.g., vendors, contractors) and the system.
 
+> Deprecated: Use `Contact.RelationshipState = ServiceProvider` with additional metadata instead of resource-specific relationship enums. See `docs/architecture/UNIFIED_SCHEMA.md`.
+
 **Location**: `Emma.Data.Enums.ResourceRelationshipType`
 
 | Value | Description |
@@ -335,6 +337,8 @@ Indicates the priority level of tasks or items.
 ### ResourceAssignmentStatus
 
 Tracks the status of resource assignments.
+
+> Deprecated: Use `ContactAssignmentStatus` in the contact-centric model. If not present in code, represent status as part of the `ContactAssignment` domain (e.g., `status: Active|Completed|Cancelled|OnHold|Expired`). See `docs/architecture/UNIFIED_SCHEMA.md`.
 
 **Location**: `Emma.Data.Enums.ResourceAssignmentStatus`
 

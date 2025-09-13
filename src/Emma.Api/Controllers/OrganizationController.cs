@@ -47,8 +47,7 @@ namespace Emma.Api.Controllers
                     Name = dto.Name,
                     Email = dto.Email,
                     OwnerUserId = dto.OwnerUserId,
-                    PlanType = dto.PlanType,
-                    PlanId = dto.PlanId ?? dto.PlanType?.ToString(),
+                    PlanId = dto.PlanId ?? "Basic",
                     SeatCount = dto.SeatCount,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
@@ -63,7 +62,7 @@ namespace Emma.Api.Controllers
                     Name = org.Name,
                     Email = org.Email,
                     PlanId = org.PlanId,
-                    PlanType = org.PlanType?.ToString(),
+                    PlanType = null,
                     SeatCount = org.SeatCount,
                     IsActive = org.IsActive
                 });
@@ -117,7 +116,7 @@ namespace Emma.Api.Controllers
                         Name = o.Name,
                         Email = o.Email,
                         PlanId = o.PlanId,
-                        PlanType = o.PlanType.HasValue ? o.PlanType.Value.ToString() : null,
+                        PlanType = null,
                         SeatCount = o.SeatCount,
                         IsActive = o.IsActive
                     })
@@ -161,7 +160,7 @@ namespace Emma.Api.Controllers
                     Name = o.Name,
                     Email = o.Email,
                     PlanId = o.PlanId,
-                    PlanType = o.PlanType?.ToString(),
+                    PlanType = null,
                     SeatCount = o.SeatCount,
                     IsActive = o.IsActive
                 });

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata;
-using System.Text.Json;
+ 
 
 namespace Emma.Infrastructure.Data
 {
@@ -215,7 +215,11 @@ namespace Emma.Infrastructure.Data
                     .WithMany(u => u.AssignedTasks)
                     .HasForeignKey(t => t.AssignedToId)
                     .OnDelete(DeleteBehavior.Restrict);
-                    
+
+                // Explicitly ignore the alternate AssignedToUser mapping to avoid double-mapping warnings
+                entity.Ignore(t => t.AssignedToUserId);
+                entity.Ignore(t => t.AssignedToUser);
+                
                 // Relationship with Contact (no navigation on Contact side)
                 entity.HasOne<Contact>()
                     .WithMany()

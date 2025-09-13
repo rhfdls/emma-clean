@@ -17,8 +17,8 @@
 
 ### References
 - See [`UNIFIED_SCHEMA.md`](./UNIFIED_SCHEMA.md) for the latest canonical entity definitions and relationships.
-- See [`EMMA-LEXICON.md`](../EMMA-LEXICON.md) for standardized terminology.
-- See migration notes in [`TERMINOLOGY-MIGRATION-GUIDE.md`](../TERMINOLOGY-MIGRATION-GUIDE.md) for details on the transition from resource-centric to contact-centric models.
+- See standardized terminology in [`TERMINOLOGY-MIGRATION-GUIDE.md`](../development/TERMINOLOGY-MIGRATION-GUIDE.md).
+- See data definitions in [`EMMA-DATA-DICTIONARY.md`](../reference/EMMA-DATA-DICTIONARY.md) to map legacy terms to the unified model.
 
 ---
 

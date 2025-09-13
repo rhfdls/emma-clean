@@ -39,6 +39,22 @@
 2. Fill in real values (never commit `.env`)
 3. Run `docker-compose up` to start the Emma AI Platform
 
+### 5. Required Seeding (Dev/Test)
+
+Some features require seed data in Cosmos (e.g., dynamic enums/config). If you start with a fresh Cosmos account or container, seed these before running API or tests:
+
+- See `docs/reference/ENUMS-REFERENCE.md` for the list of dynamic enums used in the platform.
+- Use the helper script from repo root to (re)populate enum documents:
+
+  ```powershell
+  # From repository root
+  pwsh ./update-enum-references.ps1
+  ```
+
+- If you maintain a separate container for messages or dev samples, ensure any expected fixture data is present as well.
+
+This seeding step is a recurring requirement whenever you reset your CosmosDB environment.
+
 ---
 
 **Questions?** See the full documentation or ask the team!

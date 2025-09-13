@@ -64,8 +64,14 @@ builder.Services.AddScoped<IOnboardingService, OnboardingService>();
 builder.Services.AddHealthChecks();
 builder.Services.AddHealthChecks().AddCheck<Emma.Api.Health.DbMigrationsHealthCheck>("db_migrations");
 
-// Azure OpenAI disabled in this repo to avoid dependency on preview SDK
-Console.WriteLine("[AzureOpenAI] Disabled (client not registered in this build)");
+// Register a no-op chat completions client adapter so services depending on it can resolve.
+// In environments where a real SDK client is available, replace this registration at startup.
+builder.Services.AddSingleton<IChatCompletionsClient>(sp =>
+{
+    // No inner client provided in this repo; use a stub that throws if called.
+    return new OpenAIChatClientAdapter(new object());
+});
+Console.WriteLine("[AzureOpenAI] Using reflection adapter with no inner client (calls will throw if invoked)");
 
 // SPRINT2: Analysis services and queue (disabled - implementations not present in this repo)
 // builder.Services.AddHttpClient("azure-openai");
@@ -154,7 +160,16 @@ else
 }
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -253,3 +268,6 @@ app.MapHealthChecks("/live", new HealthCheckOptions { Predicate = _ => false });
 app.MapHealthChecks("/ready", new HealthCheckOptions { Predicate = r => r.Name == "db_migrations" });
 app.MapHealthChecks("/health");
 app.Run();
+
+// Expose Program class for integration testing (WebApplicationFactory<Program>)
+public partial class Program { }

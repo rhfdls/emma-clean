@@ -41,8 +41,7 @@
           ]
         },
         "restoreLockProperties": {
-          "restorePackagesWithLockFile": "true",
-          "restoreLockedMode": true
+          "restorePackagesWithLockFile": "true"
         },
         "restoreAuditProperties": {
           "enableAudit": "true",
@@ -53,55 +52,104 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Extensions.Caching.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, 8.0.0]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Caching.Memory": {
+              "target": "Package",
+              "version": "[8.0.1, 8.0.1]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, 8.0.0]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.1, 8.0.1]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, 8.0.2]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[8.0.1, 8.0.1]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.3, 8.0.3]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[8.0.2, 8.0.2]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Primitives": {
+              "target": "Package",
+              "version": "[8.0.0, 8.0.0]",
+              "versionCentrallyManaged": true
+            }
+          },
           "centralPackageVersions": {
-            "Asp.Versioning.Mvc": "8.0.0",
-            "Azure.AI.ContentSafety": "1.0.0",
-            "Azure.AI.OpenAI": "2.2.0-beta.4",
-            "Azure.Storage.Blobs": "12.14.0",
+            "Azure.AI.OpenAI": "[2.1.0]",
+            "Azure.Core": "[1.44.1]",
             "coverlet.collector": "6.0.2",
             "DotNetEnv": "3.1.0",
+            "FluentAssertions": "6.12.0",
             "JsonSchema.Net": "6.0.0",
             "Microsoft.ApplicationInsights.AspNetCore": "2.22.0",
             "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
+            "Microsoft.AspNetCore.Http.Json": "8.0.10",
             "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
             "Microsoft.AspNetCore.OpenApi": "8.0.10",
-            "Microsoft.Azure.Cosmos": "3.39.1",
-            "Microsoft.EntityFrameworkCore": "8.0.8",
-            "Microsoft.EntityFrameworkCore.Design": "8.0.8",
-            "Microsoft.EntityFrameworkCore.InMemory": "8.0.8",
-            "Microsoft.EntityFrameworkCore.Relational": "8.0.8",
-            "Microsoft.EntityFrameworkCore.Tools": "8.0.8",
-            "Microsoft.Extensions.AI": "9.5.0",
-            "Microsoft.Extensions.Configuration": "8.0.0",
-            "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Configuration.Binder": "8.0.0",
-            "Microsoft.Extensions.Configuration.EnvironmentVariables": "8.0.0",
-            "Microsoft.Extensions.Configuration.Json": "8.0.0",
-            "Microsoft.Extensions.DependencyInjection": "8.0.0",
-            "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.0",
-            "Microsoft.Extensions.Hosting": "8.0.0",
-            "Microsoft.Extensions.Hosting.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Http.Polly": "8.0.0",
-            "Microsoft.Extensions.Logging": "8.0.0",
-            "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Logging.Console": "8.0.0",
-            "Microsoft.Extensions.Options": "8.0.0",
-            "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
+            "Microsoft.Azure.Cosmos": "3.38.1",
+            "Microsoft.EntityFrameworkCore": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Abstractions": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Design": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.InMemory": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Relational": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Tools": "[8.0.8]",
+            "Microsoft.Extensions.Caching.Abstractions": "[8.0.0]",
+            "Microsoft.Extensions.Caching.Memory": "[8.0.1]",
+            "Microsoft.Extensions.Configuration": "[8.0.0]",
+            "Microsoft.Extensions.Configuration.Abstractions": "[8.0.0]",
+            "Microsoft.Extensions.Configuration.Binder": "[8.0.2]",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "[8.0.0]",
+            "Microsoft.Extensions.Configuration.FileExtensions": "[8.0.1]",
+            "Microsoft.Extensions.Configuration.Json": "[8.0.1]",
+            "Microsoft.Extensions.DependencyInjection": "[8.0.1]",
+            "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.0.2]",
+            "Microsoft.Extensions.Diagnostics.Abstractions": "[8.0.1]",
+            "Microsoft.Extensions.Hosting": "[8.0.1]",
+            "Microsoft.Extensions.Hosting.Abstractions": "[8.0.1]",
+            "Microsoft.Extensions.Http": "[8.0.1]",
+            "Microsoft.Extensions.Http.Polly": "[8.0.20]",
+            "Microsoft.Extensions.Logging": "[8.0.1]",
+            "Microsoft.Extensions.Logging.Abstractions": "[8.0.3]",
+            "Microsoft.Extensions.Logging.Configuration": "[8.0.1]",
+            "Microsoft.Extensions.Logging.Console": "[8.0.1]",
+            "Microsoft.Extensions.Options": "[8.0.2]",
+            "Microsoft.Extensions.Options.ConfigurationExtensions": "[8.0.0]",
+            "Microsoft.Extensions.Primitives": "[8.0.0]",
             "Microsoft.NET.Test.Sdk": "17.11.1",
-            "Microsoft.SemanticKernel": "1.57.0",
             "Moq": "4.20.70",
             "Newtonsoft.Json": "13.0.3",
-            "Newtonsoft.Json.Schema": "3.0.14",
-            "Npgsql": "8.0.7",
-            "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.8",
-            "Polly": "8.5.2",
-            "Polly.Extensions.Http": "3.0.0",
-            "Swashbuckle.AspNetCore": "8.1.2",
+            "Newtonsoft.Json.Schema": "3.0.0",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "[8.0.8]",
+            "Polly": "8.4.2",
+            "Swashbuckle.AspNetCore": "6.7.1",
             "xunit": "2.9.0",
             "xunit.runner.visualstudio": "2.8.2",
-            "Xunit.SkippableFact": "1.4.13",
-            "YamlDotNet": "15.1.1"
+            "Xunit.SkippableFact": "1.4.13"
           },
           "imports": [
             "net461",
@@ -163,8 +211,7 @@
           ]
         },
         "restoreLockProperties": {
-          "restorePackagesWithLockFile": "true",
-          "restoreLockedMode": true
+          "restorePackagesWithLockFile": "true"
         },
         "restoreAuditProperties": {
           "enableAudit": "true",
@@ -178,64 +225,66 @@
           "dependencies": {
             "Microsoft.Extensions.Configuration.Abstractions": {
               "target": "Package",
-              "version": "[8.0.0, )",
+              "version": "[8.0.0, 8.0.0]",
               "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.Logging.Abstractions": {
               "target": "Package",
-              "version": "[8.0.0, )",
+              "version": "[8.0.3, 8.0.3]",
               "versionCentrallyManaged": true
             }
           },
           "centralPackageVersions": {
-            "Asp.Versioning.Mvc": "8.0.0",
-            "Azure.AI.ContentSafety": "1.0.0",
-            "Azure.AI.OpenAI": "2.2.0-beta.4",
-            "Azure.Storage.Blobs": "12.14.0",
+            "Azure.AI.OpenAI": "[2.1.0]",
+            "Azure.Core": "[1.44.1]",
             "coverlet.collector": "6.0.2",
             "DotNetEnv": "3.1.0",
+            "FluentAssertions": "6.12.0",
             "JsonSchema.Net": "6.0.0",
             "Microsoft.ApplicationInsights.AspNetCore": "2.22.0",
             "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
+            "Microsoft.AspNetCore.Http.Json": "8.0.10",
             "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
             "Microsoft.AspNetCore.OpenApi": "8.0.10",
-            "Microsoft.Azure.Cosmos": "3.39.1",
-            "Microsoft.EntityFrameworkCore": "8.0.8",
-            "Microsoft.EntityFrameworkCore.Design": "8.0.8",
-            "Microsoft.EntityFrameworkCore.InMemory": "8.0.8",
-            "Microsoft.EntityFrameworkCore.Relational": "8.0.8",
-            "Microsoft.EntityFrameworkCore.Tools": "8.0.8",
-            "Microsoft.Extensions.AI": "9.5.0",
-            "Microsoft.Extensions.Configuration": "8.0.0",
-            "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Configuration.Binder": "8.0.0",
-            "Microsoft.Extensions.Configuration.EnvironmentVariables": "8.0.0",
-            "Microsoft.Extensions.Configuration.Json": "8.0.0",
-            "Microsoft.Extensions.DependencyInjection": "8.0.0",
-            "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.0",
-            "Microsoft.Extensions.Hosting": "8.0.0",
-            "Microsoft.Extensions.Hosting.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Http.Polly": "8.0.0",
-            "Microsoft.Extensions.Logging": "8.0.0",
-            "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Logging.Console": "8.0.0",
-            "Microsoft.Extensions.Options": "8.0.0",
-            "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
+            "Microsoft.Azure.Cosmos": "3.38.1",
+            "Microsoft.EntityFrameworkCore": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Abstractions": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Design": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.InMemory": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Relational": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Tools": "[8.0.8]",
+            "Microsoft.Extensions.Caching.Abstractions": "[8.0.0]",
+            "Microsoft.Extensions.Caching.Memory": "[8.0.1]",
+            "Microsoft.Extensions.Configuration": "[8.0.0]",
+            "Microsoft.Extensions.Configuration.Abstractions": "[8.0.0]",
+            "Microsoft.Extensions.Configuration.Binder": "[8.0.2]",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "[8.0.0]",
+            "Microsoft.Extensions.Configuration.FileExtensions": "[8.0.1]",
+            "Microsoft.Extensions.Configuration.Json": "[8.0.1]",
+            "Microsoft.Extensions.DependencyInjection": "[8.0.1]",
+            "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.0.2]",
+            "Microsoft.Extensions.Diagnostics.Abstractions": "[8.0.1]",
+            "Microsoft.Extensions.Hosting": "[8.0.1]",
+            "Microsoft.Extensions.Hosting.Abstractions": "[8.0.1]",
+            "Microsoft.Extensions.Http": "[8.0.1]",
+            "Microsoft.Extensions.Http.Polly": "[8.0.20]",
+            "Microsoft.Extensions.Logging": "[8.0.1]",
+            "Microsoft.Extensions.Logging.Abstractions": "[8.0.3]",
+            "Microsoft.Extensions.Logging.Configuration": "[8.0.1]",
+            "Microsoft.Extensions.Logging.Console": "[8.0.1]",
+            "Microsoft.Extensions.Options": "[8.0.2]",
+            "Microsoft.Extensions.Options.ConfigurationExtensions": "[8.0.0]",
+            "Microsoft.Extensions.Primitives": "[8.0.0]",
             "Microsoft.NET.Test.Sdk": "17.11.1",
-            "Microsoft.SemanticKernel": "1.57.0",
             "Moq": "4.20.70",
             "Newtonsoft.Json": "13.0.3",
-            "Newtonsoft.Json.Schema": "3.0.14",
-            "Npgsql": "8.0.7",
-            "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.8",
-            "Polly": "8.5.2",
-            "Polly.Extensions.Http": "3.0.0",
-            "Swashbuckle.AspNetCore": "8.1.2",
+            "Newtonsoft.Json.Schema": "3.0.0",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "[8.0.8]",
+            "Polly": "8.4.2",
+            "Swashbuckle.AspNetCore": "6.7.1",
             "xunit": "2.9.0",
             "xunit.runner.visualstudio": "2.8.2",
-            "Xunit.SkippableFact": "1.4.13",
-            "YamlDotNet": "15.1.1"
+            "Xunit.SkippableFact": "1.4.13"
           },
           "imports": [
             "net461",
@@ -290,8 +339,7 @@
           ]
         },
         "restoreLockProperties": {
-          "restorePackagesWithLockFile": "true",
-          "restoreLockedMode": true
+          "restorePackagesWithLockFile": "true"
         },
         "restoreAuditProperties": {
           "enableAudit": "true",
@@ -305,7 +353,52 @@
           "dependencies": {
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[8.0.8, )",
+              "version": "[8.0.8, 8.0.8]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Caching.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, 8.0.0]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Caching.Memory": {
+              "target": "Package",
+              "version": "[8.0.1, 8.0.1]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, 8.0.0]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.1, 8.0.1]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, 8.0.2]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[8.0.1, 8.0.1]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.3, 8.0.3]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[8.0.2, 8.0.2]",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Primitives": {
+              "target": "Package",
+              "version": "[8.0.0, 8.0.0]",
               "versionCentrallyManaged": true
             },
             "Newtonsoft.Json": {
@@ -315,54 +408,56 @@
             }
           },
           "centralPackageVersions": {
-            "Asp.Versioning.Mvc": "8.0.0",
-            "Azure.AI.ContentSafety": "1.0.0",
-            "Azure.AI.OpenAI": "2.2.0-beta.4",
-            "Azure.Storage.Blobs": "12.14.0",
+            "Azure.AI.OpenAI": "[2.1.0]",
+            "Azure.Core": "[1.44.1]",
             "coverlet.collector": "6.0.2",
             "DotNetEnv": "3.1.0",
+            "FluentAssertions": "6.12.0",
             "JsonSchema.Net": "6.0.0",
             "Microsoft.ApplicationInsights.AspNetCore": "2.22.0",
             "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
+            "Microsoft.AspNetCore.Http.Json": "8.0.10",
             "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
             "Microsoft.AspNetCore.OpenApi": "8.0.10",
-            "Microsoft.Azure.Cosmos": "3.39.1",
-            "Microsoft.EntityFrameworkCore": "8.0.8",
-            "Microsoft.EntityFrameworkCore.Design": "8.0.8",
-            "Microsoft.EntityFrameworkCore.InMemory": "8.0.8",
-            "Microsoft.EntityFrameworkCore.Relational": "8.0.8",
-            "Microsoft.EntityFrameworkCore.Tools": "8.0.8",
-            "Microsoft.Extensions.AI": "9.5.0",
-            "Microsoft.Extensions.Configuration": "8.0.0",
-            "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Configuration.Binder": "8.0.0",
-            "Microsoft.Extensions.Configuration.EnvironmentVariables": "8.0.0",
-            "Microsoft.Extensions.Configuration.Json": "8.0.0",
-            "Microsoft.Extensions.DependencyInjection": "8.0.0",
-            "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.0",
-            "Microsoft.Extensions.Hosting": "8.0.0",
-            "Microsoft.Extensions.Hosting.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Http.Polly": "8.0.0",
-            "Microsoft.Extensions.Logging": "8.0.0",
-            "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
-            "Microsoft.Extensions.Logging.Console": "8.0.0",
-            "Microsoft.Extensions.Options": "8.0.0",
-            "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
+            "Microsoft.Azure.Cosmos": "3.38.1",
+            "Microsoft.EntityFrameworkCore": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Abstractions": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Design": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.InMemory": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Relational": "[8.0.8]",
+            "Microsoft.EntityFrameworkCore.Tools": "[8.0.8]",
+            "Microsoft.Extensions.Caching.Abstractions": "[8.0.0]",
+            "Microsoft.Extensions.Caching.Memory": "[8.0.1]",
+            "Microsoft.Extensions.Configuration": "[8.0.0]",
+            "Microsoft.Extensions.Configuration.Abstractions": "[8.0.0]",
+            "Microsoft.Extensions.Configuration.Binder": "[8.0.2]",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "[8.0.0]",
+            "Microsoft.Extensions.Configuration.FileExtensions": "[8.0.1]",
+            "Microsoft.Extensions.Configuration.Json": "[8.0.1]",
+            "Microsoft.Extensions.DependencyInjection": "[8.0.1]",
+            "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.0.2]",
+            "Microsoft.Extensions.Diagnostics.Abstractions": "[8.0.1]",
+            "Microsoft.Extensions.Hosting": "[8.0.1]",
+            "Microsoft.Extensions.Hosting.Abstractions": "[8.0.1]",
+            "Microsoft.Extensions.Http": "[8.0.1]",
+            "Microsoft.Extensions.Http.Polly": "[8.0.20]",
+            "Microsoft.Extensions.Logging": "[8.0.1]",
+            "Microsoft.Extensions.Logging.Abstractions": "[8.0.3]",
+            "Microsoft.Extensions.Logging.Configuration": "[8.0.1]",
+            "Microsoft.Extensions.Logging.Console": "[8.0.1]",
+            "Microsoft.Extensions.Options": "[8.0.2]",
+            "Microsoft.Extensions.Options.ConfigurationExtensions": "[8.0.0]",
+            "Microsoft.Extensions.Primitives": "[8.0.0]",
             "Microsoft.NET.Test.Sdk": "17.11.1",
-            "Microsoft.SemanticKernel": "1.57.0",
             "Moq": "4.20.70",
             "Newtonsoft.Json": "13.0.3",
-            "Newtonsoft.Json.Schema": "3.0.14",
-            "Npgsql": "8.0.7",
-            "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.8",
-            "Polly": "8.5.2",
-            "Polly.Extensions.Http": "3.0.0",
-            "Swashbuckle.AspNetCore": "8.1.2",
+            "Newtonsoft.Json.Schema": "3.0.0",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "[8.0.8]",
+            "Polly": "8.4.2",
+            "Swashbuckle.AspNetCore": "6.7.1",
             "xunit": "2.9.0",
             "xunit.runner.visualstudio": "2.8.2",
-            "Xunit.SkippableFact": "1.4.13",
-            "YamlDotNet": "15.1.1"
+            "Xunit.SkippableFact": "1.4.13"
           },
           "imports": [
             "net461",

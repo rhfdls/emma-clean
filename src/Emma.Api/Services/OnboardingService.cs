@@ -67,7 +67,7 @@ namespace Emma.Api.Services
                 {
                     Name = request.OrganizationName,
                     OrgGuid = orgGuid,
-                    PlanType = Enum.TryParse<PlanType>(request.PlanKey, true, out var planType) ? planType : PlanType.Basic,
+                    PlanId = string.IsNullOrWhiteSpace(request.PlanKey) ? "Basic" : request.PlanKey,
                     SeatCount = request.SeatCount,
                     OwnerUserId = user.Id // This is the fix!
                 };
@@ -107,8 +107,8 @@ namespace Emma.Api.Services
             var profile = new ProfileResponse
             {
                 OrganizationName = org.Name,
-                PlanKey = org.PlanType?.ToString() ?? string.Empty, // SPRINT1_ENUM_FIX
-                PlanLabel = org.PlanType?.ToString() ?? string.Empty, // SPRINT1_ENUM_FIX
+                PlanKey = org.PlanId ?? string.Empty, // prefer PlanId
+                PlanLabel = org.PlanId ?? string.Empty, // TODO: map to friendly label
                 PlanDescription = "TBD", // TODO: Lookup description
                 PlanPrice = 0, // TODO: Lookup price
                 SeatCount = org.SeatCount ?? 0, // SPRINT1_ENUM_FIX

@@ -4,7 +4,7 @@ info:
   version: 0.1.0
   description: OpenAPI specification for the EMMA API (developer-docs snapshot)
 servers:
-  - url: http://localhost:5262
+  - url: http://localhost:5000
     description: Local development
 components:
   securitySchemes:

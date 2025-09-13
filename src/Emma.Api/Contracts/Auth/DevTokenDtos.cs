@@ -7,6 +7,7 @@ namespace Emma.Api.Contracts.Auth
         public Guid? UserId { get; set; }
         public Guid? OrgId { get; set; }
         public string Email { get; set; } = string.Empty;
+        public string? OrganizationName { get; set; }
         public bool AutoProvision { get; set; } = true;
     }
 

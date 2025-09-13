@@ -1,13 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Emma.Models.Models;
 
 namespace Emma.Api.Dtos
 {
     public class ContactCreateDto
     {
-        [Required]
-        public Guid OrganizationId { get; set; }
-
         [Required]
         [MaxLength(100)]
         public string FirstName { get; set; } = string.Empty;
@@ -49,5 +47,14 @@ namespace Emma.Api.Dtos
 
         [MaxLength(500)]
         public string? ProfilePictureUrl { get; set; }
+
+        // Optional provider designation at creation; defaults to Lead if null
+        public RelationshipState? RelationshipState { get; set; }
+
+        // Provider-friendly optional fields (existing model properties only)
+        public string? CompanyName { get; set; }
+        public string? LicenseNumber { get; set; }
+        public bool? IsPreferred { get; set; }
+        public string? Website { get; set; }
     }
 }

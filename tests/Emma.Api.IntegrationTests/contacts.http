@@ -1,49 +1,62 @@
 @baseUrl = http://localhost:5073
 
-### Get a dev token (Development only)
+### 1) Dev token (Development only)
 # @name devtoken
 POST {{baseUrl}}/api/auth/dev-token
 Content-Type: application/json
 
 {
-  "orgId": "{{$guid}}",
-  "userId": "{{$guid}}",
-  "email": "tester@example.local"
+  "email": "owner@test.dev",
+  "organizationName": "OrgA"
 }
 
-### Extract token
+### Extract token and userId
 @token = {{devtoken.response.body.$.token}}
+@userId = {{devtoken.response.body.$.userId}}
 
-### Create a contact
+### 2) Create contact (provider optional fields allowed)
 # @name create_contact
-POST {{baseUrl}}/api/contact
+POST {{baseUrl}}/api/contacts
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "organizationId": "{{devtoken.response.body.$.orgId}}",
   "firstName": "Ada",
   "lastName": "Lovelace",
-  "company": "Analytical Engines Ltd"
+  "primaryEmail": "ada@example.com",
+  "relationshipState": "ServiceProvider",
+  "companyName": "Lovelace & Co.",
+  "licenseNumber": "ON-123456",
+  "isPreferred": true,
+  "website": "https://lovelace.example"
 }
 
 ### Capture contact id
 @contactId = {{create_contact.response.body.$.id}}
 
-### Log an interaction with occurredAt (maps to Timestamp/StartedAt)
-POST {{baseUrl}}/api/contacts/{{contactId}}/interactions
+### 3) Assign owner (Owner/Admin or current Owner only)
+POST {{baseUrl}}/api/contacts/{{contactId}}/assignments
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "subject": "Kickoff call",
-  "content": "Discussed project goals and timelines.",
-  "consentGranted": true,
-  "occurredAt": "{{$datetime iso8601}}"
+  "assigneeUserId": "{{userId}}",
+  "isPrimary": true
 }
 
-### Get interactions for the contact
-GET {{baseUrl}}/api/contacts/{{contactId}}/interactions
+### 4) Update business/provider fields
+PUT {{baseUrl}}/api/contacts/{{contactId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "companyName": "Lovelace & Co.",
+  "website": "https://lovelace-updated.example",
+  "isPreferred": false
+}
+
+### 5) Read contact
+GET {{baseUrl}}/api/contacts/{{contactId}}
 Authorization: Bearer {{token}}
 
 ### Ask dev agent for suggest-followup

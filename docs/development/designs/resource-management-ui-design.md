@@ -1,5 +1,7 @@
 # Resource Management UI Design
 
+> Note: This design is contact-centric. Any legacy references to “Resource” as a standalone model are deprecated. Use `Contact` with `RelationshipState.ServiceProvider` and `ContactAssignment` for assignments. See `docs/architecture/UNIFIED_SCHEMA.md` and `docs/development/TERMINOLOGY-MIGRATION-GUIDE.md`.
+
 ## Overview
 
 Design for a unified Contact-based Resource Management UI that allows users to add, edit, and maintain service provider contacts (resources) within the EMMA platform. This design extends the existing Contact management system with resource-specific views and workflows while maintaining the unified Contact data model.
@@ -33,7 +35,7 @@ components/
     OverrideApproval.tsx      // New: Manage pending overrides
     TenantSettings.tsx        // New: Tenant-specific resource configurations
     ResourceSearch.tsx        // New: Advanced resource search
-    ResourceAssignments.tsx   // New: Assignment management
+    ContactAssignments.tsx    // New: Assignment management (contact-centric)
 ```
 
 ### Data Flow
@@ -273,10 +275,10 @@ interface ResourceContact extends Contact {
 ### Assignment Tracking
 
 ```typescript
-interface ResourceAssignment {
+interface ContactAssignment {
   id: string;
   clientContactId: string;
-  resourceContactId: string;
+  serviceProviderContactId: string; // Contact with RelationshipState.ServiceProvider
   assignedByAgentId: string;
   purpose: string;
   status: AssignmentStatus;

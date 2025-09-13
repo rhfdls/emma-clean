@@ -2,7 +2,7 @@
 
 This document provides a concise, developer-friendly reference for EMMA API endpoints with authentication steps and example curl requests.
 
-- Base URL (local): <http://localhost:5262>
+- Base URL (local): <http://localhost:5000>
 - All routes below include their full path (prefix already applied in controllers).
 - Authentication: Most protected endpoints require a Bearer JWT with the VerifiedUser policy. In Development, mint one via the dev-token endpoint.
 
@@ -13,7 +13,7 @@ This document provides a concise, developer-friendly reference for EMMA API endp
 - Mint a dev JWT (Development only):
 
 ```bash
-curl -s -X POST http://localhost:5262/api/auth/dev-token \
+curl -s -X POST http://localhost:5000/api/auth/dev-token \
   -H "Content-Type: application/json" \
   -d '{"email": "dev.user@example.com"}'
 ```
@@ -34,7 +34,7 @@ Response:
 ```bash
 TOKEN="<JWT>"
 # example
-curl -H "Authorization: Bearer $TOKEN" http://localhost:5262/api/Account/profile
+curl -H "Authorization: Bearer $TOKEN" http://localhost:5000/api/Account/profile
 ```
 
 ---
@@ -48,7 +48,7 @@ Route prefix: `api/Account`
   - curl:
 
     ```bash
-    curl http://localhost:5262/api/Account/profile
+    curl http://localhost:5000/api/Account/profile
     ```
 
 - POST /api/Account/verify
@@ -57,7 +57,7 @@ Route prefix: `api/Account`
   - curl:
 
     ```bash
-    curl -X POST http://localhost:5262/api/Account/verify \
+    curl -X POST http://localhost:5000/api/Account/verify \
       -H "Content-Type: application/json" \
       -d '{"token": "<token>"}'
     ```
@@ -73,7 +73,7 @@ Route prefix: `api/agent`
   - curl:
 
     ```bash
-    curl -X POST http://localhost:5262/api/agent/suggest-followup \
+    curl -X POST http://localhost:5000/api/agent/suggest-followup \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
       -d '{"contactId":"00000000-0000-0000-0000-000000000000","context":"Hello"}'
     ```
@@ -89,7 +89,7 @@ Route prefix: `api/Contact`
   - curl:
 
     ```bash
-    curl -X POST http://localhost:5262/api/Contact \
+    curl -X POST http://localhost:5000/api/Contact \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
       -d '{
             "organizationId": "<org-guid>",
@@ -106,7 +106,7 @@ Route prefix: `api/Contact`
   - curl:
 
     ```bash
-    curl http://localhost:5262/api/Contact/<contact-guid>
+    curl http://localhost:5000/api/Contact/<contact-guid>
     ```
 
 - GET /api/Contact?orgId={orgId}
@@ -116,7 +116,7 @@ Route prefix: `api/Contact`
   - curl:
 
     ```bash
-    curl "http://localhost:5262/api/Contact?orgId=<org-guid>"
+    curl "http://localhost:5000/api/Contact?orgId=<org-guid>"
     ```
 
 - PUT /api/Contact/{id}/assign
@@ -126,7 +126,7 @@ Route prefix: `api/Contact`
   - curl:
 
     ```bash
-    curl -X PUT http://localhost:5262/api/Contact/<contact-guid>/assign \
+    curl -X PUT http://localhost:5000/api/Contact/<contact-guid>/assign \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
       -d '{"userId":"<user-guid>"}'
     ```
@@ -135,7 +135,7 @@ Route prefix: `api/Contact`
 
 Route prefix: `api/contacts/{contactId}/collaborators`
 
-- NOTE: Endpoints are placeholders and return 501 (Not Implemented). `contactId` currently typed as int in controller.
+- NOTE: Endpoints are placeholders and return 501 (Not Implemented). `contactId` is a `Guid` route parameter in the controller.
 
 - POST /api/contacts/{contactId}/collaborators
 - GET /api/contacts/{contactId}/collaborators
@@ -151,7 +151,7 @@ Route prefix: `api/auth`
   - curl:
 
     ```bash
-    curl -X POST http://localhost:5262/api/auth/dev-token \
+    curl -X POST http://localhost:5000/api/auth/dev-token \
       -H "Content-Type: application/json" \
       -d '{"email":"dev.user@example.com"}'
     ```
@@ -165,7 +165,7 @@ Route prefix: `api/enums`
   - curl:
 
     ```bash
-    curl http://localhost:5262/api/enums/PlanType
+    curl http://localhost:5000/api/enums/PlanType
     ```
 
 ## Health (`HealthCheckController`)
@@ -177,7 +177,7 @@ Route prefix: `api/health`
   - curl:
 
     ```bash
-    curl http://localhost:5262/api/health
+    curl http://localhost:5000/api/health
     ```
 
 - GET /api/health/cosmos
@@ -185,7 +185,7 @@ Route prefix: `api/health`
   - curl:
 
     ```bash
-    curl http://localhost:5262/api/health/cosmos
+    curl http://localhost:5000/api/health/cosmos
     ```
 
 - GET /api/health/postgres
@@ -193,7 +193,7 @@ Route prefix: `api/health`
   - curl:
 
     ```bash
-    curl http://localhost:5262/api/health/postgres
+    curl http://localhost:5000/api/health/postgres
     ```
 
 - GET /api/health/cosmos/item
@@ -201,7 +201,7 @@ Route prefix: `api/health`
   - curl:
 
     ```bash
-    curl http://localhost:5262/api/health/cosmos/item
+    curl http://localhost:5000/api/health/cosmos/item
     ```
 
 ## Interaction (`InteractionController`)
@@ -227,7 +227,7 @@ Route prefix: `api/contacts/{contactId}/interactions`
   - curl:
 
     ```bash
-    curl -X POST http://localhost:5262/api/contacts/<contact-guid>/interactions \
+    curl -X POST http://localhost:5000/api/contacts/<contact-guid>/interactions \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
       -d '{"type":"email","direction":"outbound","subject":"Welcome","content":"Hello"}'
     ```
@@ -240,7 +240,7 @@ Route prefix: `api/contacts/{contactId}/interactions`
 
     ```bash
     curl -H "Authorization: Bearer $TOKEN" \
-      http://localhost:5262/api/contacts/<contact-guid>/interactions
+      http://localhost:5000/api/contacts/<contact-guid>/interactions
     ```
 
 ## Onboarding (`OnboardingController`)
@@ -265,7 +265,7 @@ Route prefix: `api/Onboarding`
   - curl:
   
     ```bash
-    curl -X POST http://localhost:5262/api/Onboarding/register \
+    curl -X POST http://localhost:5000/api/Onboarding/register \
       -H "Content-Type: application/json" \
       -d '{"organizationName":"Acme Realty","email":"owner@acme.com","password":"Passw0rd!","planKey":"basic","seatCount":5}'
     ```
@@ -281,7 +281,7 @@ Route prefix: `api/Organization`
   - curl:
 
     ```bash
-    curl -X POST http://localhost:5262/api/Organization \
+    curl -X POST http://localhost:5000/api/Organization \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
       -d '{"name":"Acme Realty","email":"owner@acme.com","ownerUserId":"<user-guid>","seatCount":5}'
     ```
@@ -294,7 +294,7 @@ Route prefix: `api/Organization`
 
     ```bash
     curl -H "Authorization: Bearer $TOKEN" \
-      "http://localhost:5262/api/Organization?page=1&size=20"
+      "http://localhost:5000/api/Organization?page=1&size=20"
     ```
 
 - GET /api/Organization/{id}
@@ -304,7 +304,7 @@ Route prefix: `api/Organization`
 
     ```bash
     curl -H "Authorization: Bearer $TOKEN" \
-      http://localhost:5262/api/Organization/<org-guid>
+      http://localhost:5000/api/Organization/<org-guid>
     ```
 
 ### Invitations
@@ -316,7 +316,7 @@ Route prefix: `api/Organization`
   - curl:
 
     ```bash
-    curl -X POST http://localhost:5262/api/Organization/<org-guid>/invitations \
+    curl -X POST http://localhost:5000/api/Organization/<org-guid>/invitations \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
       -d '{"email":"invitee@example.com","role":"Member","expiresInDays":7}'
     ```
@@ -327,7 +327,7 @@ Route prefix: `api/Organization`
   - curl:
 
     ```bash
-    curl http://localhost:5262/api/Organization/invitations/<token>
+    curl http://localhost:5000/api/Organization/invitations/<token>
     ```
 
 - POST /api/Organization/invitations/{token}/accept
@@ -337,7 +337,7 @@ Route prefix: `api/Organization`
   - curl:
 
     ```bash
-    curl -X POST http://localhost:5262/api/Organization/invitations/<token>/accept
+    curl -X POST http://localhost:5000/api/Organization/invitations/<token>/accept
     ```
 
 - POST /api/Organization/invitations/{token}/register
@@ -348,7 +348,7 @@ Route prefix: `api/Organization`
   - curl:
 
     ```bash
-    curl -X POST http://localhost:5262/api/Organization/invitations/<token>/register \
+    curl -X POST http://localhost:5000/api/Organization/invitations/<token>/register \
       -H "Content-Type: application/json" \
       -d '{"firstName":"Alex","lastName":"Doe","password":"Passw0rd!"}'
     ```
@@ -364,7 +364,7 @@ Route prefix: `api/auth`
   - curl:
 
     ```bash
-    curl -X POST http://localhost:5262/api/auth/verify-email \
+    curl -X POST http://localhost:5000/api/auth/verify-email \
       -H "Content-Type: application/json" \
       -d '{"token":"<token>"}'
     ```

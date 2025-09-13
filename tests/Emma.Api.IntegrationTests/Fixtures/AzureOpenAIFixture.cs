@@ -1,10 +1,11 @@
 using System;
 using System.Threading.Tasks;
-using Azure.AI.OpenAI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using Emma.Api.IntegrationTests.Configuration;
+using CoreAzureOpenAIConfig = Emma.Core.Config.AzureOpenAIConfig;
 
 namespace Emma.Api.IntegrationTests.Fixtures
 {
@@ -14,57 +15,32 @@ namespace Emma.Api.IntegrationTests.Fixtures
     /// </summary>
     public class AzureOpenAIFixture : IAsyncLifetime
     {
-        public OpenAIClient Client { get; private set; }
-        public AzureOpenAIConfig Config { get; private set; }
+        public CoreAzureOpenAIConfig Config { get; private set; } = new();
         public bool IsAvailable { get; private set; }
 
         public AzureOpenAIFixture()
         {
             var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.Test.json")
+                .AddJsonFile("appsettings.Test.json", optional: true)
                 .AddEnvironmentVariables()
                 .Build();
 
-            Config = configuration.GetSection("AzureOpenAI").Get<AzureOpenAIConfig>();
-            
-            // Only create the client if we have the required configuration
-            if (!string.IsNullOrEmpty(Config?.ApiKey) && 
-                !string.IsNullOrEmpty(Config?.Endpoint) &&
-                !string.IsNullOrEmpty(Config?.DeploymentName))
+            var parsed = configuration.GetSection("AzureOpenAI").Get<CoreAzureOpenAIConfig>();
+            if (parsed != null)
             {
-                Client = new OpenAIClient(
-                    new Uri(Config.Endpoint),
-                    new Azure.AzureKeyCredential(Config.ApiKey));
-                IsAvailable = true;
+                Config = parsed;
             }
+            
+            // Only mark available if we have the required configuration
+            IsAvailable = !string.IsNullOrEmpty(Config?.ApiKey)
+                           && !string.IsNullOrEmpty(Config?.Endpoint)
+                           && !string.IsNullOrEmpty(Config?.ChatDeploymentName);
         }
 
         public async Task InitializeAsync()
         {
-            if (!IsAvailable) return;
-
-            try
-            {
-                // Test the connection
-                var options = new ChatCompletionsOptions
-                {
-                    DeploymentName = Config.DeploymentName,
-                    Messages = 
-                    {
-                        new ChatRequestSystemMessage("You are a helpful assistant."),
-                        new ChatRequestUserMessage("Hello")
-                    },
-                    MaxTokens = 5
-                };
-
-                // This will throw if the deployment doesn't exist or credentials are invalid
-                await Client.GetChatCompletionsAsync(options);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Azure OpenAI connection test failed: {ex.Message}");
-                IsAvailable = false;
-            }
+            // No-op: fixture no longer calls external services in tests.
+            await Task.CompletedTask;
         }
 
         public Task DisposeAsync()

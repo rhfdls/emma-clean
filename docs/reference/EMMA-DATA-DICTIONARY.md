@@ -77,7 +77,12 @@ Core entity representing individuals or businesses in the system.
 - **AssignedAgent**: Reference to the assigned agent (if any)
 - **Interactions**: Collection of all interactions with this contact
 - **AssignedResources**: Resources assigned to this contact
+  
+  > OBSOLETE: Use `ContactAssignments` with `serviceProviderContactId` (a `Contact` whose `RelationshipState` is `ServiceProvider`). See `docs/architecture/UNIFIED_SCHEMA.md`.
+  
 - **ResourceAssignments**: Resources this contact is assigned to
+  
+  > OBSOLETE: Use `ContactAssignments` (contact-centric). Resource-centric models have been deprecated. See `docs/architecture/UNIFIED_SCHEMA.md` and `docs/development/TERMINOLOGY-MIGRATION-GUIDE.md`.
 - **StateHistory**: History of relationship state changes
 - **Collaborators**: Agents with access to this contact
 - **CollaboratingOn**: Contacts this contact collaborates on

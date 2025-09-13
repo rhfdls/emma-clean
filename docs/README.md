@@ -7,7 +7,9 @@ Welcome to the EMMA AI platform documentation suite. This directory provides a s
 ## 📂 Documentation Structure & Navigation
 
 ### 🟩 [Project Management](./project-management/)
+
 > **Start here for all planning, priorities, and delivery!**
+
 - **EMMA Unified Engineering Backlog.md** - 📌 *The “single pane of glass” for all sprints, roadmap, validation, enhancements, and tech debt tracking. Always reference this first for project management, architectural review, and Windsurf integration.*
 - **MASTER-IMPLEMENTATION-BACKLOG.md** - Detailed phased engineering roadmap.
 - **SPRINT-1-IMPLEMENTATION-SUMMARY.md**, **SPRINT-1-VALIDATION-CHECKLIST.md**, **SPRINT-2-ROADMAP.md** - Sprint-specific outcomes and validation.
@@ -17,28 +19,47 @@ Welcome to the EMMA AI platform documentation suite. This directory provides a s
 - **CHANGELOG.md** - Historical changes and releases.
 
 ### 🏗️ [Architecture](./architecture/)
+
 System design, core schemas, and technical foundations.
-- **EMMA-AI-ARCHITECTURE-GUIDE.md**, **ARCHITECTURE.md**, **UNIFIED_SCHEMA.md**, **RESOURCE_ASSIGNMENT_SCHEMA.md**, **SQL-CONTEXT-INTEGRATION.md**.
+
+- **EMMA-AI-ARCHITECTURE-GUIDE.md**, **ARCHITECTURE.md**, **UNIFIED_SCHEMA.md**, **SQL-CONTEXT-INTEGRATION.md**.
+- NuGet Governance:
+  - **[NUGET-8x-PINNING-PLAYBOOK.md](./architecture/NUGET-8x-PINNING-PLAYBOOK.md)** – Architecture guardrail for NuGet 8.x pinning with CPVM + lockfiles.
+  - **[Auto-Fix NuGet Version Drift – Cascade Prompt](./architecture/Auto-Fix-NuGet-Version-Drift-cascade-prompt.md)** – Ready-to-run Windsurf prompt to diagnose and remediate NuGet version drift using the playbook.
+- Additional architecture notes:
+  - **[EMMA-Procedural-Memory-Service.md](./architecture/EMMA-Procedural-Memory-Service.md)** – Procedural memory architecture and service design.
+  - **[circular-dependency-resolution.md](./architecture/circular-dependency-resolution.md)** – Guidance for resolving circular dependencies.
+- Note: `RESOURCE_ASSIGNMENT_SCHEMA.md` is kept for historical context only and is marked OBSOLETE. Use the contact-centric model in `UNIFIED_SCHEMA.md` and see `development/TERMINOLOGY-MIGRATION-GUIDE.md` for migration guidance.
 
 ### 🔒 [Security](./security/)
+
 Compliance, security patterns, and responsible AI:
+
 - **PRIVACY_IMPLEMENTATION_GUIDE.md**, **SECRETS_MANAGEMENT.md**, **SECURITY-FILTERING-EXAMPLE.md**, **RESPONSIBLE-AI-VALIDATION.md**.
 
 ### ⚙️ [Operations](./operations/)
+
 Environment, deployment, and infrastructure guides:
+
 - **CLOUD_SETUP.md**, **DEMO_SETUP_GUIDE.md**, **ENVIRONMENT_BACKUP.md**, **infrastructure.md**, **README-cosmos-env.md**, **azure-data-studio-instructions.md**.
 
 ### 🤖 [Agents](./agents/)
+
 All agent-related specs and inventories:
+
 - **AGENT-ORCHESTRATION-COMPLETE.md**, **AGENTIC-FRAMEWORK-INVENTORY.md**, **agents-catalog-readme.md**, plus **[agent-factory/](./agents/agent-factory/)** for factory implementation docs.
 
 ### 👨‍💻 [Development](./development/)
+
 Development, testing, and UI/UX design:
+
 - **TESTING.md**, **TERMINOLOGY-MIGRATION-GUIDE.md**, **Configuration-Management-Guide.md**, **azure-openai-integration.md**.
 - **[designs/](./development/designs/)** - UI and experience specifications.
 
 ### 📚 [Reference](./reference/)
+
 Key APIs, contracts, and definitions:
+
 - **EMMA-DATA-DICTIONARY.md**, **DATA_CONTRACT.md**, **USER-OVERRIDE-ARCHITECTURE.md**, **[ai-first/](./reference/ai-first/)** for design patterns and compliance checklists.
 
 ---
@@ -61,14 +82,17 @@ Key APIs, contracts, and definitions:
 ## 🚀 Quick Start Guide
 
 ### Developers
+
 1. Start with [Project Management](./project-management/EMMA%20Unified%20Engineering%20Backlog.md) to align with the current sprint.
 2. Review [Architecture](./architecture/) and [Development](./development/) for implementation details.
 3. Use [Reference](./reference/) for data contracts and terminology.
 
 ### Operations/DevOps
+
 - See [Operations](./operations/) and [Security](./security/) for environment setup and compliance.
 
 ### Product/Business
+
 - Use [Agents](./agents/) for AI capabilities, [Project Management](./project-management/) for roadmaps.
 
 ---
@@ -92,6 +116,6 @@ Key APIs, contracts, and definitions:
 
 ---
 
-_Last Updated: 2025-06-10_  
-_Maintained By: EMMA Platform Engineering Team_
+*Last Updated: 2025-06-10*  
+*Maintained By: EMMA Platform Engineering Team*
 

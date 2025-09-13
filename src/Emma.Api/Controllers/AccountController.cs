@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Emma.Infrastructure.Data;
+using System.Security.Claims;
 
 namespace Emma.Api.Controllers
 {
@@ -19,38 +20,37 @@ namespace Emma.Api.Controllers
         }
 
         /// <summary>
-        /// Get profile for the current user (dashboard rehydration).
+        /// Get profile for the current user (admin dashboard).
+        /// Returns { email, organizationId, organizationName?, roles? }.
         /// </summary>
         [HttpGet("profile")]
-        [AllowAnonymous]
-        [ProducesResponseType(typeof(ProfileResponse), 200)]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> GetProfile()
         {
-            // Assume user identity is available via JWT claims
-            var email = User.Identity?.Name;
-            if (string.IsNullOrEmpty(email))
+            // Prefer claims for org/user; fall back to stub if missing (dev)
+            var email = User?.FindFirstValue(ClaimTypes.Email) ?? User?.Identity?.Name ?? string.Empty;
+            var orgIdStr = User?.FindFirstValue("orgId");
+            Guid? orgId = Guid.TryParse(orgIdStr, out var g) ? g : (Guid?)null;
+            var userIdStr = User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? User?.FindFirstValue("sub");
+            Guid? userId = Guid.TryParse(userIdStr, out var uid) ? uid : (Guid?)null;
+
+            string? orgName = null;
+            bool isOrgOwner = false;
+            if (orgId.HasValue)
             {
-                // SPRINT1: Return stub profile for unauthenticated users
-                var stubProfile = new ProfileResponse
+                using var scope = HttpContext.RequestServices.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<EmmaDbContext>();
+                var org = await db.Organizations.AsNoTracking().FirstOrDefaultAsync(o => o.Id == orgId.Value);
+                orgName = org?.Name;
+                if (org != null && userId.HasValue)
                 {
-                    OrganizationName = "Stub Org",
-                    PlanKey = "stub",
-                    PlanLabel = "Stub Plan",
-                    PlanDescription = "Stub plan for Sprint 1 frontend dev",
-                    PlanPrice = 0,
-                    SeatCount = 1,
-                    OrgGuid = "00000000-0000-0000-0000-000000000000",
-                    AccountStatus = "PendingVerification",
-                    Email = "stub@example.com"
-                };
-                return Ok(stubProfile);
+                    isOrgOwner = org.OwnerUserId == userId.Value;
+                }
             }
 
-            var profile = await _onboardingService.GetProfileAsync(email);
-            if (profile == null)
-                return Problem(statusCode: 404, title: "Profile not found", detail: "No profile exists for the current user.");
+            var roles = User?.Claims?.Where(c => c.Type == ClaimTypes.Role || c.Type.Equals("role", StringComparison.OrdinalIgnoreCase)).Select(c => c.Value).Where(v => !string.IsNullOrWhiteSpace(v)).ToArray() ?? Array.Empty<string>();
 
-            return Ok(profile);
+            return Ok(new { email, organizationId = orgId, organizationName = orgName, roles, isOrgOwner });
         }
         // SPRINT1: Email verification endpoint
         [HttpPost("verify")]

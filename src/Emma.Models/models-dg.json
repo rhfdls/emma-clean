@@ -1,0 +1,172 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj",
+        "projectName": "Emma.Models",
+        "projectPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\Emma.Models.csproj",
+        "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Models\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "configFilePaths": [
+          "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\NuGet.Config",
+          "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreLockProperties": {
+          "restorePackagesWithLockFile": "true"
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.8, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Caching.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Caching.Memory": {
+              "target": "Package",
+              "version": "[8.0.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[8.0.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[8.0.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Primitives": {
+              "target": "Package",
+              "version": "[8.0.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "coverlet.collector": "6.0.2",
+            "DotNetEnv": "3.1.0",
+            "JsonSchema.Net": "6.0.0",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.10",
+            "Microsoft.AspNetCore.Http.Json": "8.0.10",
+            "Microsoft.AspNetCore.Mvc.Testing": "8.0.10",
+            "Microsoft.AspNetCore.OpenApi": "8.0.10",
+            "Microsoft.EntityFrameworkCore": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Abstractions": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Design": "8.0.8",
+            "Microsoft.EntityFrameworkCore.InMemory": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Relational": "8.0.8",
+            "Microsoft.EntityFrameworkCore.Tools": "8.0.8",
+            "Microsoft.Extensions.Caching.Abstractions": "8.0.2",
+            "Microsoft.Extensions.Caching.Memory": "8.0.2",
+            "Microsoft.Extensions.Configuration": "8.0.2",
+            "Microsoft.Extensions.Configuration.Abstractions": "8.0.2",
+            "Microsoft.Extensions.Configuration.Binder": "8.0.2",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "8.0.2",
+            "Microsoft.Extensions.Configuration.FileExtensions": "8.0.2",
+            "Microsoft.Extensions.Configuration.Json": "8.0.2",
+            "Microsoft.Extensions.DependencyInjection": "8.0.2",
+            "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2",
+            "Microsoft.Extensions.Hosting": "8.0.2",
+            "Microsoft.Extensions.Hosting.Abstractions": "8.0.2",
+            "Microsoft.Extensions.Http": "8.0.2",
+            "Microsoft.Extensions.Http.Polly": "8.0.2",
+            "Microsoft.Extensions.Logging": "8.0.2",
+            "Microsoft.Extensions.Logging.Abstractions": "8.0.2",
+            "Microsoft.Extensions.Logging.Configuration": "8.0.2",
+            "Microsoft.Extensions.Logging.Console": "8.0.2",
+            "Microsoft.Extensions.Options": "8.0.2",
+            "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.2",
+            "Microsoft.Extensions.Primitives": "8.0.2",
+            "Microsoft.NET.Test.Sdk": "17.11.1",
+            "Moq": "4.20.70",
+            "Newtonsoft.Json": "13.0.3",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.8",
+            "xunit": "2.9.0",
+            "xunit.runner.visualstudio": "2.8.2",
+            "Xunit.SkippableFact": "1.4.13"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.409/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
