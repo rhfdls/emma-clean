@@ -347,7 +347,12 @@ namespace Emma.Api.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> UpdateContact(Guid id, [FromBody] Dtos.ContactUpdateDto dto, [FromServices] IContactRepository repo, [FromServices] EmmaDbContext db)
+        public async Task<IActionResult> UpdateContact(
+            Guid id,
+            [FromBody] Dtos.ContactUpdateDto dto,
+            [FromServices] IContactRepository repo,
+            [FromServices] EmmaDbContext db,
+            [FromServices] Emma.Api.Services.ContactUpdateService updater)
         {
             if (dto is null)
                 return Problem(statusCode: 400, title: "Validation failed", detail: "Request body is required.");
@@ -360,93 +365,8 @@ namespace Emma.Api.Controllers
             if (callerUserId is null)
                 return Problem(statusCode: 401, title: "Unauthorized", detail: "Missing or invalid user identity.");
 
-            var contact = await repo.GetByIdAsync(id);
-            if (contact is null || contact.OrganizationId != orgId.Value)
-                return Problem(statusCode: 404, title: "Contact not found", detail: $"No contact with id {id}.");
-
-            // RBAC & field-level enforcement
             var roles = GetRolesFromClaims();
-            var isOwnerOrAdmin = ContactAccessService.IsOwnerOrAdmin(roles);
-            var isCurrentOwner = ContactAccessService.IsCurrentOwner(callerUserId.Value, contact);
-
-            // Block forbidden fields for non-admin users (even if current owner) per SPRINT3 tests
-            var forbiddenTouched = dto.OwnerId.HasValue || dto.RelationshipState.HasValue;
-            if (forbiddenTouched && !isOwnerOrAdmin)
-            {
-                var blocked = new List<string>();
-                if (dto.OwnerId.HasValue) blocked.Add(nameof(dto.OwnerId));
-                if (dto.RelationshipState.HasValue) blocked.Add(nameof(dto.RelationshipState));
-                return Emma.Api.Infrastructure.ApiErrors.ForbiddenFields(this, "Only admins may modify ownership or relationship state.", blocked);
-            }
-
-            if (!isOwnerOrAdmin && !isCurrentOwner)
-            {
-                // Check collaborator
-                var isCollaborator = ContactAccessService.IsCollaborator(callerUserId.Value,
-                    await db.ContactCollaborators.AsNoTracking().Where(c => c.ContactId == id && c.OrganizationId == orgId.Value && c.IsActive).ToListAsync());
-                if (!isCollaborator)
-                    return Problem(statusCode: 403, title: "Forbidden", detail: "Insufficient permissions to edit contact.");
-
-                var (ok, blocked) = ContactAccessService.ValidateCollaboratorUpdate(dto);
-                if (!ok)
-                {
-                    return Emma.Api.Infrastructure.ApiErrors.ForbiddenFields(this, "Collaborators may only modify business fields.", blocked);
-                }
-            }
-
-            // Apply updates (only fields that are provided)
-            if (dto.FirstName != null) contact.FirstName = dto.FirstName;
-            if (dto.LastName != null) contact.LastName = dto.LastName;
-            if (dto.MiddleName != null) contact.MiddleName = dto.MiddleName;
-            if (dto.PreferredName != null) contact.PreferredName = dto.PreferredName;
-            if (dto.Title != null) contact.Title = dto.Title;
-            if (dto.JobTitle != null) contact.JobTitle = dto.JobTitle;
-            if (dto.Company != null) contact.Company = dto.Company;
-            if (dto.Department != null) contact.Department = dto.Department;
-            if (dto.Source != null) contact.Source = dto.Source;
-            if (dto.OwnerId.HasValue) contact.OwnerId = dto.OwnerId.Value; // Admin/Owner can transfer
-            if (dto.PreferredContactMethod != null) contact.PreferredContactMethod = dto.PreferredContactMethod;
-            if (dto.PreferredContactTime != null) contact.PreferredContactTime = dto.PreferredContactTime;
-            if (dto.Notes != null) contact.Notes = dto.Notes;
-            if (dto.ProfilePictureUrl != null) contact.ProfilePictureUrl = dto.ProfilePictureUrl;
-
-            if (dto.RelationshipState.HasValue) contact.RelationshipState = dto.RelationshipState.Value;
-            if (dto.CompanyName != null) contact.CompanyName = dto.CompanyName;
-            if (dto.LicenseNumber != null) contact.LicenseNumber = dto.LicenseNumber;
-            if (dto.IsPreferred.HasValue) contact.IsPreferred = dto.IsPreferred.Value;
-            if (dto.Website != null) contact.Website = dto.Website;
-
-            contact.UpdatedAt = DateTime.UtcNow;
-            repo.Update(contact);
-            await repo.SaveChangesAsync();
-
-            var dtoOut = new Dtos.ContactReadDto
-            {
-                Id = contact.Id,
-                OrganizationId = contact.OrganizationId,
-                FirstName = contact.FirstName,
-                LastName = contact.LastName,
-                MiddleName = contact.MiddleName,
-                PreferredName = contact.PreferredName,
-                Title = contact.Title,
-                JobTitle = contact.JobTitle,
-                Company = contact.Company,
-                Department = contact.Department,
-                Source = contact.Source,
-                OwnerId = contact.OwnerId,
-                PreferredContactMethod = contact.PreferredContactMethod,
-                PreferredContactTime = contact.PreferredContactTime,
-                Notes = contact.Notes,
-                ProfilePictureUrl = contact.ProfilePictureUrl,
-                LastContactedAt = contact.LastContactedAt,
-                NextFollowUpAt = contact.NextFollowUpAt,
-                RelationshipState = contact.RelationshipState,
-                CompanyName = contact.CompanyName,
-                LicenseNumber = contact.LicenseNumber,
-                IsPreferred = contact.IsPreferred,
-                Website = contact.Website
-            };
-            return Ok(dtoOut);
+            return await updater.UpdateAsync(id, orgId.Value, callerUserId.Value, roles, dto, repo, db);
         }
 
         // Legacy singular routes with deprecation logging
