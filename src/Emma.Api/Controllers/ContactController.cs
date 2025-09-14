@@ -196,18 +196,45 @@ namespace Emma.Api.Controllers
         /// <summary>List contacts for the caller's organization.</summary>
         /// <remarks>
         /// Tenant scoping is derived from the orgId claim. Any client-provided orgId is ignored.
+        /// Optional filters: ownerId, relationshipState, q (name/company contains), page, size.
         /// </remarks>
         /// <response code="200">List of contacts scoped to the caller's organization.</response>
         /// <response code="400">Missing org context.</response>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<Emma.Api.Dtos.ContactReadDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetContactsByOrg([FromServices] IContactRepository repo)
+        public async Task<IActionResult> GetContactsByOrg(
+            [FromServices] EmmaDbContext db,
+            [FromQuery] Guid? ownerId,
+            [FromQuery] RelationshipState? relationshipState,
+            [FromQuery] string? q,
+            [FromQuery] int page = 1,
+            [FromQuery] int size = 50)
         {
             var claimOrgId = GetOrgIdFromClaims();
             if (claimOrgId is null)
                 return Problem(statusCode: 400, title: "Missing org context", detail: "Missing or invalid orgId claim.");
-            var contacts = await repo.FindAsync(c => c.OrganizationId == claimOrgId.Value);
+            page = page < 1 ? 1 : page;
+            size = size < 1 ? 1 : (size > 200 ? 200 : size);
+
+            var query = db.Contacts.AsNoTracking().Where(c => c.OrganizationId == claimOrgId.Value);
+            if (ownerId.HasValue) query = query.Where(c => c.OwnerId == ownerId.Value);
+            if (relationshipState.HasValue) query = query.Where(c => c.RelationshipState == relationshipState.Value);
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var ql = q.ToLower();
+                query = query.Where(c =>
+                    (c.FirstName != null && c.FirstName.ToLower().Contains(ql)) ||
+                    (c.LastName != null && c.LastName.ToLower().Contains(ql)) ||
+                    (c.Company != null && c.Company.ToLower().Contains(ql))
+                );
+            }
+
+            var contacts = await query
+                .OrderBy(c => c.LastName).ThenBy(c => c.FirstName)
+                .Skip((page - 1) * size)
+                .Take(size)
+                .ToListAsync();
             var dtos = contacts.Select(contact => new Dtos.ContactReadDto
             {
                 Id = contact.Id,
@@ -235,6 +262,29 @@ namespace Emma.Api.Controllers
                 Website = contact.Website
             }).ToList();
             return Ok(dtos);
+        }
+
+        /// <summary>Delete a contact in the caller's organization.</summary>
+        /// <response code="204">Deleted.</response>
+        /// <response code="404">Not found in caller's org.</response>
+        /// <response code="400">Missing org context.</response>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteContact(Guid id, [FromServices] IContactRepository repo)
+        {
+            var orgId = GetOrgIdFromClaims();
+            if (orgId is null)
+                return Problem(statusCode: 400, title: "Missing org context", detail: "Missing or invalid orgId claim.");
+
+            var contact = await repo.GetByIdAsync(id);
+            if (contact is null || contact.OrganizationId != orgId.Value)
+                return Problem(statusCode: 404, title: "Contact not found", detail: $"No contact with id {id}.");
+
+            repo.Remove(contact);
+            await repo.SaveChangesAsync();
+            return NoContent();
         }
 
         // PUT /contacts/{id}/assign (legacy plural assign)
