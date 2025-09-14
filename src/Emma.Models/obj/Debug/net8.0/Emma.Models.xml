@@ -306,6 +306,12 @@
             Gets or sets the organization this address belongs to.
             </summary>
         </member>
+        <member name="T:Emma.Models.Models.AuditEvent">
+            <summary>
+            Non-PII audit event to record irreversible actions such as contact erasure.
+            Keep payload free of any personally identifying information.
+            </summary>
+        </member>
         <member name="T:Emma.Models.Models.BaseEntity">
             <summary>
             Base class for all entity types in the system.
@@ -586,6 +592,26 @@
             <summary>
             Boolean flag for compliance and legal triggers when someone becomes an active client.
             Set to true when client signs representation agreement or enters active transaction.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.IsArchived">
+            <summary>
+            Soft-archive flag. When true, contact is excluded from default lists and active workflows.
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.ArchivedAt">
+            <summary>
+            Timestamp when this contact was archived (if archived).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.DeletedAt">
+            <summary>
+            Timestamp when this contact was deleted (for audit only; hard delete removes PII).
+            </summary>
+        </member>
+        <member name="P:Emma.Models.Models.Contact.DeletedByUserId">
+            <summary>
+            User who initiated deletion (for audit only; may be null if system-initiated).
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Contact.ClientSince">

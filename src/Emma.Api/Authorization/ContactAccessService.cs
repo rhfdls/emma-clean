@@ -10,7 +10,9 @@ namespace Emma.Api.Authorization
     {
         public static bool IsOwnerOrAdmin(IReadOnlyCollection<string> roles)
             => roles.Any(r => string.Equals(r, "Owner", StringComparison.OrdinalIgnoreCase) ||
-                               string.Equals(r, "Admin", StringComparison.OrdinalIgnoreCase));
+                               string.Equals(r, "Admin", StringComparison.OrdinalIgnoreCase) ||
+                               string.Equals(r, "OrgOwner", StringComparison.OrdinalIgnoreCase) ||
+                               string.Equals(r, "OrgAdmin", StringComparison.OrdinalIgnoreCase));
 
         public static bool IsCurrentOwner(Guid userId, Contact c) => c.OwnerId == userId;
 

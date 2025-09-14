@@ -107,6 +107,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddEmmaDatabase(builder.Configuration, isDevelopment: builder.Environment.IsDevelopment());
 
 builder.Services.AddScoped<IOnboardingService, OnboardingService>();
+builder.Services.AddScoped<ContactUpdateService>();
 
 // Minimal health checks
 builder.Services.AddHealthChecks();
@@ -170,9 +171,12 @@ builder.Services.AddScoped<IEmailSender, EmailSenderDev>();
 // Development-only JWT authentication
 if (builder.Environment.IsDevelopment())
 {
-    var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-    var jwtAudience = builder.Configuration["Jwt:Audience"];
-    var jwtKey = builder.Configuration["Jwt:Key"];
+    // In Development, force known-good defaults to keep dev tokens and validation aligned
+    var jwtIssuer = "emma-dev";
+    var jwtAudience = "emma-dev";
+    var jwtKey = "supersecret_dev_jwt_key_please_change";
+    Console.WriteLine("[Auth] Dev mode: forcing Jwt Issuer/Audience to 'emma-dev' and using dev key");
+    Console.WriteLine($"[Auth] Dev JWT configured -> Issuer='{jwtIssuer}', Audience='{jwtAudience}', KeyPresent={(string.IsNullOrWhiteSpace(jwtKey) ? "false" : "true")}");
     if (!string.IsNullOrWhiteSpace(jwtIssuer) && !string.IsNullOrWhiteSpace(jwtAudience) && !string.IsNullOrWhiteSpace(jwtKey))
     {
         var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
@@ -189,6 +193,22 @@ if (builder.Environment.IsDevelopment())
                     ValidIssuer = jwtIssuer,
                     ValidAudience = jwtAudience,
                     IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = ctx =>
+                    {
+                        Console.WriteLine($"[Auth] JWT failed: {ctx.Exception.GetType().Name}: {ctx.Exception.Message}");
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = ctx =>
+                    {
+                        var sub = ctx.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                                  ?? ctx.Principal?.FindFirst("sub")?.Value;
+                        var org = ctx.Principal?.FindFirst("orgId")?.Value;
+                        Console.WriteLine($"[Auth] JWT validated: sub={sub} orgId={org}");
+                        return Task.CompletedTask;
+                    }
                 };
             });
     }
@@ -230,6 +250,9 @@ builder.Services.AddSwaggerGen(options =>
 
     // Add global ProblemDetails examples for common error responses
     options.OperationFilter<ProblemDetailsResponsesOperationFilter>();
+
+    // Contact-specific examples for list, archive, restore, hard delete
+    options.OperationFilter<Emma.Api.Swagger.ContactExamplesOperationFilter>();
 
     // Add Bearer JWT security so Swagger UI can authorize requests
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme

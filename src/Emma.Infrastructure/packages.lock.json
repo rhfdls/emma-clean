@@ -4,7 +4,7 @@
     "net8.0": {
       "Microsoft.Azure.Cosmos": {
         "type": "Direct",
-        "requested": "[3.38.1, )",
+        "requested": "[3.38.1, 3.38.1]",
         "resolved": "3.38.1",
         "contentHash": "f71N+NQhmUPKcUXNMCg6gHcA5Buef8aSsCtZKXzrj5cGfDwOS9sQ2eLrGQiDcDSQI6g0MudPkdIQq/8KAzDMaQ==",
         "dependencies": {
@@ -157,7 +157,7 @@
       },
       "Newtonsoft.Json": {
         "type": "Direct",
-        "requested": "[13.0.3, )",
+        "requested": "[13.0.3, 13.0.3]",
         "resolved": "13.0.3",
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
@@ -531,7 +531,7 @@
           "Microsoft.Extensions.Logging.Abstractions": "[8.0.3, 8.0.3]",
           "Microsoft.Extensions.Options": "[8.0.2, 8.0.2]",
           "Microsoft.Extensions.Primitives": "[8.0.0, 8.0.0]",
-          "Newtonsoft.Json": "[13.0.3, )"
+          "Newtonsoft.Json": "[13.0.3, 13.0.3]"
         }
       },
       "Azure.Core": {

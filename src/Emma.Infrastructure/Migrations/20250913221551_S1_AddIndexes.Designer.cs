@@ -5,6 +5,7 @@ using System.Text.Json;
 using Emma.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -13,9 +14,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Emma.Infrastructure.Migrations
 {
     [DbContext(typeof(EmmaDbContext))]
-    partial class EmmaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250913221551_S1_AddIndexes")]
+    partial class S1_AddIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -336,44 +339,6 @@ namespace Emma.Infrastructure.Migrations
                     b.ToTable("Attachment");
                 });
 
-            modelBuilder.Entity("Emma.Models.Models.AuditEvent", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<Guid?>("ActorUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("DetailsJson")
-                        .HasColumnType("jsonb");
-
-                    b.Property<DateTime>("OccurredAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("TraceId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Action");
-
-                    b.HasIndex("OccurredAt");
-
-                    b.HasIndex("OrganizationId");
-
-                    b.ToTable("AuditEvents", (string)null);
-                });
-
             modelBuilder.Entity("Emma.Models.Models.CallMetadata", b =>
                 {
                     b.Property<Guid>("MessageId")
@@ -407,9 +372,6 @@ namespace Emma.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<DateTime?>("ClientSince")
                         .HasColumnType("timestamp with time zone");
 
@@ -426,13 +388,10 @@ namespace Emma.Infrastructure.Migrations
                     b.Property<Guid?>("CreatedById")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("DeletedAt")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DeletedById")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Department")
@@ -446,11 +405,6 @@ namespace Emma.Infrastructure.Migrations
 
                     b.Property<bool>("IsActiveClient")
                         .HasColumnType("boolean");
-
-                    b.Property<bool>("IsArchived")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -583,8 +537,6 @@ namespace Emma.Infrastructure.Migrations
                     b.HasIndex("RelationshipState");
 
                     b.HasIndex("LastName", "FirstName");
-
-                    b.HasIndex("OrganizationId", "IsArchived", "OwnerId");
 
                     b.ToTable("Contacts", (string)null);
                 });

@@ -1,0 +1,961 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="2a469425-1d13-40f6-a571-fff3e354d9d7" name="DLS@RHFTP152022 2025-09-14 17:19:55" runUser="RHFTP152022\DLS" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-09-14T17:19:55.3317916-04:00" queuing="2025-09-14T17:19:55.3317924-04:00" start="2025-09-14T17:19:53.4138895-04:00" finish="2025-09-14T17:20:09.6581112-04:00" />
+  <TestSettings name="default" id="e8ddd682-f1b1-42f5-b9bc-63e1801d428b">
+    <Deployment runDeploymentRoot="DLS_RHFTP152022_2025-09-14_17_19_55" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="9b66e508-913e-409c-ad59-252d69710812" testId="803c127f-b2e6-bc1c-5bc6-2a1ad99115b0" testName="Archive and Restore flow excludes from default list and includes when requested" computerName="RHFTP152022" duration="00:00:02.6612861" startTime="2025-09-14T17:20:02.3151381-04:00" endTime="2025-09-14T17:20:02.3151382-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9b66e508-913e-409c-ad59-252d69710812" />
+    <UnitTestResult executionId="e61c3528-5c54-4cfa-b751-71e3655f1338" testId="73c267c0-b606-c708-2613-3f827c4a035f" testName="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WithEmptyMessage_ReturnsErrorResponse" computerName="RHFTP152022" duration="00:00:00.0060524" startTime="2025-09-14T17:19:54.1381704-04:00" endTime="2025-09-14T17:19:54.1381710-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e61c3528-5c54-4cfa-b751-71e3655f1338" />
+    <UnitTestResult executionId="6fe5b9e6-a53a-4621-b8d1-d5ea98f80ae1" testId="642fd207-31b9-1153-568d-0d7138be13f8" testName="Cross-org read/update hidden" computerName="RHFTP152022" duration="00:00:02.4657036" startTime="2025-09-14T17:20:04.7821089-04:00" endTime="2025-09-14T17:20:04.7821092-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6fe5b9e6-a53a-4621-b8d1-d5ea98f80ae1" />
+    <UnitTestResult executionId="5a4c0c5d-f92d-4244-8713-83f024cb0e10" testId="ca9e089d-0711-0d3d-ed3e-2a9579d435a6" testName="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.Constructor_WithValidConfig_InitializesSuccessfully" computerName="RHFTP152022" duration="00:00:00.0010980" startTime="2025-09-14T17:19:54.1358464-04:00" endTime="2025-09-14T17:19:54.1358465-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5a4c0c5d-f92d-4244-8713-83f024cb0e10" />
+    <UnitTestResult executionId="12fc153e-dc1e-47d1-bced-ea030f296469" testId="683d88b7-45c3-344b-f76d-6a89b7aa6ce6" testName="CosmosDB should be reachable for integration tests" computerName="RHFTP152022" duration="00:00:00.0066906" startTime="2025-09-14T17:19:54.0268003-04:00" endTime="2025-09-14T17:19:54.0268015-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="12fc153e-dc1e-47d1-bced-ea030f296469" />
+    <UnitTestResult executionId="0fdaa562-dd2a-4c6e-ba66-29e329a81c22" testId="2c29280d-45d9-cbf2-a9b5-44b5747b9bf5" testName="List filters: ownerId, relationshipState, q with archived behavior" computerName="RHFTP152022" duration="00:00:02.5819983" startTime="2025-09-14T17:20:09.5760944-04:00" endTime="2025-09-14T17:20:09.5760945-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0fdaa562-dd2a-4c6e-ba66-29e329a81c22" />
+    <UnitTestResult executionId="91137509-64f8-4c9b-94f3-71e6d29648c7" testId="707f6671-992a-01f9-d196-8e8cab4e0f12" testName="Owner assigns; collaborator limited to business-only fields" computerName="RHFTP152022" duration="00:00:02.2106103" startTime="2025-09-14T17:20:06.9932953-04:00" endTime="2025-09-14T17:20:06.9932954-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="91137509-64f8-4c9b-94f3-71e6d29648c7" />
+    <UnitTestResult executionId="c1066217-ea54-470a-9c79-fad65ee8134c" testId="aebc3c43-aec6-ed29-7cf2-db881bf21927" testName="Emma.Api.IntegrationTests.OnboardingAndProfileFlowTests.RegisterAndProfileFlow_WorksAndIsolated" computerName="RHFTP152022" duration="00:00:04.3254742" startTime="2025-09-14T17:19:58.3426583-04:00" endTime="2025-09-14T17:19:58.3426585-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c1066217-ea54-470a-9c79-fad65ee8134c">
+      <Output>
+        <ErrorInfo>
+          <Message>Expected profileJson "{"email":"","organizationId":null,"organizationName":null,"roles":[],"isOrgOwner":false}" to contain "TestOrg_d1e2a743823042fb82a61bb0d6f548c5".</Message>
+          <StackTrace>   at FluentAssertions.Execution.XUnit2TestFramework.Throw(String message)&#xD;
+   at FluentAssertions.Execution.TestFrameworkProvider.Throw(String message)&#xD;
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)&#xD;
+   at FluentAssertions.Execution.AssertionScope.FailWith(Func`1 failReasonFunc)&#xD;
+   at FluentAssertions.Execution.AssertionScope.FailWith(Func`1 failReasonFunc)&#xD;
+   at FluentAssertions.Execution.AssertionScope.FailWith(String message, Object[] args)&#xD;
+   at FluentAssertions.Primitives.StringAssertions`1.Contain(String expected, String because, Object[] becauseArgs)&#xD;
+   at Emma.Api.IntegrationTests.OnboardingAndProfileFlowTests.RegisterAndProfileFlow_WorksAndIsolated() in C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\OnboardingAndProfileFlowTests.cs:line 43&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="da305703-3629-4ed1-93d1-8d39c147671c" testId="265c1e26-8bcf-ad69-6a77-c72cfc7be98c" testName="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WithValidInput_ReturnsSuccessResponse" computerName="RHFTP152022" duration="00:00:00.1135068" startTime="2025-09-14T17:19:54.1340671-04:00" endTime="2025-09-14T17:19:54.1340676-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="da305703-3629-4ed1-93d1-8d39c147671c">
+      <Output>
+        <ErrorInfo>
+          <Message>System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at Emma.Api.Services.EmmaAgentService.ProcessMessageAsync(String message, CancellationToken cancellationToken) in C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\Services\EmmaAgentService.cs:line 164&#xD;
+   at Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WithValidInput_ReturnsSuccessResponse() in C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\Services\EmmaAgentServiceTests.cs:line 81&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="606fa95c-5b25-4f80-a512-50df07257376" testId="ed63ccfb-06c2-6071-a5cc-9f8af9b28c84" testName="Hard delete requires reason and purges contact" computerName="RHFTP152022" duration="00:00:05.6354309" startTime="2025-09-14T17:19:59.6529263-04:00" endTime="2025-09-14T17:19:59.6529268-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="606fa95c-5b25-4f80-a512-50df07257376" />
+    <UnitTestResult executionId="ad0a830c-8bf3-4f3c-8df3-5e215aab2a18" testId="51e8fbdb-8310-8d26-87b0-0e0dd20c83e4" testName="Emma.Api.IntegrationTests.FulltextInteractionControllerTests.Can_Post_And_Query_FulltextInteraction" computerName="RHFTP152022" duration="00:00:00.0010000" startTime="2025-09-14T17:19:54.0110088-04:00" endTime="2025-09-14T17:19:54.0110252-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ad0a830c-8bf3-4f3c-8df3-5e215aab2a18">
+      <Output>
+        <ErrorInfo>
+          <Message>FulltextInteractionDto and endpoints not present in this repo snapshot</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="d027ae66-1ba6-4bbb-bb0b-2397e35bdd10" testId="51c16369-27fe-329d-745b-71c8f3548152" testName="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WhenRateLimited_RetriesAndThenFails" computerName="RHFTP152022" duration="00:00:00.0021423" startTime="2025-09-14T17:19:54.1356879-04:00" endTime="2025-09-14T17:19:54.1356881-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d027ae66-1ba6-4bbb-bb0b-2397e35bdd10">
+      <Output>
+        <ErrorInfo>
+          <Message>System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at Emma.Api.Services.EmmaAgentService.ProcessMessageAsync(String message, CancellationToken cancellationToken) in C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\Services\EmmaAgentService.cs:line 164&#xD;
+   at Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WhenRateLimited_RetriesAndThenFails() in C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\Services\EmmaAgentServiceTests.cs:line 133&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2db26e89-c8bb-4c4a-b6be-2548f0b66911" testId="79313b72-edf7-47dc-988d-9a53d3a55551" testName="Emma.Api.IntegrationTests.Services.EmmaAgentServiceIntegrationTests.ProcessMessageAsync_WithRealService_ReturnsValidResponse" computerName="RHFTP152022" duration="00:00:00.0010000" startTime="2025-09-14T17:19:54.1254930-04:00" endTime="2025-09-14T17:19:54.1254932-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2db26e89-c8bb-4c4a-b6be-2548f0b66911">
+      <Output>
+        <ErrorInfo>
+          <Message>Azure OpenAI is not configured for integration testing</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Emma.Api.IntegrationTests.FulltextInteractionControllerTests.Can_Post_And_Query_FulltextInteraction" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="51e8fbdb-8310-8d26-87b0-0e0dd20c83e4">
+      <Execution id="ad0a830c-8bf3-4f3c-8df3-5e215aab2a18" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.FulltextInteractionControllerTests" name="Can_Post_And_Query_FulltextInteraction" />
+    </UnitTest>
+    <UnitTest name="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WithEmptyMessage_ReturnsErrorResponse" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="73c267c0-b606-c708-2613-3f827c4a035f">
+      <Execution id="e61c3528-5c54-4cfa-b751-71e3655f1338" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests" name="ProcessMessageAsync_WithEmptyMessage_ReturnsErrorResponse" />
+    </UnitTest>
+    <UnitTest name="Hard delete requires reason and purges contact" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="ed63ccfb-06c2-6071-a5cc-9f8af9b28c84">
+      <Execution id="606fa95c-5b25-4f80-a512-50df07257376" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.Contacts_AssignmentAndUpdateTests" name="Hard_Delete_Requires_Reason_And_Purges" />
+    </UnitTest>
+    <UnitTest name="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WithValidInput_ReturnsSuccessResponse" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="265c1e26-8bcf-ad69-6a77-c72cfc7be98c">
+      <Execution id="da305703-3629-4ed1-93d1-8d39c147671c" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests" name="ProcessMessageAsync_WithValidInput_ReturnsSuccessResponse" />
+    </UnitTest>
+    <UnitTest name="Cross-org read/update hidden" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="642fd207-31b9-1153-568d-0d7138be13f8">
+      <Execution id="6fe5b9e6-a53a-4621-b8d1-d5ea98f80ae1" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.Contacts_AssignmentAndUpdateTests" name="CrossOrg_Is_Hidden" />
+    </UnitTest>
+    <UnitTest name="Emma.Api.IntegrationTests.OnboardingAndProfileFlowTests.RegisterAndProfileFlow_WorksAndIsolated" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="aebc3c43-aec6-ed29-7cf2-db881bf21927">
+      <Execution id="c1066217-ea54-470a-9c79-fad65ee8134c" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.OnboardingAndProfileFlowTests" name="RegisterAndProfileFlow_WorksAndIsolated" />
+    </UnitTest>
+    <UnitTest name="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.Constructor_WithValidConfig_InitializesSuccessfully" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="ca9e089d-0711-0d3d-ed3e-2a9579d435a6">
+      <Execution id="5a4c0c5d-f92d-4244-8713-83f024cb0e10" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests" name="Constructor_WithValidConfig_InitializesSuccessfully" />
+    </UnitTest>
+    <UnitTest name="Archive and Restore flow excludes from default list and includes when requested" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="803c127f-b2e6-bc1c-5bc6-2a1ad99115b0">
+      <Execution id="9b66e508-913e-409c-ad59-252d69710812" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.Contacts_AssignmentAndUpdateTests" name="Archive_And_Restore_Flow" />
+    </UnitTest>
+    <UnitTest name="Owner assigns; collaborator limited to business-only fields" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="707f6671-992a-01f9-d196-8e8cab4e0f12">
+      <Execution id="91137509-64f8-4c9b-94f3-71e6d29648c7" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.Contacts_AssignmentAndUpdateTests" name="Owner_Assigns_Then_Collaborator_BusinessOnly" />
+    </UnitTest>
+    <UnitTest name="Emma.Api.IntegrationTests.Services.EmmaAgentServiceIntegrationTests.ProcessMessageAsync_WithRealService_ReturnsValidResponse" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="79313b72-edf7-47dc-988d-9a53d3a55551">
+      <Execution id="2db26e89-c8bb-4c4a-b6be-2548f0b66911" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.Services.EmmaAgentServiceIntegrationTests" name="ProcessMessageAsync_WithRealService_ReturnsValidResponse" />
+    </UnitTest>
+    <UnitTest name="List filters: ownerId, relationshipState, q with archived behavior" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="2c29280d-45d9-cbf2-a9b5-44b5747b9bf5">
+      <Execution id="0fdaa562-dd2a-4c6e-ba66-29e329a81c22" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.Contacts_AssignmentAndUpdateTests" name="List_Filters_Work_With_Archived_Behavior" />
+    </UnitTest>
+    <UnitTest name="CosmosDB should be reachable for integration tests" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="683d88b7-45c3-344b-f76d-6a89b7aa6ce6">
+      <Execution id="12fc153e-dc1e-47d1-bced-ea030f296469" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.CosmosDbConnectivityTests" name="CosmosDb_ShouldBeReachable" />
+    </UnitTest>
+    <UnitTest name="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WhenRateLimited_RetriesAndThenFails" storage="c:\users\david\github\windsurfprojects\emma-clean\tests\emma.api.integrationtests\bin\debug\net8.0\emma.api.integrationtests.dll" id="51c16369-27fe-329d-745b-71c8f3548152">
+      <Execution id="d027ae66-1ba6-4bbb-bb0b-2397e35bdd10" />
+      <TestMethod codeBase="C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Emma.Api.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests" name="ProcessMessageAsync_WhenRateLimited_RetriesAndThenFails" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="803c127f-b2e6-bc1c-5bc6-2a1ad99115b0" executionId="9b66e508-913e-409c-ad59-252d69710812" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="73c267c0-b606-c708-2613-3f827c4a035f" executionId="e61c3528-5c54-4cfa-b751-71e3655f1338" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="642fd207-31b9-1153-568d-0d7138be13f8" executionId="6fe5b9e6-a53a-4621-b8d1-d5ea98f80ae1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ca9e089d-0711-0d3d-ed3e-2a9579d435a6" executionId="5a4c0c5d-f92d-4244-8713-83f024cb0e10" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="683d88b7-45c3-344b-f76d-6a89b7aa6ce6" executionId="12fc153e-dc1e-47d1-bced-ea030f296469" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2c29280d-45d9-cbf2-a9b5-44b5747b9bf5" executionId="0fdaa562-dd2a-4c6e-ba66-29e329a81c22" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="707f6671-992a-01f9-d196-8e8cab4e0f12" executionId="91137509-64f8-4c9b-94f3-71e6d29648c7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="aebc3c43-aec6-ed29-7cf2-db881bf21927" executionId="c1066217-ea54-470a-9c79-fad65ee8134c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="265c1e26-8bcf-ad69-6a77-c72cfc7be98c" executionId="da305703-3629-4ed1-93d1-8d39c147671c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ed63ccfb-06c2-6071-a5cc-9f8af9b28c84" executionId="606fa95c-5b25-4f80-a512-50df07257376" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="51e8fbdb-8310-8d26-87b0-0e0dd20c83e4" executionId="ad0a830c-8bf3-4f3c-8df3-5e215aab2a18" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="51c16369-27fe-329d-745b-71c8f3548152" executionId="d027ae66-1ba6-4bbb-bb0b-2397e35bdd10" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="79313b72-edf7-47dc-988d-9a53d3a55551" executionId="2db26e89-c8bb-4c4a-b6be-2548f0b66911" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="13" executed="11" passed="8" failed="3" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 8.0.16)&#xD;
+[xUnit.net 00:00:00.09]   Discovering: Emma.Api.IntegrationTests&#xD;
+[xUnit.net 00:00:00.13]   Discovered:  Emma.Api.IntegrationTests&#xD;
+[xUnit.net 00:00:00.13]   Starting:    Emma.Api.IntegrationTests&#xD;
+[xUnit.net 00:00:00.17]       FulltextInteractionDto and endpoints not present in this repo snapshot&#xD;
+[xUnit.net 00:00:00.29]       Azure OpenAI is not configured for integration testing&#xD;
+[xUnit.net 00:00:00.29]       System.NullReferenceException : Object reference not set to an instance of an object.&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\Services\EmmaAgentService.cs(164,0): at Emma.Api.Services.EmmaAgentService.ProcessMessageAsync(String message, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\Services\EmmaAgentServiceTests.cs(81,0): at Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WithValidInput_ReturnsSuccessResponse()&#xD;
+[xUnit.net 00:00:00.29]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.29]       System.NullReferenceException : Object reference not set to an instance of an object.&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\Services\EmmaAgentService.cs(164,0): at Emma.Api.Services.EmmaAgentService.ProcessMessageAsync(String message, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\Services\EmmaAgentServiceTests.cs(133,0): at Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WhenRateLimited_RetriesAndThenFails()&#xD;
+[xUnit.net 00:00:00.30]         --- End of stack trace from previous location ---&#xD;
+[Config] ConnectionStrings source hint: appsettings.json&#xD;
+[Config] ConnectionStrings source hint: appsettings.json&#xD;
+[Config] PostgreSQL -&gt; Host=emma-db-server.postgres.database.azure.com; Database=emma; Username=emmaadmin; SslMode=Require&#xD;
+[Config] PostgreSQL -&gt; Host=emma-db-server.postgres.database.azure.com; Database=emma; Username=emmaadmin; SslMode=Require&#xD;
+[Npgsql] Version: 8.0.4.0, Location: C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Npgsql.dll&#xD;
+[Npgsql] Version: 8.0.4.0, Location: C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Npgsql.dll&#xD;
+[AzureOpenAI] Using reflection adapter with no inner client (calls will throw if invoked)&#xD;
+[AzureOpenAI] Using reflection adapter with no inner client (calls will throw if invoked)&#xD;
+[Auth] Dev mode: forcing Jwt Issuer/Audience to 'emma-dev' and using dev key&#xD;
+[Auth] Dev mode: forcing Jwt Issuer/Audience to 'emma-dev' and using dev key&#xD;
+[Auth] Dev JWT configured -&gt; Issuer='emma-dev', Audience='emma-dev', KeyPresent=true&#xD;
+[Auth] Dev JWT configured -&gt; Issuer='emma-dev', Audience='emma-dev', KeyPresent=true&#xD;
+[SPRINT1] No CRM integration registered (core onboarding will function independently)&#xD;
+[SPRINT1] No CRM integration registered (core onboarding will function independently)&#xD;
+warn: Microsoft.EntityFrameworkCore.Model[10627]&#xD;
+      The navigation 'TaskItem.AssignedTo' was first mapped explicitly and then ignored. Consider not mapping the navigation in the first place.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.144 CoreEventId.MappedNavigationIgnoredWarning[10627] (Microsoft.EntityFrameworkCore.Model) &#xD;
+            The navigation 'TaskItem.AssignedTo' was first mapped explicitly and then ignored. Consider not mapping the navigation in the first place.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model[10628]&#xD;
+      The property 'TaskItem.AssignedToId' was first mapped explicitly and then ignored. Consider not mapping the property in the first place.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.148 CoreEventId.MappedPropertyIgnoredWarning[10628] (Microsoft.EntityFrameworkCore.Model) &#xD;
+            The property 'TaskItem.AssignedToId' was first mapped explicitly and then ignored. Consider not mapping the property in the first place.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10400]&#xD;
+      Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.289 CoreEventId.SensitiveDataLoggingEnabledWarning[10400] (Microsoft.EntityFrameworkCore.Infrastructure) &#xD;
+            Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'Agent.Capabilities' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.312 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'Agent.Capabilities' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+Test 'Emma.Api.IntegrationTests.FulltextInteractionControllerTests.Can_Post_And_Query_FulltextInteraction' was skipped in the test run.&#xD;
+Test 'Emma.Api.IntegrationTests.Services.EmmaAgentServiceIntegrationTests.ProcessMessageAsync_WithRealService_ReturnsValidResponse' was skipped in the test run.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'ContactState.CustomFields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.329 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'ContactState.CustomFields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'ContactState.FinancialInfo' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.329 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'ContactState.FinancialInfo' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'ContactState.ImportantDates' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.330 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'ContactState.ImportantDates' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'ContactState.OpenObjections' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.330 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'ContactState.OpenObjections' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'ContactState.PendingTasks' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.330 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'ContactState.PendingTasks' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'ContactState.PropertyInfo' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.330 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'ContactState.PropertyInfo' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'ContactSummary.CustomFields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.331 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'ContactSummary.CustomFields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'ContactSummary.ImportantPreferences' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.331 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'ContactSummary.ImportantPreferences' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'ContactSummary.KeyMilestones' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.331 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'ContactSummary.KeyMilestones' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'EmmaAnalysis.ComplianceFlags' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.332 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'EmmaAnalysis.ComplianceFlags' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'Interaction.CustomFields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.334 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'Interaction.CustomFields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'Interaction.ExternalIds' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.337 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'Interaction.ExternalIds' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'Interaction.Metadata' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.338 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'Interaction.Metadata' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'Interaction.Tags' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.341 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'Interaction.Tags' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'InteractionEmbedding.CustomFields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.342 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'InteractionEmbedding.CustomFields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'InteractionEmbedding.ExtractedEntities' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.344 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'InteractionEmbedding.ExtractedEntities' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'InteractionEmbedding.PrivacyTags' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.344 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'InteractionEmbedding.PrivacyTags' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]&#xD;
+      The property 'InteractionEmbedding.Topics' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.345 CoreEventId.CollectionWithoutComparer[10620] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The property 'InteractionEmbedding.Topics' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10625]&#xD;
+      The foreign key property 'EmailAddress.ContactId1' was created in shadow state because a conflicting property with the simple name 'ContactId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.362 CoreEventId.ShadowForeignKeyPropertyCreated[10625] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The foreign key property 'EmailAddress.ContactId1' was created in shadow state because a conflicting property with the simple name 'ContactId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10625]&#xD;
+      The foreign key property 'Interaction.OrganizationId1' was created in shadow state because a conflicting property with the simple name 'OrganizationId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.363 CoreEventId.ShadowForeignKeyPropertyCreated[10625] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The foreign key property 'Interaction.OrganizationId1' was created in shadow state because a conflicting property with the simple name 'OrganizationId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10625]&#xD;
+      The foreign key property 'SubscriptionPlanFeature.FeatureId1' was created in shadow state because a conflicting property with the simple name 'FeatureId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.363 CoreEventId.ShadowForeignKeyPropertyCreated[10625] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The foreign key property 'SubscriptionPlanFeature.FeatureId1' was created in shadow state because a conflicting property with the simple name 'FeatureId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10625]&#xD;
+      The foreign key property 'TaskItem.InteractionId1' was created in shadow state because a conflicting property with the simple name 'InteractionId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      warn: 2025-09-14 17:19:55.363 CoreEventId.ShadowForeignKeyPropertyCreated[10625] (Microsoft.EntityFrameworkCore.Model.Validation) &#xD;
+            The foreign key property 'TaskItem.InteractionId1' was created in shadow state because a conflicting property with the simple name 'InteractionId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:57.185 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (182ms) [Parameters=[@__userId_0='aabde14e-e074-408a-8ab3-51de49cdb413', @__emailNorm_2='owner3@test.dev'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0 OR u."Email" ILIKE @__emailNorm_2 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:57.185 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (185ms) [Parameters=[@__ToLower_0='testuser_6dd7e197331d4456b81ff5f60d093cbb@example.com'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE lower(u."Email") = @__ToLower_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:57.459 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (152ms) [Parameters=[@__orgId_0='835c4a48-b19d-4ba8-957b-8fc70768f2fe'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:57.523 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (157ms) [Parameters=[@p0='05d8a7dc-03ac-4f8f-8216-4f71f5bae15e', @p1='0', @p2='2025-09-14T21:19:57.3200952+00:00' (DbType = DateTime), @p3=NULL (DbType = Guid), @p4=NULL (DbType = DateTime), @p5=NULL (DbType = Guid), @p6='testuser_6dd7e197331d4456b81ff5f60d093cbb@example.com' (Nullable = false), @p7='' (Nullable = false), @p8=NULL, @p9=NULL (DbType = Int32), @p10='False', @p11='False', @p12='False', @p13=NULL (DbType = DateTime), @p14='' (Nullable = false), @p15=NULL, @p16=NULL (DbType = Guid), @p17='x' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL (DbType = Guid), @p23=NULL, @p24=NULL (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Users" ("Id", "AccountStatus", "CreatedAt", "CreatedById", "DeletedAt", "DeletedById", "Email", "FirstName", "FubApiKey", "FubUserId", "IsAdmin", "IsDeleted", "IsVerified", "LastLoginAt", "LastName", "Locale", "OrganizationId", "Password", "ProfileImageUrl", "Role", "TimeZone", "UpdatedAt", "UpdatedById", "VerificationToken", "VerifiedAt")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24)&#xD;
+            RETURNING "IsActive", "RowVersion";&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:57.614 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (147ms) [Parameters=[@__orgNameNorm_1='OrgDeleteTest-ea508c6df5c2482084ccbe53b31c822b'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Name" ILIKE @__orgNameNorm_1 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:57.695 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (151ms) [Parameters=[@__ToLower_0='testorg_d1e2a743823042fb82a61bb0d6f548c5'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE lower(o."Name") = @__ToLower_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:57.767 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (147ms) [Parameters=[@__userId_0='2998e684-9c9f-4eb5-8db1-9b2faca8e023'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:57.924 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (151ms) [Parameters=[@__orgId_0='835c4a48-b19d-4ba8-957b-8fc70768f2fe'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:57.932 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@p0='a694810d-c957-43a2-8f7c-e41a9ecf58bf', @p1='2025-09-14T21:19:57.6956925Z' (DbType = DateTime), @p2=NULL (DbType = Guid), @p3=NULL, @p4=NULL (DbType = DateTime), @p5=NULL (DbType = Guid), @p6='b90da916422c4c0097b8bcd45598d621@example.local' (Nullable = false), @p7=NULL, @p8=NULL (DbType = Int32), @p9=NULL, @p10=NULL, @p11='RealEstate' (Nullable = false), @p12='False', @p13=NULL, @p14=NULL, @p15='TestOrg_d1e2a743823042fb82a61bb0d6f548c5' (Nullable = false), @p16='ca828571-286c-4379-85fa-babf774dcc02', @p17='05d8a7dc-03ac-4f8f-8216-4f71f5bae15e', @p18=NULL, @p19='Pro', @p20=NULL (DbType = Int32), @p21=NULL (DbType = Int32), @p22=NULL, @p23=NULL (DbType = Guid), @p24=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Organizations" ("Id", "CreatedAt", "CreatedById", "Currency", "DeletedAt", "DeletedById", "Email", "FubApiKey", "FubId", "FubSystem", "FubSystemKey", "IndustryCode", "IsDeleted", "Locale", "LogoUrl", "Name", "OrgGuid", "OwnerUserId", "PhoneNumber", "PlanId", "PlanType", "SeatCount", "TimeZone", "UpdatedById", "Website")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24)&#xD;
+            RETURNING "IsActive", "RowVersion", "UpdatedAt";&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:58.092 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (164ms) [Parameters=[@p0='835c4a48-b19d-4ba8-957b-8fc70768f2fe', @p1='2025-09-14T21:19:57.9242814Z' (DbType = DateTime), @p2=NULL (DbType = Guid), @p3=NULL, @p4=NULL (DbType = DateTime), @p5=NULL (DbType = Guid), @p6='c0b3314918294b93a3792f5b2174fc5d@example.local' (Nullable = false), @p7=NULL, @p8=NULL (DbType = Int32), @p9=NULL, @p10=NULL, @p11='RealEstate' (Nullable = false), @p12='False', @p13=NULL, @p14=NULL, @p15='OrgDeleteTest-ea508c6df5c2482084ccbe53b31c822b' (Nullable = false), @p16='d120b9a0-61b2-493d-bf0f-a507b9aabc43', @p17='2998e684-9c9f-4eb5-8db1-9b2faca8e023', @p18=NULL, @p19='Basic', @p20=NULL (DbType = Int32), @p21=NULL (DbType = Int32), @p22=NULL, @p23=NULL (DbType = Guid), @p24=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Organizations" ("Id", "CreatedAt", "CreatedById", "Currency", "DeletedAt", "DeletedById", "Email", "FubApiKey", "FubId", "FubSystem", "FubSystemKey", "IndustryCode", "IsDeleted", "Locale", "LogoUrl", "Name", "OrgGuid", "OwnerUserId", "PhoneNumber", "PlanId", "PlanType", "SeatCount", "TimeZone", "UpdatedById", "Website")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24)&#xD;
+            RETURNING "IsActive", "RowVersion", "UpdatedAt";&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:58.094 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (150ms) [Parameters=[@p2='05d8a7dc-03ac-4f8f-8216-4f71f5bae15e', @p0='a694810d-c957-43a2-8f7c-e41a9ecf58bf' (Nullable = true), @p3='0xE6DC055FBF4BD0937EC50EF197FF1E88' (Nullable = false), @p1='2025-09-14T21:19:57.9423896+00:00' (Nullable = true) (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Users" SET "OrganizationId" = @p0, "UpdatedAt" = @p1&#xD;
+            WHERE "Id" = @p2 AND "RowVersion" = @p3&#xD;
+            RETURNING "RowVersion";&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:58.245 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (152ms) [Parameters=[@p2='2998e684-9c9f-4eb5-8db1-9b2faca8e023', @p0='835c4a48-b19d-4ba8-957b-8fc70768f2fe' (Nullable = true), @p3='0x388FC096C72E61BF93C3C2FA99005AE8' (Nullable = false), @p1='2025-09-14T21:19:58.0930768+00:00' (Nullable = true) (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Users" SET "OrganizationId" = @p0, "UpdatedAt" = @p1&#xD;
+            WHERE "Id" = @p2 AND "RowVersion" = @p3&#xD;
+            RETURNING "RowVersion";&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:58.250 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@p2='05d8a7dc-03ac-4f8f-8216-4f71f5bae15e', @p0='2025-09-14T21:19:58.0956579+00:00' (Nullable = true) (DbType = DateTime), @p3='0x047B0ECFAA076D7E3D43D6688623C2F7' (Nullable = false), @p1='2025-09-14T21:19:58.0958161+00:00' (Nullable = true) (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Users" SET "LastLoginAt" = @p0, "UpdatedAt" = @p1&#xD;
+            WHERE "Id" = @p2 AND "RowVersion" = @p3&#xD;
+            RETURNING "RowVersion";&#xD;
+[xUnit.net 00:00:04.50]       Expected profileJson "{"email":"","organizationId":null,"organizationName":null,"roles":[],"isOrgOwner":false}" to contain "TestOrg_d1e2a743823042fb82a61bb0d6f548c5".&#xD;
+[xUnit.net 00:00:04.50]       Stack Trace:&#xD;
+[xUnit.net 00:00:04.50]            at FluentAssertions.Execution.XUnit2TestFramework.Throw(String message)&#xD;
+[xUnit.net 00:00:04.50]            at FluentAssertions.Execution.TestFrameworkProvider.Throw(String message)&#xD;
+[xUnit.net 00:00:04.50]            at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)&#xD;
+[xUnit.net 00:00:04.50]            at FluentAssertions.Execution.AssertionScope.FailWith(Func`1 failReasonFunc)&#xD;
+[xUnit.net 00:00:04.50]            at FluentAssertions.Execution.AssertionScope.FailWith(Func`1 failReasonFunc)&#xD;
+[xUnit.net 00:00:04.50]            at FluentAssertions.Execution.AssertionScope.FailWith(String message, Object[] args)&#xD;
+[xUnit.net 00:00:04.50]            at FluentAssertions.Primitives.StringAssertions`1.Contain(String expected, String because, Object[] becauseArgs)&#xD;
+[xUnit.net 00:00:04.50]         C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\OnboardingAndProfileFlowTests.cs(43,0): at Emma.Api.IntegrationTests.OnboardingAndProfileFlowTests.RegisterAndProfileFlow_WorksAndIsolated()&#xD;
+[xUnit.net 00:00:04.50]         --- End of stack trace from previous location ---&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:58.404 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (157ms) [Parameters=[@p2='2998e684-9c9f-4eb5-8db1-9b2faca8e023', @p0='2025-09-14T21:19:58.2467974+00:00' (Nullable = true) (DbType = DateTime), @p3='0x35927919A8C7BD8985D76100870A36FC' (Nullable = false), @p1='2025-09-14T21:19:58.2469251+00:00' (Nullable = true) (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Users" SET "LastLoginAt" = @p0, "UpdatedAt" = @p1&#xD;
+            WHERE "Id" = @p2 AND "RowVersion" = @p3&#xD;
+            RETURNING "RowVersion";&#xD;
+info: Emma.Api.Controllers.DevAuthController[0]&#xD;
+      Issued dev token for org 835c4a48-b19d-4ba8-957b-8fc70768f2fe user 2998e684-9c9f-4eb5-8db1-9b2faca8e023&#xD;
+[Auth] JWT validated: sub=2998e684-9c9f-4eb5-8db1-9b2faca8e023 orgId=835c4a48-b19d-4ba8-957b-8fc70768f2fe&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:58.778 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (175ms) [Parameters=[@p0='89cefa47-b94d-4b1b-9c4f-cf8802794e8f', @p1=NULL (DbType = DateTime), @p2=NULL (DbType = DateTime), @p3=NULL, @p4=NULL, @p5='2025-09-14T21:19:58.4635942Z' (DbType = DateTime), @p6=NULL (DbType = Guid), @p7=NULL (DbType = DateTime), @p8=NULL (DbType = Guid), @p9=NULL (DbType = Guid), @p10=NULL, @p11='Del' (Nullable = false), @p12='False', @p13='False', @p14='False', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Etable' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='835c4a48-b19d-4ba8-957b-8fc70768f2fe', @p24=NULL (DbType = Guid), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='0', @p32='0', @p33='0x72818CC6A8A9AC43' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:19:58.4640293Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Contacts" ("Id", "ArchivedAt", "ClientSince", "Company", "CompanyName", "CreatedAt", "CreatedById", "DeletedAt", "DeletedById", "DeletedByUserId", "Department", "FirstName", "IsActiveClient", "IsDeleted", "IsPreferred", "JobTitle", "LastContactedAt", "LastName", "LeadSource", "LicenseNumber", "MiddleName", "NextFollowUpAt", "Notes", "OrganizationId", "OwnerId", "PhoneNumbers", "PreferredContactMethod", "PreferredContactTime", "PreferredName", "ProfilePictureUrl", "Rating", "RelationshipState", "ReviewCount", "RowVersion", "ServiceAreas", "Source", "Specialties", "Tags", "Title", "UpdatedAt", "UpdatedById", "Website")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39, @p40, @p41)&#xD;
+            RETURNING "IsArchived";&#xD;
+info: Emma.Infrastructure.Data.Repositories.ContactRepository[0]&#xD;
+      Added contact 89cefa47-b94d-4b1b-9c4f-cf8802794e8f&#xD;
+[Auth] JWT validated: sub=2998e684-9c9f-4eb5-8db1-9b2faca8e023 orgId=835c4a48-b19d-4ba8-957b-8fc70768f2fe&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:58.982 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (156ms) [Parameters=[@__id_0='89cefa47-b94d-4b1b-9c4f-cf8802794e8f'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."Id" = @__id_0&#xD;
+            LIMIT 1&#xD;
+[Auth] JWT validated: sub=2998e684-9c9f-4eb5-8db1-9b2faca8e023 orgId=835c4a48-b19d-4ba8-957b-8fc70768f2fe&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:59.157 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (145ms) [Parameters=[@__id_0='89cefa47-b94d-4b1b-9c4f-cf8802794e8f'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."Id" = @__id_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.Repositories.ContactRepository[0]&#xD;
+      Removed contact 89cefa47-b94d-4b1b-9c4f-cf8802794e8f&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:59.337 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (154ms) [Parameters=[@p0='4ea8479e-fd8a-4479-a49b-7b385ce898ce', @p1='ContactErased' (Nullable = false), @p2='2998e684-9c9f-4eb5-8db1-9b2faca8e023' (Nullable = true), @p3='{"contactId":"89cefa47-b94d-4b1b-9c4f-cf8802794e8f","mode":"hard"}' (DbType = Object), @p4='2025-09-14T21:19:59.1588678Z' (DbType = DateTime), @p5='835c4a48-b19d-4ba8-957b-8fc70768f2fe', @p6='0HNFJQHPFAU1U', @p7='89cefa47-b94d-4b1b-9c4f-cf8802794e8f', @p8='0x72818CC6A8A9AC43' (Nullable = false)], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "AuditEvents" ("Id", "Action", "ActorUserId", "DetailsJson", "OccurredAt", "OrganizationId", "TraceId")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);&#xD;
+            DELETE FROM "Contacts"&#xD;
+            WHERE "Id" = @p7 AND "RowVersion" = @p8;&#xD;
+[Auth] JWT validated: sub=2998e684-9c9f-4eb5-8db1-9b2faca8e023 orgId=835c4a48-b19d-4ba8-957b-8fc70768f2fe&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:59.649 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (145ms) [Parameters=[@__id_0='89cefa47-b94d-4b1b-9c4f-cf8802794e8f'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."Id" = @__id_0&#xD;
+            LIMIT 1&#xD;
+[Config] ConnectionStrings source hint: appsettings.json&#xD;
+[Config] PostgreSQL -&gt; Host=emma-db-server.postgres.database.azure.com; Database=emma; Username=emmaadmin; SslMode=Require&#xD;
+[Npgsql] Version: 8.0.4.0, Location: C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Npgsql.dll&#xD;
+[AzureOpenAI] Using reflection adapter with no inner client (calls will throw if invoked)&#xD;
+[Auth] Dev mode: forcing Jwt Issuer/Audience to 'emma-dev' and using dev key&#xD;
+[Auth] Dev JWT configured -&gt; Issuer='emma-dev', Audience='emma-dev', KeyPresent=true&#xD;
+[SPRINT1] No CRM integration registered (core onboarding will function independently)&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:19:59.881 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (147ms) [Parameters=[@__userId_0='e11c7eac-09ab-4ba1-9bb9-f8e3572e3901', @__emailNorm_2='owner2@test.dev'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0 OR u."Email" ILIKE @__emailNorm_2 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:00.033 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (151ms) [Parameters=[@__orgId_0='a083af9f-255d-4c34-b8f9-11e65c2a8241'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:00.187 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@__orgNameNorm_1='OrgArchiveTest-8e5bd6728ce24a14894a8c3a668ee84b'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Name" ILIKE @__orgNameNorm_1 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:00.344 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (157ms) [Parameters=[@__userId_0='a6e58f1d-ac7a-4ed5-af7e-60e15c4d2628'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:00.503 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (158ms) [Parameters=[@__orgId_0='a083af9f-255d-4c34-b8f9-11e65c2a8241'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:00.664 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (158ms) [Parameters=[@p0='a083af9f-255d-4c34-b8f9-11e65c2a8241', @p1='2025-09-14T21:20:00.5041240Z' (DbType = DateTime), @p2=NULL (DbType = Guid), @p3=NULL, @p4=NULL (DbType = DateTime), @p5=NULL (DbType = Guid), @p6='43fbb49d46eb48e6b89a3b24669bf06e@example.local' (Nullable = false), @p7=NULL, @p8=NULL (DbType = Int32), @p9=NULL, @p10=NULL, @p11='RealEstate' (Nullable = false), @p12='False', @p13=NULL, @p14=NULL, @p15='OrgArchiveTest-8e5bd6728ce24a14894a8c3a668ee84b' (Nullable = false), @p16='316a53c4-389e-49ca-8794-7881bff5aab0', @p17='a6e58f1d-ac7a-4ed5-af7e-60e15c4d2628', @p18=NULL, @p19='Basic', @p20=NULL (DbType = Int32), @p21=NULL (DbType = Int32), @p22=NULL, @p23=NULL (DbType = Guid), @p24=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Organizations" ("Id", "CreatedAt", "CreatedById", "Currency", "DeletedAt", "DeletedById", "Email", "FubApiKey", "FubId", "FubSystem", "FubSystemKey", "IndustryCode", "IsDeleted", "Locale", "LogoUrl", "Name", "OrgGuid", "OwnerUserId", "PhoneNumber", "PlanId", "PlanType", "SeatCount", "TimeZone", "UpdatedById", "Website")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24)&#xD;
+            RETURNING "IsActive", "RowVersion", "UpdatedAt";&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:00.827 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (161ms) [Parameters=[@p2='a6e58f1d-ac7a-4ed5-af7e-60e15c4d2628', @p0='a083af9f-255d-4c34-b8f9-11e65c2a8241' (Nullable = true), @p3='0xF9ABBEDC700EC035AA40987EE4077180' (Nullable = false), @p1='2025-09-14T21:20:00.6657197+00:00' (Nullable = true) (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Users" SET "OrganizationId" = @p0, "UpdatedAt" = @p1&#xD;
+            WHERE "Id" = @p2 AND "RowVersion" = @p3&#xD;
+            RETURNING "RowVersion";&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:00.986 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (157ms) [Parameters=[@p2='a6e58f1d-ac7a-4ed5-af7e-60e15c4d2628', @p0='2025-09-14T21:20:00.8276693+00:00' (Nullable = true) (DbType = DateTime), @p3='0x765D98B1E76F6DF02EF445D238DE5E30' (Nullable = false), @p1='2025-09-14T21:20:00.8278935+00:00' (Nullable = true) (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Users" SET "LastLoginAt" = @p0, "UpdatedAt" = @p1&#xD;
+            WHERE "Id" = @p2 AND "RowVersion" = @p3&#xD;
+            RETURNING "RowVersion";&#xD;
+info: Emma.Api.Controllers.DevAuthController[0]&#xD;
+      Issued dev token for org a083af9f-255d-4c34-b8f9-11e65c2a8241 user a6e58f1d-ac7a-4ed5-af7e-60e15c4d2628&#xD;
+[Auth] JWT validated: sub=a6e58f1d-ac7a-4ed5-af7e-60e15c4d2628 orgId=a083af9f-255d-4c34-b8f9-11e65c2a8241&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:01.152 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@p0='70f7dc1d-9000-4380-840a-b253db718c02', @p1=NULL (DbType = DateTime), @p2=NULL (DbType = DateTime), @p3=NULL, @p4=NULL, @p5='2025-09-14T21:20:00.9977306Z' (DbType = DateTime), @p6=NULL (DbType = Guid), @p7=NULL (DbType = DateTime), @p8=NULL (DbType = Guid), @p9=NULL (DbType = Guid), @p10=NULL, @p11='Arch' (Nullable = false), @p12='False', @p13='False', @p14='False', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Ivable' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='a083af9f-255d-4c34-b8f9-11e65c2a8241', @p24=NULL (DbType = Guid), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='0', @p32='0', @p33='0x51EEC4F061C07D40' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:20:00.9977531Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Contacts" ("Id", "ArchivedAt", "ClientSince", "Company", "CompanyName", "CreatedAt", "CreatedById", "DeletedAt", "DeletedById", "DeletedByUserId", "Department", "FirstName", "IsActiveClient", "IsDeleted", "IsPreferred", "JobTitle", "LastContactedAt", "LastName", "LeadSource", "LicenseNumber", "MiddleName", "NextFollowUpAt", "Notes", "OrganizationId", "OwnerId", "PhoneNumbers", "PreferredContactMethod", "PreferredContactTime", "PreferredName", "ProfilePictureUrl", "Rating", "RelationshipState", "ReviewCount", "RowVersion", "ServiceAreas", "Source", "Specialties", "Tags", "Title", "UpdatedAt", "UpdatedById", "Website")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39, @p40, @p41)&#xD;
+            RETURNING "IsArchived";&#xD;
+info: Emma.Infrastructure.Data.Repositories.ContactRepository[0]&#xD;
+      Added contact 70f7dc1d-9000-4380-840a-b253db718c02&#xD;
+[Auth] JWT validated: sub=a6e58f1d-ac7a-4ed5-af7e-60e15c4d2628 orgId=a083af9f-255d-4c34-b8f9-11e65c2a8241&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:01.310 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (145ms) [Parameters=[@__id_0='70f7dc1d-9000-4380-840a-b253db718c02'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."Id" = @__id_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:01.476 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (154ms) [Parameters=[@p42='70f7dc1d-9000-4380-840a-b253db718c02', @p0='2025-09-14T21:20:01.3212001Z' (Nullable = true) (DbType = DateTime), @p1=NULL (DbType = DateTime), @p2=NULL, @p3=NULL, @p4='2025-09-14T21:20:00.9977300Z' (DbType = DateTime), @p5=NULL (DbType = Guid), @p6=NULL (DbType = DateTime), @p7=NULL (DbType = Guid), @p8=NULL (DbType = Guid), @p9=NULL, @p10='Arch' (Nullable = false), @p11='False', @p12='True', @p13='False', @p14='False', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Ivable' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='a083af9f-255d-4c34-b8f9-11e65c2a8241', @p24=NULL (DbType = Guid), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='0', @p32='0', @p33='0x51EEC4F061C07D40' (Nullable = false), @p43='0x51EEC4F061C07D40' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:20:01.3213843Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Contacts" SET "ArchivedAt" = @p0, "ClientSince" = @p1, "Company" = @p2, "CompanyName" = @p3, "CreatedAt" = @p4, "CreatedById" = @p5, "DeletedAt" = @p6, "DeletedById" = @p7, "DeletedByUserId" = @p8, "Department" = @p9, "FirstName" = @p10, "IsActiveClient" = @p11, "IsArchived" = @p12, "IsDeleted" = @p13, "IsPreferred" = @p14, "JobTitle" = @p15, "LastContactedAt" = @p16, "LastName" = @p17, "LeadSource" = @p18, "LicenseNumber" = @p19, "MiddleName" = @p20, "NextFollowUpAt" = @p21, "Notes" = @p22, "OrganizationId" = @p23, "OwnerId" = @p24, "PhoneNumbers" = @p25, "PreferredContactMethod" = @p26, "PreferredContactTime" = @p27, "PreferredName" = @p28, "ProfilePictureUrl" = @p29, "Rating" = @p30, "RelationshipState" = @p31, "ReviewCount" = @p32, "RowVersion" = @p33, "ServiceAreas" = @p34, "Source" = @p35, "Specialties" = @p36, "Tags" = @p37, "Title" = @p38, "UpdatedAt" = @p39, "UpdatedById" = @p40, "Website" = @p41&#xD;
+            WHERE "Id" = @p42 AND "RowVersion" = @p43;&#xD;
+[Auth] JWT validated: sub=a6e58f1d-ac7a-4ed5-af7e-60e15c4d2628 orgId=a083af9f-255d-4c34-b8f9-11e65c2a8241&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:01.667 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (166ms) [Parameters=[@__claimOrgId_Value_0='a083af9f-255d-4c34-b8f9-11e65c2a8241', @__p_2='50', @__p_1='0'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."OrganizationId" = @__claimOrgId_Value_0 AND NOT (c."IsArchived")&#xD;
+            ORDER BY c."LastName", c."FirstName"&#xD;
+            LIMIT @__p_2 OFFSET @__p_1&#xD;
+[Auth] JWT validated: sub=a6e58f1d-ac7a-4ed5-af7e-60e15c4d2628 orgId=a083af9f-255d-4c34-b8f9-11e65c2a8241&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:01.830 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@__claimOrgId_Value_0='a083af9f-255d-4c34-b8f9-11e65c2a8241', @__p_2='50', @__p_1='0'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."OrganizationId" = @__claimOrgId_Value_0&#xD;
+            ORDER BY c."LastName", c."FirstName"&#xD;
+            LIMIT @__p_2 OFFSET @__p_1&#xD;
+[Auth] JWT validated: sub=a6e58f1d-ac7a-4ed5-af7e-60e15c4d2628 orgId=a083af9f-255d-4c34-b8f9-11e65c2a8241&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:02.000 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (161ms) [Parameters=[@__id_0='70f7dc1d-9000-4380-840a-b253db718c02'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."Id" = @__id_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:02.158 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (155ms) [Parameters=[@p42='70f7dc1d-9000-4380-840a-b253db718c02', @p0=NULL (DbType = DateTime), @p1=NULL (DbType = DateTime), @p2=NULL, @p3=NULL, @p4='2025-09-14T21:20:00.9977300Z' (DbType = DateTime), @p5=NULL (DbType = Guid), @p6=NULL (DbType = DateTime), @p7=NULL (DbType = Guid), @p8=NULL (DbType = Guid), @p9=NULL, @p10='Arch' (Nullable = false), @p11='False', @p12='False', @p13='False', @p14='False', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Ivable' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='a083af9f-255d-4c34-b8f9-11e65c2a8241', @p24=NULL (DbType = Guid), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='0', @p32='0', @p33='0x51EEC4F061C07D40' (Nullable = false), @p43='0x51EEC4F061C07D40' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:20:02.0022239Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Contacts" SET "ArchivedAt" = @p0, "ClientSince" = @p1, "Company" = @p2, "CompanyName" = @p3, "CreatedAt" = @p4, "CreatedById" = @p5, "DeletedAt" = @p6, "DeletedById" = @p7, "DeletedByUserId" = @p8, "Department" = @p9, "FirstName" = @p10, "IsActiveClient" = @p11, "IsArchived" = @p12, "IsDeleted" = @p13, "IsPreferred" = @p14, "JobTitle" = @p15, "LastContactedAt" = @p16, "LastName" = @p17, "LeadSource" = @p18, "LicenseNumber" = @p19, "MiddleName" = @p20, "NextFollowUpAt" = @p21, "Notes" = @p22, "OrganizationId" = @p23, "OwnerId" = @p24, "PhoneNumbers" = @p25, "PreferredContactMethod" = @p26, "PreferredContactTime" = @p27, "PreferredName" = @p28, "ProfilePictureUrl" = @p29, "Rating" = @p30, "RelationshipState" = @p31, "ReviewCount" = @p32, "RowVersion" = @p33, "ServiceAreas" = @p34, "Source" = @p35, "Specialties" = @p36, "Tags" = @p37, "Title" = @p38, "UpdatedAt" = @p39, "UpdatedById" = @p40, "Website" = @p41&#xD;
+            WHERE "Id" = @p42 AND "RowVersion" = @p43;&#xD;
+[Auth] JWT validated: sub=a6e58f1d-ac7a-4ed5-af7e-60e15c4d2628 orgId=a083af9f-255d-4c34-b8f9-11e65c2a8241&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:02.312 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (152ms) [Parameters=[@__claimOrgId_Value_0='a083af9f-255d-4c34-b8f9-11e65c2a8241', @__p_2='50', @__p_1='0'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."OrganizationId" = @__claimOrgId_Value_0 AND NOT (c."IsArchived")&#xD;
+            ORDER BY c."LastName", c."FirstName"&#xD;
+            LIMIT @__p_2 OFFSET @__p_1&#xD;
+[Config] ConnectionStrings source hint: appsettings.json&#xD;
+[Config] PostgreSQL -&gt; Host=emma-db-server.postgres.database.azure.com; Database=emma; Username=emmaadmin; SslMode=Require&#xD;
+[Npgsql] Version: 8.0.4.0, Location: C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Npgsql.dll&#xD;
+[AzureOpenAI] Using reflection adapter with no inner client (calls will throw if invoked)&#xD;
+[Auth] Dev mode: forcing Jwt Issuer/Audience to 'emma-dev' and using dev key&#xD;
+[Auth] Dev JWT configured -&gt; Issuer='emma-dev', Audience='emma-dev', KeyPresent=true&#xD;
+[SPRINT1] No CRM integration registered (core onboarding will function independently)&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:02.526 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (151ms) [Parameters=[@__userId_0='0d624480-ebcc-40da-bdba-48044958ce3a', @__emailNorm_2='a@test.dev'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0 OR u."Email" ILIKE @__emailNorm_2 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:02.679 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@__orgId_0='833d7d14-720f-4499-a886-aeeb7fd7ccc4'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:02.836 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (156ms) [Parameters=[@__orgNameNorm_1='OrgA'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Name" ILIKE @__orgNameNorm_1 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:02.992 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (154ms) [Parameters=[@__userId_0='c15c4afc-d102-462d-b0b4-84b416a29522'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:03.150 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (157ms) [Parameters=[@__orgId_0='e2d4cee0-3ab8-465e-aee5-6c1897b87938'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:03.310 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (158ms) [Parameters=[@p2='c15c4afc-d102-462d-b0b4-84b416a29522', @p0='2025-09-14T21:20:03.1510863+00:00' (Nullable = true) (DbType = DateTime), @p3='0x6025C4C3DAF560FEA9BEE6EE53EBA0AB' (Nullable = false), @p1='2025-09-14T21:20:03.1514158+00:00' (Nullable = true) (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Users" SET "LastLoginAt" = @p0, "UpdatedAt" = @p1&#xD;
+            WHERE "Id" = @p2 AND "RowVersion" = @p3&#xD;
+            RETURNING "RowVersion";&#xD;
+info: Emma.Api.Controllers.DevAuthController[0]&#xD;
+      Issued dev token for org e2d4cee0-3ab8-465e-aee5-6c1897b87938 user c15c4afc-d102-462d-b0b4-84b416a29522&#xD;
+[Auth] JWT validated: sub=c15c4afc-d102-462d-b0b4-84b416a29522 orgId=e2d4cee0-3ab8-465e-aee5-6c1897b87938&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:03.475 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (150ms) [Parameters=[@p0='4bf1a03f-fedf-4eda-8091-550cc65ecf83', @p1=NULL (DbType = DateTime), @p2=NULL (DbType = DateTime), @p3=NULL, @p4=NULL, @p5='2025-09-14T21:20:03.3232561Z' (DbType = DateTime), @p6=NULL (DbType = Guid), @p7=NULL (DbType = DateTime), @p8=NULL (DbType = Guid), @p9=NULL (DbType = Guid), @p10=NULL, @p11='X' (Nullable = false), @p12='False', @p13='False', @p14='False', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Y' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='e2d4cee0-3ab8-465e-aee5-6c1897b87938', @p24=NULL (DbType = Guid), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='0', @p32='0', @p33='0x6D44E0AEA61FA240' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:20:03.3232624Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Contacts" ("Id", "ArchivedAt", "ClientSince", "Company", "CompanyName", "CreatedAt", "CreatedById", "DeletedAt", "DeletedById", "DeletedByUserId", "Department", "FirstName", "IsActiveClient", "IsDeleted", "IsPreferred", "JobTitle", "LastContactedAt", "LastName", "LeadSource", "LicenseNumber", "MiddleName", "NextFollowUpAt", "Notes", "OrganizationId", "OwnerId", "PhoneNumbers", "PreferredContactMethod", "PreferredContactTime", "PreferredName", "ProfilePictureUrl", "Rating", "RelationshipState", "ReviewCount", "RowVersion", "ServiceAreas", "Source", "Specialties", "Tags", "Title", "UpdatedAt", "UpdatedById", "Website")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39, @p40, @p41)&#xD;
+            RETURNING "IsArchived";&#xD;
+info: Emma.Infrastructure.Data.Repositories.ContactRepository[0]&#xD;
+      Added contact 4bf1a03f-fedf-4eda-8091-550cc65ecf83&#xD;
+[Config] ConnectionStrings source hint: appsettings.json&#xD;
+[Config] PostgreSQL -&gt; Host=emma-db-server.postgres.database.azure.com; Database=emma; Username=emmaadmin; SslMode=Require&#xD;
+[Npgsql] Version: 8.0.4.0, Location: C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Npgsql.dll&#xD;
+[AzureOpenAI] Using reflection adapter with no inner client (calls will throw if invoked)&#xD;
+[Auth] Dev mode: forcing Jwt Issuer/Audience to 'emma-dev' and using dev key&#xD;
+[Auth] Dev JWT configured -&gt; Issuer='emma-dev', Audience='emma-dev', KeyPresent=true&#xD;
+[SPRINT1] No CRM integration registered (core onboarding will function independently)&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:03.675 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (149ms) [Parameters=[@__userId_0='64de0a34-6ab3-4b99-a2d1-eb29c0ab7b56', @__emailNorm_2='b@test.dev'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0 OR u."Email" ILIKE @__emailNorm_2 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:03.832 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (156ms) [Parameters=[@__orgId_0='3b526938-2887-4dba-ac13-ec0f297b105a'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:03.986 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@__orgNameNorm_1='OrgB'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Name" ILIKE @__orgNameNorm_1 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:04.139 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@__userId_0='9682de1a-f78f-43e9-ba5e-50aee7e21324'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:04.294 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (154ms) [Parameters=[@__orgId_0='f8621d58-22b5-42e4-a59c-fb50d21383bb'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:04.454 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (160ms) [Parameters=[@p2='9682de1a-f78f-43e9-ba5e-50aee7e21324', @p0='2025-09-14T21:20:04.2946630+00:00' (Nullable = true) (DbType = DateTime), @p3='0x2FA69F011A0164651ED08BEDE1218AD2' (Nullable = false), @p1='2025-09-14T21:20:04.2947727+00:00' (Nullable = true) (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Users" SET "LastLoginAt" = @p0, "UpdatedAt" = @p1&#xD;
+            WHERE "Id" = @p2 AND "RowVersion" = @p3&#xD;
+            RETURNING "RowVersion";&#xD;
+info: Emma.Api.Controllers.DevAuthController[0]&#xD;
+      Issued dev token for org f8621d58-22b5-42e4-a59c-fb50d21383bb user 9682de1a-f78f-43e9-ba5e-50aee7e21324&#xD;
+[Auth] JWT validated: sub=9682de1a-f78f-43e9-ba5e-50aee7e21324 orgId=f8621d58-22b5-42e4-a59c-fb50d21383bb&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:04.608 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (147ms) [Parameters=[@__id_0='4bf1a03f-fedf-4eda-8091-550cc65ecf83'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."Id" = @__id_0&#xD;
+            LIMIT 1&#xD;
+[Auth] JWT validated: sub=9682de1a-f78f-43e9-ba5e-50aee7e21324 orgId=f8621d58-22b5-42e4-a59c-fb50d21383bb&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:04.778 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (155ms) [Parameters=[@__id_0='4bf1a03f-fedf-4eda-8091-550cc65ecf83'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."Id" = @__id_0&#xD;
+            LIMIT 1&#xD;
+[Config] ConnectionStrings source hint: appsettings.json&#xD;
+[Config] PostgreSQL -&gt; Host=emma-db-server.postgres.database.azure.com; Database=emma; Username=emmaadmin; SslMode=Require&#xD;
+[Npgsql] Version: 8.0.4.0, Location: C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Npgsql.dll&#xD;
+[AzureOpenAI] Using reflection adapter with no inner client (calls will throw if invoked)&#xD;
+[Auth] Dev mode: forcing Jwt Issuer/Audience to 'emma-dev' and using dev key&#xD;
+[Auth] Dev JWT configured -&gt; Issuer='emma-dev', Audience='emma-dev', KeyPresent=true&#xD;
+[SPRINT1] No CRM integration registered (core onboarding will function independently)&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:04.957 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (143ms) [Parameters=[@__userId_0='50962101-c1a9-4338-b858-e9e892bdab7c', @__emailNorm_2='owner@test.dev'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0 OR u."Email" ILIKE @__emailNorm_2 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:05.111 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (152ms) [Parameters=[@__orgId_0='261edc71-a24b-4af3-9a0b-ef9fdeab1d39'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:05.265 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@__orgNameNorm_1='OrgA'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Name" ILIKE @__orgNameNorm_1 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:05.418 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (152ms) [Parameters=[@__userId_0='8edbd392-780c-4eb0-b66e-19ecc56b87b7'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:05.573 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (155ms) [Parameters=[@__orgId_0='e2d4cee0-3ab8-465e-aee5-6c1897b87938'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:05.726 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (152ms) [Parameters=[@p2='8edbd392-780c-4eb0-b66e-19ecc56b87b7', @p0='2025-09-14T21:20:05.5740291+00:00' (Nullable = true) (DbType = DateTime), @p3='0x13D18755312E6C96B1468609D6B9F2A6' (Nullable = false), @p1='2025-09-14T21:20:05.5741578+00:00' (Nullable = true) (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Users" SET "LastLoginAt" = @p0, "UpdatedAt" = @p1&#xD;
+            WHERE "Id" = @p2 AND "RowVersion" = @p3&#xD;
+            RETURNING "RowVersion";&#xD;
+info: Emma.Api.Controllers.DevAuthController[0]&#xD;
+      Issued dev token for org e2d4cee0-3ab8-465e-aee5-6c1897b87938 user 8edbd392-780c-4eb0-b66e-19ecc56b87b7&#xD;
+[Auth] JWT validated: sub=8edbd392-780c-4eb0-b66e-19ecc56b87b7 orgId=e2d4cee0-3ab8-465e-aee5-6c1897b87938&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:05.892 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (156ms) [Parameters=[@p0='811fcb62-8cb9-408e-bed5-0202c611e559', @p1=NULL (DbType = DateTime), @p2=NULL (DbType = DateTime), @p3=NULL, @p4=NULL, @p5='2025-09-14T21:20:05.7358952Z' (DbType = DateTime), @p6=NULL (DbType = Guid), @p7=NULL (DbType = DateTime), @p8=NULL (DbType = Guid), @p9=NULL (DbType = Guid), @p10=NULL, @p11='Ada' (Nullable = false), @p12='False', @p13='False', @p14='False', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Lovelace' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='e2d4cee0-3ab8-465e-aee5-6c1897b87938', @p24=NULL (DbType = Guid), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='0', @p32='0', @p33='0x71BF3160E9B7E443' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:20:05.7358975Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Contacts" ("Id", "ArchivedAt", "ClientSince", "Company", "CompanyName", "CreatedAt", "CreatedById", "DeletedAt", "DeletedById", "DeletedByUserId", "Department", "FirstName", "IsActiveClient", "IsDeleted", "IsPreferred", "JobTitle", "LastContactedAt", "LastName", "LeadSource", "LicenseNumber", "MiddleName", "NextFollowUpAt", "Notes", "OrganizationId", "OwnerId", "PhoneNumbers", "PreferredContactMethod", "PreferredContactTime", "PreferredName", "ProfilePictureUrl", "Rating", "RelationshipState", "ReviewCount", "RowVersion", "ServiceAreas", "Source", "Specialties", "Tags", "Title", "UpdatedAt", "UpdatedById", "Website")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39, @p40, @p41)&#xD;
+            RETURNING "IsArchived";&#xD;
+info: Emma.Infrastructure.Data.Repositories.ContactRepository[0]&#xD;
+      Added contact 811fcb62-8cb9-408e-bed5-0202c611e559&#xD;
+[Config] ConnectionStrings source hint: appsettings.json&#xD;
+[Config] PostgreSQL -&gt; Host=emma-db-server.postgres.database.azure.com; Database=emma; Username=emmaadmin; SslMode=Require&#xD;
+[Npgsql] Version: 8.0.4.0, Location: C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Npgsql.dll&#xD;
+[AzureOpenAI] Using reflection adapter with no inner client (calls will throw if invoked)&#xD;
+[Auth] Dev mode: forcing Jwt Issuer/Audience to 'emma-dev' and using dev key&#xD;
+[Auth] Dev JWT configured -&gt; Issuer='emma-dev', Audience='emma-dev', KeyPresent=true&#xD;
+[SPRINT1] No CRM integration registered (core onboarding will function independently)&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:06.082 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (154ms) [Parameters=[@p0='ec7ae6b2-d96c-41a6-a8a6-f9bd6da351d0', @p1='2025-09-14T21:20:05.9252161Z' (DbType = DateTime), @p2='2025-09-14T21:20:05.9252161Z' (DbType = DateTime), @p3='811fcb62-8cb9-408e-bed5-0202c611e559', @p4='8edbd392-780c-4eb0-b66e-19ecc56b87b7', @p5='8edbd392-780c-4eb0-b66e-19ecc56b87b7', @p6='e2d4cee0-3ab8-465e-aee5-6c1897b87938', @p7='3', @p8='True', @p9='True', @p10='False', @p11='False', @p12='False', @p13='False', @p14='False', @p15='False', @p16='False', @p17='False'], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "ContactCollaborators" (&#xD;
+                                "Id", "CreatedAt", "UpdatedAt", "ContactId", "CollaboratorUserId", "GrantedByUserId", "OrganizationId", "Role", "IsActive",&#xD;
+                                "CanAccessBusinessInteractions", "CanAccessPersonalInteractions", "CanCreateInteractions", "CanEditInteractions",&#xD;
+                                "CanAssignResources", "CanAccessFinancialData", "CanEditContactDetails", "CanManageCollaborators", "CanViewAuditLogs"&#xD;
+                            ) VALUES (&#xD;
+                                @p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8,&#xD;
+                                @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17&#xD;
+                            );&#xD;
+[Auth] JWT validated: sub=8edbd392-780c-4eb0-b66e-19ecc56b87b7 orgId=e2d4cee0-3ab8-465e-aee5-6c1897b87938&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:06.246 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (150ms) [Parameters=[@__id_0='811fcb62-8cb9-408e-bed5-0202c611e559'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."Id" = @__id_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:06.415 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (167ms) [Parameters=[@p42='811fcb62-8cb9-408e-bed5-0202c611e559', @p0=NULL (DbType = DateTime), @p1=NULL (DbType = DateTime), @p2=NULL, @p3=NULL, @p4='2025-09-14T21:20:05.7358950Z' (DbType = DateTime), @p5=NULL (DbType = Guid), @p6=NULL (DbType = DateTime), @p7=NULL (DbType = Guid), @p8=NULL (DbType = Guid), @p9=NULL, @p10='Ada' (Nullable = false), @p11='False', @p12='False', @p13='False', @p14='False', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Lovelace' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='e2d4cee0-3ab8-465e-aee5-6c1897b87938', @p24='8edbd392-780c-4eb0-b66e-19ecc56b87b7' (Nullable = true), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='0', @p32='0', @p33='0x71BF3160E9B7E443' (Nullable = false), @p43='0x71BF3160E9B7E443' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:20:06.2467395Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Contacts" SET "ArchivedAt" = @p0, "ClientSince" = @p1, "Company" = @p2, "CompanyName" = @p3, "CreatedAt" = @p4, "CreatedById" = @p5, "DeletedAt" = @p6, "DeletedById" = @p7, "DeletedByUserId" = @p8, "Department" = @p9, "FirstName" = @p10, "IsActiveClient" = @p11, "IsArchived" = @p12, "IsDeleted" = @p13, "IsPreferred" = @p14, "JobTitle" = @p15, "LastContactedAt" = @p16, "LastName" = @p17, "LeadSource" = @p18, "LicenseNumber" = @p19, "MiddleName" = @p20, "NextFollowUpAt" = @p21, "Notes" = @p22, "OrganizationId" = @p23, "OwnerId" = @p24, "PhoneNumbers" = @p25, "PreferredContactMethod" = @p26, "PreferredContactTime" = @p27, "PreferredName" = @p28, "ProfilePictureUrl" = @p29, "Rating" = @p30, "RelationshipState" = @p31, "ReviewCount" = @p32, "RowVersion" = @p33, "ServiceAreas" = @p34, "Source" = @p35, "Specialties" = @p36, "Tags" = @p37, "Title" = @p38, "UpdatedAt" = @p39, "UpdatedById" = @p40, "Website" = @p41&#xD;
+            WHERE "Id" = @p42 AND "RowVersion" = @p43;&#xD;
+[Auth] JWT validated: sub=8edbd392-780c-4eb0-b66e-19ecc56b87b7 orgId=e2d4cee0-3ab8-465e-aee5-6c1897b87938&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:06.576 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (151ms) [Parameters=[@__id_0='811fcb62-8cb9-408e-bed5-0202c611e559'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."Id" = @__id_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:06.759 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (181ms) [Parameters=[@p42='811fcb62-8cb9-408e-bed5-0202c611e559', @p0=NULL (DbType = DateTime), @p1=NULL (DbType = DateTime), @p2=NULL, @p3='Lovelace &amp; Co.', @p4='2025-09-14T21:20:05.7358950Z' (DbType = DateTime), @p5=NULL (DbType = Guid), @p6=NULL (DbType = DateTime), @p7=NULL (DbType = Guid), @p8=NULL (DbType = Guid), @p9=NULL, @p10='Ada' (Nullable = false), @p11='False', @p12='False', @p13='False', @p14='True', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Lovelace' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='e2d4cee0-3ab8-465e-aee5-6c1897b87938', @p24='8edbd392-780c-4eb0-b66e-19ecc56b87b7' (Nullable = true), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='0', @p32='0', @p33='0x71BF3160E9B7E443' (Nullable = false), @p43='0x71BF3160E9B7E443' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:20:06.5769571Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41='https://lovelace.example'], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Contacts" SET "ArchivedAt" = @p0, "ClientSince" = @p1, "Company" = @p2, "CompanyName" = @p3, "CreatedAt" = @p4, "CreatedById" = @p5, "DeletedAt" = @p6, "DeletedById" = @p7, "DeletedByUserId" = @p8, "Department" = @p9, "FirstName" = @p10, "IsActiveClient" = @p11, "IsArchived" = @p12, "IsDeleted" = @p13, "IsPreferred" = @p14, "JobTitle" = @p15, "LastContactedAt" = @p16, "LastName" = @p17, "LeadSource" = @p18, "LicenseNumber" = @p19, "MiddleName" = @p20, "NextFollowUpAt" = @p21, "Notes" = @p22, "OrganizationId" = @p23, "OwnerId" = @p24, "PhoneNumbers" = @p25, "PreferredContactMethod" = @p26, "PreferredContactTime" = @p27, "PreferredName" = @p28, "ProfilePictureUrl" = @p29, "Rating" = @p30, "RelationshipState" = @p31, "ReviewCount" = @p32, "RowVersion" = @p33, "ServiceAreas" = @p34, "Source" = @p35, "Specialties" = @p36, "Tags" = @p37, "Title" = @p38, "UpdatedAt" = @p39, "UpdatedById" = @p40, "Website" = @p41&#xD;
+            WHERE "Id" = @p42 AND "RowVersion" = @p43;&#xD;
+[Auth] JWT validated: sub=8edbd392-780c-4eb0-b66e-19ecc56b87b7 orgId=e2d4cee0-3ab8-465e-aee5-6c1897b87938&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:06.985 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (219ms) [Parameters=[@__id_0='811fcb62-8cb9-408e-bed5-0202c611e559'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."Id" = @__id_0&#xD;
+            LIMIT 1&#xD;
+[Config] ConnectionStrings source hint: appsettings.json&#xD;
+[Config] PostgreSQL -&gt; Host=emma-db-server.postgres.database.azure.com; Database=emma; Username=emmaadmin; SslMode=Require&#xD;
+[Npgsql] Version: 8.0.4.0, Location: C:\Users\david\GitHub\WindsurfProjects\emma-clean\tests\Emma.Api.IntegrationTests\bin\Debug\net8.0\Npgsql.dll&#xD;
+[AzureOpenAI] Using reflection adapter with no inner client (calls will throw if invoked)&#xD;
+[Auth] Dev mode: forcing Jwt Issuer/Audience to 'emma-dev' and using dev key&#xD;
+[Auth] Dev JWT configured -&gt; Issuer='emma-dev', Audience='emma-dev', KeyPresent=true&#xD;
+[SPRINT1] No CRM integration registered (core onboarding will function independently)&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:07.186 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (150ms) [Parameters=[@__userId_0='f4241270-2f1e-4951-917e-1e0b915ce04b', @__emailNorm_2='owner4@test.dev'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0 OR u."Email" ILIKE @__emailNorm_2 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:07.342 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (155ms) [Parameters=[@__orgId_0='cd526147-adce-4dec-8197-3881eb956594'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:07.496 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@__orgNameNorm_1='OrgListFilter-63e49c4324b341159f778ebb6c4259df'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Name" ILIKE @__orgNameNorm_1 ESCAPE ''&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:07.650 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@__userId_0='3a837a7b-ee05-4b83-a9af-fa02acf10b1b'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT u."Id", u."AccountStatus", u."CreatedAt", u."CreatedById", u."DeletedAt", u."DeletedById", u."Email", u."FirstName", u."FubApiKey", u."FubUserId", u."IsActive", u."IsAdmin", u."IsDeleted", u."IsVerified", u."LastLoginAt", u."LastName", u."Locale", u."OrganizationId", u."Password", u."ProfileImageUrl", u."Role", u."RowVersion", u."TimeZone", u."UpdatedAt", u."UpdatedById", u."VerificationToken", u."VerifiedAt"&#xD;
+            FROM "Users" AS u&#xD;
+            WHERE u."Id" = @__userId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:07.803 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@__orgId_0='cd526147-adce-4dec-8197-3881eb956594'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT o."Id", o."CreatedAt", o."CreatedById", o."Currency", o."DeletedAt", o."DeletedById", o."Email", o."FubApiKey", o."FubId", o."FubSystem", o."FubSystemKey", o."IndustryCode", o."IsActive", o."IsDeleted", o."Locale", o."LogoUrl", o."Name", o."OrgGuid", o."OwnerUserId", o."PhoneNumber", o."PlanId", o."PlanType", o."RowVersion", o."SeatCount", o."TimeZone", o."UpdatedAt", o."UpdatedById", o."Website"&#xD;
+            FROM "Organizations" AS o&#xD;
+            WHERE o."Id" = @__orgId_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:07.957 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (154ms) [Parameters=[@p0='cd526147-adce-4dec-8197-3881eb956594', @p1='2025-09-14T21:20:07.8034977Z' (DbType = DateTime), @p2=NULL (DbType = Guid), @p3=NULL, @p4=NULL (DbType = DateTime), @p5=NULL (DbType = Guid), @p6='8f01269e643b475bb2112c59b1e24c67@example.local' (Nullable = false), @p7=NULL, @p8=NULL (DbType = Int32), @p9=NULL, @p10=NULL, @p11='RealEstate' (Nullable = false), @p12='False', @p13=NULL, @p14=NULL, @p15='OrgListFilter-63e49c4324b341159f778ebb6c4259df' (Nullable = false), @p16='349c46a1-0348-44c8-8363-f91e606421fc', @p17='3a837a7b-ee05-4b83-a9af-fa02acf10b1b', @p18=NULL, @p19='Basic', @p20=NULL (DbType = Int32), @p21=NULL (DbType = Int32), @p22=NULL, @p23=NULL (DbType = Guid), @p24=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Organizations" ("Id", "CreatedAt", "CreatedById", "Currency", "DeletedAt", "DeletedById", "Email", "FubApiKey", "FubId", "FubSystem", "FubSystemKey", "IndustryCode", "IsDeleted", "Locale", "LogoUrl", "Name", "OrgGuid", "OwnerUserId", "PhoneNumber", "PlanId", "PlanType", "SeatCount", "TimeZone", "UpdatedById", "Website")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24)&#xD;
+            RETURNING "IsActive", "RowVersion", "UpdatedAt";&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:08.118 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (158ms) [Parameters=[@p2='3a837a7b-ee05-4b83-a9af-fa02acf10b1b', @p0='cd526147-adce-4dec-8197-3881eb956594' (Nullable = true), @p3='0xD0A8551301E04D7A2BC0D08F2E0F17DA' (Nullable = false), @p1='2025-09-14T21:20:07.9587627+00:00' (Nullable = true) (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Users" SET "OrganizationId" = @p0, "UpdatedAt" = @p1&#xD;
+            WHERE "Id" = @p2 AND "RowVersion" = @p3&#xD;
+            RETURNING "RowVersion";&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:08.270 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (152ms) [Parameters=[@p2='3a837a7b-ee05-4b83-a9af-fa02acf10b1b', @p0='2025-09-14T21:20:08.1184342+00:00' (Nullable = true) (DbType = DateTime), @p3='0xFB2AEEFB1679F4E7535BD9A13AE48826' (Nullable = false), @p1='2025-09-14T21:20:08.1185240+00:00' (Nullable = true) (DbType = DateTime)], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Users" SET "LastLoginAt" = @p0, "UpdatedAt" = @p1&#xD;
+            WHERE "Id" = @p2 AND "RowVersion" = @p3&#xD;
+            RETURNING "RowVersion";&#xD;
+info: Emma.Api.Controllers.DevAuthController[0]&#xD;
+      Issued dev token for org cd526147-adce-4dec-8197-3881eb956594 user 3a837a7b-ee05-4b83-a9af-fa02acf10b1b&#xD;
+[Auth] JWT validated: sub=3a837a7b-ee05-4b83-a9af-fa02acf10b1b orgId=cd526147-adce-4dec-8197-3881eb956594&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:08.436 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@p0='f64d20d9-34cc-4130-96d7-ecbc936355b8', @p1=NULL (DbType = DateTime), @p2=NULL (DbType = DateTime), @p3=NULL, @p4=NULL, @p5='2025-09-14T21:20:08.2815236Z' (DbType = DateTime), @p6=NULL (DbType = Guid), @p7=NULL (DbType = DateTime), @p8=NULL (DbType = Guid), @p9=NULL (DbType = Guid), @p10=NULL, @p11='Alice' (Nullable = false), @p12='False', @p13='False', @p14='False', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Smith' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='cd526147-adce-4dec-8197-3881eb956594', @p24=NULL (DbType = Guid), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='2', @p32='0', @p33='0x793BD237A6353B43' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:20:08.2815266Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Contacts" ("Id", "ArchivedAt", "ClientSince", "Company", "CompanyName", "CreatedAt", "CreatedById", "DeletedAt", "DeletedById", "DeletedByUserId", "Department", "FirstName", "IsActiveClient", "IsDeleted", "IsPreferred", "JobTitle", "LastContactedAt", "LastName", "LeadSource", "LicenseNumber", "MiddleName", "NextFollowUpAt", "Notes", "OrganizationId", "OwnerId", "PhoneNumbers", "PreferredContactMethod", "PreferredContactTime", "PreferredName", "ProfilePictureUrl", "Rating", "RelationshipState", "ReviewCount", "RowVersion", "ServiceAreas", "Source", "Specialties", "Tags", "Title", "UpdatedAt", "UpdatedById", "Website")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39, @p40, @p41)&#xD;
+            RETURNING "IsArchived";&#xD;
+info: Emma.Infrastructure.Data.Repositories.ContactRepository[0]&#xD;
+      Added contact f64d20d9-34cc-4130-96d7-ecbc936355b8&#xD;
+[Auth] JWT validated: sub=3a837a7b-ee05-4b83-a9af-fa02acf10b1b orgId=cd526147-adce-4dec-8197-3881eb956594&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:08.592 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (151ms) [Parameters=[@p0='f6d8b673-4f39-4aac-9245-f0e1ab229c5c', @p1=NULL (DbType = DateTime), @p2=NULL (DbType = DateTime), @p3=NULL, @p4=NULL, @p5='2025-09-14T21:20:08.4410169Z' (DbType = DateTime), @p6=NULL (DbType = Guid), @p7=NULL (DbType = DateTime), @p8=NULL (DbType = Guid), @p9=NULL (DbType = Guid), @p10=NULL, @p11='Bob' (Nullable = false), @p12='False', @p13='False', @p14='False', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Jones' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='cd526147-adce-4dec-8197-3881eb956594', @p24=NULL (DbType = Guid), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='0', @p32='0', @p33='0x846CE70D627B6F4B' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:20:08.4410187Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Contacts" ("Id", "ArchivedAt", "ClientSince", "Company", "CompanyName", "CreatedAt", "CreatedById", "DeletedAt", "DeletedById", "DeletedByUserId", "Department", "FirstName", "IsActiveClient", "IsDeleted", "IsPreferred", "JobTitle", "LastContactedAt", "LastName", "LeadSource", "LicenseNumber", "MiddleName", "NextFollowUpAt", "Notes", "OrganizationId", "OwnerId", "PhoneNumbers", "PreferredContactMethod", "PreferredContactTime", "PreferredName", "ProfilePictureUrl", "Rating", "RelationshipState", "ReviewCount", "RowVersion", "ServiceAreas", "Source", "Specialties", "Tags", "Title", "UpdatedAt", "UpdatedById", "Website")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39, @p40, @p41)&#xD;
+            RETURNING "IsArchived";&#xD;
+info: Emma.Infrastructure.Data.Repositories.ContactRepository[0]&#xD;
+      Added contact f6d8b673-4f39-4aac-9245-f0e1ab229c5c&#xD;
+[Auth] JWT validated: sub=3a837a7b-ee05-4b83-a9af-fa02acf10b1b orgId=cd526147-adce-4dec-8197-3881eb956594&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:08.753 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (155ms) [Parameters=[@p0='03effbf5-5709-4266-b416-f0163aa761ac', @p1=NULL (DbType = DateTime), @p2=NULL (DbType = DateTime), @p3=NULL, @p4=NULL, @p5='2025-09-14T21:20:08.5976397Z' (DbType = DateTime), @p6=NULL (DbType = Guid), @p7=NULL (DbType = DateTime), @p8=NULL (DbType = Guid), @p9=NULL (DbType = Guid), @p10=NULL, @p11='Charlie' (Nullable = false), @p12='False', @p13='False', @p14='False', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Smalls' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='cd526147-adce-4dec-8197-3881eb956594', @p24=NULL (DbType = Guid), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='1', @p32='0', @p33='0x27D9076E70F28442' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:20:08.5976420Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            INSERT INTO "Contacts" ("Id", "ArchivedAt", "ClientSince", "Company", "CompanyName", "CreatedAt", "CreatedById", "DeletedAt", "DeletedById", "DeletedByUserId", "Department", "FirstName", "IsActiveClient", "IsDeleted", "IsPreferred", "JobTitle", "LastContactedAt", "LastName", "LeadSource", "LicenseNumber", "MiddleName", "NextFollowUpAt", "Notes", "OrganizationId", "OwnerId", "PhoneNumbers", "PreferredContactMethod", "PreferredContactTime", "PreferredName", "ProfilePictureUrl", "Rating", "RelationshipState", "ReviewCount", "RowVersion", "ServiceAreas", "Source", "Specialties", "Tags", "Title", "UpdatedAt", "UpdatedById", "Website")&#xD;
+            VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39, @p40, @p41)&#xD;
+            RETURNING "IsArchived";&#xD;
+info: Emma.Infrastructure.Data.Repositories.ContactRepository[0]&#xD;
+      Added contact 03effbf5-5709-4266-b416-f0163aa761ac&#xD;
+[Auth] JWT validated: sub=3a837a7b-ee05-4b83-a9af-fa02acf10b1b orgId=cd526147-adce-4dec-8197-3881eb956594&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:08.912 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@__id_0='f6d8b673-4f39-4aac-9245-f0e1ab229c5c'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."Id" = @__id_0&#xD;
+            LIMIT 1&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:09.065 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (152ms) [Parameters=[@p42='f6d8b673-4f39-4aac-9245-f0e1ab229c5c', @p0='2025-09-14T21:20:08.9123971Z' (Nullable = true) (DbType = DateTime), @p1=NULL (DbType = DateTime), @p2=NULL, @p3=NULL, @p4='2025-09-14T21:20:08.4410160Z' (DbType = DateTime), @p5=NULL (DbType = Guid), @p6=NULL (DbType = DateTime), @p7=NULL (DbType = Guid), @p8=NULL (DbType = Guid), @p9=NULL, @p10='Bob' (Nullable = false), @p11='False', @p12='True', @p13='False', @p14='False', @p15=NULL, @p16=NULL (DbType = DateTime), @p17='Jones' (Nullable = false), @p18=NULL, @p19=NULL, @p20=NULL, @p21=NULL (DbType = DateTime), @p22=NULL, @p23='cd526147-adce-4dec-8197-3881eb956594', @p24=NULL (DbType = Guid), @p25='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p26=NULL, @p27=NULL, @p28=NULL, @p29=NULL, @p30=NULL (DbType = Decimal), @p31='0', @p32='0', @p33='0x846CE70D627B6F4B' (Nullable = false), @p43='0x846CE70D627B6F4B' (Nullable = false), @p34={  } (Nullable = false) (DbType = Object), @p35=NULL, @p36={  } (Nullable = false) (DbType = Object), @p37='System.Text.Json.JsonDocument' (Nullable = false) (DbType = Object), @p38=NULL, @p39='2025-09-14T21:20:08.9123998Z' (DbType = DateTime), @p40=NULL (DbType = Guid), @p41=NULL], CommandType='Text', CommandTimeout='30']&#xD;
+            UPDATE "Contacts" SET "ArchivedAt" = @p0, "ClientSince" = @p1, "Company" = @p2, "CompanyName" = @p3, "CreatedAt" = @p4, "CreatedById" = @p5, "DeletedAt" = @p6, "DeletedById" = @p7, "DeletedByUserId" = @p8, "Department" = @p9, "FirstName" = @p10, "IsActiveClient" = @p11, "IsArchived" = @p12, "IsDeleted" = @p13, "IsPreferred" = @p14, "JobTitle" = @p15, "LastContactedAt" = @p16, "LastName" = @p17, "LeadSource" = @p18, "LicenseNumber" = @p19, "MiddleName" = @p20, "NextFollowUpAt" = @p21, "Notes" = @p22, "OrganizationId" = @p23, "OwnerId" = @p24, "PhoneNumbers" = @p25, "PreferredContactMethod" = @p26, "PreferredContactTime" = @p27, "PreferredName" = @p28, "ProfilePictureUrl" = @p29, "Rating" = @p30, "RelationshipState" = @p31, "ReviewCount" = @p32, "RowVersion" = @p33, "ServiceAreas" = @p34, "Source" = @p35, "Specialties" = @p36, "Tags" = @p37, "Title" = @p38, "UpdatedAt" = @p39, "UpdatedById" = @p40, "Website" = @p41&#xD;
+            WHERE "Id" = @p42 AND "RowVersion" = @p43;&#xD;
+[Auth] JWT validated: sub=3a837a7b-ee05-4b83-a9af-fa02acf10b1b orgId=cd526147-adce-4dec-8197-3881eb956594&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:09.227 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (148ms) [Parameters=[@__claimOrgId_Value_0='cd526147-adce-4dec-8197-3881eb956594', @__ql_1_contains='%jo%', @__ql_1_contains_1='%jo%', @__p_3='50', @__p_2='0'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."OrganizationId" = @__claimOrgId_Value_0 AND NOT (c."IsArchived") AND (lower(c."FirstName") LIKE @__ql_1_contains OR lower(c."LastName") LIKE @__ql_1_contains OR (c."Company" IS NOT NULL AND lower(c."Company") LIKE @__ql_1_contains_1))&#xD;
+            ORDER BY c."LastName", c."FirstName"&#xD;
+            LIMIT @__p_3 OFFSET @__p_2&#xD;
+[Auth] JWT validated: sub=3a837a7b-ee05-4b83-a9af-fa02acf10b1b orgId=cd526147-adce-4dec-8197-3881eb956594&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:09.407 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (152ms) [Parameters=[@__claimOrgId_Value_0='cd526147-adce-4dec-8197-3881eb956594', @__ql_1_contains='%jo%', @__ql_1_contains_1='%jo%', @__p_3='50', @__p_2='0'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."OrganizationId" = @__claimOrgId_Value_0 AND (lower(c."FirstName") LIKE @__ql_1_contains OR lower(c."LastName") LIKE @__ql_1_contains OR (c."Company" IS NOT NULL AND lower(c."Company") LIKE @__ql_1_contains_1))&#xD;
+            ORDER BY c."LastName", c."FirstName"&#xD;
+            LIMIT @__p_3 OFFSET @__p_2&#xD;
+[Auth] JWT validated: sub=3a837a7b-ee05-4b83-a9af-fa02acf10b1b orgId=cd526147-adce-4dec-8197-3881eb956594&#xD;
+info: Emma.Infrastructure.Data.EmmaDbContext[0]&#xD;
+      info: 2025-09-14 17:20:09.573 RelationalEventId.CommandExecuted[20101] (Microsoft.EntityFrameworkCore.Database.Command) &#xD;
+            Executed DbCommand (153ms) [Parameters=[@__claimOrgId_Value_0='cd526147-adce-4dec-8197-3881eb956594', @__relationshipState_Value_1='2', @__p_3='50', @__p_2='0'], CommandType='Text', CommandTimeout='30']&#xD;
+            SELECT c."Id", c."ArchivedAt", c."ClientSince", c."Company", c."CompanyName", c."CreatedAt", c."CreatedById", c."DeletedAt", c."DeletedById", c."DeletedByUserId", c."Department", c."FirstName", c."IsActiveClient", c."IsArchived", c."IsDeleted", c."IsPreferred", c."JobTitle", c."LastContactedAt", c."LastName", c."LeadSource", c."LicenseNumber", c."MiddleName", c."NextFollowUpAt", c."Notes", c."OrganizationId", c."OwnerId", c."PhoneNumbers", c."PreferredContactMethod", c."PreferredContactTime", c."PreferredName", c."ProfilePictureUrl", c."Rating", c."RelationshipState", c."ReviewCount", c."RowVersion", c."ServiceAreas", c."Source", c."Specialties", c."Tags", c."Title", c."UpdatedAt", c."UpdatedById", c."Website"&#xD;
+            FROM "Contacts" AS c&#xD;
+            WHERE c."OrganizationId" = @__claimOrgId_Value_0 AND NOT (c."IsArchived") AND c."RelationshipState" = @__relationshipState_Value_1&#xD;
+            ORDER BY c."LastName", c."FirstName"&#xD;
+            LIMIT @__p_3 OFFSET @__p_2&#xD;
+[xUnit.net 00:00:15.74]   Finished:    Emma.Api.IntegrationTests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="RHFTP152022" outcome="Warning" timestamp="2025-09-14T17:19:54.0105629-04:00">
+        <Text>[xUnit.net 00:00:00.17]     Emma.Api.IntegrationTests.FulltextInteractionControllerTests.Can_Post_And_Query_FulltextInteraction [SKIP]</Text>
+      </RunInfo>
+      <RunInfo computerName="RHFTP152022" outcome="Warning" timestamp="2025-09-14T17:19:54.1255702-04:00">
+        <Text>[xUnit.net 00:00:00.28]     Emma.Api.IntegrationTests.Services.EmmaAgentServiceIntegrationTests.ProcessMessageAsync_WithRealService_ReturnsValidResponse [SKIP]</Text>
+      </RunInfo>
+      <RunInfo computerName="RHFTP152022" outcome="Error" timestamp="2025-09-14T17:19:54.1310820-04:00">
+        <Text>[xUnit.net 00:00:00.29]     Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WithValidInput_ReturnsSuccessResponse [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="RHFTP152022" outcome="Error" timestamp="2025-09-14T17:19:54.1351949-04:00">
+        <Text>[xUnit.net 00:00:00.29]     Emma.Api.IntegrationTests.Services.EmmaAgentServiceTests.ProcessMessageAsync_WhenRateLimited_RetriesAndThenFails [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="RHFTP152022" outcome="Error" timestamp="2025-09-14T17:19:58.3423701-04:00">
+        <Text>[xUnit.net 00:00:04.50]     Emma.Api.IntegrationTests.OnboardingAndProfileFlowTests.RegisterAndProfileFlow_WorksAndIsolated [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>
