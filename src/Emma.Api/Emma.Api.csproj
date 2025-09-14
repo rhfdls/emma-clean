@@ -24,6 +24,7 @@
     <PackageReference Include="Azure.Core" />
     <PackageReference Include="Polly" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
     <PackageReference Include="Newtonsoft.Json.Schema" />
   </ItemGroup>
 

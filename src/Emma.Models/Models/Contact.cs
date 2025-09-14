@@ -197,6 +197,26 @@ public class Contact : BaseEntity
     /// Set to true when client signs representation agreement or enters active transaction.
     /// </summary>
     public bool IsActiveClient { get; set; } = false;
+
+    /// <summary>
+    /// Soft-archive flag. When true, contact is excluded from default lists and active workflows.
+    /// </summary>
+    public bool IsArchived { get; set; } = false;
+
+    /// <summary>
+    /// Timestamp when this contact was archived (if archived).
+    /// </summary>
+    public DateTime? ArchivedAt { get; set; }
+
+    /// <summary>
+    /// Timestamp when this contact was deleted (for audit only; hard delete removes PII).
+    /// </summary>
+    public DateTime? DeletedAt { get; set; }
+
+    /// <summary>
+    /// User who initiated deletion (for audit only; may be null if system-initiated).
+    /// </summary>
+    public Guid? DeletedByUserId { get; set; }
     
     /// <summary>
     /// Timestamp when contact first became a client (for analytics and compliance).

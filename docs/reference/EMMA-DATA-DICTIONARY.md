@@ -1,4 +1,5 @@
 # EMMA Platform Data Dictionary & Lexicon
+<!-- markdownlint-disable MD024 MD001 MD022 MD032 MD036 MD040 MD009 -->
 
 **Version**: 2.2  
 **Last Updated**: 2025-06-19  
@@ -70,6 +71,11 @@ Core entity representing individuals or businesses in the system.
 | UpdatedAt | DateTime | Yes | Record last update timestamp |
 | CustomFields | Dictionary\<string, string\>? | No | Extended properties |
 
+| IsArchived | bool | Yes | Soft-archive flag; archived contacts are excluded from default lists |
+| ArchivedAt | DateTime? | No | When the contact was archived |
+| DeletedAt | DateTime? | No | When the contact was hard-deleted (audit metadata only) |
+| DeletedByUserId | Guid? | No | User who initiated deletion (audit metadata only) |
+
 ##### Navigation Properties
 
 - **OwnerAgent**: Reference to the agent who owns this contact
@@ -102,6 +108,7 @@ Core entity representing individuals or businesses in the system.
 3. **Access Control**:
    - Only the OwnerAgent and Collaborators with appropriate permissions can view or edit the Contact
    - Access to sensitive information is controlled by Interaction Tags and privacy settings
+   - Admin-only actions: Archive, Restore, and Hard Delete (with required reason). Hard Delete performs irreversible PII erasure and emits a non-PII `AuditEvent`.
 
 ### Agent
 
@@ -269,7 +276,7 @@ Represents an organization's subscription to a specific plan with seat managemen
 ##### Navigation Properties
 
 - **Organization**: The organization that owns this subscription
-- **SubscriptionPlan**: The subscription plan details
+- **SubscriptionPlan**: The plan details
 - **UserAssignments**: Collection of user assignments for this subscription
 - **UserSubscriptions**: Collection of user subscriptions under this organization subscription
 
@@ -675,7 +682,7 @@ Stores metadata specific to call messages, including call direction, duration, a
    - Consider archiving old call metadata for performance
    - Partitioned by organization for multi-tenant isolation
 
-## Transcription
+### Transcription
 
 Stores transcriptions of message content, particularly for audio/video messages.
 
@@ -1026,7 +1033,7 @@ Contact Interaction → Context Provider → Agent Intelligence → Action Gener
 | **Insights** | `Dictionary\<string, object\>` | Flexible AI-generated insights | `{"lead_quality": "high", "urgency": 0.8}` |
 | **Sentiment** | `Dictionary\<string, object\>` | Sentiment analysis results | `{"overall": "positive", "confidence": 0.9}` |
 | **BuyingSignals** | `List<string\>` | Detected purchase indicators | `["timeline_mentioned", "budget_discussed"]` |
-| **Recommendations** | `List<string\>` | Suggested next actions | `["schedule_showing", "send_listings"]` |
+| **Recommendations** | `List<string>` | Suggested next actions | `["schedule_showing", "send_listings"]` |
 
 ### User Override Architecture
 

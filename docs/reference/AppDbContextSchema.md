@@ -68,6 +68,10 @@ Core entity representing individuals or businesses in the system.
 | OwnerId | Guid? | No | Owning agent ID |
 | CreatedAt | DateTime | Yes | Record creation timestamp |
 | UpdatedAt | DateTime | Yes | Record last update timestamp |
+| IsArchived | bool | Yes | Soft-archive flag (excluded from default lists) |
+| ArchivedAt | DateTime? | No | When the contact was archived |
+| DeletedAt | DateTime? | No | When the contact was hard-deleted (audit metadata only) |
+| DeletedByUserId | Guid? | No | User who initiated deletion (audit metadata only) |
 | CustomFields | Dictionary\<string, string>? | No | Extended properties |
 
 #### Navigation Properties
@@ -196,6 +200,7 @@ Verification Endpoint: `POST /api/auth/verify-email` with `{ token: string }` â†
 - **IX_Contacts_AgentId**: Non-clustered index on AgentId
 - **IX_Contacts_RelationshipState**: Non-clustered index on RelationshipState
 - **IX_Contacts_IsActiveClient**: Non-clustered index on IsActiveClient
+- **IX_Contacts_OrganizationId_IsArchived_OwnerId**: Composite index to support list queries with archived filtering and owner scoping
 
 ### Interaction Indexes
 
@@ -239,13 +244,29 @@ var activeClients = await _context.Contacts
     .ToListAsync();
 ```
 
+### AuditEvents
+
+Non-PII audit trail for irreversible actions like hard delete.
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| Id | Guid | Yes | Primary key |
+| OrganizationId | Guid | Yes | Owning organization |
+| ActorUserId | Guid? | No | User who performed the action |
+| Action | string | Yes | Event action (e.g., ContactErased) |
+| OccurredAt | DateTime | Yes | Timestamp (UTC) |
+| TraceId | string? | No | Correlation id |
+| DetailsJson | jsonb? | No | Optional non-PII payload |
+
+Indexes: OrganizationId, OccurredAt, Action
+
 ## Data Retention Policies
 
 ### Contacts
 
 - Retained indefinitely unless deleted by user
-- Soft delete implemented with IsDeleted flag
-- Hard delete after 1 year in deleted state
+- Archive implemented via `IsArchived` (reversible)
+- Hard delete performs immediate erasure of PII across the contact graph; only non-PII `AuditEvent` remains
 
 ### Interactions
 

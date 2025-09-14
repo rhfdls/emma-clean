@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "VAoLIIczRPo=",
+  "dgSpecHash": "PFe8lIRkcrA=",
   "success": true,
   "projectFilePath": "C:\\Users\\david\\GitHub\\WindsurfProjects\\emma-clean\\src\\Emma.Api\\Emma.Api.csproj",
   "expectedPackageFiles": [
@@ -100,6 +100,7 @@
     "C:\\Users\\david\\.nuget\\packages\\runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "C:\\Users\\david\\.nuget\\packages\\sprache\\2.3.1\\sprache.2.3.1.nupkg.sha512",
     "C:\\Users\\david\\.nuget\\packages\\swashbuckle.aspnetcore\\6.7.1\\swashbuckle.aspnetcore.6.7.1.nupkg.sha512",
+    "C:\\Users\\david\\.nuget\\packages\\swashbuckle.aspnetcore.annotations\\6.7.1\\swashbuckle.aspnetcore.annotations.6.7.1.nupkg.sha512",
     "C:\\Users\\david\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.7.1\\swashbuckle.aspnetcore.swagger.6.7.1.nupkg.sha512",
     "C:\\Users\\david\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.7.1\\swashbuckle.aspnetcore.swaggergen.6.7.1.nupkg.sha512",
     "C:\\Users\\david\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.7.1\\swashbuckle.aspnetcore.swaggerui.6.7.1.nupkg.sha512",
@@ -190,16 +191,5 @@
     "C:\\Users\\david\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
     "C:\\Users\\david\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1601",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Dependency specified was Newtonsoft.Json.Schema (>= 3.0.0) but ended up with Newtonsoft.Json.Schema 3.0.1.",
-      "libraryId": "Newtonsoft.Json.Schema",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  "logs": []
 }

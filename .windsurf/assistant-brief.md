@@ -103,6 +103,18 @@ A change is “Done” only if all are true:
 ### ADR policy
 - Require ADRs for new agent types, cross-service orchestration changes, datastore changes, or security posture changes.
 
+### Schema Change Policy (ADR-0007)
+- Any schema change (new columns/tables/relationships/enums, type widening, non-breaking constraints) requires an ADR and architect approval.
+- Destructive changes (drop/rename columns, narrow types, alter PKs, remove enum values) must include a compatibility plan.
+- Every approved schema change must:
+  - Include an EF Core migration under `src/Emma.Infrastructure/Migrations/`
+  - Update `docs/architecture/AppDbContextSchema.md` and `docs/architecture/EMMA-DATA-DICTIONARY.md`
+  - Be tied to a PR with architect review
+  - Include a safe migration path (defaults, backfills, compatibility layer)
+- PRs that include migrations must reference an ADR in the PR description (e.g., “ADR-0007”).
+  
+See: `docs/adr/0007-schema-change-policy.md`
+
 ---
 
 ## Architecture hooks you must use
