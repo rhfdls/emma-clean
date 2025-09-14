@@ -176,6 +176,7 @@ High‑quality, consistent AI‑assisted changes to `emma-clean` with safety, pe
 * [ ] No archive/ changes; CPM only; no secret leakage
 * [ ] Tests adequate and deterministic; snapshots updated
 * [ ] Telemetry, metrics, and docs updated if behavior changed
+* [ ] If this PR includes EF Core migrations, the PR description references the corresponding ADR (e.g., ADR-0007) and docs are updated
 
 ---
 
@@ -208,3 +209,10 @@ A change is Done only if:
 
 ### ADR policy
 * ADRs required for new agent types, cross-service orchestration changes, datastore changes, or security posture changes.
+
+### Schema Changes (ADR-0007)
+When your PR includes any EF Core migration or schema-affecting change:
+- Include a link/reference to the ADR in the PR description (e.g., ADR-0007).
+- Place migrations under `src/Emma.Infrastructure/Migrations/`.
+- Update `docs/architecture/AppDbContextSchema.md` and `docs/architecture/EMMA-DATA-DICTIONARY.md`.
+- Provide a safe migration path (defaults/backfills/compatibility layer) and note it in the PR.

@@ -31,7 +31,10 @@ namespace Emma.Api.Controllers
             if (!_env.IsDevelopment() || !string.Equals(_config["ALLOW_DEV_AUTOPROVISION"], "true", StringComparison.OrdinalIgnoreCase))
                 return NotFound();
 
-            var issuer = _config["Jwt:Issuer"]; var audience = _config["Jwt:Audience"]; var key = _config["Jwt:Key"];
+            // In Development, allow safe defaults so integration tests can mint tokens without external config
+            var issuer = _config["Jwt:Issuer"] ?? Environment.GetEnvironmentVariable("Jwt__Issuer") ?? "emma-dev";
+            var audience = _config["Jwt:Audience"] ?? Environment.GetEnvironmentVariable("Jwt__Audience") ?? "emma-dev";
+            var key = _config["Jwt:Key"] ?? Environment.GetEnvironmentVariable("Jwt__Key") ?? "supersecret_dev_jwt_key_please_change";
             if (string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(audience) || string.IsNullOrWhiteSpace(key))
             {
                 return Problem(statusCode: 500, title: "Server configuration error", detail: "JWT is not configured (Issuer/Audience/Key)");

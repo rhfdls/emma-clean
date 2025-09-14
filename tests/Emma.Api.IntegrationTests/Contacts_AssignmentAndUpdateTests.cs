@@ -24,6 +24,226 @@ namespace Emma.Api.IntegrationTests
             _factory = factory;
         }
 
+        [Fact(DisplayName = "List filters: ownerId, relationshipState, q with archived behavior")] // SPRINT3-TESTS
+        public async Task List_Filters_Work_With_Archived_Behavior()
+        {
+            var factory = _factory.WithWebHostBuilder(b =>
+            {
+                b.UseEnvironment("Development");
+                b.ConfigureAppConfiguration((ctx, cfg) =>
+                {
+                    cfg.AddInMemoryCollection(new Dictionary<string, string>
+                    {
+                        ["ALLOW_DEV_AUTOPROVISION"] = "true",
+                        ["Jwt:Issuer"] = "emma-dev",
+                        ["Jwt:Audience"] = "emma-dev",
+                        ["Jwt:Key"] = "supersecret_dev_jwt_key_please_change"
+                    });
+                });
+                b.ConfigureAppConfiguration((ctx, cfg) =>
+                {
+                    Environment.SetEnvironmentVariable("ALLOW_DEV_AUTOPROVISION", "true");
+                    Environment.SetEnvironmentVariable("Jwt__Issuer", "emma-dev");
+                    Environment.SetEnvironmentVariable("Jwt__Audience", "emma-dev");
+                    Environment.SetEnvironmentVariable("Jwt__Key", "supersecret_dev_jwt_key_please_change");
+                });
+            });
+            var client = factory.CreateClient();
+
+            // Admin token in a fresh org
+            var orgName = $"OrgListFilter-{Guid.NewGuid():N}";
+            var tokenResp = await client.PostAsJsonAsync("/api/auth/dev-token", new { email = "owner4@test.dev", organizationName = orgName, autoProvision = true });
+            tokenResp.EnsureSuccessStatusCode();
+            using var tokenDoc = await JsonDocument.ParseAsync(await tokenResp.Content.ReadAsStreamAsync());
+            string token = tokenDoc.RootElement.GetProperty("token").GetString()!;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // Create three contacts with varying names and states
+            var c1 = await client.PostAsJsonAsync("/api/contacts", new { firstName = "Alice", lastName = "Smith", relationshipState = "Client" }); c1.EnsureSuccessStatusCode();
+            var c2 = await client.PostAsJsonAsync("/api/contacts", new { firstName = "Bob", lastName = "Jones", relationshipState = "Lead" }); c2.EnsureSuccessStatusCode();
+            var c3 = await client.PostAsJsonAsync("/api/contacts", new { firstName = "Charlie", lastName = "Smalls", relationshipState = "Prospect" }); c3.EnsureSuccessStatusCode();
+
+            // Extract ids
+            using var d1 = await JsonDocument.ParseAsync(await c1.Content.ReadAsStreamAsync());
+            using var d2 = await JsonDocument.ParseAsync(await c2.Content.ReadAsStreamAsync());
+            using var d3 = await JsonDocument.ParseAsync(await c3.Content.ReadAsStreamAsync());
+            var id1 = d1.RootElement.GetProperty("id").GetGuid();
+            var id2 = d2.RootElement.GetProperty("id").GetGuid();
+            var id3 = d3.RootElement.GetProperty("id").GetGuid();
+
+            // Archive one contact (id2)
+            var arch = await client.PatchAsync($"/api/contacts/{id2}/archive", null);
+            Assert.Equal(HttpStatusCode.NoContent, arch.StatusCode);
+
+            // Default list excludes archived (search q=jo for Jones)
+            var listQ = await client.GetAsync("/api/contacts?q=jo");
+            listQ.EnsureSuccessStatusCode();
+            var qBody = await listQ.Content.ReadAsStringAsync();
+            Assert.DoesNotContain(id2.ToString(), qBody); // archived excluded
+
+            // includeArchived=true shows it
+            var listInc = await client.GetAsync("/api/contacts?q=jo&includeArchived=true");
+            listInc.EnsureSuccessStatusCode();
+            var incBody = await listInc.Content.ReadAsStringAsync();
+            Assert.Contains(id2.ToString(), incBody);
+
+            // Filter by relationshipState=Client should include Alice Smith only
+            var listState = await client.GetAsync("/api/contacts?relationshipState=Client");
+            listState.EnsureSuccessStatusCode();
+            var stateBody = await listState.Content.ReadAsStringAsync();
+            Assert.Contains(id1.ToString(), stateBody);
+            Assert.DoesNotContain(id2.ToString(), stateBody);
+            Assert.DoesNotContain(id3.ToString(), stateBody);
+        }
+
+        [Fact(DisplayName = "Archive and Restore flow excludes from default list and includes when requested")] // SPRINT3-TESTS
+        public async Task Archive_And_Restore_Flow()
+        {
+            var configuredFactory = _factory.WithWebHostBuilder(b =>
+            {
+                b.UseEnvironment("Development");
+                b.ConfigureAppConfiguration((ctx, cfg) =>
+                {
+                    cfg.AddInMemoryCollection(new Dictionary<string, string>
+                    {
+                        ["ALLOW_DEV_AUTOPROVISION"] = "true",
+                        ["Jwt:Issuer"] = "emma-dev",
+                        ["Jwt:Audience"] = "emma-dev",
+                        ["Jwt:Key"] = "supersecret_dev_jwt_key_please_change"
+                    });
+                });
+                b.ConfigureAppConfiguration((ctx, cfg) =>
+                {
+                    Environment.SetEnvironmentVariable("ALLOW_DEV_AUTOPROVISION", "true");
+                    Environment.SetEnvironmentVariable("Jwt__Issuer", "emma-dev");
+                    Environment.SetEnvironmentVariable("Jwt__Audience", "emma-dev");
+                    Environment.SetEnvironmentVariable("Jwt__Key", "supersecret_dev_jwt_key_please_change");
+                });
+            });
+            var client = configuredFactory.CreateClient();
+
+            // Dev token
+            var orgName1 = $"OrgArchiveTest-{Guid.NewGuid():N}";
+            var devTokenResp = await client.PostAsJsonAsync("/api/auth/dev-token", new { email = "owner2@test.dev", organizationName = orgName1, autoProvision = true });
+            devTokenResp.EnsureSuccessStatusCode();
+            using var tokenDoc = await JsonDocument.ParseAsync(await devTokenResp.Content.ReadAsStreamAsync());
+            string token = tokenDoc.RootElement.GetProperty("token").GetString()!;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // Create a contact
+            var create = await client.PostAsJsonAsync("/api/contacts", new { firstName = "Arch", lastName = "Ivable" });
+            create.EnsureSuccessStatusCode();
+            using var createdDoc = await JsonDocument.ParseAsync(await create.Content.ReadAsStreamAsync());
+            var contactId = createdDoc.RootElement.GetProperty("id").GetGuid();
+
+            // Archive
+            var archive = await client.PatchAsync($"/api/contacts/{contactId}/archive", null);
+            Assert.Equal(HttpStatusCode.NoContent, archive.StatusCode);
+
+            // Default list excludes
+            var listDefault = await client.GetAsync("/api/contacts");
+            listDefault.EnsureSuccessStatusCode();
+            using (var arr = await JsonDocument.ParseAsync(await listDefault.Content.ReadAsStreamAsync()))
+            {
+                var contains = false;
+                foreach (var el in arr.RootElement.EnumerateArray())
+                {
+                    if (el.TryGetProperty("id", out var idProp) && idProp.GetGuid() == contactId)
+                    {
+                        contains = true; break;
+                    }
+                }
+                Assert.False(contains, "Archived contact should not appear in default list");
+            }
+
+            // Admin can include archived
+            var listInclude = await client.GetAsync("/api/contacts?includeArchived=true");
+            listInclude.EnsureSuccessStatusCode();
+            using (var arr2 = await JsonDocument.ParseAsync(await listInclude.Content.ReadAsStreamAsync()))
+            {
+                var contains = false;
+                foreach (var el in arr2.RootElement.EnumerateArray())
+                {
+                    if (el.TryGetProperty("id", out var idProp) && idProp.GetGuid() == contactId)
+                    {
+                        contains = true; break;
+                    }
+                }
+                Assert.True(contains, "Archived contact should appear when includeArchived=true for admin");
+            }
+
+            // Restore
+            var restore = await client.PatchAsync($"/api/contacts/{contactId}/restore", null);
+            Assert.Equal(HttpStatusCode.OK, restore.StatusCode);
+
+            // Default list includes again
+            var listAfterRestore = await client.GetAsync("/api/contacts");
+            listAfterRestore.EnsureSuccessStatusCode();
+            using (var arr3 = await JsonDocument.ParseAsync(await listAfterRestore.Content.ReadAsStreamAsync()))
+            {
+                var contains = false;
+                foreach (var el in arr3.RootElement.EnumerateArray())
+                {
+                    if (el.TryGetProperty("id", out var idProp) && idProp.GetGuid() == contactId)
+                    {
+                        contains = true; break;
+                    }
+                }
+                Assert.True(contains, "Restored contact should appear in default list");
+            }
+        }
+
+        [Fact(DisplayName = "Hard delete requires reason and purges contact")] // SPRINT3-TESTS
+        public async Task Hard_Delete_Requires_Reason_And_Purges()
+        {
+            var configuredFactory = _factory.WithWebHostBuilder(b =>
+            {
+                b.UseEnvironment("Development");
+                b.ConfigureAppConfiguration((ctx, cfg) =>
+                {
+                    cfg.AddInMemoryCollection(new Dictionary<string, string>
+                    {
+                        ["ALLOW_DEV_AUTOPROVISION"] = "true",
+                        ["Jwt:Issuer"] = "emma-dev",
+                        ["Jwt:Audience"] = "emma-dev",
+                        ["Jwt:Key"] = "supersecret_dev_jwt_key_please_change"
+                    });
+                });
+                b.ConfigureAppConfiguration((ctx, cfg) =>
+                {
+                    Environment.SetEnvironmentVariable("ALLOW_DEV_AUTOPROVISION", "true");
+                    Environment.SetEnvironmentVariable("Jwt__Issuer", "emma-dev");
+                    Environment.SetEnvironmentVariable("Jwt__Audience", "emma-dev");
+                    Environment.SetEnvironmentVariable("Jwt__Key", "supersecret_dev_jwt_key_please_change");
+                });
+            });
+            var client = configuredFactory.CreateClient();
+
+            // Dev token
+            var orgName2 = $"OrgDeleteTest-{Guid.NewGuid():N}";
+            var devTokenResp = await client.PostAsJsonAsync("/api/auth/dev-token", new { email = "owner3@test.dev", organizationName = orgName2, autoProvision = true });
+            devTokenResp.EnsureSuccessStatusCode();
+            using var tokenDoc = await JsonDocument.ParseAsync(await devTokenResp.Content.ReadAsStreamAsync());
+            string token = tokenDoc.RootElement.GetProperty("token").GetString()!;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // Create contact
+            var create = await client.PostAsJsonAsync("/api/contacts", new { firstName = "Del", lastName = "Etable" });
+            create.EnsureSuccessStatusCode();
+            using var createdDoc = await JsonDocument.ParseAsync(await create.Content.ReadAsStreamAsync());
+            var contactId = createdDoc.RootElement.GetProperty("id").GetGuid();
+
+            // Missing reason → 400
+            var delNoReason = await client.DeleteAsync($"/api/contacts/{contactId}?mode=hard");
+            Assert.Equal(HttpStatusCode.BadRequest, delNoReason.StatusCode);
+
+            // With reason → 204, then GET 404
+            var del = await client.DeleteAsync($"/api/contacts/{contactId}?mode=hard&reason=subject-erasure");
+            Assert.Equal(HttpStatusCode.NoContent, del.StatusCode);
+
+            var get = await client.GetAsync($"/api/contacts/{contactId}");
+            Assert.Equal(HttpStatusCode.NotFound, get.StatusCode);
+        }
         [Fact(DisplayName = "Owner assigns; collaborator limited to business-only fields")] // SPRINT3-TESTS
         public async Task Owner_Assigns_Then_Collaborator_BusinessOnly()
         {
@@ -39,6 +259,15 @@ namespace Emma.Api.IntegrationTests
                         ["Jwt:Audience"] = "emma-dev",
                         ["Jwt:Key"] = "supersecret_dev_jwt_key_please_change"
                     });
+                });
+                b.ConfigureAppConfiguration((ctx, cfg) =>
+                {
+                    // Ensure Program.cs forces dev JWT defaults for tests
+                    Environment.SetEnvironmentVariable("ALLOW_DEV_AUTOPROVISION", "true");
+                    // Also set environment variables for Jwt to ensure precedence in Program.cs
+                    Environment.SetEnvironmentVariable("Jwt__Issuer", "emma-dev");
+                    Environment.SetEnvironmentVariable("Jwt__Audience", "emma-dev");
+                    Environment.SetEnvironmentVariable("Jwt__Key", "supersecret_dev_jwt_key_please_change");
                 });
             });
             var client = configuredFactory.CreateClient();
@@ -56,7 +285,11 @@ namespace Emma.Api.IntegrationTests
             var create = await client.PostAsJsonAsync("/api/contacts", new {
                 firstName = "Ada", lastName = "Lovelace", primaryEmail = "ada@example.com"
             });
-            Assert.Equal(HttpStatusCode.Created, create.StatusCode);
+            if (create.StatusCode != HttpStatusCode.Created)
+            {
+                var body = await create.Content.ReadAsStringAsync();
+                Assert.True(false, $"Expected 201 Created but got {(int)create.StatusCode} {create.StatusCode}. Body: {body}");
+            }
             using var createdDoc = await JsonDocument.ParseAsync(await create.Content.ReadAsStreamAsync());
             Guid contactId = createdDoc.RootElement.GetProperty("id").GetGuid();
 

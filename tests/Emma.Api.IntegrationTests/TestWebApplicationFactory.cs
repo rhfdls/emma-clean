@@ -13,6 +13,11 @@ namespace Emma.Api.IntegrationTests
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            // Ensure Development environment and set JWT env vars before host builds
+            Environment.SetEnvironmentVariable("ALLOW_DEV_AUTOPROVISION", "true");
+            Environment.SetEnvironmentVariable("Jwt__Issuer", "emma-dev");
+            Environment.SetEnvironmentVariable("Jwt__Audience", "emma-dev");
+            Environment.SetEnvironmentVariable("Jwt__Key", "supersecret_dev_jwt_key_please_change");
             builder.UseEnvironment(Environments.Development);
 
             builder.ConfigureServices(services =>

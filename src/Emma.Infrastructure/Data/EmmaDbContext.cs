@@ -120,6 +120,7 @@ namespace Emma.Infrastructure.Data
         public DbSet<ContactCollaborator> ContactCollaborators { get; set; } = null!;
         public DbSet<ContactAssignment> ContactAssignments { get; set; } = null!;
         public DbSet<AccessAuditLog> AccessAuditLogs { get; set; } = null!;
+        public DbSet<AuditEvent> AuditEvents { get; set; } = null!;
         
         // Organization invitations
         public DbSet<OrganizationInvitation> OrganizationInvitations { get; set; } = null!;
@@ -286,6 +287,12 @@ namespace Emma.Infrastructure.Data
                 entity.Property(c => c.PreferredContactMethod).HasMaxLength(50);
                 entity.Property(c => c.PreferredContactTime).HasMaxLength(50);
                 entity.Property(c => c.ProfilePictureUrl).HasMaxLength(500);
+
+                // Archive/erase metadata
+                entity.Property(c => c.IsArchived).HasDefaultValue(false);
+                entity.Property(c => c.ArchivedAt).HasColumnType("timestamp with time zone");
+                entity.Property(c => c.DeletedAt).HasColumnType("timestamp with time zone");
+                entity.Property(c => c.DeletedByUserId);
                 
                 // Relationship state enum stored as integer (default)
                 entity.Property(c => c.RelationshipState);
@@ -345,6 +352,7 @@ namespace Emma.Infrastructure.Data
                 entity.HasIndex(c => c.RelationshipState);
                 entity.HasIndex(c => c.LastContactedAt);
                 entity.HasIndex(c => c.NextFollowUpAt);
+                entity.HasIndex(c => new { c.OrganizationId, c.IsArchived, c.OwnerId });
             });
 
             // Shadow property defaults for required jsonb columns on Contacts
@@ -627,6 +635,28 @@ namespace Emma.Infrastructure.Data
                 entity.HasIndex(i => i.CreatedAt);
                 entity.HasIndex(i => i.Type);
                 entity.HasIndex(i => i.Status);
+            });
+
+            // Explicitly enforce cascade delete from Contact to Interaction
+            modelBuilder.Entity<Interaction>()
+                .HasOne(i => i.Contact)
+                .WithMany()
+                .HasForeignKey(i => i.ContactId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // AuditEvent entity configuration (non-PII audit trail)
+            modelBuilder.Entity<AuditEvent>(entity =>
+            {
+                entity.ToTable("AuditEvents");
+                entity.HasKey(a => a.Id);
+                entity.Property(a => a.Action).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.TraceId).HasMaxLength(100);
+                entity.Property(a => a.OccurredAt).HasColumnType("timestamp with time zone");
+                entity.Property(a => a.DetailsJson).HasColumnType("jsonb");
+
+                entity.HasIndex(a => a.OrganizationId);
+                entity.HasIndex(a => a.OccurredAt);
+                entity.HasIndex(a => a.Action);
             });
             
             // DeviceToken entity configuration

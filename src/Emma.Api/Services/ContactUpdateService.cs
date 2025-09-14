@@ -25,11 +25,11 @@ namespace Emma.Api.Services
             EmmaDbContext db)
         {
             if (dto is null)
-                return new ObjectResult(ProblemFactory.Create(null!, 400, title: "Validation failed", detail: "Request body is required.")) { StatusCode = 400 };
+                return new ObjectResult(ProblemFactory.Create(null, 400, title: "Validation failed", detail: "Request body is required.", type: ProblemFactory.ValidationError)) { StatusCode = 400 };
 
             var contact = await repo.GetByIdAsync(contactId);
             if (contact is null || contact.OrganizationId != orgId)
-                return new ObjectResult(ProblemFactory.Create(null!, 404, title: "Contact not found", detail: $"No contact with id {contactId}.")) { StatusCode = 404 };
+                return new ObjectResult(ProblemFactory.Create(null, 404, title: "Contact not found", detail: $"No contact with id {contactId}.", type: ProblemFactory.NotFound)) { StatusCode = 404 };
 
             var isOwnerOrAdmin = ContactAccessService.IsOwnerOrAdmin(callerRoles);
             var isCurrentOwner = ContactAccessService.IsCurrentOwner(callerUserId, contact);
@@ -53,7 +53,7 @@ namespace Emma.Api.Services
                 var isCollaborator = ContactAccessService.IsCollaborator(callerUserId, collabs);
                 if (!isCollaborator)
                 {
-                    var pd = ProblemFactory.Create(null!, 403, title: "Forbidden", detail: "Insufficient permissions to edit contact.");
+                    var pd = ProblemFactory.Create(null, 403, title: "Forbidden", detail: "Insufficient permissions to edit contact.", type: ProblemFactory.Forbidden);
                     return new ObjectResult(pd) { StatusCode = 403 };
                 }
 
