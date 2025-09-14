@@ -1,0 +1,6 @@
+# Code owners for schema-affecting areas
+# Route schema migrations and architecture docs to the architect
+
+src/**/Migrations/           @architect-handle
+docs/adr/**                  @architect-handle
+docs/architecture/**         @architect-handle
