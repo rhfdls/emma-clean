@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Emma.Api.Auth;
 using Emma.Core.Services;
+using Emma.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Emma.Infrastructure.Data;
 using Emma.Infrastructure.Services;
@@ -107,6 +108,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddEmmaDatabase(builder.Configuration, isDevelopment: builder.Environment.IsDevelopment());
 
 builder.Services.AddScoped<IOnboardingService, OnboardingService>();
+builder.Services.AddScoped<ContactUpdateService>();
 
 // Minimal health checks
 builder.Services.AddHealthChecks();
