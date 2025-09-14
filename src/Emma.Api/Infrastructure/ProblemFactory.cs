@@ -18,7 +18,7 @@ namespace Emma.Api.Infrastructure
         public const string Unprocessable = "/problems/unprocessable";
         public const string InternalError = "/problems/internal-error";
 
-        public static ProblemDetails Create(HttpContext httpContext, int status, string title, string detail, string type)
+        public static ProblemDetails Create(HttpContext? httpContext, int status, string title, string detail, string type)
         {
             var problem = new ProblemDetails
             {
