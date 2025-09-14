@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Emma.Infrastructure.Data;
 using System.Security.Claims;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Emma.Api.Controllers
 {
@@ -81,6 +82,10 @@ namespace Emma.Api.Controllers
         // SPRINT1: Email verification endpoint
         [HttpPost("verify")]
         [AllowAnonymous]
+        [SwaggerOperation(OperationId = "verifyEmail", Summary = "Verify email by token", Tags = new[] { "Auth" })]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 409)]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyRequest request, [FromServices] EmmaDbContext db)
         {
             if (string.IsNullOrWhiteSpace(request.Token))
