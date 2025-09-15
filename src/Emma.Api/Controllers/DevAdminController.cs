@@ -64,7 +64,7 @@ namespace Emma.Api.Controllers
             public string Email { get; set; } = string.Empty;
             public string? PlanId { get; set; }
             public bool IsActive { get; set; }
-            public DateTime CreatedAt { get; set; }
+            public DateTimeOffset CreatedAt { get; set; }
             public Guid OwnerUserId { get; set; }
             public string OwnerEmail { get; set; } = string.Empty;
             public int UserCount { get; set; }

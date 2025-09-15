@@ -292,7 +292,8 @@ namespace Emma.Infrastructure.Data
                 entity.Property(c => c.IsArchived).HasDefaultValue(false);
                 entity.Property(c => c.ArchivedAt).HasColumnType("timestamp with time zone");
                 entity.Property(c => c.DeletedAt).HasColumnType("timestamp with time zone");
-                entity.Property(c => c.DeletedByUserId);
+                // Contact no longer has DeletedByUserId; map BaseEntity.DeletedById to the legacy column name to preserve schema
+                entity.Property(c => c.DeletedById).HasColumnName("DeletedByUserId");
                 
                 // Relationship state enum stored as integer (default)
                 entity.Property(c => c.RelationshipState);
