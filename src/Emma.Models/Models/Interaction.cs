@@ -108,11 +108,7 @@ public class Interaction : BaseEntity
     public int? DurationSeconds { get; set; }
     public DateTime? FollowUpBy { get; set; }
     
-    // Audit
-    public Guid CreatedById { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime? DeletedAt { get; set; }
+    // Audit properties (CreatedById, CreatedAt, UpdatedAt, DeletedAt) are inherited from BaseEntity.
     
 
 }

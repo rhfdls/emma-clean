@@ -149,22 +149,9 @@ public virtual ICollection<Agent> Agents { get; set; } = new List<Agent>();
         [MaxLength(50, ErrorMessage = "Industry code cannot exceed 50 characters")]
         public string IndustryCode { get; set; } = "RealEstate"; // Default to RealEstate
         
-        /// <summary>
-        /// The date and time when the organization was created.
-        /// </summary>
-        [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // CreatedAt and UpdatedAt are inherited from BaseEntity. Avoid redefining to prevent member hiding.
         
-        /// <summary>
-        /// The date and time when the organization was last updated.
-        /// </summary>
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public DateTime? UpdatedAt { get; set; }
-        
-        /// <summary>
-        /// Indicates whether the organization is currently active.
-        /// </summary>
+        // Indicates whether the organization is currently active.
             
         // ===== EXTERNAL INTEGRATIONS =====
         
@@ -193,22 +180,11 @@ public virtual ICollection<Agent> Agents { get; set; } = new List<Agent>();
         
         // ===== NAVIGATION PROPERTIES =====
         
-        /// <summary>
-        /// Collection of users belonging to this organization.
-        /// </summary>
-            
-        /// <summary>
-        /// Collection of AI agents configured for this organization.
-        /// </summary>
-            
-        /// <summary>
-        /// Collection of subscriptions associated with this organization.
-        /// </summary>
-            
-        /// <summary>
-        /// Collection of interactions associated with this organization.
-        /// </summary>
-            
+        // Collection of users belonging to this organization.
+        // Collection of AI agents configured for this organization.
+        // Collection of subscriptions associated with this organization.
+        // Collection of interactions associated with this organization.
+        
         // ===== HELPER METHODS =====
         
         /// <summary>

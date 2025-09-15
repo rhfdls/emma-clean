@@ -14,7 +14,7 @@ namespace Emma.Models.Models
         // Core linkage
         [Required]
         public Guid ContactId { get; set; }
-        public virtual Contact Contact { get; set; }
+        public virtual Contact? Contact { get; set; }
 
         public Guid? InteractionId { get; set; }
         public virtual Interaction? Interaction { get; set; }

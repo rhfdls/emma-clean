@@ -22,7 +22,7 @@ Main database context for the EMMA platform, containing all entity sets and conf
 
 Represents a tenant/company that owns users and data within the platform.
 
-#### Properties
+#### Organization Entity Properties
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -43,7 +43,7 @@ Represents a tenant/company that owns users and data within the platform.
 
 Core entity representing individuals or businesses in the system.
 
-#### Properties
+#### Contact Properties
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -74,7 +74,7 @@ Core entity representing individuals or businesses in the system.
 | DeletedByUserId | Guid? | No | User who initiated deletion (audit metadata only) |
 | CustomFields | Dictionary\<string, string>? | No | Extended properties |
 
-#### Navigation Properties
+#### Interaction Navigation Properties
 
 - **OwnerAgent**: Reference to the agent who owns this contact
 - **Organization**: Reference to the organization
@@ -97,7 +97,7 @@ Core entity representing individuals or businesses in the system.
 
 Records all communications and events related to contacts.
 
-#### Properties
+#### Interaction Properties
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -119,7 +119,7 @@ Records all communications and events related to contacts.
 | Tags | List\<string> | No | Privacy/business logic tags |
 | CustomFields | Dictionary\<string, string>? | No | Extended properties |
 
-#### Navigation Properties
+#### Contact Navigation Properties
 
 - **Contact**: Reference to the related contact
 - **Agent**: Reference to the agent involved
@@ -164,7 +164,7 @@ erDiagram
 
 Represents an invite sent to an email to join an organization with a role.
 
-#### Properties
+#### OrganizationInvitation Properties
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|

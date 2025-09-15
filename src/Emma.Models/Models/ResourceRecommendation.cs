@@ -8,9 +8,7 @@ namespace Emma.Models.Models;
 /// This replaces the older Resource/ResourceAssignment model with a Contact-centric approach.
 /// </summary>
 [System.Obsolete("ResourceRecommendation is obsolete. Use lightweight recommendation result objects based on Contact instead.")]
-/// <summary>
-/// OBSOLETE: ResourceRecommendation is no longer used. Use recommendation results based on Contact.
-/// </summary>
+// OBSOLETE: ResourceRecommendation is no longer used. Use recommendation results based on Contact.
 public class ResourceRecommendation
 {
     public Guid Id { get; set; } = Guid.NewGuid();

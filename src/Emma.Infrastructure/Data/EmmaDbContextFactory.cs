@@ -26,17 +26,25 @@ namespace Emma.Infrastructure.Data
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", true)
+                // Make config files optional so design-time operations (EF CLI, CI) don't fail when files aren't present
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", optional: true, reloadOnChange: false)
                 .AddEnvironmentVariables()
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<EmmaDbContext>();
             
+            // Try configuration first, then env var override commonly used in CI: ConnectionStrings__DefaultConnection
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-            if (string.IsNullOrEmpty(connectionString))
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
-                throw new InvalidOperationException("Connection string 'DefaultConnection' not found in configuration.");
+                connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+            }
+            // As a last resort for design-time tasks (migrations scripting), use a safe placeholder.
+            // EF will not connect during script generation, but it requires a valid provider configuration.
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                connectionString = "Host=localhost;Port=5432;Database=emma_design_time;Username=postgres;Password=postgres";
             }
 
             optionsBuilder.UseNpgsql(connectionString, options =>

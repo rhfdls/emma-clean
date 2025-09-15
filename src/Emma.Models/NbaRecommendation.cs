@@ -19,10 +19,10 @@ namespace Emma.Models.Models
         public string Priority { get; set; } = "Medium"; // Low, Medium, High, Critical
         
         // IAgentAction implementation - using explicit interface implementation to avoid conflicts
-        string IAgentAction.ValidationReason { get => ValidationReason; set => ValidationReason = value; }
+        string IAgentAction.ValidationReason { get => ValidationReason ?? string.Empty; set => ValidationReason = value; }
         bool IAgentAction.RequiresApproval { get => RequiresApproval; set => RequiresApproval = value; }
-        string IAgentAction.ApprovalRequestId { get => ApprovalRequestId; set => ApprovalRequestId = value; }
-        Dictionary<string, object> IAgentAction.Parameters { get => Parameters; set => Parameters = value; }
+        string IAgentAction.ApprovalRequestId { get => ApprovalRequestId ?? string.Empty; set => ApprovalRequestId = value; }
+        Dictionary<string, object> IAgentAction.Parameters { get => Parameters ??= new(); set => Parameters = value ?? new(); }
         
         // Backing field for Parameters
         public Dictionary<string, object> Parameters { get; set; } = new();
