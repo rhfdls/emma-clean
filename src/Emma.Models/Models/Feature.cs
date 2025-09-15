@@ -48,7 +48,7 @@ public class Feature : BaseEntity
     /// <summary>
     /// When this feature was last modified
     /// </summary>
-    public DateTimeOffset? UpdatedAt { get; set; }
+    // UpdatedAt is inherited from BaseEntity. Avoid redefining to prevent member hiding.
     
     /// <summary>
     /// Navigation property for the many-to-many relationship with SubscriptionPlan

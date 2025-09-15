@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Emma.Models.Enums;
 
 namespace Emma.Models.Models;
@@ -208,15 +209,7 @@ public class Contact : BaseEntity
     /// </summary>
     public DateTime? ArchivedAt { get; set; }
 
-    /// <summary>
-    /// Timestamp when this contact was deleted (for audit only; hard delete removes PII).
-    /// </summary>
-    public DateTime? DeletedAt { get; set; }
-
-    /// <summary>
-    /// User who initiated deletion (for audit only; may be null if system-initiated).
-    /// </summary>
-    public Guid? DeletedByUserId { get; set; }
+    // Deletion audit fields are provided by BaseEntity (DeletedAt, DeletedById). Avoid redefining.
     
     /// <summary>
     /// Timestamp when contact first became a client (for analytics and compliance).
@@ -279,8 +272,7 @@ public class Contact : BaseEntity
     [NotMapped]
     public List<string> Tags { get; set; } = new();
     public string? LeadSource { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    // Timestamps are provided by BaseEntity (CreatedAt: DateTimeOffset, UpdatedAt: DateTimeOffset?). Avoid redefining.
     [NotMapped]
     public Dictionary<string, string>? CustomFields { get; set; }
     
@@ -320,7 +312,7 @@ public class Contact : BaseEntity
         
         var oldState = RelationshipState;
         RelationshipState = newState;
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
         
         // Update client-specific flags
         if (newState == RelationshipState.Client && !IsActiveClient)
@@ -522,9 +514,6 @@ public class Contact : BaseEntity
         return collaboration;
     }
     
-    /// <summary>
-    /// Updates service provider rating based on client feedback.
-    /// </summary>
     /// <summary>
     /// Updates the rating for this contact if it's a service provider.
     /// </summary>

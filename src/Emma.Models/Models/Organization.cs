@@ -149,18 +149,7 @@ public virtual ICollection<Agent> Agents { get; set; } = new List<Agent>();
         [MaxLength(50, ErrorMessage = "Industry code cannot exceed 50 characters")]
         public string IndustryCode { get; set; } = "RealEstate"; // Default to RealEstate
         
-        /// <summary>
-        /// The date and time when the organization was created.
-        /// </summary>
-        [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        
-        /// <summary>
-        /// The date and time when the organization was last updated.
-        /// </summary>
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public DateTime? UpdatedAt { get; set; }
+        // CreatedAt and UpdatedAt are inherited from BaseEntity. Avoid redefining to prevent member hiding.
         
         /// <summary>
         /// Indicates whether the organization is currently active.
