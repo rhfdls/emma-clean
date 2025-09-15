@@ -1,6 +1,10 @@
 $ErrorActionPreference = "Stop"
 
-dotnet list package --include-transitive | Out-File -FilePath packages.txt -Encoding utf8
+param(
+  [string]$Target = "Emma.sln"
+)
+
+dotnet list $Target package --include-transitive | Out-File -FilePath packages.txt -Encoding utf8
 
 $driverMatches   = Select-String -Path packages.txt -Pattern '(^|\s)Npgsql\s+9\.' -AllMatches
 $providerMatches = Select-String -Path packages.txt -Pattern 'Npgsql\.EntityFrameworkCore\.PostgreSQL\s+9\.' -AllMatches
