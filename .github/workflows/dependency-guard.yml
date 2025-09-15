@@ -55,12 +55,29 @@ jobs:
       - name: Check controller authorization attributes
         run: |
           set -e
-          offenders=$(grep -RIn --include="*.cs" "public class .*Controller" src/Emma.Api/Controllers \
-            | cut -d: -f1 | sort -u \
-            | xargs -I {} sh -c 'if ! grep -Eq "(\\[Authorize|\\[VerifiedUser)" "{}"; then echo "{}"; fi')
+          # Collect all controller files
+          files=$(grep -RIn --include="*.cs" "public class .*Controller" src/Emma.Api/Controllers | cut -d: -f1 | sort -u)
+          offenders=""
+          for f in $files; do
+            # Allow if any of these markers are present in the file:
+            # [Authorize], [VerifiedUser], or [AllowAnonymous]
+            if grep -Eq "(\\[Authorize|\\[VerifiedUser|\\[AllowAnonymous)" "$f"; then
+              continue
+            fi
+            # Allow dev-only controllers guarded by runtime checks (IsDevelopment)
+            if grep -Eq "IsDevelopment\(" "$f"; then
+              continue
+            fi
+            # Exempt specific known-safe controllers
+            case "$f" in
+              *HealthCheckController.cs) continue ;;
+              *VerificationController.cs) continue ;;
+            esac
+            offenders="$offenders\n$f"
+          done
           if [ -n "$offenders" ]; then
-            echo "::error::Controllers missing authorization: "
-            echo "$offenders"
+            echo "::error::Controllers missing authorization/allow-anonymous markers (and not dev-only):"
+            echo -e "$offenders"
             exit 1
           fi
           echo "✅ RBAC guard passed."

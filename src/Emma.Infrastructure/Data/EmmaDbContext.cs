@@ -298,12 +298,11 @@ namespace Emma.Infrastructure.Data
                 // Relationship state enum stored as integer (default)
                 entity.Property(c => c.RelationshipState);
 
-                // Configure RowVersion (bytea) as concurrency token, value provided by application on insert/update
+                // Configure RowVersion as DB-managed concurrency token
                 entity.Property(c => c.RowVersion)
                       .HasColumnName("RowVersion")
                       .HasColumnType("bytea")
-                      .IsConcurrencyToken()
-                      .ValueGeneratedNever();
+                      .IsRowVersion();
                 
                 // Address is not a canonical owned type of Contact per Emma.Models.Models.Contact. Remove Address mapping. (If needed, add back only after schema change approval.)
                 

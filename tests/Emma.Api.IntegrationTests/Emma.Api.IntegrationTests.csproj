@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Emma.Api\Emma.Api.csproj" />
+    <ProjectReference Include="..\..\src\Emma.Infrastructure\Emma.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

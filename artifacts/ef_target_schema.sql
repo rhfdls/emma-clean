@@ -510,3 +510,57 @@ BEGIN
 END $EF$;
 COMMIT;
 
+START TRANSACTION;
+
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20250915173424_sync_model_20250915b') THEN
+    ALTER TABLE "EmailAddresses" DROP CONSTRAINT "FK_EmailAddresses_Contacts_ContactId1";
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20250915173424_sync_model_20250915b') THEN
+    ALTER TABLE "Contacts" DROP COLUMN "DeletedById";
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20250915173424_sync_model_20250915b') THEN
+    ALTER TABLE "Interactions" ALTER COLUMN "CreatedById" DROP NOT NULL;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20250915173424_sync_model_20250915b') THEN
+    ALTER TABLE "EmailAddresses" ALTER COLUMN "ContactId1" DROP NOT NULL;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20250915173424_sync_model_20250915b') THEN
+    ALTER TABLE "Contacts" ALTER COLUMN "UpdatedAt" DROP NOT NULL;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20250915173424_sync_model_20250915b') THEN
+    ALTER TABLE "EmailAddresses" ADD CONSTRAINT "FK_EmailAddresses_Contacts_ContactId1" FOREIGN KEY ("ContactId1") REFERENCES "Contacts" ("Id");
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20250915173424_sync_model_20250915b') THEN
+    INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+    VALUES ('20250915173424_sync_model_20250915b', '8.0.8');
+    END IF;
+END $EF$;
+COMMIT;
+
