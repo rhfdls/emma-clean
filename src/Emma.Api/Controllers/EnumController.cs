@@ -9,6 +9,7 @@ using System.Collections.Generic;
 namespace Emma.Api.Controllers
 {
     // SPRINT1: Cosmos DB-backed enum controller with local fallback
+    [AllowAnonymous]
     [ApiController]
     [Route("api/enums")]
     public class EnumController : ControllerBase

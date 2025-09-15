@@ -35,4 +35,4 @@ jobs:
       - name: Build
         run: dotnet build --no-restore -c Release
       - name: Run integration tests
-        run: dotnet test tests/Emma.Api.IntegrationTests --no-build -c Release
+        run: dotnet test tests/Emma.Api.IntegrationTests/Emma.Api.IntegrationTests.csproj --no-build -c Release
