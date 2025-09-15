@@ -1,8 +1,14 @@
-param(
-  [string]$Target = "Emma.sln"
-)
-
 $ErrorActionPreference = "Stop"
+
+# Robust argument handling without param block (some runners misparse param at top)
+$Target = "Emma.sln"
+for ($i = 0; $i -lt $args.Length; $i++) {
+  if ($args[$i] -eq "-Target" -and ($i + 1) -lt $args.Length) {
+    $Target = $args[$i + 1]
+    break
+  }
+}
+if ([string]::IsNullOrWhiteSpace($Target) -and $env:TARGET) { $Target = $env:TARGET }
 
 dotnet list $Target package --include-transitive | Out-File -FilePath packages.txt -Encoding utf8
 
