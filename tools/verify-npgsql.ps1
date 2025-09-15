@@ -1,8 +1,8 @@
-$ErrorActionPreference = "Stop"
-
 param(
   [string]$Target = "Emma.sln"
 )
+
+$ErrorActionPreference = "Stop"
 
 dotnet list $Target package --include-transitive | Out-File -FilePath packages.txt -Encoding utf8
 
