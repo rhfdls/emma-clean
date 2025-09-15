@@ -18,6 +18,8 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Locked restore
         run: dotnet restore --locked-mode
+      - name: Build (Release)
+        run: dotnet build -c Release --no-restore
       - name: Vulnerability scan (non-blocking)
         run: dotnet list package --vulnerable --include-transitive || true
       - name: Enforce versionless PackageReferences (CPM)
@@ -36,6 +38,9 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Locked restore
         run: dotnet restore --locked-mode
+      - name: Build (Release)
+        shell: pwsh
+        run: dotnet build -c Release --no-restore
       - name: Vulnerability scan (non-blocking)
         run: dotnet list package --vulnerable --include-transitive || true
       - name: Enforce versionless PackageReferences (CPM)
