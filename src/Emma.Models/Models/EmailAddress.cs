@@ -45,7 +45,7 @@ public bool? Verified { get; set; }
         /// Gets or sets the user this email address belongs to.
         /// </summary>
         [ForeignKey(nameof(UserId))]
-        public virtual User User { get; set; }
+        public virtual User? User { get; set; }
 
         /// <summary>
         /// Gets or sets the ID of the contact this email address belongs to.
@@ -56,16 +56,8 @@ public bool? Verified { get; set; }
         /// Gets or sets the contact this email address belongs to.
         /// </summary>
         [ForeignKey(nameof(ContactId))]
-        public virtual Contact Contact { get; set; }
+        public virtual Contact? Contact { get; set; }
 
-        /// <summary>
-        /// Gets or sets the date and time when this email address was created.
-        /// </summary>
-        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-
-        /// <summary>
-        /// Gets or sets the date and time when this email address was last updated.
-        /// </summary>
-        public DateTimeOffset? UpdatedAt { get; set; }
+        // CreatedAt and UpdatedAt are inherited from BaseEntity. Avoid redefining.
     }
 }

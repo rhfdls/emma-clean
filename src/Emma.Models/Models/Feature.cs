@@ -45,10 +45,7 @@ public class Feature : BaseEntity
     /// </summary>
     public virtual ICollection<SubscriptionPlanFeature> SubscriptionPlans { get; set; } = new List<SubscriptionPlanFeature>();
     
-    /// <summary>
-    /// When this feature was last modified
-    /// </summary>
-    // UpdatedAt is inherited from BaseEntity. Avoid redefining to prevent member hiding.
+    // When this feature was last modified — timestamp is inherited from BaseEntity (UpdatedAt). Avoid redefining.
     
     /// <summary>
     /// Navigation property for the many-to-many relationship with SubscriptionPlan

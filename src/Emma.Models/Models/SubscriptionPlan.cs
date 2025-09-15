@@ -22,15 +22,7 @@ namespace Emma.Models.Models
         [InverseProperty(nameof(SubscriptionPlanFeature.SubscriptionPlan))]
         public virtual ICollection<SubscriptionPlanFeature> Features { get; set; } = new List<SubscriptionPlanFeature>();
         
-        /// <summary>
-        /// When this plan was created
-        /// </summary>
-        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-        
-        /// <summary>
-        /// When this plan was last updated
-        /// </summary>
-        public DateTimeOffset? UpdatedAt { get; set; }
+        // CreatedAt and UpdatedAt are inherited from BaseEntity. Avoid redefining to prevent member hiding.
         
         /// <summary>
         /// Whether this plan is currently active and available for new subscriptions

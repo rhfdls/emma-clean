@@ -277,27 +277,14 @@ public class Contact : BaseEntity
     public Dictionary<string, string>? CustomFields { get; set; }
     
     // Navigation properties
-    /// <summary>
-    /// The user who owns/manages this contact (for agent contacts, this is the human agent managing the AI)
-    /// </summary>
-    
-    /// <summary>
-    /// The organization this contact belongs to
-    /// </summary>
-    
-    /// <summary>
-    /// The user currently assigned to manage this contact
-    /// </summary>
+    // The user who owns/manages this contact (for agent contacts, this is the human agent managing the AI)
+    // The organization this contact belongs to
+    // The user currently assigned to manage this contact
     [NotMapped]
     public User? AssignedTo { get; set; }
     
-    /// <summary>
-    /// All interactions with this contact
-    /// </summary>
-    
-    /// <summary>
-    /// Resources (service providers) assigned to this contact
-    /// </summary>
+    // All interactions with this contact
+    // Resources (service providers) assigned to this contact
 
     
     // NOTE: PrivacyLevel property has been removed. Run EF Core migration to drop the PrivacyLevel column from the database.

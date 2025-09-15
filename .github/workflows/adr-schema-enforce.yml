@@ -16,6 +16,10 @@ permissions:
 jobs:
   enforce:
     runs-on: ubuntu-latest
+    env:
+      PR_TITLE: ${{ github.event.pull_request.title || '' }}
+      PR_BODY: ${{ github.event.pull_request.body  || '' }}
+      PR_BASE: ${{ github.event.pull_request.base.ref || '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -63,8 +67,8 @@ jobs:
           ADR_LINK_REGEX='docs/adr/[0-9]{4}-[A-Za-z0-9._-]+\.md'
           TMP=pr_text.txt
           # Write PR title/body safely (avoid heredoc to keep YAML linters happy)
-          echo "${{ steps.meta.outputs.title }}" > "$TMP"
-          echo "${{ steps.meta.outputs.body  }}" >> "$TMP"
+          echo "$PR_TITLE" > "$TMP"
+          echo "$PR_BODY"  >> "$TMP"
           if grep -Eiq "$ADR_TOKEN_REGEX" "$TMP" || grep -Eiq "$ADR_LINK_REGEX" "$TMP"; then
             echo "adr_present=true" >> $GITHUB_OUTPUT
           else
@@ -109,7 +113,7 @@ jobs:
       - name: Job Summary
         run: |
           echo "### ADR Schema Enforcement" >> $GITHUB_STEP_SUMMARY
-          echo "- Base branch: \`${{ steps.meta.outputs.base }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Base branch: \`$PR_BASE\`" >> $GITHUB_STEP_SUMMARY
           echo "- Migrations detected: \`${{ steps.detect.outputs.migrations_count }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- ADR present: \`${{ steps.adr.outputs.adr_present }}\`" >> $GITHUB_STEP_SUMMARY
 

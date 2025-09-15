@@ -604,16 +604,6 @@
             Timestamp when this contact was archived (if archived).
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.Contact.DeletedAt">
-            <summary>
-            Timestamp when this contact was deleted (for audit only; hard delete removes PII).
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Contact.DeletedByUserId">
-            <summary>
-            User who initiated deletion (for audit only; may be null if system-initiated).
-            </summary>
-        </member>
         <member name="P:Emma.Models.Models.Contact.ClientSince">
             <summary>
             Timestamp when contact first became a client (for analytics and compliance).
@@ -668,17 +658,6 @@
             All privacy/business logic must be enforced via Interaction.Tags.
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.Contact.AssignedTo">
-            <summary>
-            The user who owns/manages this contact (for agent contacts, this is the human agent managing the AI)
-            </summary>
-            <summary>
-            The organization this contact belongs to
-            </summary>
-            <summary>
-            The user currently assigned to manage this contact
-            </summary>
-        </member>
         <member name="M:Emma.Models.Models.Contact.TransitionToState(Emma.Models.Models.RelationshipState,System.String,System.Nullable{System.Guid})">
             <summary>
             Helper method to transition contact to a new relationship state.
@@ -729,9 +708,6 @@
             <exception cref="T:System.ArgumentNullException">Thrown if required parameters are null</exception>
         </member>
         <member name="M:Emma.Models.Models.Contact.UpdateRating(System.Decimal,System.String)">
-            <summary>
-            Updates service provider rating based on client feedback.
-            </summary>
             <summary>
             Updates the rating for this contact if it's a service provider.
             </summary>
@@ -1454,16 +1430,6 @@
             Gets or sets the contact this email address belongs to.
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.EmailAddress.CreatedAt">
-            <summary>
-            Gets or sets the date and time when this email address was created.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.EmailAddress.UpdatedAt">
-            <summary>
-            Gets or sets the date and time when this email address was last updated.
-            </summary>
-        </member>
         <member name="T:Emma.Models.Models.EmmaAnalysis">
             <summary>
             Represents an analysis performed by EMMA on a message, including AI-generated insights,
@@ -1559,11 +1525,6 @@
         <member name="P:Emma.Models.Models.Feature.SubscriptionPlans">
             <summary>
             Navigation property for the subscription plans that include this feature
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Feature.UpdatedAt">
-            <summary>
-            When this feature was last modified
             </summary>
         </member>
         <member name="P:Emma.Models.Models.Feature.SubscriptionPlanFeatures">
@@ -1888,16 +1849,6 @@
             Determines which industry-specific EMMA profile to use.
             </summary>
         </member>
-        <member name="P:Emma.Models.Models.Organization.CreatedAt">
-            <summary>
-            The date and time when the organization was created.
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.Organization.UpdatedAt">
-            <summary>
-            The date and time when the organization was last updated.
-            </summary>
-        </member>
         <member name="P:Emma.Models.Models.Organization.FubApiKey">
             <summary>
             API key for Follow Up Boss integration.
@@ -2190,16 +2141,6 @@
         <member name="P:Emma.Models.Models.SubscriptionPlan.Features">
             <summary>
             The features included in this subscription plan
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.SubscriptionPlan.CreatedAt">
-            <summary>
-            When this plan was created
-            </summary>
-        </member>
-        <member name="P:Emma.Models.Models.SubscriptionPlan.UpdatedAt">
-            <summary>
-            When this plan was last updated
             </summary>
         </member>
         <member name="P:Emma.Models.Models.SubscriptionPlan.IsActive">
