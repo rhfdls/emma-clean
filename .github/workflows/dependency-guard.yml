@@ -4,6 +4,10 @@ on:
   push:
     branches: [ main ]
 
+env:
+  DOTNET_NOLOGO: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
 jobs:
   guard-linux:
     runs-on: ubuntu-latest
@@ -18,6 +22,8 @@ jobs:
         run: dotnet list package --vulnerable --include-transitive || true
       - name: Enforce versionless PackageReferences (CPM)
         run: bash tools/verify-cpm-versionless.sh
+      - name: Formatting check
+        run: dotnet format --verify-no-changes
       - name: PostgreSQL stack drift (driver + provider)
         run: bash tools/verify-npgsql.sh Emma.sln
 
@@ -35,6 +41,26 @@ jobs:
       - name: Enforce versionless PackageReferences (CPM)
         shell: pwsh
         run: ./tools/verify-cpm-versionless.ps1
+      - name: Formatting check
+        shell: pwsh
+        run: dotnet format --verify-no-changes
       - name: PostgreSQL stack drift (driver + provider)
         shell: pwsh
         run: ./tools/verify-npgsql.ps1 -Target Emma.sln
+
+  rbac-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check controller authorization attributes
+        run: |
+          set -e
+          offenders=$(grep -RIn --include="*.cs" "public class .*Controller" src/Emma.Api/Controllers \
+            | cut -d: -f1 | sort -u \
+            | xargs -I {} sh -c 'if ! grep -Eq "(\\[Authorize|\\[VerifiedUser)" "{}"; then echo "{}"; fi')
+          if [ -n "$offenders" ]; then
+            echo "::error::Controllers missing authorization: "
+            echo "$offenders"
+            exit 1
+          fi
+          echo "✅ RBAC guard passed."
