@@ -34,7 +34,7 @@ jobs:
         run: dotnet list package --vulnerable --include-transitive || true
       - name: Enforce versionless PackageReferences (CPM)
         shell: pwsh
-        run: pwsh -File tools/verify-cpm-versionless.ps1
+        run: ./tools/verify-cpm-versionless.ps1
       - name: PostgreSQL stack drift (driver + provider)
         shell: pwsh
-        run: pwsh -File tools/verify-npgsql.ps1 -Target Emma.sln
+        run: ./tools/verify-npgsql.ps1 -Target Emma.sln
