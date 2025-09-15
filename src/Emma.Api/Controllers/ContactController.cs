@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Emma.Core.Interfaces.Repositories;
 using Emma.Models.Models;
+using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.Linq;
@@ -195,19 +196,71 @@ namespace Emma.Api.Controllers
 
         /// <summary>List contacts for the caller's organization.</summary>
         /// <remarks>
-        /// Tenant scoping is derived from the orgId claim. Any client-provided orgId is ignored.
+        /// - Tenant scoping is derived from the orgId claim. Any client-provided orgId is ignored.
+        /// - Filters: <c>ownerId</c>, <c>relationshipState</c>, <c>q</c> (name/company contains), <c>page</c>, <c>size</c>.
+        /// - Archived contacts are excluded by default. Admins can include via <c>includeArchived=true</c>.
+        ///
+        /// Example (default, excludes archived):
+        ///
+        /// ```http
+        /// GET /api/contacts?page=1&size=50
+        /// Authorization: Bearer <token>
+        /// ```
+        ///
+        /// Example (admin include archived):
+        ///
+        /// ```http
+        /// GET /api/contacts?includeArchived=true&ownerId={userId}&q=smith
+        /// Authorization: Bearer <token>
+        /// ```
         /// </remarks>
         /// <response code="200">List of contacts scoped to the caller's organization.</response>
         /// <response code="400">Missing org context.</response>
         [HttpGet]
+        [SwaggerOperation(Summary = "List contacts", Description = "Lists contacts in the caller's organization. Excludes archived by default; admins can set includeArchived=true.")]
         [ProducesResponseType(typeof(IEnumerable<Emma.Api.Dtos.ContactReadDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetContactsByOrg([FromServices] IContactRepository repo)
+        public async Task<IActionResult> GetContactsByOrg(
+            [FromServices] EmmaDbContext db,
+            [FromQuery] Guid? ownerId,
+            [FromQuery] RelationshipState? relationshipState,
+            [FromQuery] string? q,
+            [FromQuery] bool includeArchived = false,
+            [FromQuery] int page = 1,
+            [FromQuery] int size = 50)
         {
             var claimOrgId = GetOrgIdFromClaims();
             if (claimOrgId is null)
                 return Problem(statusCode: 400, title: "Missing org context", detail: "Missing or invalid orgId claim.");
-            var contacts = await repo.FindAsync(c => c.OrganizationId == claimOrgId.Value);
+            page = page < 1 ? 1 : page;
+            size = size < 1 ? 1 : (size > 200 ? 200 : size);
+
+            var roles = GetRolesFromClaims();
+            var isOwnerOrAdmin = ContactAccessService.IsOwnerOrAdmin(roles);
+
+            var query = db.Contacts.AsNoTracking().Where(c => c.OrganizationId == claimOrgId.Value);
+            // Default exclude archived; only admins can include archived when explicitly requested
+            if (!(includeArchived && isOwnerOrAdmin))
+            {
+                query = query.Where(c => !c.IsArchived);
+            }
+            if (ownerId.HasValue) query = query.Where(c => c.OwnerId == ownerId.Value);
+            if (relationshipState.HasValue) query = query.Where(c => c.RelationshipState == relationshipState.Value);
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var ql = q.ToLower();
+                query = query.Where(c =>
+                    (c.FirstName != null && c.FirstName.ToLower().Contains(ql)) ||
+                    (c.LastName != null && c.LastName.ToLower().Contains(ql)) ||
+                    (c.Company != null && c.Company.ToLower().Contains(ql))
+                );
+            }
+
+            var contacts = await query
+                .OrderBy(c => c.LastName).ThenBy(c => c.FirstName)
+                .Skip((page - 1) * size)
+                .Take(size)
+                .ToListAsync();
             var dtos = contacts.Select(contact => new Dtos.ContactReadDto
             {
                 Id = contact.Id,
@@ -237,6 +290,217 @@ namespace Emma.Api.Controllers
             return Ok(dtos);
         }
 
+        /// <summary>Delete a contact in the caller's organization.</summary>
+        /// <remarks>
+        /// - Hard delete only (irreversible privacy erasure). Use Archive instead for reversible workflow removal.
+        /// - Admin-only. Requires non-empty <c>reason</c> query parameter.
+        /// - Emits a non-PII audit event with action <c>ContactErased</c>.
+        ///
+        /// Example (missing reason → 400 ProblemDetails):
+        ///
+        /// ```http
+        /// DELETE /api/contacts/{id}?mode=hard
+        /// Authorization: Bearer <token>
+        /// ```
+        ///
+        /// Example (with reason → 204):
+        ///
+        /// ```http
+        /// DELETE /api/contacts/{id}?mode=hard&reason=subject-erasure
+        /// Authorization: Bearer <token>
+        /// ```
+        /// </remarks>
+        /// <response code="204">Deleted.</response>
+        /// <response code="400">Missing org context or invalid/missing parameters (e.g., reason).</response>
+        /// <response code="403">Forbidden (requires OrgOwner/Admin).</response>
+        /// <response code="404">Not found in caller's org.</response>
+        [HttpDelete("{id}")]
+        [SwaggerOperation(Summary = "Hard delete a contact", Description = "Irreversible privacy erasure. Admin-only. Requires non-empty reason. Emits non-PII audit event.")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteContact(
+            Guid id,
+            [FromServices] IContactRepository repo,
+            [FromServices] EmmaDbContext db,
+            [FromQuery] string? mode = "hard",
+            [FromQuery] string? reason = null)
+        {
+            var orgId = GetOrgIdFromClaims();
+            if (orgId is null)
+                return Problem(statusCode: 400, title: "Missing org context", detail: "Missing or invalid orgId claim.");
+
+            var contact = await repo.GetByIdAsync(id);
+            if (contact is null || contact.OrganizationId != orgId.Value)
+                return Problem(statusCode: 404, title: "Contact not found", detail: $"No contact with id {id}.");
+
+            // Only hard delete supported here; enforce admin and reason
+            var roles = GetRolesFromClaims();
+            var isOwnerOrAdmin = ContactAccessService.IsOwnerOrAdmin(roles);
+            if (!string.Equals(mode, "hard", StringComparison.OrdinalIgnoreCase))
+            {
+                return Problem(statusCode: 400, title: "Invalid mode", detail: "Only hard delete is supported at this endpoint.");
+            }
+            if (!isOwnerOrAdmin)
+                return Problem(statusCode: 403, title: "Forbidden", detail: "Only OrgOwner/Admin may hard delete contacts.");
+            if (string.IsNullOrWhiteSpace(reason))
+                return Problem(statusCode: 400, title: "Reason required", detail: "Hard delete requires a non-empty reason.");
+
+            // Insert non-PII audit event
+            var actor = GetUserIdFromClaims();
+            var traceId = HttpContext?.TraceIdentifier;
+            db.AuditEvents.Add(new AuditEvent
+            {
+                OrganizationId = orgId.Value,
+                ActorUserId = actor,
+                Action = "ContactErased",
+                OccurredAt = DateTime.UtcNow,
+                TraceId = traceId,
+                DetailsJson = $"{{\"contactId\":\"{id}\",\"mode\":\"hard\"}}"
+            });
+
+            repo.Remove(contact);
+            await repo.SaveChangesAsync();
+            await db.SaveChangesAsync();
+            return NoContent();
+        }
+
+        /// <summary>Archive a contact (admin-only). Excluded from default lists and active workflows.</summary>
+        /// <remarks>
+        /// - Sets <c>IsArchived=true</c> and <c>ArchivedAt</c>.
+        /// - Archived contacts are excluded from default GET; Admins may include via <c>includeArchived=true</c>.
+        /// - Use <c>PATCH /api/contacts/{id}/restore</c> to reverse.
+        ///
+        /// Example (403 when not admin):
+        ///
+        /// ```http
+        /// PATCH /api/contacts/{id}/archive
+        /// Authorization: Bearer <non-admin token>
+        /// ```
+        ///
+        /// Example (204 on success):
+        ///
+        /// ```http
+        /// PATCH /api/contacts/{id}/archive
+        /// Authorization: Bearer <admin token>
+        /// ```
+        /// </remarks>
+        [HttpPatch("{id}/archive")]
+        [SwaggerOperation(Summary = "Archive a contact", Description = "Admin-only. Sets IsArchived and ArchivedAt. Excluded from default lists; admins can include via includeArchived=true.")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ArchiveContact(Guid id, [FromServices] IContactRepository repo)
+        {
+            var orgId = GetOrgIdFromClaims();
+            if (orgId is null)
+                return Problem(statusCode: 400, title: "Missing org context", detail: "Missing or invalid orgId claim.");
+
+            var roles = GetRolesFromClaims();
+            var isOwnerOrAdmin = ContactAccessService.IsOwnerOrAdmin(roles);
+            if (!isOwnerOrAdmin)
+                return Problem(statusCode: 403, title: "Forbidden", detail: "Only OrgOwner/Admin may archive contacts.");
+
+            var contact = await repo.GetByIdAsync(id);
+            if (contact is null || contact.OrganizationId != orgId.Value)
+                return Problem(statusCode: 404, title: "Contact not found", detail: $"No contact with id {id}.");
+            if (contact.IsArchived)
+                return Problem(statusCode: 409, title: "Conflict", detail: "Contact is already archived.");
+
+            contact.IsArchived = true;
+            contact.ArchivedAt = DateTime.UtcNow;
+            contact.UpdatedAt = DateTime.UtcNow;
+            repo.Update(contact);
+            await repo.SaveChangesAsync();
+            return NoContent();
+        }
+
+        /// <summary>Restore an archived contact (admin-only).</summary>
+        /// <remarks>
+        /// - Clears <c>IsArchived</c> and <c>ArchivedAt</c>.
+        /// - Returns the restored contact DTO.
+        ///
+        /// Example 409 (not archived):
+        ///
+        /// ```http
+        /// PATCH /api/contacts/{id}/restore
+        /// Authorization: Bearer <admin token>
+        /// ```
+        ///
+        /// Example 200 (success):
+        ///
+        /// ```json
+        /// {
+        ///   "id": "{id}",
+        ///   "organizationId": "{orgId}",
+        ///   "firstName": "Jane",
+        ///   "lastName": "Doe",
+        ///   "relationshipState": "Lead"
+        /// }
+        /// ```
+        /// </remarks>
+        [HttpPatch("{id}/restore")]
+        [SwaggerOperation(Summary = "Restore an archived contact", Description = "Admin-only. Clears IsArchived/ArchivedAt and returns the restored Contact DTO.")]
+        [ProducesResponseType(typeof(Emma.Api.Dtos.ContactReadDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RestoreContact(Guid id, [FromServices] IContactRepository repo)
+        {
+            var orgId = GetOrgIdFromClaims();
+            if (orgId is null)
+                return Problem(statusCode: 400, title: "Missing org context", detail: "Missing or invalid orgId claim.");
+
+            var roles = GetRolesFromClaims();
+            var isOwnerOrAdmin = ContactAccessService.IsOwnerOrAdmin(roles);
+            if (!isOwnerOrAdmin)
+                return Problem(statusCode: 403, title: "Forbidden", detail: "Only OrgOwner/Admin may restore contacts.");
+
+            var contact = await repo.GetByIdAsync(id);
+            if (contact is null || contact.OrganizationId != orgId.Value)
+                return Problem(statusCode: 404, title: "Contact not found", detail: $"No contact with id {id}.");
+            if (!contact.IsArchived)
+                return Problem(statusCode: 409, title: "Conflict", detail: "Contact is not archived.");
+
+            contact.IsArchived = false;
+            contact.ArchivedAt = null;
+            contact.UpdatedAt = DateTime.UtcNow;
+            repo.Update(contact);
+            await repo.SaveChangesAsync();
+
+            var dto = new Dtos.ContactReadDto
+            {
+                Id = contact.Id,
+                OrganizationId = contact.OrganizationId,
+                FirstName = contact.FirstName,
+                LastName = contact.LastName,
+                MiddleName = contact.MiddleName,
+                PreferredName = contact.PreferredName,
+                Title = contact.Title,
+                JobTitle = contact.JobTitle,
+                Company = contact.Company,
+                Department = contact.Department,
+                Source = contact.Source,
+                OwnerId = contact.OwnerId,
+                PreferredContactMethod = contact.PreferredContactMethod,
+                PreferredContactTime = contact.PreferredContactTime,
+                Notes = contact.Notes,
+                ProfilePictureUrl = contact.ProfilePictureUrl,
+                LastContactedAt = contact.LastContactedAt,
+                NextFollowUpAt = contact.NextFollowUpAt,
+                RelationshipState = contact.RelationshipState,
+                CompanyName = contact.CompanyName,
+                LicenseNumber = contact.LicenseNumber,
+                IsPreferred = contact.IsPreferred,
+                Website = contact.Website
+            };
+            return Ok(dto);
+        }
+
         // PUT /contacts/{id}/assign (legacy plural assign)
         [HttpPut("{id}/assign")]
         public async Task<IActionResult> AssignContact(
@@ -261,7 +525,7 @@ namespace Emma.Api.Controllers
             repo.Update(contact);
             await repo.SaveChangesAsync();
             var traceId = HttpContext?.TraceIdentifier;
-            logger.LogInformation("Assigned contact {ContactId} to user {UserId} by agent {AgentId} traceId={TraceId}", id, dto.UserId, dto.AssignedByAgentId, traceId);
+            logger.LogInformation("Assigned contact {ContactId} to user {UserId} by agent {AgentId}", id, dto.UserId, dto.AssignedByAgentId);
             return NoContent();
         }
 
@@ -347,7 +611,12 @@ namespace Emma.Api.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> UpdateContact(Guid id, [FromBody] Dtos.ContactUpdateDto dto, [FromServices] IContactRepository repo, [FromServices] EmmaDbContext db)
+        public async Task<IActionResult> UpdateContact(
+            Guid id,
+            [FromBody] Dtos.ContactUpdateDto dto,
+            [FromServices] IContactRepository repo,
+            [FromServices] EmmaDbContext db,
+            [FromServices] Emma.Api.Services.ContactUpdateService updater)
         {
             if (dto is null)
                 return Problem(statusCode: 400, title: "Validation failed", detail: "Request body is required.");
@@ -360,93 +629,8 @@ namespace Emma.Api.Controllers
             if (callerUserId is null)
                 return Problem(statusCode: 401, title: "Unauthorized", detail: "Missing or invalid user identity.");
 
-            var contact = await repo.GetByIdAsync(id);
-            if (contact is null || contact.OrganizationId != orgId.Value)
-                return Problem(statusCode: 404, title: "Contact not found", detail: $"No contact with id {id}.");
-
-            // RBAC & field-level enforcement
             var roles = GetRolesFromClaims();
-            var isOwnerOrAdmin = ContactAccessService.IsOwnerOrAdmin(roles);
-            var isCurrentOwner = ContactAccessService.IsCurrentOwner(callerUserId.Value, contact);
-
-            // Block forbidden fields for non-admin users (even if current owner) per SPRINT3 tests
-            var forbiddenTouched = dto.OwnerId.HasValue || dto.RelationshipState.HasValue;
-            if (forbiddenTouched && !isOwnerOrAdmin)
-            {
-                var blocked = new List<string>();
-                if (dto.OwnerId.HasValue) blocked.Add(nameof(dto.OwnerId));
-                if (dto.RelationshipState.HasValue) blocked.Add(nameof(dto.RelationshipState));
-                return Emma.Api.Infrastructure.ApiErrors.ForbiddenFields(this, "Only admins may modify ownership or relationship state.", blocked);
-            }
-
-            if (!isOwnerOrAdmin && !isCurrentOwner)
-            {
-                // Check collaborator
-                var isCollaborator = ContactAccessService.IsCollaborator(callerUserId.Value,
-                    await db.ContactCollaborators.AsNoTracking().Where(c => c.ContactId == id && c.OrganizationId == orgId.Value && c.IsActive).ToListAsync());
-                if (!isCollaborator)
-                    return Problem(statusCode: 403, title: "Forbidden", detail: "Insufficient permissions to edit contact.");
-
-                var (ok, blocked) = ContactAccessService.ValidateCollaboratorUpdate(dto);
-                if (!ok)
-                {
-                    return Emma.Api.Infrastructure.ApiErrors.ForbiddenFields(this, "Collaborators may only modify business fields.", blocked);
-                }
-            }
-
-            // Apply updates (only fields that are provided)
-            if (dto.FirstName != null) contact.FirstName = dto.FirstName;
-            if (dto.LastName != null) contact.LastName = dto.LastName;
-            if (dto.MiddleName != null) contact.MiddleName = dto.MiddleName;
-            if (dto.PreferredName != null) contact.PreferredName = dto.PreferredName;
-            if (dto.Title != null) contact.Title = dto.Title;
-            if (dto.JobTitle != null) contact.JobTitle = dto.JobTitle;
-            if (dto.Company != null) contact.Company = dto.Company;
-            if (dto.Department != null) contact.Department = dto.Department;
-            if (dto.Source != null) contact.Source = dto.Source;
-            if (dto.OwnerId.HasValue) contact.OwnerId = dto.OwnerId.Value; // Admin/Owner can transfer
-            if (dto.PreferredContactMethod != null) contact.PreferredContactMethod = dto.PreferredContactMethod;
-            if (dto.PreferredContactTime != null) contact.PreferredContactTime = dto.PreferredContactTime;
-            if (dto.Notes != null) contact.Notes = dto.Notes;
-            if (dto.ProfilePictureUrl != null) contact.ProfilePictureUrl = dto.ProfilePictureUrl;
-
-            if (dto.RelationshipState.HasValue) contact.RelationshipState = dto.RelationshipState.Value;
-            if (dto.CompanyName != null) contact.CompanyName = dto.CompanyName;
-            if (dto.LicenseNumber != null) contact.LicenseNumber = dto.LicenseNumber;
-            if (dto.IsPreferred.HasValue) contact.IsPreferred = dto.IsPreferred.Value;
-            if (dto.Website != null) contact.Website = dto.Website;
-
-            contact.UpdatedAt = DateTime.UtcNow;
-            repo.Update(contact);
-            await repo.SaveChangesAsync();
-
-            var dtoOut = new Dtos.ContactReadDto
-            {
-                Id = contact.Id,
-                OrganizationId = contact.OrganizationId,
-                FirstName = contact.FirstName,
-                LastName = contact.LastName,
-                MiddleName = contact.MiddleName,
-                PreferredName = contact.PreferredName,
-                Title = contact.Title,
-                JobTitle = contact.JobTitle,
-                Company = contact.Company,
-                Department = contact.Department,
-                Source = contact.Source,
-                OwnerId = contact.OwnerId,
-                PreferredContactMethod = contact.PreferredContactMethod,
-                PreferredContactTime = contact.PreferredContactTime,
-                Notes = contact.Notes,
-                ProfilePictureUrl = contact.ProfilePictureUrl,
-                LastContactedAt = contact.LastContactedAt,
-                NextFollowUpAt = contact.NextFollowUpAt,
-                RelationshipState = contact.RelationshipState,
-                CompanyName = contact.CompanyName,
-                LicenseNumber = contact.LicenseNumber,
-                IsPreferred = contact.IsPreferred,
-                Website = contact.Website
-            };
-            return Ok(dtoOut);
+            return await updater.UpdateAsync(id, orgId.Value, callerUserId.Value, roles, dto, repo, db);
         }
 
         // Legacy singular routes with deprecation logging

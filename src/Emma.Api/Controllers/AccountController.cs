@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Emma.Infrastructure.Data;
 using System.Security.Claims;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Emma.Api.Controllers
 {
@@ -48,6 +49,32 @@ namespace Emma.Api.Controllers
                 }
             }
 
+            // Development-only fallback: if unauthenticated (no email/org), return the most recent org/user
+            if (string.IsNullOrWhiteSpace(email) && !orgId.HasValue)
+            {
+                var env = HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
+                if (env.IsDevelopment())
+                {
+                    using var scope = HttpContext.RequestServices.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<EmmaDbContext>();
+                    var lastUser = await db.Users.AsNoTracking()
+                        .OrderByDescending(u => u.LastLoginAt ?? DateTimeOffset.MinValue)
+                        .ThenByDescending(u => u.CreatedAt)
+                        .FirstOrDefaultAsync();
+                    if (lastUser != null)
+                    {
+                        email = lastUser.Email ?? string.Empty;
+                        orgId = lastUser.OrganizationId;
+                        if (orgId.HasValue)
+                        {
+                            var org = await db.Organizations.AsNoTracking().FirstOrDefaultAsync(o => o.Id == orgId.Value);
+                            orgName = org?.Name;
+                            isOrgOwner = org != null && org.OwnerUserId == lastUser.Id;
+                        }
+                    }
+                }
+            }
+
             var roles = User?.Claims?.Where(c => c.Type == ClaimTypes.Role || c.Type.Equals("role", StringComparison.OrdinalIgnoreCase)).Select(c => c.Value).Where(v => !string.IsNullOrWhiteSpace(v)).ToArray() ?? Array.Empty<string>();
 
             return Ok(new { email, organizationId = orgId, organizationName = orgName, roles, isOrgOwner });
@@ -55,6 +82,10 @@ namespace Emma.Api.Controllers
         // SPRINT1: Email verification endpoint
         [HttpPost("verify")]
         [AllowAnonymous]
+        [SwaggerOperation(OperationId = "verifyEmail", Summary = "Verify email by token", Tags = new[] { "Auth" })]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 409)]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyRequest request, [FromServices] EmmaDbContext db)
         {
             if (string.IsNullOrWhiteSpace(request.Token))

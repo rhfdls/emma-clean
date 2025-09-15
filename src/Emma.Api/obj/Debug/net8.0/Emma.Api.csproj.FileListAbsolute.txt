@@ -183,3 +183,4 @@ C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.pdb
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\Emma.Api.genruntimeconfig.cache
 C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\obj\Debug\net8.0\ref\Emma.Api.dll
+C:\Users\david\GitHub\WindsurfProjects\emma-clean\src\Emma.Api\bin\Debug\net8.0\Swashbuckle.AspNetCore.Annotations.dll

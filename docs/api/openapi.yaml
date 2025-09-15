@@ -212,6 +212,8 @@ components:
           type: string
         instance:
           type: string
+security:
+  - bearerAuth: []
 paths:
   /api/Account/profile:
     get:
@@ -228,6 +230,7 @@ paths:
     post:
       summary: Verify user (legacy)
       tags: [Account]
+      security: []
       requestBody:
         required: true
         content:
@@ -399,6 +402,7 @@ paths:
     post:
       summary: Create development JWT
       tags: [Auth]
+      security: []
       requestBody:
         required: false
         content:

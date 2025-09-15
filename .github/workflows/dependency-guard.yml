@@ -19,7 +19,7 @@ jobs:
       - name: Enforce versionless PackageReferences (CPM)
         run: bash tools/verify-cpm-versionless.sh
       - name: PostgreSQL stack drift (driver + provider)
-        run: bash tools/verify-npgsql.sh
+        run: bash tools/verify-npgsql.sh Emma.sln
 
   guard-windows:
     runs-on: windows-latest
@@ -37,4 +37,4 @@ jobs:
         run: pwsh -File tools/verify-cpm-versionless.ps1
       - name: PostgreSQL stack drift (driver + provider)
         shell: pwsh
-        run: pwsh -File tools/verify-npgsql.ps1
+        run: pwsh -File tools/verify-npgsql.ps1 -Target Emma.sln

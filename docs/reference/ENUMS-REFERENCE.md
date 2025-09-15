@@ -478,4 +478,4 @@ Defines how conflicts should be handled during data operations.
    - Consider adding icons or colors for visual representation
    - Ensure proper localization support for user-facing enum values
 
-<!-- CI: Non-functional note to trigger enum ADR enforcement job for testing -->
+
