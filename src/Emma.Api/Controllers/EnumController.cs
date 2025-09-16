@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Emma.Api.Config;
 using System.IO;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 namespace Emma.Api.Controllers
 {
     // SPRINT1: Cosmos DB-backed enum controller with local fallback
+    [AllowAnonymous]
     [ApiController]
     [Route("api/enums")]
     public class EnumController : ControllerBase

@@ -4,6 +4,10 @@ on:
   push:
     branches: [ main ]
 
+env:
+  DOTNET_NOLOGO: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
 jobs:
   guard-linux:
     runs-on: ubuntu-latest
@@ -14,10 +18,14 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Locked restore
         run: dotnet restore --locked-mode
+      - name: Build (Release)
+        run: dotnet build -c Release --no-restore
       - name: Vulnerability scan (non-blocking)
         run: dotnet list package --vulnerable --include-transitive || true
       - name: Enforce versionless PackageReferences (CPM)
         run: bash tools/verify-cpm-versionless.sh
+      - name: Formatting check
+        run: dotnet format --verify-no-changes
       - name: PostgreSQL stack drift (driver + provider)
         run: bash tools/verify-npgsql.sh Emma.sln
 
@@ -30,11 +38,51 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Locked restore
         run: dotnet restore --locked-mode
+      - name: Build (Release)
+        shell: pwsh
+        run: dotnet build -c Release --no-restore
       - name: Vulnerability scan (non-blocking)
         run: dotnet list package --vulnerable --include-transitive || true
       - name: Enforce versionless PackageReferences (CPM)
         shell: pwsh
         run: ./tools/verify-cpm-versionless.ps1
+      - name: Formatting check
+        shell: pwsh
+        run: dotnet format --verify-no-changes
       - name: PostgreSQL stack drift (driver + provider)
         shell: pwsh
         run: ./tools/verify-npgsql.ps1 -Target Emma.sln
+
+  rbac-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check controller authorization attributes
+        run: |
+          set -e
+          # Collect all controller files
+          files=$(grep -RIn --include="*.cs" "public class .*Controller" src/Emma.Api/Controllers | cut -d: -f1 | sort -u)
+          offenders=""
+          for f in $files; do
+            # Allow if any of these markers are present in the file:
+            # [Authorize], [VerifiedUser], or [AllowAnonymous]
+            if grep -Eq "(\\[Authorize|\\[VerifiedUser|\\[AllowAnonymous)" "$f"; then
+              continue
+            fi
+            # Allow dev-only controllers guarded by runtime checks (IsDevelopment)
+            if grep -Eq "IsDevelopment\(" "$f"; then
+              continue
+            fi
+            # Exempt specific known-safe controllers
+            case "$f" in
+              *HealthCheckController.cs) continue ;;
+              *VerificationController.cs) continue ;;
+            esac
+            offenders="$offenders\n$f"
+          done
+          if [ -n "$offenders" ]; then
+            echo "::error::Controllers missing authorization/allow-anonymous markers (and not dev-only):"
+            echo -e "$offenders"
+            exit 1
+          fi
+          echo "✅ RBAC guard passed."

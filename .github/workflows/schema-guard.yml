@@ -12,11 +12,11 @@ jobs:
         run: dotnet tool restore
       - name: Restore
         run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore -c Release
+      - name: Build (detailed)
+        run: dotnet build --no-restore -c Release --verbosity detailed
       - name: Ensure artifacts directory
         run: mkdir -p artifacts
-      - name: Generate EF Target Schema (idempotent)
+      - name: Generate EF Target Schema (idempotent, verbose)
         run: >
           dotnet ef migrations script 0
           --project src/Emma.Infrastructure/Emma.Infrastructure.csproj
@@ -24,6 +24,7 @@ jobs:
           --context Emma.Infrastructure.Data.EmmaDbContext
           --idempotent
           --output artifacts/ef_target_schema.sql
+          -v
       - name: Upload EF Target Schema artifact
         uses: actions/upload-artifact@v4
         with:
@@ -41,3 +42,46 @@ jobs:
         with:
           name: ef_migrations_bundle
           path: artifacts/ef_migrations_bundle
+
+  ef-model-vs-migrations:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore tools and solution
+        run: |
+          dotnet tool restore
+          dotnet restore
+      - name: Generate target schema (for diff)
+        run: |
+          mkdir -p artifacts
+          dotnet tool run dotnet-ef migrations script 0 \
+            --project src/Emma.Infrastructure/Emma.Infrastructure.csproj \
+            --startup-project src/Emma.Api/Emma.Api.csproj \
+            --context Emma.Infrastructure.Data.EmmaDbContext \
+            --idempotent \
+            --output artifacts/ef_target_schema.sql
+      - name: Check model vs migrations (throwaway migration)
+        run: |
+          rm -rf src/Emma.Infrastructure/obj/_throwaway || true
+          dotnet tool run dotnet-ef migrations add __ModelDriftCheck \
+            --project src/Emma.Infrastructure/Emma.Infrastructure.csproj \
+            --startup-project src/Emma.Api/Emma.Api.csproj \
+            --context Emma.Infrastructure.Data.EmmaDbContext \
+            --output-dir obj/_throwaway || true
+          if ls src/Emma.Infrastructure/obj/_throwaway/*.cs 1> /dev/null 2>&1; then
+            echo "::error::EF model drift detected: missing migration"
+            exit 1
+          fi
+      - name: Optional diff against baseline
+        run: |
+          if [ -f docs/reference/ef_target_schema.sql ]; then
+            diff -u docs/reference/ef_target_schema.sql artifacts/ef_target_schema.sql || echo "::warning::Target schema changed. Ensure ADR/docs updated."
+          else
+            echo "No baseline schema present; skipping diff."
+          fi

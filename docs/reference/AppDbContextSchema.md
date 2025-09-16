@@ -1,7 +1,7 @@
 # EMMA Platform Database Schema
 
 **Version**: 1.1
-**Last Updated**: 2025-08-13
+**Last Updated**: 2025-09-15
 **Status**: ACTIVE - Core Development Document
 
 ---
@@ -283,6 +283,14 @@ Indexes: OrganizationId, OccurredAt, Action
 - Patch version for documentation updates
 
 ### Change Log
+
+#### 1.1.1 (2025-09-15)
+
+- ADR-0009: EF model sync to resolve drift without destructive changes.
+  - Clarified concurrency token mapping: `RowVersion` remains non-nullable and is treated as a DB-managed row version (IsRowVersion) across entities.
+  - Cleaned up FK mapping on `EmailAddresses` to ensure relationship binds to `ContactId` (removed shadow `ContactId1`).
+  - Preserved audit column mapping by binding `DeletedById` to legacy column name `DeletedByUserId` (no column drop).
+  - No functional entity shape changes; this is a safe-sync of mappings and snapshot.
 
 #### 1.1.0 (2025-08-13)
 

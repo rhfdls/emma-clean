@@ -1,0 +1,47 @@
+name: Integration Tests (Postgres)
+on: [push, pull_request]
+
+jobs:
+  api-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: emmaadmin
+          POSTGRES_PASSWORD: emmapass
+          POSTGRES_DB: emma
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U emmaadmin -d emma"
+          --health-interval=5s --health-timeout=5s --health-retries=10
+    env:
+      DOTNET_NOLOGO: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      ConnectionStrings__DefaultConnection: Host=localhost;Port=5432;Database=emma;Username=emmaadmin;Password=emmapass;SslMode=Disable
+      ASPNETCORE_ENVIRONMENT: Development
+      ALLOW_DEV_AUTOPROVISION: "true"
+      Jwt__Issuer: emma-dev
+      Jwt__Audience: emma-dev
+      Jwt__Key: dev-key-0123456789abcdef0123456789abcd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore
+        run: dotnet restore
+      - name: Build (detailed)
+        run: dotnet build --no-restore -c Release --verbosity detailed
+      - name: Apply EF Core migrations (verbose)
+        run: |
+          dotnet tool restore
+          dotnet build --no-restore -c Release --verbosity detailed
+          dotnet ef database update \
+            --project src/Emma.Infrastructure/Emma.Infrastructure.csproj \
+            --startup-project src/Emma.Api/Emma.Api.csproj \
+            --context Emma.Infrastructure.Data.EmmaDbContext \
+            -v
+      - name: Run integration tests
+        run: dotnet test tests/Emma.Api.IntegrationTests/Emma.Api.IntegrationTests.csproj --no-build -c Release

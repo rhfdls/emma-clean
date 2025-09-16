@@ -56,6 +56,6 @@ namespace Emma.Models.Models
         /// Gets or sets the concurrency token for optimistic concurrency control.
         /// </summary>
         [Timestamp]
-        public byte[]? RowVersion { get; set; }
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 }
