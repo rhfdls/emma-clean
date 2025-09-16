@@ -23,6 +23,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
 
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
@@ -31,6 +32,7 @@
     </PackageReference>
     <!-- Npgsql EF Core provider aligned to EF Core 8.0.7 -->
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Npgsql" />
     <PackageReference Include="Microsoft.Azure.Cosmos" />
   </ItemGroup>
 
