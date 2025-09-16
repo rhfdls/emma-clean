@@ -12,11 +12,11 @@ jobs:
         run: dotnet tool restore
       - name: Restore
         run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore -c Release
+      - name: Build (detailed)
+        run: dotnet build --no-restore -c Release --verbosity detailed
       - name: Ensure artifacts directory
         run: mkdir -p artifacts
-      - name: Generate EF Target Schema (idempotent)
+      - name: Generate EF Target Schema (idempotent, verbose)
         run: >
           dotnet ef migrations script 0
           --project src/Emma.Infrastructure/Emma.Infrastructure.csproj
@@ -24,6 +24,7 @@ jobs:
           --context Emma.Infrastructure.Data.EmmaDbContext
           --idempotent
           --output artifacts/ef_target_schema.sql
+          -v
       - name: Upload EF Target Schema artifact
         uses: actions/upload-artifact@v4
         with:
