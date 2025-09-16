@@ -32,14 +32,16 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Restore
         run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore -c Release
-      - name: Apply EF Core migrations
+      - name: Build (detailed)
+        run: dotnet build --no-restore -c Release --verbosity detailed
+      - name: Apply EF Core migrations (verbose)
         run: |
           dotnet tool restore
+          dotnet build --no-restore -c Release --verbosity detailed
           dotnet ef database update \
             --project src/Emma.Infrastructure/Emma.Infrastructure.csproj \
             --startup-project src/Emma.Api/Emma.Api.csproj \
-            --context Emma.Infrastructure.Data.EmmaDbContext
+            --context Emma.Infrastructure.Data.EmmaDbContext \
+            -v
       - name: Run integration tests
         run: dotnet test tests/Emma.Api.IntegrationTests/Emma.Api.IntegrationTests.csproj --no-build -c Release
